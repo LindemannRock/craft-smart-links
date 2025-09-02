@@ -349,13 +349,13 @@ Multi-site support is coming soon. Future features will include:
 
 ## Support
 
-- **Documentation**: [https://github.com/lindemannrock/craft-smart-links](https://github.com/lindemannrock/craft-smart-links)
-- **Issues**: [https://github.com/lindemannrock/craft-smart-links/issues](https://github.com/lindemannrock/craft-smart-links/issues)
+- **Documentation**: [https://github.com/LindemannRock/smart-links](https://github.com/LindemannRock/smart-links)
+- **Issues**: [https://github.com/LindemannRock/smart-links/issues](https://github.com/LindemannRock/smart-links/issues)
 - **Email**: [support@lindemannrock.com](mailto:support@lindemannrock.com)
 
 ## License
 
-This plugin is licensed under the MIT License. See [LICENSE.md](LICENSE.md) for details.
+This plugin is licensed under the MIT License. See [LICENSE](LICENSE) for details.
 
 ---
 
