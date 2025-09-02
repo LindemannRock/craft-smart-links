@@ -1,0 +1,57 @@
+{
+    "name": "lindemannrock/smart-links",
+    "description": "Intelligent device detection and app store routing for Craft CMS",
+    "type": "craft-plugin",
+    "version": "1.0.1",
+    "keywords": [
+        "craft",
+        "cms",
+        "craftcms",
+        "craft-plugin",
+        "smart-links",
+        "app-links",
+        "deep-linking",
+        "url-shortening",
+        "redirects",
+        "qr-codes",
+        "analytics",
+        "device-detection",
+        "field"
+    ],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Bilal Hary Lindemann",
+            "email": "bh@lindemannrock.com",
+            "homepage": "https://lindemannrock.com",
+            "role": "Developer"
+        }
+    ],
+    "support": {
+        "email": "support@lindemannrock.com",
+        "issues": "https://github.com/LindemannRock/smart-links/issues",
+        "source": "https://github.com/LindemannRock/smart-links",
+        "docs": "https://github.com/LindemannRock/smart-links/blob/main/README.md",
+        "rss": "https://github.com/LindemannRock/smart-links/commits/main.atom"
+    },
+    "require": {
+        "php": "^8.0.2",
+        "craftcms/cms": "^5.0.0",
+        "matomo/device-detector": "^6.4",
+        "bacon/bacon-qr-code": "^2.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "lindemannrock\\smartlinks\\": "src/"
+        }
+    },
+    "extra": {
+        "name": "Smart Links",
+        "handle": "smart-links",
+        "developer": "LindemannRock",
+        "developerUrl": "https://lindemannrock.com",
+        "documentationUrl": "https://github.com/LindemannRock/smart-links/blob/main/README.md",
+        "changelogUrl": "https://github.com/LindemannRock/smart-links/blob/main/CHANGELOG.md",
+        "class": "lindemannrock\\smartlinks\\SmartLinks"
+    }
+}

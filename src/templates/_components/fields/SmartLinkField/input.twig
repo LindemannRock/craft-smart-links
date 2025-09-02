@@ -1,0 +1,63 @@
+{% import "_includes/forms" as forms %}
+
+<div id="{{ id }}-field">
+    {{ forms.elementSelectField({
+        id: id,
+        name: name ~ '[]',
+        elementType: elementType,
+        sources: sources,
+        limit: limit,
+        elements: elements,
+        selectionLabel: selectionLabel,
+        viewMode: 'list',
+        showSiteMenu: craft.app.sites.getTotalEditableSites() > 1,
+    }) }}
+</div>
+
+{% if elements|length %}
+    {% css %}
+        #{{ id }}-field .element {
+            position: relative;
+        }
+        
+        #{{ id }}-field .element::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            right: 10px;
+            transform: translateY(-50%);
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: {{ elements[0].active ? '#27ae60' : '#e74c3c' }};
+        }
+    {% endcss %}
+    
+    {% js %}
+        // Add quick preview on hover
+        $('#{{ id }}-field').on('mouseenter', '.element', function() {
+            var $element = $(this);
+            var elementId = $element.data('id');
+            
+            if (!$element.data('preview-loaded')) {
+                $.get('{{ actionUrl('smart-links/smart-links/get-details') }}', {
+                    id: elementId
+                }, function(response) {
+                    if (response.success) {
+                        var smartLink = response.smartLink;
+                        var tooltip = '<div class="smart-link-preview">' +
+                            '<strong>' + smartLink.name + '</strong><br>' +
+                            '<span class="light">' + smartLink.redirectUrl + '</span><br>' +
+                            '<span class="light">Clicks: ' + smartLink.clicks + '</span>' +
+                            '</div>';
+                        
+                        $element.attr('title', '').data('preview-loaded', true);
+                        new Garnish.Tooltip($element, {
+                            content: tooltip
+                        });
+                    }
+                });
+            }
+        });
+    {% endjs %}
+{% endif %}

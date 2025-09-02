@@ -1,0 +1,80 @@
+{% import "_includes/forms" as forms %}
+
+<div class="smart-links-utility">
+    <h2>{{ "Smart Links Overview"|t('smart-links') }}</h2>
+    
+    <div class="data">
+        <div class="item">
+            <div class="label">{{ "Total Links"|t('smart-links') }}</div>
+            <div class="value">{{ totalLinks|number }}</div>
+        </div>
+        <div class="item">
+            <div class="label">{{ "Active Links"|t('smart-links') }}</div>
+            <div class="value">{{ activeLinks|number }}</div>
+        </div>
+        <div class="item">
+            <div class="label">{{ "Total Clicks"|t('smart-links') }}</div>
+            <div class="value">{{ totalClicks|number }}</div>
+        </div>
+    </div>
+
+    <hr>
+
+    <div class="buttons">
+        <a href="{{ url('smart-links') }}" class="btn">
+            {{ "Manage Smart Links"|t('smart-links') }}
+        </a>
+        <a href="{{ url('smart-links/analytics') }}" class="btn">
+            {{ "View Analytics"|t('smart-links') }}
+        </a>
+    </div>
+
+    {% if recentAnalytics.topLinks is defined and recentAnalytics.topLinks|length %}
+        <hr>
+        
+        <h3>{{ "Top Performing Links (Last 7 Days)"|t('smart-links') }}</h3>
+        
+        <table class="data">
+            <thead>
+                <tr>
+                    <th>{{ "Name"|t('smart-links') }}</th>
+                    <th>{{ "Clicks"|t('smart-links') }}</th>
+                    <th>{{ "Last Click"|t('smart-links') }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for link in recentAnalytics.topLinks|slice(0, 5) %}
+                    <tr>
+                        <td>
+                            <a href="{{ url('smart-links/smartlinks/' ~ link.id) }}">
+                                {{ link.name }}
+                            </a>
+                        </td>
+                        <td>{{ link.clicks|number }}</td>
+                        <td>{{ link.lastClick ? link.lastClick|datetime('short') : '-' }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+</div>
+
+{% css %}
+    .smart-links-utility .data {
+        display: flex;
+        gap: 40px;
+        margin: 20px 0;
+    }
+    
+    .smart-links-utility .data .item .value {
+        font-size: 24px;
+        font-weight: bold;
+        color: #0d78f2;
+        margin-top: 4px;
+    }
+    
+    .smart-links-utility .buttons {
+        display: flex;
+        gap: 10px;
+    }
+{% endcss %}

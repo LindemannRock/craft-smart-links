@@ -1,0 +1,73 @@
+{% extends "smart-links/_layouts/settings" %}
+{% set title = "General Settings"|t('smart-links') %}
+{% set fullPageForm = true %}
+{% set selectedSettingsItem = 'general' %}
+
+{% set plugin = craft.app.plugins.getPlugin('smart-links') %}
+{% set crumbs = [
+    {
+        label: plugin.settings.pluginName|t('smart-links'),
+        url: url('smart-links'),
+    },
+    {
+        label: 'Settings'|t('smart-links'),
+        url: url('smart-links/settings'),
+    },
+    {
+        label: 'General'|t('smart-links'),
+        url: url('smart-links/settings/general'),
+    },
+] %}
+
+{% import "_includes/forms" as forms %}
+
+{% block content %}
+    <form method="post" accept-charset="UTF-8">
+        {{ actionInput('smart-links/settings/save') }}
+        {{ csrfInput() }}
+        {{ redirectInput('smart-links/settings/general') }}
+        {{ hiddenInput('section', 'general') }}
+
+        <h2>{{ "Plugin Settings"|t('smart-links') }}</h2>
+
+        {{ forms.textField({
+            label: "Plugin Name"|t('smart-links'),
+            instructions: "The name of the plugin as it appears in the Control Panel menu"|t('smart-links'),
+            id: 'pluginName',
+            name: 'settings[pluginName]',
+            value: settings.pluginName,
+            disabled: settings.isOverriddenByConfig('pluginName'),
+            warning: settings.isOverriddenByConfig('pluginName') ? 
+                "This is being overridden by the <code>pluginName</code> setting in <code>config/smart-links.php</code>."|t('smart-links')|raw : null,
+        }) }}
+
+        <hr>
+
+        <h2>{{ "Asset Settings"|t('smart-links') }}</h2>
+        
+        {# Asset volume selection dropdown for Smart Link images #}
+        {% set volumeOptions = [{label: 'All asset volumes'|t('smart-links'), value: ''}] %}
+        {% for volume in craft.app.volumes.getAllVolumes() %}
+            {% set volumeOptions = volumeOptions|merge([{
+                label: volume.name,
+                value: volume.uid
+            }]) %}
+        {% endfor %}
+        
+        {{ forms.selectField({
+            label: "Smart Link Image Volume"|t('smart-links'),
+            instructions: "Which asset volume should be used for Smart Link images"|t('smart-links'),
+            id: 'imageVolumeUid',
+            name: 'settings[imageVolumeUid]',
+            options: volumeOptions,
+            value: settings.imageVolumeUid ?? '',
+            disabled: settings.isOverriddenByConfig('imageVolumeUid'),
+            warning: settings.isOverriddenByConfig('imageVolumeUid') ? 
+                "This is being overridden by the <code>imageVolumeUid</code> setting in <code>config/smart-links.php</code>."|t('smart-links')|raw : null,
+        }) }}
+
+        <div class="buttons">
+            <button type="submit" class="btn submit">{{ "Save Settings"|t('smart-links') }}</button>
+        </div>
+    </form>
+{% endblock %}

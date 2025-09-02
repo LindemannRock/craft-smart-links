@@ -1,0 +1,936 @@
+{% extends "smart-links/_layouts/settings" %}
+{% set title = "QR Code Settings"|t('smart-links') %}
+{% set fullPageForm = true %}
+{% set selectedSettingsItem = 'qr-code' %}
+
+{% set plugin = craft.app.plugins.getPlugin('smart-links') %}{% set crumbs = [
+    {
+        label: plugin.settings.pluginName|t('smart-links'),
+        url: url('smart-links'),
+    },
+    {
+        label: 'Settings'|t('smart-links'),
+        url: url('smart-links/settings'),
+    },
+    {
+        label: 'QR Code'|t('smart-links'),
+        url: url('smart-links/settings/qr-code'),
+    },
+] %}
+
+{% import "_includes/forms" as forms %}
+
+{% block content %}
+    {% if settings is defined and settings.hasErrors() %}
+        {% set errors = settings.getErrors() %}
+        {% set errorCount = 0 %}
+        {% for fieldErrors in errors %}
+            {% set errorCount = errorCount + fieldErrors|length %}
+        {% endfor %}
+        
+        <div class="error-summary" tabindex="-1">
+            <div>
+                <span class="notification-icon" data-icon="alert" aria-label="error" role="img"></span>
+                <h2>
+                    {% if errorCount == 1 %}
+                        {{ "Found 1 error"|t('app') }}
+                    {% else %}
+                        {{ "Found {count} errors"|t('app', {count: errorCount}) }}
+                    {% endif %}
+                </h2>
+            </div>
+            <ul class="errors">
+                {% for field, fieldErrors in errors %}
+                    {% for error in fieldErrors %}
+                        <li>
+                            <a href="#{{ field }}-field" data-field-error-key="{{ field }}">
+                                {{ error }}
+                            </a>
+                        </li>
+                    {% endfor %}
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+
+    <div class="qr-preview-floating">
+        <div class="qr-preview-header">
+            <span>{{ "Live Preview"|t('smart-links') }}</span>
+            <button type="button" class="qr-preview-toggle" aria-label="{{ 'Toggle preview'|t('smart-links') }}">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                    <path d="M3 5h10l-5 5z"/>
+                </svg>
+            </button>
+        </div>
+        <div class="qr-preview-content">
+            <div id="qr-preview-container">
+                <div id="qr-preview-image">
+                    <img id="qr-preview" src="" alt="QR Code Preview" style="display: none;">
+                    <div id="qr-preview-loading">
+                        {{ "Loading..."|t('smart-links') }}
+                    </div>
+                </div>
+                <div id="qr-preview-error" style="display: none;">
+                    {{ "Error"|t('smart-links') }}
+                </div>
+            </div>
+            <div id="qr-preview-warning" style="display: none;">
+                <small class="warning-text">{{ "Logo requires PNG format"|t('smart-links') }}</small>
+            </div>
+        </div>
+    </div>
+
+    <form method="post" accept-charset="UTF-8">
+        {{ actionInput('smart-links/settings/save') }}
+        {{ csrfInput() }}
+        {{ redirectInput('smart-links/settings/qr-code') }}
+        {{ hiddenInput('section', 'qr-code') }}
+
+        <h2>{{ "Appearance & Style"|t('smart-links') }}</h2>
+
+        {{ forms.textField({
+            label: "Size"|t('smart-links'),
+            instructions: "Default size in pixels for generated QR codes"|t('smart-links'),
+            id: 'defaultQrCodeSize',
+            name: 'settings[defaultQrSize]',
+            value: settings.defaultQrSize ?? 256,
+            type: 'number',
+            min: 100,
+            max: 1000,
+            disabled: settings.isOverriddenByConfig('defaultQrSize'),
+            warning: settings.isOverriddenByConfig('defaultQrSize') ? 
+                "This is being overridden by the <code>defaultQrSize</code> setting in <code>config/smart-links.php</code>."|t('smart-links')|raw : null,
+        }) }}
+
+        {{ forms.selectField({
+            label: "Format"|t('smart-links'),
+            instructions: "Default format for generated QR codes"|t('smart-links'),
+            id: 'defaultQrFormat',
+            name: 'settings[defaultQrFormat]',
+            value: settings.defaultQrFormat ?? 'png',
+            options: [
+                {label: 'PNG', value: 'png'},
+                {label: 'SVG', value: 'svg'},
+            ],
+            disabled: settings.isOverriddenByConfig('defaultQrFormat'),
+            warning: settings.isOverriddenByConfig('defaultQrFormat') ? 
+                "This is being overridden by the <code>defaultQrFormat</code> setting in <code>config/smart-links.php</code>."|t('smart-links')|raw : null,
+        }) }}
+
+        {{ forms.colorField({
+            label: "QR Code Color"|t('smart-links'),
+            id: 'defaultQrCodeColor',
+            name: 'settings[defaultQrColor]',
+            value: settings.defaultQrColor ?? '#000000',
+            disabled: settings.isOverriddenByConfig('defaultQrColor'),
+            warning: settings.isOverriddenByConfig('defaultQrColor') ? 
+                "This is being overridden by the <code>defaultQrColor</code> setting in <code>config/smart-links.php</code>."|t('smart-links')|raw : null,
+        }) }}
+
+        {{ forms.colorField({
+            label: "Background Color"|t('smart-links'),
+            id: 'defaultQrCodeBgColor',
+            name: 'settings[defaultQrBgColor]',
+            value: settings.defaultQrBgColor ?? '#FFFFFF',
+            disabled: settings.isOverriddenByConfig('defaultQrBgColor'),
+            warning: settings.isOverriddenByConfig('defaultQrBgColor') ? 
+                "This is being overridden by the <code>defaultQrBgColor</code> setting in <code>config/smart-links.php</code>."|t('smart-links')|raw : null,
+        }) }}
+
+        {{ forms.textField({
+            label: "Margin Size"|t('smart-links'),
+            instructions: "White space around QR code (0-10 modules)"|t('smart-links'),
+            id: 'defaultQrMargin',
+            name: 'settings[defaultQrMargin]',
+            value: settings.defaultQrMargin ?? 4,
+            type: 'number',
+            min: 0,
+            max: 10,
+            disabled: settings.isOverriddenByConfig('defaultQrMargin'),
+            warning: settings.isOverriddenByConfig('defaultQrMargin') ? 
+                "This is being overridden by the <code>defaultQrMargin</code> setting in <code>config/smart-links.php</code>."|t('smart-links')|raw : null,
+        }) }}
+
+        {{ forms.selectField({
+            label: "Module Style"|t('smart-links'),
+            instructions: "Shape of the QR code modules"|t('smart-links'),
+            id: 'qrModuleStyle',
+            name: 'settings[qrModuleStyle]',
+            value: settings.qrModuleStyle ?? 'square',
+            options: [
+                {label: 'Square', value: 'square'},
+                {label: 'Rounded', value: 'rounded'},
+                {label: 'Dots', value: 'dots'},
+            ],
+            disabled: settings.isOverriddenByConfig('qrModuleStyle'),
+            warning: settings.isOverriddenByConfig('qrModuleStyle') ? 
+                "This is being overridden by the <code>qrModuleStyle</code> setting in <code>config/smart-links.php</code>."|t('smart-links')|raw : null,
+        }) }}
+
+        {{ forms.selectField({
+            label: "Eye Style"|t('smart-links'),
+            instructions: "Shape of the position markers (corners)"|t('smart-links'),
+            id: 'qrEyeStyle',
+            name: 'settings[qrEyeStyle]',
+            value: settings.qrEyeStyle ?? 'square',
+            options: [
+                {label: 'Square', value: 'square'},
+                {label: 'Rounded', value: 'rounded'},
+                {label: 'Leaf', value: 'leaf'},
+            ],
+            disabled: settings.isOverriddenByConfig('qrEyeStyle'),
+            warning: settings.isOverriddenByConfig('qrEyeStyle') ? 
+                "This is being overridden by the <code>qrEyeStyle</code> setting in <code>config/smart-links.php</code>."|t('smart-links')|raw : null,
+        }) }}
+
+        {{ forms.colorField({
+            label: "Eye Color"|t('smart-links'),
+            instructions: "Color for position markers (leave empty to use main color)"|t('smart-links'),
+            id: 'qrEyeColor',
+            name: 'settings[qrEyeColor]',
+            value: settings.qrEyeColor ?? '',
+            disabled: settings.isOverriddenByConfig('qrEyeColor'),
+            warning: settings.isOverriddenByConfig('qrEyeColor') ? 
+                "This is being overridden by the <code>qrEyeColor</code> setting in <code>config/smart-links.php</code>."|t('smart-links')|raw : null,
+        }) }}
+
+        <hr>
+
+        <h2>{{ "Logo Settings"|t('smart-links') }}</h2>
+
+        {{ forms.lightswitchField({
+            label: "Enable Logo Overlay"|t('smart-links'),
+            instructions: "Add a logo in the center of QR codes"|t('smart-links'),
+            id: 'enableQrLogo',
+            name: 'settings[enableQrLogo]',
+            on: settings.enableQrLogo ?? false,
+            toggle: 'logo-settings',
+            disabled: settings.isOverriddenByConfig('enableQrLogo'),
+            warning: settings.isOverriddenByConfig('enableQrLogo') ? 
+                "This is being overridden by the <code>enableQrLogo</code> setting in <code>config/smart-links.php</code>."|t('smart-links')|raw : 
+                "Logo overlay only works with PNG format. SVG format does not support logos."|t('smart-links'),
+        }) }}
+
+        <div id="logo-settings" class="{{ not (settings.enableQrLogo ?? false) ? 'hidden' }}">
+            {# Asset volume selection dropdown #}
+            {% set volumeOptions = [{label: 'All asset volumes'|t('smart-links'), value: ''}] %}
+            {% for volume in craft.app.volumes.getAllVolumes() %}
+                {% set volumeOptions = volumeOptions|merge([{
+                    label: volume.name,
+                    value: volume.uid
+                }]) %}
+            {% endfor %}
+            
+            {{ forms.selectField({
+                label: "Logo Asset Volume"|t('smart-links'),
+                instructions: "Which asset volume contains QR code logos. Save settings after changing this to update the logo selection below."|t('smart-links'),
+                id: 'qrLogoVolumeUid',
+                name: 'settings[qrLogoVolumeUid]',
+                options: volumeOptions,
+                value: settings.qrLogoVolumeUid ?? '',
+                disabled: settings.isOverriddenByConfig('qrLogoVolumeUid'),
+                warning: settings.isOverriddenByConfig('qrLogoVolumeUid') ? 
+                    "This is being overridden by the <code>qrLogoVolumeUid</code> setting in <code>config/smart-links.php</code>."|t('smart-links')|raw : 
+                    (settings.qrLogoVolumeUid and craft.app.request.getBodyParam('settings[qrLogoVolumeUid]') and settings.qrLogoVolumeUid != craft.app.request.getBodyParam('settings[qrLogoVolumeUid]') ? 'Please save to apply the volume change'|t('smart-links') : null)
+            }) }}
+            
+            {# Default logo asset selection #}
+            {% set logoSources = settings.qrLogoVolumeUid ? ['volume:' ~ settings.qrLogoVolumeUid] : '*' %}
+            {{ forms.elementSelectField({
+                label: "Default Logo"|t('smart-links'),
+                instructions: "Default logo to use for QR codes (can be overridden per smart link)"|t('smart-links'),
+                id: 'defaultQrLogoId',
+                name: 'settings[defaultQrLogoId]',
+                elementType: 'craft\\elements\\Asset',
+                sources: logoSources,
+                criteria: {
+                    kind: ['image']
+                },
+                limit: 1,
+                elements: settings.defaultQrLogoId ? [craft.assets.id(settings.defaultQrLogoId).one()] : [],
+                required: true,
+                errors: settings.getErrors('defaultQrLogoId'),
+            }) }}
+            
+
+            {{ forms.textField({
+                label: "Logo Size"|t('smart-links'),
+                instructions: "Logo size as percentage of QR code (10-30%)"|t('smart-links'),
+                id: 'qrLogoSize',
+                name: 'settings[qrLogoSize]',
+                value: settings.qrLogoSize ?? 20,
+                type: 'number',
+                min: 10,
+                max: 30,
+                disabled: settings.isOverriddenByConfig('qrLogoSize'),
+                warning: settings.isOverriddenByConfig('qrLogoSize') ? 
+                    "This is being overridden by the <code>qrLogoSize</code> setting in <code>config/smart-links.php</code>."|t('smart-links')|raw : null,
+            }) }}
+        </div>
+
+        <hr>
+
+        <h2>{{ "Technical Options"|t('smart-links') }}</h2>
+
+        {{ forms.selectField({
+            label: "Error Correction Level"|t('smart-links'),
+            instructions: "Higher levels work better if QR code is damaged but create denser patterns"|t('smart-links'),
+            id: 'defaultQrErrorCorrection',
+            name: 'settings[defaultQrErrorCorrection]',
+            value: settings.defaultQrErrorCorrection ?? 'M',
+            options: [
+                {label: 'Low (~7% correction)', value: 'L'},
+                {label: 'Medium (~15% correction)', value: 'M'},
+                {label: 'Quartile (~25% correction)', value: 'Q'},
+                {label: 'High (~30% correction)', value: 'H'},
+            ],
+            disabled: settings.isOverriddenByConfig('defaultQrErrorCorrection'),
+            warning: settings.isOverriddenByConfig('defaultQrErrorCorrection') ? 
+                "This is being overridden by the <code>defaultQrErrorCorrection</code> setting in <code>config/smart-links.php</code>."|t('smart-links')|raw : null,
+        }) }}
+
+        <hr>
+
+        <h2>{{ "Download Settings"|t('smart-links') }}</h2>
+
+        {{ forms.lightswitchField({
+            label: "Enable QR Code Downloads"|t('smart-links'),
+            instructions: "Allow users to download QR codes"|t('smart-links'),
+            id: 'enableQrDownload',
+            name: 'settings[enableQrDownload]',
+            on: settings.enableQrDownload ?? true,
+            toggle: 'download-settings',
+            disabled: settings.isOverriddenByConfig('enableQrDownload'),
+            warning: settings.isOverriddenByConfig('enableQrDownload') ? 
+                "This is being overridden by the <code>enableQrDownload</code> setting in <code>config/smart-links.php</code>."|t('smart-links')|raw : null,
+        }) }}
+
+        <div id="download-settings" class="{{ not (settings.enableQrDownload ?? true) ? 'hidden' }}">
+            {{ forms.textField({
+                label: "Download Filename Pattern"|t('smart-links'),
+                instructions: "Available variables: {slug}, {size}, {format}"|t('smart-links'),
+                id: 'qrDownloadFilename',
+                name: 'settings[qrDownloadFilename]',
+                value: settings.qrDownloadFilename ?? '{slug}-qr-{size}',
+                placeholder: '{slug}-qr-{size}',
+                disabled: settings.isOverriddenByConfig('qrDownloadFilename'),
+                warning: settings.isOverriddenByConfig('qrDownloadFilename') ? 
+                    "This is being overridden by the <code>qrDownloadFilename</code> setting in <code>config/smart-links.php</code>."|t('smart-links')|raw : null,
+            }) }}
+        </div>
+
+        <hr>
+
+        <h2>{{ "Caching"|t('smart-links') }}</h2>
+
+        {{ forms.textField({
+            label: "QR Code Cache Duration"|t('smart-links'),
+            instructions: "How long to cache generated QR codes (in seconds)"|t('smart-links'),
+            id: 'qrCodeCacheDuration',
+            name: 'settings[qrCodeCacheDuration]',
+            value: settings.qrCodeCacheDuration ?? 86400,
+            type: 'number',
+            min: 0,
+            disabled: settings.isOverriddenByConfig('qrCodeCacheDuration'),
+            warning: settings.isOverriddenByConfig('qrCodeCacheDuration') ? 
+                "This is being overridden by the <code>qrCodeCacheDuration</code> setting in <code>config/smart-links.php</code>."|t('smart-links')|raw : null,
+        }) }}
+
+        <div class="buttons">
+            <button type="submit" class="btn submit">{{ "Save Settings"|t('smart-links') }}</button>
+        </div>
+    </form>
+{% endblock %}
+
+{% css %}
+/* Floating compact preview */
+.qr-preview-floating {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 100;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    width: 280px;
+    transition: all 0.3s ease;
+}
+
+.qr-preview-floating.collapsed .qr-preview-content {
+    display: none;
+}
+
+.qr-preview-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+    user-select: none;
+}
+
+.qr-preview-header span {
+    font-weight: 600;
+    font-size: 13px;
+    color: #333;
+}
+
+.qr-preview-toggle {
+    background: none;
+    border: none;
+    padding: 4px;
+    cursor: pointer;
+    color: #666;
+    transition: transform 0.3s ease;
+}
+
+.qr-preview-toggle:hover {
+    color: #333;
+}
+
+.qr-preview-floating.collapsed .qr-preview-toggle svg {
+    transform: rotate(-90deg);
+}
+
+.qr-preview-content {
+    padding: 16px;
+    text-align: center;
+}
+
+#qr-preview-container {
+    position: relative;
+    background: #f7f7f8;
+    border-radius: 4px;
+    padding: 16px;
+    min-height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#qr-preview {
+    max-width: 200px;
+    max-height: 200px;
+    width: auto;
+    height: auto;
+    transition: opacity 0.2s ease;
+}
+
+#qr-preview-loading,
+#qr-preview-error {
+    color: #999;
+    font-size: 12px;
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+}
+
+#qr-preview-error {
+    color: #d0021b;
+    animation: none; /* No pulse for errors */
+}
+
+#qr-preview-warning {
+    margin-top: 8px;
+    padding: 8px 10px;
+    background: #fff8e5;
+    border-radius: 3px;
+    color: #d5810b;
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+/* Hide on mobile */
+@media (max-width: 728px) {
+    .qr-preview-floating {
+        display: none;
+    }
+}
+
+/* Adjust position when Craft's sidebar is open */
+@media (min-width: 728px) {
+    body.showing-nav .qr-preview-floating {
+        right: calc(24px + 225px); /* Account for Craft's nav width */
+    }
+}
+{% endcss %}
+
+{% js %}
+// Handle error summary links
+document.querySelectorAll('.error-summary a').forEach(link => {
+    link.addEventListener('click', function(e) {
+        e.preventDefault();
+        const fieldId = this.getAttribute('href').substring(1);
+        const field = document.getElementById(fieldId);
+        if (field) {
+            field.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            // Focus on the first input in the field
+            const input = field.querySelector('input, select, textarea');
+            if (input) {
+                setTimeout(() => input.focus(), 500);
+            }
+        }
+    });
+});
+
+// Add form validation
+document.querySelector('form').addEventListener('submit', function(e) {
+    const enableLogo = document.getElementById('enableQrLogo');
+    const logoField = document.getElementById('defaultQrLogoId-field');
+    
+    if (enableLogo && (enableLogo.checked || enableLogo.classList.contains('on'))) {
+        // Check if logo is selected
+        const hasLogo = logoField && logoField.querySelector('.elements .element');
+        
+        if (!hasLogo) {
+            e.preventDefault();
+            
+            // Remove any existing error
+            const existingError = logoField.querySelector('.errors');
+            if (existingError) {
+                existingError.remove();
+            }
+            
+            // Add error message
+            const errorList = document.createElement('ul');
+            errorList.className = 'errors';
+            const errorItem = document.createElement('li');
+            errorItem.textContent = Craft.t('smart-links', 'Default logo is required when logo overlay is enabled.');
+            errorList.appendChild(errorItem);
+            
+            // Insert after the field
+            const fieldContainer = logoField.querySelector('.input');
+            if (fieldContainer) {
+                fieldContainer.appendChild(errorList);
+            }
+            
+            // Scroll to the field
+            logoField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            
+            
+            return false;
+        }
+    }
+});
+
+// Show notice when volume changes
+(function() {
+    const volumeSelect = document.getElementById('qrLogoVolumeUid');
+    const initialValue = volumeSelect.value;
+    let noticeDiv = null;
+    
+    volumeSelect.addEventListener('change', function(e) {
+        if (e.target.value !== initialValue) {
+            // Remove existing notice if any
+            if (noticeDiv) {
+                noticeDiv.remove();
+            }
+            
+            // Create notice
+            noticeDiv = document.createElement('div');
+            noticeDiv.className = 'readable';
+            noticeDiv.innerHTML = '<blockquote class="note"><p>' + 
+                Craft.t('smart-links', 'Please save settings to apply the volume change to the logo selection field.') + 
+                '</p></blockquote>';
+            
+            // Insert after the volume field
+            const volumeField = volumeSelect.closest('.field');
+            volumeField.parentNode.insertBefore(noticeDiv, volumeField.nextSibling);
+        } else if (noticeDiv) {
+            noticeDiv.remove();
+            noticeDiv = null;
+        }
+    });
+})();
+
+// Update required status of logo field when toggle changes
+(function() {
+    const enableToggle = document.getElementById('enableQrLogo');
+    const logoField = document.getElementById('defaultQrLogoId-field');
+    
+    if (enableToggle && logoField) {
+        // Get the label
+        const label = logoField.querySelector('label');
+        
+        // Function to update required status
+        function updateRequiredStatus() {
+            if (enableToggle.checked || enableToggle.classList.contains('on')) {
+                label.classList.add('required');
+            } else {
+                label.classList.remove('required');
+            }
+        }
+        
+        // Initial state
+        updateRequiredStatus();
+        
+        // Listen for changes
+        const lightswitch = enableToggle.closest('.lightswitch');
+        if (lightswitch && lightswitch.lsInstance) {
+            lightswitch.lsInstance.on('change', updateRequiredStatus);
+        }
+    }
+})();
+
+// Handle preview collapse/expand
+(function() {
+    const previewContainer = document.querySelector('.qr-preview-floating');
+    const toggleBtn = document.querySelector('.qr-preview-toggle');
+    const header = document.querySelector('.qr-preview-header');
+    
+    // Load saved state
+    const isCollapsed = localStorage.getItem('qr-preview-collapsed') === 'true';
+    if (isCollapsed) {
+        previewContainer.classList.add('collapsed');
+    }
+    
+    // Toggle on click
+    function togglePreview() {
+        previewContainer.classList.toggle('collapsed');
+        localStorage.setItem('qr-preview-collapsed', previewContainer.classList.contains('collapsed'));
+    }
+    
+    header.addEventListener('click', togglePreview);
+})();
+
+// QR Code Live Preview functionality
+(function() {
+    let previewTimeout = null;
+    let isGenerating = false;
+    const previewUrl = 'https://example.com/preview';
+    
+    // Get all relevant form elements
+    const sizeField = document.getElementById('defaultQrCodeSize');
+    const formatField = document.getElementById('defaultQrFormat');
+    const colorField = document.getElementById('defaultQrCodeColor');
+    const bgColorField = document.getElementById('defaultQrCodeBgColor');
+    const marginField = document.getElementById('defaultQrMargin');
+    const errorCorrectionField = document.getElementById('defaultQrErrorCorrection');
+    const moduleStyleField = document.getElementById('qrModuleStyle');
+    const eyeStyleField = document.getElementById('qrEyeStyle');
+    const eyeColorField = document.getElementById('qrEyeColor');
+    const enableLogoField = document.getElementById('enableQrLogo');
+    const logoSizeField = document.getElementById('qrLogoSize');
+    
+    function updatePreview(immediate = false) {
+        // Clear existing timeout
+        if (previewTimeout) {
+            clearTimeout(previewTimeout);
+        }
+        
+        // Skip if already generating
+        if (isGenerating && !immediate) {
+            return;
+        }
+        
+        // Faster debounce for more responsive preview (250ms instead of 500ms)
+        const delay = immediate ? 0 : 250;
+        
+        previewTimeout = setTimeout(function() {
+            generatePreview();
+        }, delay);
+    }
+    
+    function generatePreview() {
+        // Prevent multiple simultaneous requests
+        if (isGenerating) {
+            return;
+        }
+        
+        isGenerating = true;
+        
+        const previewImg = document.getElementById('qr-preview');
+        const loadingDiv = document.getElementById('qr-preview-loading');
+        const errorDiv = document.getElementById('qr-preview-error');
+        const warningDiv = document.getElementById('qr-preview-warning');
+        
+        // Show loading state with smooth transition
+        previewImg.style.opacity = '0.5';
+        loadingDiv.style.display = 'block';
+        errorDiv.style.display = 'none';
+        warningDiv.style.display = 'none';
+        loadingDiv.textContent = 'Updating preview...';
+        
+        // Gather current settings
+        const params = new URLSearchParams({
+            url: previewUrl,
+            size: sizeField.value || 256,
+            format: formatField.value || 'png',
+            color: (colorField.value || '#000000').replace('#', ''),
+            bg: (bgColorField.value || '#FFFFFF').replace('#', ''), // Changed from bgColor to bg
+            margin: marginField.value || 4,
+            errorCorrection: errorCorrectionField.value || 'M',
+            moduleStyle: moduleStyleField.value || 'square',
+            eyeStyle: eyeStyleField.value || 'square',
+            preview: '1'
+        });
+        
+        // Add eye color if set
+        if (eyeColorField.value) {
+            params.append('eyeColor', eyeColorField.value.replace('#', ''));
+        }
+        
+        // Add logo settings if enabled
+        const logoEnabled = enableLogoField.checked || enableLogoField.classList.contains('on');
+        if (logoEnabled) {
+            // Get selected logo ID
+            const logoElement = document.querySelector('#defaultQrLogoId-field .elements .element');
+            if (logoElement) {
+                const logoId = logoElement.getAttribute('data-id');
+                if (logoId) {
+                    params.append('logo', logoId);
+                    params.append('logoSize', logoSizeField.value || 20);
+                }
+            }
+        }
+        
+        // Generate preview URL - use CP URL since we're in the control panel
+        const qrUrl = Craft.getCpUrl('smart-links/qr-code/generate?' + params.toString());
+        
+        
+        // Create new image to test loading
+        const testImg = new Image();
+        testImg.onload = function() {
+            // Update preview with smooth transition
+            previewImg.src = qrUrl;
+            previewImg.style.display = 'block';
+            previewImg.style.opacity = '1';
+            loadingDiv.style.display = 'none';
+            errorDiv.style.display = 'none';
+            
+            // Show warnings based on settings
+            const logoEnabled = enableLogoField.checked || enableLogoField.classList.contains('on');
+            const format = formatField.value || 'png';
+            
+            if (logoEnabled && format === 'svg') {
+                warningDiv.style.display = 'block';
+                warningDiv.querySelector('.warning-text').textContent = Craft.t('smart-links', 'Logo requires PNG format');
+            } else {
+                warningDiv.style.display = 'none';
+            }
+            
+            // Reset generating flag
+            isGenerating = false;
+        };
+        testImg.onerror = function(e) {
+            previewImg.style.display = 'none';
+            previewImg.style.opacity = '1';
+            loadingDiv.style.display = 'none';
+            errorDiv.style.display = 'block';
+            errorDiv.textContent = 'Failed to generate preview';
+            
+            // Reset generating flag
+            isGenerating = false;
+        };
+        testImg.src = qrUrl;
+    }
+    
+    // Add event listeners to all fields for live preview
+    const fields = [sizeField, formatField, colorField, bgColorField, marginField, errorCorrectionField, 
+                   moduleStyleField, eyeStyleField, eyeColorField, logoSizeField];
+    
+    fields.forEach(function(field) {
+        if (field) {
+            
+            // Standard event listeners
+            field.addEventListener('change', () => updatePreview(true));
+            field.addEventListener('input', () => updatePreview());
+            field.addEventListener('keyup', () => updatePreview());
+            field.addEventListener('blur', () => updatePreview(true));
+        }
+    });
+    
+    // Enforce max value on logo size field
+    if (logoSizeField) {
+        logoSizeField.addEventListener('input', function(e) {
+            const value = parseInt(this.value);
+            if (value > 30) {
+                this.value = 30;
+            }
+        });
+        
+        // Also handle paste events
+        logoSizeField.addEventListener('paste', function(e) {
+            setTimeout(() => {
+                const value = parseInt(this.value);
+                if (value > 30) {
+                    this.value = 30;
+                }
+            }, 0);
+        });
+    }
+    
+    // Craft CMS uses custom color fields - need to watch for their specific events
+    // Use MutationObserver to detect color changes
+    const colorFields = [colorField, bgColorField, eyeColorField];
+    colorFields.forEach(function(field) {
+        if (field && field.id.includes('Color')) {
+            const fieldContainer = field.closest('.field');
+            if (fieldContainer) {
+                // Create observer for this color field
+                const observer = new MutationObserver(function(mutations) {
+                    mutations.forEach(function(mutation) {
+                        if (mutation.type === 'attributes' && mutation.attributeName === 'value') {
+                            updatePreview(true);
+                        }
+                    });
+                });
+                
+                // Observe the input field for value changes
+                observer.observe(field, { 
+                    attributes: true, 
+                    attributeFilter: ['value'] 
+                });
+                
+                // Also observe the container for any structural changes
+                const containerObserver = new MutationObserver(function(mutations) {
+                    updatePreview(true);
+                });
+                
+                containerObserver.observe(fieldContainer, { 
+                    childList: true, 
+                    subtree: true,
+                    characterData: true
+                });
+            }
+        }
+    });
+    
+    // Handle lightswitch changes (immediate update)
+    if (enableLogoField) {
+        // Method 1: Try Craft's lightswitch instance
+        const lightswitch = enableLogoField.closest('.lightswitch');
+        if (lightswitch && lightswitch.lsInstance) {
+            lightswitch.lsInstance.on('change', () => {
+                updatePreview(true);
+            });
+        }
+        
+        // Method 2: Watch for class changes on the container
+        const lsContainer = enableLogoField.closest('.lightswitch');
+        if (lsContainer) {
+            const lsObserver = new MutationObserver(function(mutations) {
+                mutations.forEach(function(mutation) {
+                    if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+                        const isOn = lsContainer.classList.contains('on');
+                        updatePreview(true);
+                    }
+                });
+            });
+            
+            lsObserver.observe(lsContainer, { 
+                attributes: true, 
+                attributeFilter: ['class'] 
+            });
+        }
+        
+        // Method 3: Watch the hidden input value
+        const lsInput = enableLogoField;
+        if (lsInput) {
+            lsInput.addEventListener('change', () => {
+                updatePreview(true);
+            });
+            
+            // Also observe value changes
+            const lsInputObserver = new MutationObserver(function(mutations) {
+                mutations.forEach(function(mutation) {
+                    if (mutation.type === 'attributes' && mutation.attributeName === 'value') {
+                        updatePreview(true);
+                    }
+                });
+            });
+            
+            lsInputObserver.observe(lsInput, { 
+                attributes: true, 
+                attributeFilter: ['value'] 
+            });
+        }
+    }
+    
+    // Handle logo selection changes (immediate update)
+    const logoFieldContainer = document.getElementById('defaultQrLogoId-field');
+    if (logoFieldContainer) {
+        // Use MutationObserver to detect when logo is added/removed
+        const observer = new MutationObserver(function(mutations) {
+            let logoChanged = false;
+            mutations.forEach(function(mutation) {
+                if (mutation.type === 'childList') {
+                    // Check if elements were added or removed
+                    if (mutation.addedNodes.length > 0 || mutation.removedNodes.length > 0) {
+                        logoChanged = true;
+                    }
+                }
+            });
+            
+            if (logoChanged) {
+                updatePreview(true); // Immediate update for logo changes
+            }
+        });
+        
+        const elementsContainer = logoFieldContainer.querySelector('.elements');
+        if (elementsContainer) {
+            observer.observe(elementsContainer, { childList: true, subtree: true });
+        }
+    }
+    
+    // Generate initial preview on page load
+    setTimeout(() => {
+        generatePreview();
+    }, 100); // Small delay to ensure all elements are ready
+    
+    // Fallback: Poll for changes every 500ms
+    // This ensures we catch any changes that don't trigger events
+    let lastValues = {
+        color: colorField ? colorField.value : '',
+        bgColor: bgColorField ? bgColorField.value : '',
+        eyeColor: eyeColorField ? eyeColorField.value : '',
+        logoEnabled: enableLogoField ? (enableLogoField.checked || enableLogoField.closest('.lightswitch')?.classList.contains('on')) : false,
+        logoId: null
+    };
+    
+    // Get initial logo ID
+    const getLogoId = () => {
+        const logoElement = document.querySelector('#defaultQrLogoId-field .elements .element');
+        return logoElement ? logoElement.getAttribute('data-id') : null;
+    };
+    
+    lastValues.logoId = getLogoId();
+    
+    setInterval(function() {
+        const currentValues = {
+            color: colorField ? colorField.value : '',
+            bgColor: bgColorField ? bgColorField.value : '',
+            eyeColor: eyeColorField ? eyeColorField.value : '',
+            logoEnabled: enableLogoField ? (enableLogoField.checked || enableLogoField.closest('.lightswitch')?.classList.contains('on')) : false,
+            logoId: getLogoId()
+        };
+        
+        // Check if any values have changed
+        let hasChanges = false;
+        
+        if (currentValues.color !== lastValues.color ||
+            currentValues.bgColor !== lastValues.bgColor ||
+            currentValues.eyeColor !== lastValues.eyeColor) {
+            hasChanges = true;
+        }
+        
+        if (currentValues.logoEnabled !== lastValues.logoEnabled) {
+            hasChanges = true;
+        }
+        
+        if (currentValues.logoId !== lastValues.logoId) {
+            hasChanges = true;
+        }
+        
+        if (hasChanges) {
+            lastValues = {...currentValues};
+            updatePreview(true);
+        }
+    }, 500);
+})();
+{% endjs %}

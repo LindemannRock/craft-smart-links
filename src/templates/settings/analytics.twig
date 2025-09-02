@@ -1,0 +1,144 @@
+{% extends "smart-links/_layouts/settings" %}
+{% set title = "Analytics Settings"|t('smart-links') %}
+{% set fullPageForm = true %}
+{% set selectedSettingsItem = 'analytics' %}
+
+{% set plugin = craft.app.plugins.getPlugin('smart-links') %}{% set crumbs = [
+    {
+        label: plugin.settings.pluginName|t('smart-links'),
+        url: url('smart-links'),
+    },
+    {
+        label: 'Settings'|t('smart-links'),
+        url: url('smart-links/settings'),
+    },
+    {
+        label: 'Analytics'|t('smart-links'),
+        url: url('smart-links/settings/analytics'),
+    },
+] %}
+
+{% import "_includes/forms" as forms %}
+
+{% block content %}
+    <form method="post" accept-charset="UTF-8">
+        {{ actionInput('smart-links/settings/save') }}
+        {{ csrfInput() }}
+        {{ redirectInput('smart-links/settings/analytics') }}
+
+        <h2>{{ "Analytics"|t('smart-links') }}</h2>
+
+        {{ forms.lightswitchField({
+            label: "Enable Analytics"|t('smart-links'),
+            instructions: "Track clicks and visitor data for smart links"|t('smart-links'),
+            id: 'enableAnalytics',
+            name: 'settings[enableAnalytics]',
+            on: settings.enableAnalytics ?? true,
+            toggle: 'analytics-settings',
+            disabled: settings.isOverriddenByConfig('enableAnalytics'),
+            warning: settings.isOverriddenByConfig('enableAnalytics') ? 
+                "This is being overridden by the <code>enableAnalytics</code> setting in <code>config/smart-links.php</code>."|t('smart-links')|raw : null,
+        }) }}
+
+        <div id="analytics-settings" class="{{ not (settings.enableAnalytics ?? true) ? 'hidden' }}">
+            <div class="field">
+                <p class="light">{{ "When enabled, Smart Links will track visitor interactions, device types, geographic data, and other analytics information."|t('smart-links') }}</p>
+            </div>
+
+            <hr>
+
+            <h2>{{ "Geographic Detection"|t('smart-links') }}</h2>
+
+            {{ forms.lightswitchField({
+                label: "Enable Geographic Detection"|t('smart-links'),
+                instructions: "Detect user location for analytics"|t('smart-links'),
+                id: 'enableGeoDetection',
+                name: 'settings[enableGeoDetection]',
+                on: settings.enableGeoDetection ?? false,
+                disabled: settings.isOverriddenByConfig('enableGeoDetection'),
+                warning: settings.isOverriddenByConfig('enableGeoDetection') ? 
+                    "This is being overridden by the <code>enableGeoDetection</code> setting in <code>config/smart-links.php</code>."|t('smart-links')|raw : null,
+            }) }}
+
+            <hr>
+
+            <h2>{{ "Data Retention"|t('smart-links') }}</h2>
+
+        {{ forms.textField({
+            label: "Analytics Retention"|t('smart-links'),
+            instructions: "How many days to keep analytics data (0 for unlimited, max 3650)"|t('smart-links'),
+            id: 'analyticsRetention',
+            name: 'settings[analyticsRetention]',
+            value: settings.analyticsRetention ?? 90,
+            type: 'number',
+            min: 0,
+            max: 3650,
+            disabled: settings.isOverriddenByConfig('analyticsRetention'),
+            warning: settings.isOverriddenByConfig('analyticsRetention') ? 
+                "This is being overridden by the <code>analyticsRetention</code> setting in <code>config/smart-links.php</code>."|t('smart-links')|raw : null,
+            errors: (settings is defined and settings) ? settings.getErrors('analyticsRetention') : []
+        }) }}
+        
+        {% if (settings.analyticsRetention ?? 90) > 0 %}
+            <div class="field" style="margin-top: 20px;">
+                <div class="heading">
+                    <label>{{ "Analytics Cleanup"|t('smart-links') }}</label>
+                    <div class="instructions">
+                        <p>{{ "Analytics data older than {days} days will be automatically cleaned up daily."|t('smart-links', {days: settings.analyticsRetention ?? 90}) }}</p>
+                    </div>
+                </div>
+                <button type="button" class="btn" id="cleanup-analytics-now">
+                    {{ "Clean Up Now"|t('smart-links') }}
+                </button>
+            </div>
+        {% elseif (settings.analyticsRetention ?? 90) == 0 %}
+            <div class="field" style="margin-top: 20px;">
+                <div class="heading">
+                    <label>{{ "Unlimited Retention Warning"|t('smart-links') }}</label>
+                    <div class="instructions" style="color: #da5a47;">
+                        <p><strong>{{ "Warning"|t('smart-links') }}:</strong> {{ "Analytics data will be retained indefinitely. This could result in large database size, slower performance, and increased storage costs over time. Consider setting a retention period (recommended: 90-365 days) for production sites."|t('smart-links') }}</p>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
+        </div>{# end #analytics-settings #}
+
+        <div class="buttons">
+            <button type="submit" class="btn submit">{{ "Save Settings"|t('smart-links') }}</button>
+        </div>
+    </form>
+{% endblock %}
+
+{% js %}
+    $('#cleanup-analytics-now').on('click', function() {
+        if (!confirm('{{ "Are you sure you want to clean up old analytics data now?"|t('smart-links')|e('js') }}')) {
+            return;
+        }
+        
+        const $btn = $(this);
+        $btn.addClass('loading').prop('disabled', true);
+        
+        $.ajax({
+            url: '{{ actionUrl('smart-links/settings/cleanup-analytics')|raw }}',
+            type: 'POST',
+            dataType: 'json',
+            data: {
+                {{ craft.app.config.general.csrfTokenName }}: '{{ craft.app.request.csrfToken }}'
+            },
+            success: function(response) {
+                if (response.success) {
+                    Craft.cp.displayNotice(response.message || '{{ "Analytics cleanup job queued"|t('smart-links')|e('js') }}');
+                } else {
+                    Craft.cp.displayError(response.error || '{{ "Failed to queue cleanup job"|t('smart-links')|e('js') }}');
+                }
+            },
+            error: function() {
+                Craft.cp.displayError('{{ "Failed to queue cleanup job"|t('smart-links')|e('js') }}');
+            },
+            complete: function() {
+                $btn.removeClass('loading').prop('disabled', false);
+            }
+        });
+    });
+{% endjs %}

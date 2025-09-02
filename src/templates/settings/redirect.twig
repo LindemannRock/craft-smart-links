@@ -1,0 +1,76 @@
+{% extends "smart-links/_layouts/settings" %}
+{% set title = "Redirect Settings"|t('smart-links') %}
+{% set fullPageForm = true %}
+{% set selectedSettingsItem = 'redirect' %}
+
+{% set plugin = craft.app.plugins.getPlugin('smart-links') %}{% set crumbs = [
+    {
+        label: plugin.settings.pluginName|t('smart-links'),
+        url: url('smart-links'),
+    },
+    {
+        label: 'Settings'|t('smart-links'),
+        url: url('smart-links/settings'),
+    },
+    {
+        label: 'Redirect'|t('smart-links'),
+        url: url('smart-links/settings/redirect'),
+    },
+] %}
+
+{% import "_includes/forms" as forms %}
+
+{% block content %}
+    <form method="post" accept-charset="UTF-8">
+        {{ actionInput('smart-links/settings/save') }}
+        {{ csrfInput() }}
+        {{ redirectInput('smart-links/settings/redirect') }}
+
+        <h2>{{ "Redirect Behavior"|t('smart-links') }}</h2>
+
+        {{ forms.selectField({
+            label: "Language Detection Method"|t('smart-links'),
+            instructions: "How to detect user language preference"|t('smart-links'),
+            id: 'languageDetectionMethod',
+            name: 'settings[languageDetectionMethod]',
+            value: settings.languageDetectionMethod ?? 'browser',
+            options: [
+                {label: 'Browser preference', value: 'browser'},
+                {label: 'IP geolocation', value: 'ip'},
+                {label: 'Both', value: 'both'},
+            ],
+            disabled: settings.isOverriddenByConfig('languageDetectionMethod'),
+            warning: settings.isOverriddenByConfig('languageDetectionMethod') ? 
+                "This is being overridden by the <code>languageDetectionMethod</code> setting in <code>config/smart-links.php</code>."|t('smart-links')|raw : null,
+        }) }}
+
+        {{ forms.textField({
+            label: "Custom Redirect Template"|t('smart-links'),
+            instructions: "Path to custom template for desktop redirects (optional)"|t('smart-links'),
+            id: 'redirectTemplate',
+            name: 'settings[redirectTemplate]',
+            value: settings.redirectTemplate ?? '',
+            placeholder: 'smart-links/redirect',
+            disabled: settings.isOverriddenByConfig('redirectTemplate'),
+            warning: settings.isOverriddenByConfig('redirectTemplate') ? 
+                "This is being overridden by the <code>redirectTemplate</code> setting in <code>config/smart-links.php</code>."|t('smart-links')|raw : null,
+        }) }}
+        
+        {{ forms.textField({
+            label: "404 Redirect URL"|t('smart-links'),
+            instructions: "Where to redirect when a smart link is not found or disabled"|t('smart-links'),
+            id: 'notFoundRedirectUrl',
+            name: 'settings[notFoundRedirectUrl]',
+            value: settings.notFoundRedirectUrl ?? '/',
+            placeholder: '/',
+            tip: 'Can be a relative path (/) or full URL (https://example.com)'|t('smart-links'),
+            disabled: settings.isOverriddenByConfig('notFoundRedirectUrl'),
+            warning: settings.isOverriddenByConfig('notFoundRedirectUrl') ? 
+                "This is being overridden by the <code>notFoundRedirectUrl</code> setting in <code>config/smart-links.php</code>."|t('smart-links')|raw : null,
+        }) }}
+
+        <div class="buttons">
+            <button type="submit" class="btn submit">{{ "Save Settings"|t('smart-links') }}</button>
+        </div>
+    </form>
+{% endblock %}

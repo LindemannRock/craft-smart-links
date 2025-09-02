@@ -1,0 +1,17 @@
+{% extends "_layouts/elementindex" %}
+{% set plugin = craft.app.plugins.getPlugin('smart-links') %}
+{% set title = plugin.settings.pluginName|t('smart-links') %}
+{% set elementType = 'lindemannrock\\smartlinks\\elements\\SmartLink' %}
+{% set selectedSubnavItem = 'links' %}
+
+{% set crumbs = [
+    { label: plugin.settings.pluginName|t('smart-links'), url: url('smart-links') }
+] %}
+
+{% block actionButton %}
+    {% if currentUser.can('smartLinks:createLinks') %}
+        <div class="btngroup">
+            <a href="{{ url('smart-links/new') }}" class="btn submit add icon">{{ 'New smart link'|t('smart-links') }}</a>
+        </div>
+    {% endif %}
+{% endblock %}

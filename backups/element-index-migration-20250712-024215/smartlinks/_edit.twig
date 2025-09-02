@@ -1,0 +1,560 @@
+{% extends "smart-links/_layouts/cp" %}
+{% import "_includes/forms" as forms %}
+
+{% set title = smartLink.id ? smartLink.title : "New smart link"|t('smart-links') %}
+{% set fullPageForm = true %}
+{% set selectedSubnavItem = 'links' %}
+{% set saveShortcutRedirect = 'smart-links/smartlinks/{id}' %}
+{% set retainScrollOnSaveShortcut = true %}
+
+{% set tabs = {
+    fields: {
+        label: 'Content'|t('app'),
+        url: '#fields',
+    },
+} %}
+
+{# Only show analytics tab if globally enabled and smart link exists #}
+{% if craft.smartLinks.settings.enableAnalytics and smartLink.id %}
+    {% set tabs = tabs|merge({
+        analytics: {
+            label: 'Analytics'|t('smart-links'),
+            url: '#analytics',
+        },
+    }) %}
+{% endif %}
+
+{# Set up breadcrumbs #}
+{% set crumbs = [] %}
+
+{# Site switcher (first item) #}
+{% if craft.app.getIsMultiSite() %}
+    {% set currentSite = craft.app.sites.getSiteById(smartLink.siteId) %}
+    
+    {# Get site menu items #}
+    {% set siteMenuItems = [] %}
+    {% for site in craft.app.sites.getEditableSites() %}
+        {% set siteMenuItems = siteMenuItems|merge([{
+            label: site.name,
+            url: smartLink.id ? url('smart-links/smartlinks/' ~ smartLink.id, {site: site.handle}) : url('smart-links/new', {site: site.handle}),
+            selected: site.id == smartLink.siteId
+        }]) %}
+    {% endfor %}
+    
+    {% set crumbs = [{
+        id: 'site-crumb',
+        icon: 'world',
+        label: currentSite.name|t('site'),
+        menu: {
+            items: siteMenuItems,
+            label: 'Select site'|t('app')
+        }
+    }] %}
+{% endif %}
+
+{# Main navigation #}
+{% set crumbs = crumbs|merge([
+    {
+        label: "Smart Links"|t('smart-links'),
+        url: url('smart-links')
+    }
+]) %}
+
+{% if smartLink.id %}
+    {% set crumbs = crumbs|merge([{
+        label: smartLink.title,
+        url: url('smart-links/smartlinks/' ~ smartLink.id)
+    }]) %}
+    
+{% endif %}
+
+{% block contextMenu %}
+    {# No revisions support for now #}
+{% endblock %}
+
+
+{% block actionButton %}
+    {% if smartLink.id %}
+        <div class="preview-btn-container btngroup">
+            <a href="{{ smartLink.getRedirectUrl() }}" target="_blank" class="view-btn btn" aria-label="{{ 'View'|t('app') }}">{{ 'View'|t('app') }}</a>
+        </div>
+    {% endif %}
+    <div class="btngroup">
+        <button type="submit" class="btn submit">{{ "Save"|t('app') }}</button>
+    </div>
+    {% if smartLink.id %}
+        <button type="button" id="action-btn" class="btn menubtn action-btn hairline-dark m" title="{{ 'Actions'|t('app') }}" aria-controls="action-menu" aria-label="{{ 'Actions'|t('app') }}" data-disclosure-trigger="true" aria-expanded="false"></button>
+        <div id="action-menu" class="menu menu--disclosure">
+            <ul>
+                <li>
+                    <button id="action-copy" class="menu-item formsubmit" data-action="smart-links/smart-links/duplicate" data-params='{"id":{{ smartLink.id }}}' data-headers='{"Accept":"application/json"}'>
+                        <span class="icon fuchsia">{{ svg('@app/icons/clone.svg') }}</span>
+                        <span class="menu-item-label">{{ "Duplicate"|t('app') }}</span>
+                    </button>
+                </li>
+            </ul>
+            <hr class="padded">
+            <ul>
+                <li>
+                    <button class="menu-item error formsubmit" data-destructive data-action="smart-links/smart-links/delete" data-params='{"id":{{ smartLink.id }}}' data-confirm="{{ 'Are you sure you want to delete this entry?'|t('app') }}" data-redirect="{{ 'smart-links'|hash }}" data-headers='{"Accept":"application/json"}'>
+                        <span class="icon">{{ svg('@app/icons/trash.svg') }}</span>
+                        <span class="menu-item-label">{{ "Delete"|t('app') }}</span>
+                    </button>
+                </li>
+            </ul>
+        </div>
+    {% endif %}
+{% endblock %}
+
+
+{# Display validation errors summary before content #}
+{% if smartLink is defined and smartLink.hasErrors() %}
+    {% set errorList = [] %}
+    {% for attribute, errors in smartLink.getErrors() %}
+        {% for error in errors %}
+            {% set errorList = errorList|merge([{
+                attribute: attribute,
+                message: error
+            }]) %}
+        {% endfor %}
+    {% endfor %}
+    
+    {% set errorSummary %}
+        <div class="error-summary" tabindex="-1">
+            <div>
+                <span class="notification-icon" data-icon="alert" aria-label="error" role="img"></span>
+                <h2>{{ 'Found {count, number} {count, plural, =1{error} other{errors}}'|t('app', {count: errorList|length}) }}</h2>
+            </div>
+            <ul class="errors">
+                {% for error in errorList %}
+                    <li>
+                        <a href="#" data-field-error-key="{{ error.attribute }}">{{ error.message }}</a>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endset %}
+{% endif %}
+
+{% block content %}
+    <input type="hidden" name="action" value="smart-links/smart-links/save">
+    {{ redirectInput('smart-links') }}
+    {% if smartLink.id %}
+        <input type="hidden" name="smartLinkId" value="{{ smartLink.id }}">
+        <input type="hidden" name="id" value="{{ smartLink.id }}">
+    {% endif %}
+    {% if craft.app.sites.getTotalEditableSites() > 1 %}
+        <input type="hidden" name="siteId" value="{{ smartLink.siteId }}">
+    {% endif %}
+
+        <div id="fields">
+        {% include "smart-links/smartlinks/_partials/fields" %}
+    </div>
+    
+    {% if craft.smartLinks.settings.enableAnalytics and smartLink.id %}
+        <div id="analytics" class="hidden">
+            {% include "smart-links/smartlinks/_partials/analytics" with {
+                smartLink: smartLink,
+                analyticsService: analyticsService ?? null
+            } %}
+        </div>
+    {% endif %}
+{% endblock %}
+
+{% block details %}
+    <div class="meta">
+        {{ forms.textField({
+            label: "Slug"|t('app'),
+            siteId: smartLink.siteId ?? null,
+            id: 'slug',
+            name: 'slug',
+            value: smartLink.slug,
+            errors: smartLink.getErrors('slug')
+        }) }}
+    </div>
+
+    <fieldset>
+        <legend class="h6">{{ "Status"|t('app') }}</legend>
+        <div class="meta">
+            {{ forms.lightswitchField({
+                label: "Enabled"|t('app'),
+                id: 'active',
+                name: 'active',
+                on: smartLink.active ?? true
+            }) }}
+        </div>
+    </fieldset>
+
+    {% if craft.smartLinks.settings.enableAnalytics %}
+        <fieldset>
+            <legend class="h6">{{ "Analytics"|t('smart-links') }}</legend>
+            <div class="meta">
+                {{ forms.lightswitchField({
+                    label: "Track Analytics"|t('smart-links'),
+                    id: 'trackAnalytics',
+                    name: 'trackAnalytics',
+                    on: smartLink.trackAnalytics ?? true
+                }) }}
+            </div>
+        </fieldset>
+    {% else %}
+        {# Hidden field to ensure trackAnalytics is set to false when analytics are disabled #}
+        <input type="hidden" name="trackAnalytics" value="0">
+    {% endif %}
+
+    <fieldset>
+        <legend class="h6">{{ "QR Code"|t('smart-links') }}</legend>
+        <div class="meta">
+            {{ forms.lightswitchField({
+                label: "Enable QR Code"|t('smart-links'),
+                id: 'qrCodeEnabled',
+                name: 'qrCodeEnabled',
+                on: smartLink.qrCodeEnabled ?? true,
+                toggle: 'qr-settings'
+            }) }}
+        </div>
+        
+        <div id="qr-settings" class="meta {{ not (smartLink.qrCodeEnabled ?? true) ? 'hidden' }}">
+            {% if smartLink.id %}
+                <div class="field nested">
+                    <div class="heading">
+                        <label>{{ "Preview"|t('smart-links') }}</label>
+                    </div>
+                    <div class="input" style="text-align: center;">
+                        <a href="{{ siteUrl('qr/' ~ smartLink.slug) }}" target="_blank" title="{{ 'Click to view full size'|t('smart-links') }}">
+                            <img id="qr-preview" 
+                                 src="{{ smartLink.getQrCodeUrl({ size: 150 }) }}" 
+                                 alt="QR Code Preview" 
+                                 style="max-width: 150px; height: auto; border: 1px solid #e3e5e8; padding: 8px; background: {{ smartLink.qrCodeBgColor ?? '#FFFFFF' }}; cursor: pointer;">
+                        </a>
+                    </div>
+                </div>
+            {% endif %}
+            
+            {{ forms.textField({
+                label: "Size"|t('smart-links'),
+                id: 'qrCodeSize',
+                name: 'qrCodeSize',
+                value: smartLink.qrCodeSize ?? 256,
+                type: 'number',
+                min: 100,
+                max: 1000,
+                size: 5,
+                fieldClass: 'nested'
+            }) }}
+
+            {{ forms.colorField({
+                label: "Color"|t('smart-links'),
+                id: 'qrCodeColor',
+                name: 'qrCodeColor',
+                value: smartLink.qrCodeColor ?? '#000000',
+                fieldClass: 'nested'
+            }) }}
+
+            {{ forms.colorField({
+                label: "Background"|t('smart-links'),
+                id: 'qrCodeBgColor',
+                name: 'qrCodeBgColor',
+                value: smartLink.qrCodeBgColor ?? '#FFFFFF',
+                fieldClass: 'nested'
+            }) }}
+
+            <div class="field nested" style="margin-top: 15px;">
+                <div class="heading">
+                    <label>{{ "Actions"|t('smart-links') }}</label>
+                </div>
+                <div class="input">
+                    <button type="button" class="btn" id="reset-qr-defaults">
+                        {{ "Reset to Defaults"|t('smart-links') }}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </fieldset>
+
+    {% if smartLink.id %}
+        <dl class="meta read-only">
+            <div class="data">
+                <dt class="heading">{{ "ID"|t('app') }}</dt>
+                <dd class="value">{{ smartLink.id }}</dd>
+            </div>
+            <div class="data">
+                <dt class="heading">{{ "Status"|t('app') }}</dt>
+                <dd class="value">
+                    <span class="status {{ smartLink.active ? 'live' : 'disabled' }}"></span>
+                    <span>{{ smartLink.active ? 'Live'|t('app') : 'Disabled'|t('app') }}</span>
+                </dd>
+            </div>
+            {% if craft.smartLinks.settings.enableAnalytics %}
+                <div class="data">
+                    <dt class="heading">{{ "Clicks"|t('smart-links') }}</dt>
+                    <dd class="value">{{ smartLink.clicks|number }}</dd>
+                </div>
+            {% endif %}
+            <div class="data">
+                <dt class="heading">{{ "Created at"|t('app') }}</dt>
+                <dd class="value">{{ smartLink.dateCreated|datetime('short') }}</dd>
+            </div>
+            <div class="data">
+                <dt class="heading">{{ "Updated at"|t('app') }}</dt>
+                <dd class="value">{{ smartLink.dateUpdated|datetime('short') }}</dd>
+            </div>
+        </dl>
+    {% endif %}
+{% endblock %}
+
+{% js %}
+    // Auto-generate slug from title
+    {% if not smartLink.id %}
+        new Craft.SlugGenerator('#title', '#slug', {
+            charMap: {{ craft.cp.getAsciiCharMap(craft.app.language)|json_encode|raw }}
+        });
+    {% endif %}
+    
+    
+    
+    
+    {% if smartLink.id %}
+        // Live QR code preview
+        (function() {
+            const qrPreview = document.getElementById('qr-preview');
+            if (!qrPreview) {
+                return;
+            }
+            
+            const qrLink = qrPreview.closest('a');
+            const colorInput = document.getElementById('qrCodeColor');
+            const bgColorInput = document.getElementById('qrCodeBgColor');
+            const sizeInput = document.getElementById('qrCodeSize');
+            const baseUrl = '{{ siteUrl('qr/' ~ smartLink.slug) }}';
+            let updateTimeout;
+            
+            function updateQrCode() {
+                // Clear previous timeout
+                clearTimeout(updateTimeout);
+                
+                // Debounce updates
+                updateTimeout = setTimeout(function() {
+                    // Get color values - Craft's color input doesn't include #
+                    const color = (colorInput.value || '000000').replace(/^#/, '');
+                    const bgColor = (bgColorInput.value || 'FFFFFF').replace(/^#/, '');
+                    const size = sizeInput.value || 256;
+                    
+                    // Add loading state
+                    qrPreview.style.opacity = '0.5';
+                    
+                    // Create new image to preload
+                    const newImg = new Image();
+                    newImg.onload = function() {
+                        qrPreview.src = this.src;
+                        qrPreview.style.opacity = '1';
+                    };
+                    
+                    newImg.onerror = function() {
+                        qrPreview.style.opacity = '1';
+                    };
+                    
+                    // Update QR code image
+                    const newSrc = `${baseUrl}?size=150&color=${color}&bg=${bgColor}&t=${Date.now()}`;
+                    newImg.src = newSrc;
+                    
+                    // Update preview background immediately
+                    qrPreview.style.background = '#' + bgColor;
+                    
+                    // Update link to full size
+                    if (qrLink) {
+                        qrLink.href = `${baseUrl}?size=${size}&color=${color}&bg=${bgColor}`;
+                    }
+                }, 150); // Debounce delay
+            }
+            
+            // Function to watch for color changes with proper Craft integration
+            function setupColorListeners(input, name) {
+                if (!input) {
+                    return;
+                }
+                
+                // Standard input events
+                ['input', 'change', 'keyup', 'blur', 'paste'].forEach(event => {
+                    input.addEventListener(event, updateQrCode);
+                });
+                
+                // Watch for value changes via MutationObserver
+                const observer = new MutationObserver((mutations) => {
+                    mutations.forEach((mutation) => {
+                        if (mutation.type === 'attributes' && mutation.attributeName === 'value') {
+                            updateQrCode();
+                        }
+                    });
+                });
+                
+                observer.observe(input, {
+                    attributes: true,
+                    attributeFilter: ['value']
+                });
+                
+                // Find the actual color picker button (Craft uses a button that opens a color picker)
+                const field = input.closest('.field');
+                if (field) {
+                    // Look for Craft's color picker button
+                    const colorButton = field.querySelector('.color-input-button, .color-container button, button[type="button"]');
+                    if (colorButton) {
+                        // When the button is clicked, watch for value changes
+                        colorButton.addEventListener('click', () => {
+                            // Poll for changes as the color picker updates
+                            let lastValue = input.value;
+                            const checkInterval = setInterval(() => {
+                                if (input.value !== lastValue) {
+                                    lastValue = input.value;
+                                    updateQrCode();
+                                }
+                            }, 100);
+                            
+                            // Stop polling after 30 seconds
+                            setTimeout(() => clearInterval(checkInterval), 30000);
+                        });
+                    }
+                }
+            }
+            
+            // Set up color listeners
+            setupColorListeners(colorInput, 'Color');
+            setupColorListeners(bgColorInput, 'Background Color');
+            
+            // Size input
+            if (sizeInput) {
+                sizeInput.addEventListener('input', updateQrCode);
+                sizeInput.addEventListener('change', updateQrCode);
+            }
+            
+            // Also update when the QR code is toggled on
+            const qrToggle = document.getElementById('qrCodeEnabled');
+            if (qrToggle) {
+                qrToggle.addEventListener('change', function() {
+                    if (this.classList.contains('on')) {
+                        setTimeout(updateQrCode, 100); // Small delay to ensure DOM is ready
+                    }
+                });
+            }
+            
+            // Global event delegation for any change events on our inputs
+            document.addEventListener('input', function(e) {
+                if (e.target === colorInput || e.target === bgColorInput) {
+                    updateQrCode();
+                }
+            }, true);
+            
+            // Watch for Craft's custom events
+            if (typeof Craft !== 'undefined' && Craft.cp) {
+                // Hook into Craft's CP JavaScript if available
+                const checkForChanges = () => {
+                    if (colorInput && colorInput.value !== colorInput.dataset.lastValue) {
+                        colorInput.dataset.lastValue = colorInput.value;
+                        updateQrCode();
+                    }
+                    if (bgColorInput && bgColorInput.value !== bgColorInput.dataset.lastValue) {
+                        bgColorInput.dataset.lastValue = bgColorInput.value;
+                        updateQrCode();
+                    }
+                };
+                
+                // Store initial values
+                if (colorInput) colorInput.dataset.lastValue = colorInput.value;
+                if (bgColorInput) bgColorInput.dataset.lastValue = bgColorInput.value;
+                
+                // Check periodically
+                setInterval(checkForChanges, 500);
+                
+                // Also listen for Craft's field changed event
+                if (typeof Craft.BaseElementEditor !== 'undefined') {
+                    Garnish.on(Craft.BaseElementEditor, 'onFieldChange', (e) => {
+                        updateQrCode();
+                    });
+                }
+                
+                // Try to hook into Craft's color field specifically
+                $(document).on('change', '.color-field input[type="text"]', function() {
+                    updateQrCode();
+                });
+                
+                // Also try Garnish events
+                if (typeof Garnish !== 'undefined') {
+                    $(colorInput).on('change textchange input', updateQrCode);
+                    $(bgColorInput).on('change textchange input', updateQrCode);
+                }
+            }
+            
+            // Final fallback - watch the color display elements themselves
+            const watchColorDisplay = () => {
+                const colorDisplays = document.querySelectorAll('.color-field .color-preview, .color-field .color-container');
+                colorDisplays.forEach(display => {
+                    const observer = new MutationObserver(() => {
+                        updateQrCode();
+                    });
+                    observer.observe(display, { attributes: true, attributeFilter: ['style'] });
+                });
+            };
+            
+            // Wait a bit for Craft to initialize color fields
+            setTimeout(watchColorDisplay, 1000);
+        })();
+    {% endif %}
+
+    // Reset QR code settings to plugin defaults
+    $('#reset-qr-defaults').on('click', function() {
+        if (!confirm('{{ "Reset QR code settings to plugin defaults?"|t('smart-links')|e('js') }}')) {
+            return;
+        }
+        
+        // Get plugin default values
+        const defaults = {
+            size: {{ craft.smartLinks.settings.defaultQrSize ?? 256 }},
+            color: '{{ craft.smartLinks.settings.defaultQrColor ?? '#000000' }}',
+            bgColor: '{{ craft.smartLinks.settings.defaultQrBgColor ?? '#FFFFFF' }}'
+        };
+        
+        // Reset form fields
+        $('#qrCodeSize').val(defaults.size);
+        $('#qrCodeColor').val(defaults.color.replace('#', ''));
+        $('#qrCodeBgColor').val(defaults.bgColor.replace('#', ''));
+        
+        // Trigger change events to update preview and color displays
+        $('#qrCodeSize').trigger('change');
+        $('#qrCodeColor').trigger('change').trigger('input');
+        $('#qrCodeBgColor').trigger('change').trigger('input');
+        
+        // Update color field displays manually for Craft
+        setTimeout(function() {
+            const colorPreview = $('#qrCodeColor').closest('.field').find('.color-preview');
+            const bgColorPreview = $('#qrCodeBgColor').closest('.field').find('.color-preview');
+            
+            if (colorPreview.length) {
+                colorPreview.css('background-color', defaults.color);
+            }
+            if (bgColorPreview.length) {
+                bgColorPreview.css('background-color', defaults.bgColor);
+            }
+        }, 50);
+        
+        Craft.cp.displayNotice('{{ "QR code settings reset to defaults"|t('smart-links')|e('js') }}');
+    });
+
+    {% if craft.smartLinks.settings.enableAnalytics %}
+        // Confirm when disabling analytics tracking
+        $('#trackAnalytics').on('change', function() {
+            const $toggle = $(this);
+            const isEnabled = $toggle.hasClass('on');
+            
+            // If turning OFF analytics tracking, show confirmation
+            if (!isEnabled) {
+                if (!confirm('{{ "Are you sure you want to disable analytics tracking for this smart link? This smart link will no longer collect visitor data and interactions."|t('smart-links')|e('js') }}')) {
+                    // User cancelled, turn the toggle back on
+                    $toggle.addClass('on');
+                    $toggle.find('input[type="hidden"]').val('1');
+                    $toggle.attr('aria-checked', 'true');
+                    return false;
+                }
+            }
+        });
+    {% endif %}
+{% endjs %}

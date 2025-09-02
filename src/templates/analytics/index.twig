@@ -1,0 +1,1285 @@
+{% extends "smart-links/_layouts/cp" %}
+{% import "_includes/forms" as forms %}
+{% set plugin = craft.app.plugins.getPlugin('smart-links') %}
+
+{% set title = "Analytics"|t('smart-links') %}
+{% set selectedSubnavItem = 'analytics' %}
+
+{% block actionButton %}
+	<div id="action-button" class="btngroup">
+		<button type="button" class="btn menubtn" data-icon="download">{{ "Export"|t('smart-links') }}</button>
+		<div class="menu" data-align="right">
+			<ul>
+				<li>
+					<a href="{{ actionUrl('smart-links/analytics/export', {dateRange: dateRange, format: 'csv'}) }}" class="export-link" data-format="csv">{{ "Export as CSV"|t('smart-links') }}</a>
+				</li>
+			</ul>
+		</div>
+	</div>
+{% endblock %}
+
+{% block toolbar %}
+	<div class="flex">
+		<div>
+			<div class="btngroup">
+				<button type="button" class="btn menubtn">
+					<span id="dateRangeLabel">{{ dateRange == 'today' ? 'Today' : (dateRange == 'yesterday' ? 'Yesterday' : (dateRange == 'last7days' ? 'Last 7 days' : (dateRange == 'last30days' ? 'Last 30 days' : (dateRange == 'last90days' ? 'Last 90 days' : 'All time')))) }}</span>
+				</button>
+				<div class="menu">
+					<ul>
+						<li><a href="#" data-range="today" class="main-date-range-option {{ dateRange == 'today' ? 'sel' : '' }}">{{ "Today"|t('smart-links') }}</a></li>
+						<li><a href="#" data-range="yesterday" class="main-date-range-option {{ dateRange == 'yesterday' ? 'sel' : '' }}">{{ "Yesterday"|t('smart-links') }}</a></li>
+						<li><a href="#" data-range="last7days" class="main-date-range-option {{ dateRange == 'last7days' ? 'sel' : '' }}">{{ "Last 7 days"|t('smart-links') }}</a></li>
+						<li><a href="#" data-range="last30days" class="main-date-range-option {{ dateRange == 'last30days' ? 'sel' : '' }}">{{ "Last 30 days"|t('smart-links') }}</a></li>
+						<li><a href="#" data-range="last90days" class="main-date-range-option {{ dateRange == 'last90days' ? 'sel' : '' }}">{{ "Last 90 days"|t('smart-links') }}</a></li>
+						<li><a href="#" data-range="all" class="main-date-range-option {{ dateRange == 'all' ? 'sel' : '' }}">{{ "All time"|t('smart-links') }}</a></li>
+					</ul>
+				</div>
+			</div>
+		</div>
+	</div>
+{% endblock %}
+
+{# Set up breadcrumbs #}
+{% set crumbs = [
+    {
+        label: plugin.settings.pluginName|t('smart-links'),
+        url: url('smart-links')
+    },
+    {
+        label: "Analytics"|t('smart-links'),
+        url: url('smart-links/analytics')
+    }
+] %}
+
+{% block content %}
+	<div id="analytics-dashboard">
+		<div class="analytics-stats">
+			<div class="stat-box">
+				<div class="stat-value" id="total-clicks">{{ analyticsData.totalClicks ?? 0 }}</div>
+				<div class="stat-label">{{ "Total Clicks"|t('smart-links') }}</div>
+			</div>
+			<div class="stat-box">
+				<div class="stat-value" id="unique-visitors">{{ analyticsData.uniqueVisitors ?? 0 }}</div>
+				<div class="stat-label">{{ "Unique Visitors"|t('smart-links') }}</div>
+			</div>
+			<div class="stat-box">
+				<div class="stat-value" id="active-links">{{ analyticsData.activeLinks ?? 0 }}</div>
+				<div class="stat-label">{{ "Active Links"|t('smart-links') }}</div>
+			</div>
+			<div class="stat-box">
+				<div class="stat-value" id="links-used">{{ analyticsData.linksUsedPercentage ?? 0 }}%</div>
+				<div class="stat-label">{{ "Engagement Rate"|t('smart-links') }}</div>
+			</div>
+		</div>
+
+		<h2 style="margin: 30px 0 20px;">{{ "Traffic Overview"|t('smart-links') }}</h2>
+
+		<div class="analytics-charts">
+			<div class="chart-container full-width">
+				<h3>{{ "Daily Clicks"|t('smart-links') }}</h3>
+				<canvas id="clicks-chart"></canvas>
+			</div>
+		</div>
+
+		<h2 style="margin: 30px 0 20px;">{{ "Top Smart Links"|t('smart-links') }}</h2>
+		
+		<div class="analytics-charts">
+			<div class="chart-container full-width">
+				<div id="top-links-table" class="table-scroll-container">
+					<table class="data fullwidth">
+						<thead>
+							<tr>
+								<th>{{ "Smart Link"|t('smart-links') }}</th>
+								<th>{{ "Total Interactions"|t('smart-links') }}</th>
+								<th>{{ "Last Interaction"|t('smart-links') }}</th>
+								<th>{{ "Last Interaction Type"|t('smart-links') }}</th>
+								<th>{{ "Last Destination URL"|t('smart-links') }}</th>
+								<th>{{ "QR Scans"|t('smart-links') }}</th>
+								<th>{{ "Direct Visits"|t('smart-links') }}</th>
+							</tr>
+						</thead>
+						<tbody>
+							{% for link in analyticsData.topLinks ?? [] %}
+								{% if link.enabled ?? true %}
+									<tr>
+										<td>
+											<a href="{{ url('smart-links/smartlinks/' ~ link.id) }}">
+												{{ link.name }}
+											</a>
+										</td>
+										<td>{{ link.clicks }}</td>
+										<td>{{ link.lastClick ? link.lastClick|datetime('short') : '-' }}</td>
+										<td>{{ link.lastInteractionType ?? '-' }}</td>
+										<td>
+											{% if link.lastDestinationUrl %}
+												<span title="{{ link.lastDestinationUrl }}">{{ link.lastDestinationUrl|length > 25 ? link.lastDestinationUrl|slice(0, 25) ~ '...' : link.lastDestinationUrl }}</span>
+											{% else %}
+												-
+											{% endif %}
+										</td>
+										<td>{{ link.qrScans ?? '-' }}</td>
+										<td>{{ link.directVisits ?? '-' }}</td>
+									</tr>
+								{% endif %}
+							{% endfor %}
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+
+		<h2 style="margin: 30px 0 20px;">{{ "Latest Interactions"|t('smart-links') }}</h2>
+
+		<div class="analytics-charts">
+			<div class="chart-container full-width">
+				<div id="recent-clicks-table" class="table-scroll-container">
+					<table class="data fullwidth">
+						<thead>
+							<tr>
+								<th>{{ "Date"|t('smart-links') }}</th>
+								<th>{{ "Smart Link"|t('smart-links') }}</th>
+								<th>{{ "Type"|t('smart-links') }}</th>
+								<th>{{ "Button"|t('smart-links') }}</th>
+								<th>{{ "Source"|t('smart-links') }}</th>
+								<th>{{ "Destination URL"|t('smart-links') }}</th>
+								<th>{{ "Device"|t('smart-links') }}</th>
+								<th>{{ "OS"|t('smart-links') }}</th>
+								<th>{{ "Location"|t('smart-links') }}</th>
+							</tr>
+						</thead>
+						<tbody>
+							{% for click in analyticsData.recentClicks ?? [] %}
+								<tr>
+									<td>{{ click.dateCreated|datetime('short') }}</td>
+									<td>
+										<a href="{{ cpUrl('smart-links/' ~ click.linkId) }}">{{ click.smartLinkTitle }}</a>
+									</td>
+									<td>
+										{% if click.clickType == 'button' %}
+											{{ "Button"|t('smart-links') }}
+										{% else %}
+											{{ "Redirect"|t('smart-links') }}
+										{% endif %}
+									</td>
+									<td>
+										{% if click.clickType == 'button' and click.platform %}
+											{{ click.platform|capitalize|replace({'-': ' '}) }}
+										{% else %}
+											—
+										{% endif %}
+									</td>
+									<td>
+										{% if click.source == 'qr' %}
+											{{ "QR"|t('smart-links') }}
+										{% elseif click.source == 'landing' %}
+											{{ "Landing"|t('smart-links') }}
+										{% else %}
+											{{ "Direct"|t('smart-links') }}
+										{% endif %}
+									</td>
+									<td>
+										{% if click.destinationUrl %}
+											<span title="{{ click.destinationUrl }}">
+												{{ click.destinationUrl|length > 25 ? click.destinationUrl|slice(0, 25) ~ '...' : click.destinationUrl }}
+											</span>
+										{% else %}
+											—
+										{% endif %}
+									</td>
+									<td>{{ click.deviceType ? click.deviceType|capitalize : '—' }}</td>
+									<td>{{ click.osName ? click.osName : '—' }}</td>
+									<td>
+										{% if click.city and click.country %}
+											{{ click.city }}, {{ click.country }}
+										{% elseif click.country %}
+											{{ click.country }}
+										{% else %}
+											—
+										{% endif %}
+									</td>
+								</tr>
+							{% else %}
+								<tr>
+									<td colspan="9" class="thin light">{{ "No interactions recorded yet"|t('smart-links') }}</td>
+								</tr>
+							{% endfor %}
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+
+		<h2 style="margin: 30px 0 20px;">{{ "Device Analytics"|t('smart-links') }}</h2>
+
+		<div class="analytics-charts two-columns">
+			<div class="chart-container">
+				<h3>{{ "Device Types"|t('smart-links') }}</h3>
+				<canvas id="device-chart"></canvas>
+			</div>
+
+			<div class="chart-container">
+				<h3>{{ "Device Brands"|t('smart-links') }}</h3>
+				<canvas id="brand-chart"></canvas>
+			</div>
+		</div>
+
+		<div class="analytics-charts two-columns" style="margin-top: 30px;">
+			<div class="chart-container">
+				<h3>{{ "Operating Systems"|t('smart-links') }}</h3>
+				<canvas id="os-chart"></canvas>
+			</div>
+
+			<div class="chart-container">
+				<h3>{{ "Browser Usage"|t('smart-links') }}</h3>
+				<canvas id="browser-donut-chart"></canvas>
+			</div>
+		</div>
+
+		<h2 style="margin: 30px 0 20px;">{{ "Geographic Distribution"|t('smart-links') }}</h2>
+
+		<div class="analytics-charts two-columns">
+			<div class="chart-container">
+				<h3>{{ "Top Countries"|t('smart-links') }}</h3>
+				<div id="countries-table">
+					<table class="data fullwidth">
+						<thead>
+							<tr>
+								<th>{{ "Country"|t('smart-links') }}</th>
+								<th>{{ "Clicks"|t('smart-links') }}</th>
+								<th>{{ "Percentage"|t('smart-links') }}</th>
+							</tr>
+						</thead>
+						<tbody>
+							{% set topCountries = analyticsData.topCountries ?? [] %}
+							{% if topCountries|length > 0 %}
+								{% for country in topCountries %}
+									<tr>
+										<td>{{ country.name }}</td>
+										<td>{{ country.clicks }}</td>
+										<td>{{ country.percentage }}%</td>
+									</tr>
+								{% endfor %}
+							{% else %}
+								<tr>
+									<td colspan="3" style="text-align: center; color: #999;">
+										{{ "No country data available"|t('smart-links') }}
+									</td>
+								</tr>
+							{% endif %}
+						</tbody>
+					</table>
+				</div>
+			</div>
+
+			<div class="chart-container">
+				<h3>{{ "Top Cities"|t('smart-links') }}</h3>
+				<div id="cities-table">
+					<table class="data fullwidth">
+						<thead>
+							<tr>
+								<th>{{ "City"|t('smart-links') }}</th>
+								<th>{{ "Country"|t('smart-links') }}</th>
+								<th>{{ "Clicks"|t('smart-links') }}</th>
+								<th>{{ "Percentage"|t('smart-links') }}</th>
+							</tr>
+						</thead>
+						<tbody>
+							{% set topCities = analyticsData.topCities ?? [] %}
+							{% if topCities|length > 0 %}
+								{% for city in topCities %}
+									<tr>
+										<td>{{ city.city }}</td>
+										<td>{{ city.countryName }}</td>
+										<td>{{ city.clicks }}</td>
+										<td>{{ city.percentage }}%</td>
+									</tr>
+								{% endfor %}
+							{% else %}
+								<tr>
+									<td colspan="4" style="text-align: center; color: #999;">
+										{{ "No city data available"|t('smart-links') }}
+									</td>
+								</tr>
+							{% endif %}
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+
+
+		<h2 style="margin: 30px 0 20px;">{{ "Usage Patterns"|t('smart-links') }}</h2>
+
+		<div class="analytics-charts">
+			<div class="chart-container">
+				<h3>{{ "Peak Usage Hours"|t('smart-links') }}</h3>
+				<canvas id="hourly-chart"></canvas>
+				<div id="peak-hour-info" style="text-align: center; margin-top: 10px;"></div>
+			</div>
+
+		</div>
+	</div>
+{% endblock %}
+
+{% css %}
+#analytics-dashboard {
+        padding: 24px;
+    }
+
+    .analytics-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        margin-bottom: 40px;
+    }
+
+    .stat-box {
+        background: #f3f7fc;
+        padding: 24px;
+        border-radius: 4px;
+        text-align: center;
+        border: 1px solid var(--border-hairline);
+    }
+
+    .stat-value {
+        font-size: 32px;
+        font-weight: 600;
+        color: #0d78f2;
+        margin-bottom: 8px;
+    }
+
+    .stat-label {
+        font-size: 14px;
+        color: #596673;
+    }
+
+    .analytics-charts {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 30px;
+        margin-bottom: 30px;
+    }
+
+    .analytics-charts.two-columns {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    @media (max-width: 1024px) {
+        .analytics-charts.two-columns {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .chart-container.full-width {
+        grid-column: 1 / -1;
+    }
+
+    .chart-container {
+        background: #fff;
+        border: 1px solid #e3e5e8;
+        border-radius: 4px;
+        padding: 24px;
+    }
+
+    .chart-container h3 {
+        margin: 0 0 20px;
+        font-size: 16px;
+    }
+
+    .chart-container canvas {
+        max-height: 300px;
+    }
+
+    #clicks-chart {
+        max-height: 200px !important;
+    }
+
+    /* Modal styles */
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 9999;
+        left: 0;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        width: 100vw;
+        height: 100vh;
+        overflow: auto;
+        background-color: rgba(0,0,0,0.5);
+        padding: 40px;
+    }
+
+    .modal-content {
+        background-color: #fefefe;
+        margin: 0 auto;
+        width: 90%;
+        max-width: 1200px;
+        max-height: 90vh;
+        border-radius: 8px;
+        box-shadow: 0 4px 24px rgba(0,0,0,0.15);
+        display: flex;
+        flex-direction: column;
+    }
+
+    .modal-content .header {
+        padding: 20px 24px;
+        border-bottom: 1px solid #e3e5e8;
+        display: flex;
+        align-items: center;
+    }
+
+    .modal-content .header h1 {
+        margin: 0;
+        font-size: 20px;
+    }
+
+    .modal-content .btn-close {
+        background: none;
+        border: none;
+        font-size: 24px;
+        cursor: pointer;
+        color: #8b92a7;
+        padding: 0;
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .modal-content .btn-close:hover {
+        color: #596673;
+    }
+
+    .modal-content .body {
+        padding: 24px;
+        flex: 1;
+        overflow-y: auto;
+    }
+
+    .modal-content .loading {
+        text-align: center;
+        padding: 40px;
+    }
+
+    /* Table scroll container */
+    .table-scroll-container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        margin: 0 -24px;
+        padding: 0 24px;
+    }
+
+    .table-scroll-container table {
+        min-width: 800px;
+    }
+
+    /* Mobile responsive */
+    @media (max-width: 768px) {
+        .table-scroll-container {
+            margin: 0 -12px;
+            padding: 0 12px;
+        }
+    }
+{% endcss %}
+
+{% js %}
+// Store chart instances globally
+window.analyticsCharts = window.analyticsCharts || {};
+
+// Pre-translate strings to avoid JS syntax errors
+const translations = {
+    countries: {{ "Countries"|t('smart-links')|json_encode|raw }},
+    country: {{ "Country"|t('smart-links')|json_encode|raw }},
+    clicks: {{ "Clicks"|t('smart-links')|json_encode|raw }},
+    percentage: {{ "Percentage"|t('smart-links')|json_encode|raw }},
+    topCitiesWorldwide: {{ "Top Cities Worldwide"|t('smart-links')|json_encode|raw }},
+    city: {{ "City"|t('smart-links')|json_encode|raw }},
+    totalClicks: {{ "total clicks"|t('smart-links')|json_encode|raw }},
+    failedToLoadCountriesData: {{ "Failed to load countries data"|t('smart-links')|json_encode|raw }},
+    peakUsageAt: {{ "Peak usage at {hour}"|t('smart-links')|json_encode|raw }}
+};
+
+// Load Chart.js if not already loaded
+    if (typeof Chart === 'undefined') {
+        var script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js';
+        script.onload = initCharts;
+        document.head.appendChild(script);
+    } else {
+        initCharts();
+    }
+
+    // Date range change handler - wait for DOM ready
+    $(document).ready(function() {
+        let currentDateRange = '{{ dateRange }}';
+
+        // Handle main analytics date range selection via AJAX
+        $(document).on('click', '.main-date-range-option', function(e) {
+            e.preventDefault();
+
+            const $link = $(this);
+            const range = $link.data('range');
+
+            // Update the button text
+            const rangeLabels = {
+                'today': '{{ "Today"|t('smart-links')|e('js') }}',
+                'yesterday': '{{ "Yesterday"|t('smart-links')|e('js') }}',
+                'last7days': '{{ "Last 7 days"|t('smart-links')|e('js') }}',
+                'last30days': '{{ "Last 30 days"|t('smart-links')|e('js') }}',
+                'last90days': '{{ "Last 90 days"|t('smart-links')|e('js') }}',
+                'all': '{{ "All time"|t('smart-links')|e('js') }}'
+            };
+
+            // Update button text immediately
+            $('#dateRangeLabel').text(rangeLabels[range] || range);
+
+            // Update selected state
+            $link.closest('ul').find('.sel').removeClass('sel');
+            $link.addClass('sel');
+
+            // Close the menu
+            $link.closest('.menu').removeClass('active');
+            $link.closest('.btngroup').find('.menubtn').removeClass('active');
+
+            // Update current range
+            currentDateRange = range;
+
+            // Update URL without reload
+            const url = new URL(window.location);
+            url.searchParams.set('dateRange', range);
+            window.history.pushState({}, '', url);
+
+            // Update export links
+            updateExportLinks(range);
+
+            // Show loading state
+            $('#analytics-dashboard').css('opacity', '0.5');
+
+            // Reload the page data via AJAX
+            loadAnalyticsData(range);
+        });
+
+        // Update export links when date range changes
+        function updateExportLinks(dateRange) {
+            if (!dateRange) {
+                dateRange = currentDateRange;
+            }
+            $('.export-link').each(function() {
+                const format = $(this).data('format');
+                const exportUrl = Craft.getActionUrl('smart-links/analytics/export', {
+                    dateRange: dateRange,
+                    format: format
+                });
+                $(this).attr('href', exportUrl);
+            });
+        }
+
+        // Load analytics data
+        function loadAnalyticsData(dateRange) {
+            // Update summary stats
+            $.ajax({
+                url: '{{ actionUrl('smart-links/analytics/get-data')|raw }}',
+                type: 'POST',
+                dataType: 'json',
+                data: {
+                    dateRange: dateRange,
+                    type: 'summary',
+{{ craft.app.config.general.csrfTokenName }}: '{{ craft.app.request.csrfToken }}'
+                },
+                success: function(response) {
+                    if (response.success && response.data) {
+                        // Update stat boxes
+                        $('#total-clicks').text(response.data.totalClicks || 0);
+                        $('#unique-visitors').text(response.data.uniqueVisitors || 0);
+                        $('#active-links').text(response.data.activeLinks || 0);
+                        $('#links-used').text((response.data.linksUsedPercentage || 0) + '%');
+
+                        // Update tables
+                        updateTopCountriesTable(response.data.topCountries || []);
+                        updateTopLinksTable(response.data.topLinks || []);
+                        updateTopCitiesTable(response.data.topCities || []);
+                        updateRecentClicksTable(response.data.recentClicks || []);
+                    }
+
+                    // Restore opacity
+                    $('#analytics-dashboard').css('opacity', '1');
+
+                    // Re-initialize charts with new data
+                    initCharts();
+                },
+                error: function() {
+                    $('#analytics-dashboard').css('opacity', '1');
+                    Craft.cp.displayError('{{ "Failed to load analytics data"|t('smart-links')|e('js') }}');
+                }
+            });
+        }
+
+        // Update tables
+        function updateTopCountriesTable(countries) {
+            let html = '';
+            if (countries.length > 0) {
+                countries.forEach(function(country) {
+                    html += '<tr>';
+		                    html += '<td>' + country.name + '</td>';
+		                    html += '<td>' + country.clicks + '</td>';
+		                    html += '<td>' + country.percentage + '%</td>';
+		                    html += '</tr>';
+		                });
+		                // Hidden for now
+		                // if (countries.length >= 1) {
+		                //     html += '<tr><td colspan="3" style="text-align: center; padding: 10px;">';
+				        //     html += '<a href="#" id="view-all-countries" class="btn small">{{ "View Geographic Details"|t('smart-links')|e('js') }}</a>';
+				        //     html += '</td></tr>';
+                        // }
+            } else {
+                html += '<tr><td colspan="3" style="text-align: center; color: #999;">{{ "No country data available"|t('smart-links')|e('js') }}</td></tr>';
+            }
+            $('#countries-table tbody').html(html);
+        }
+
+        function updateTopLinksTable(links) {
+            let html = '';
+            if (links.length === 0) {
+                html = '<tr><td colspan="7" class="thin light">{{ "No data for selected period"|t('smart-links')|e('js') }}</td></tr>';
+            } else {
+                links.forEach(function(link) {
+                    // Check for enabled status (defaults to true if not set)
+                    if (link.enabled !== false) {
+                        html += '<tr>';
+                        html += '<td><a href="' + Craft.getUrl('smart-links/smartlinks/' + link.id) + '">' + Craft.escapeHtml(link.name) + '</a></td>';
+                        html += '<td>' + link.clicks + '</td>';
+                        html += '<td>';
+                        if (link.lastClick) {
+                            // Handle different date formats
+                            let dateStr = link.lastClick;
+                            if (typeof link.lastClick === 'object' && link.lastClick.date) {
+                                dateStr = link.lastClick.date;
+                            }
+                            const date = new Date(dateStr);
+                            if (!isNaN(date.getTime())) {
+                                html += Craft.formatDate(date);
+                            } else {
+                                html += '-';
+                            }
+                        } else {
+                            html += '-';
+                        }
+                        html += '</td>';
+                        html += '<td>' + (link.lastInteractionType || '-') + '</td>';
+                        html += '<td>';
+                        if (link.lastDestinationUrl) {
+                            const url = link.lastDestinationUrl;
+                            const displayUrl = url.length > 25 ? url.substring(0, 25) + '...' : url;
+                            html += '<span title="' + Craft.escapeHtml(url) + '">' + Craft.escapeHtml(displayUrl) + '</span>';
+                        } else {
+                            html += '-';
+                        }
+                        html += '</td>';
+                        html += '<td>' + (link.qrScans || '-') + '</td>';
+                        html += '<td>' + (link.directVisits || '-') + '</td>';
+                        html += '</tr>';
+                    }
+                });
+            }
+            $('#top-links-table tbody').html(html);
+        }
+
+        function updateRecentClicksTable(clicks) {
+            let html = '';
+            if (clicks.length === 0) {
+                html = '<tr><td colspan="9" class="thin light">{{ "No interactions recorded yet"|t('smart-links')|e('js') }}</td></tr>';
+            } else {
+                clicks.forEach(function(click) {
+                    html += '<tr>';
+                    html += '<td>';
+                    if (click.dateCreated) {
+                        // Handle different date formats
+                        let dateStr = click.dateCreated;
+                        if (typeof click.dateCreated === 'object' && click.dateCreated.date) {
+                            dateStr = click.dateCreated.date;
+                        }
+                        const date = new Date(dateStr);
+                        if (!isNaN(date.getTime())) {
+                            html += Craft.formatDate(date);
+                        } else {
+                            html += '-';
+                        }
+                    } else {
+                        html += '-';
+                    }
+                    html += '</td>';
+                    html += '<td><a href="' + Craft.getUrl('smart-links/' + click.linkId) + '">' + Craft.escapeHtml(click.smartLinkTitle) + '</a></td>';
+                    html += '<td>' + (click.clickType === 'button' ? '{{ "Button"|t('smart-links')|e('js') }}' : '{{ "Redirect"|t('smart-links')|e('js') }}') + '</td>';
+                    html += '<td>';
+                    if (click.clickType === 'button' && click.platform) {
+                        html += Craft.escapeHtml(click.platform.charAt(0).toUpperCase() + click.platform.slice(1).replace(/-/g, ' '));
+                    } else {
+                        html += '—';
+                    }
+                    html += '</td>';
+                    html += '<td>';
+                    if (click.source === 'qr') {
+                        html += '{{ "QR"|t('smart-links')|e('js') }}';
+                    } else if (click.source === 'landing') {
+                        html += '{{ "Landing"|t('smart-links')|e('js') }}';
+                    } else {
+                        html += '{{ "Direct"|t('smart-links')|e('js') }}';
+                    }
+                    html += '</td>';
+                    html += '<td>';
+                    if (click.destinationUrl) {
+                        const url = click.destinationUrl;
+                        const displayUrl = url.length > 25 ? url.substring(0, 25) + '...' : url;
+                        html += '<span title="' + Craft.escapeHtml(url) + '">' + Craft.escapeHtml(displayUrl) + '</span>';
+                    } else {
+                        html += '—';
+                    }
+                    html += '</td>';
+                    html += '<td>' + (click.deviceType ? Craft.escapeHtml(click.deviceType.charAt(0).toUpperCase() + click.deviceType.slice(1)) : '—') + '</td>';
+                    html += '<td>' + (click.osName || '—') + '</td>';
+                    html += '<td>';
+                    if (click.city && click.country) {
+                        html += Craft.escapeHtml(click.city + ', ' + click.country);
+                    } else if (click.country) {
+                        html += Craft.escapeHtml(click.country);
+                    } else {
+                        html += '—';
+                    }
+                    html += '</td>';
+                    html += '</tr>';
+                });
+            }
+            $('#recent-clicks-table tbody').html(html);
+        }
+		
+				        function updateTopCitiesTable(cities) {
+				            let html = '';
+				            if (cities.length > 0) {
+				                cities.forEach(function(city) {
+				                    html += '<tr>';
+				                    html += '<td>' + city.city + '</td>';
+				                    html += '<td>' + city.countryName + '</td>';
+				                    html += '<td>' + city.clicks + '</td>';
+				                    html += '<td>' + city.percentage + '%</td>';
+				                    html += '</tr>';
+				                });
+				            } else {
+				                html += '<tr><td colspan="4" style="text-align: center; color: #999;">{{ "No city data available"|t('smart-links')|e('js') }}</td></tr>';
+            }
+            $('#cities-table tbody').html(html);
+        }
+
+        // Initial update
+        updateExportLinks();
+    });
+
+    function initCharts() {
+        // Destroy existing charts before creating new ones
+        if (window.analyticsCharts) {
+            Object.keys(window.analyticsCharts).forEach(function(key) {
+                if (window.analyticsCharts[key] && typeof window.analyticsCharts[key].destroy === 'function') {
+                    window.analyticsCharts[key].destroy();
+                }
+            });
+            window.analyticsCharts = {};
+        }
+        
+        // Get current date range from URL or default
+        const urlParams = new URLSearchParams(window.location.search);
+        const currentRange = urlParams.get('dateRange') || '{{ dateRange }}';
+
+        // Define consistent color palette
+        const chartColors = [
+            '#0d78f2', // Blue
+            '#27ae60', // Green
+            '#e74c3c', // Red
+            '#f39c12', // Orange
+            '#9b59b6', // Purple
+            '#1abc9c', // Turquoise
+            '#34495e', // Dark Gray
+            '#e67e22', // Dark Orange
+            '#3498db', // Light Blue
+            '#2ecc71', // Light Green
+            '#c0392b', // Dark Red
+            '#f1c40f', // Yellow
+        ];
+
+        // Fetch analytics data
+        $.ajax({
+            url: '{{ actionUrl('smart-links/analytics/get-data')|raw }}',
+            type: 'POST',
+            dataType: 'json',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+            },
+            data: {
+                dateRange: currentRange,
+                type: 'clicks',
+{{ craft.app.config.general.csrfTokenName }}: '{{ craft.app.request.csrfToken }}'
+            },
+            success: function(response) {
+            if (response.success && response.data) {
+                // Daily clicks chart
+                window.analyticsCharts.clicksChart = new Chart(document.getElementById('clicks-chart'), {
+                    type: 'line',
+                    data: {
+                        labels: response.data.labels,
+                        datasets: [{
+                            label: '{{ "Clicks"|t('smart-links') }}',
+                            data: response.data.values,
+                            borderColor: chartColors[0],
+                            backgroundColor: chartColors[0] + '20',
+                            tension: 0.1,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                min: 0,
+                                ticks: {
+                                    stepSize: 1,
+                                    precision: 0
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        }
+                    }
+                });
+            }
+            },
+            error: function(xhr) {
+                console.error('Failed to load clicks data:', xhr.responseText);
+            }
+        });
+
+        // Device breakdown chart
+        $.ajax({
+            url: '{{ actionUrl('smart-links/analytics/get-data')|raw }}',
+            type: 'POST',
+            dataType: 'json',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+            },
+            data: {
+                dateRange: currentRange,
+                type: 'devices',
+{{ craft.app.config.general.csrfTokenName }}: '{{ craft.app.request.csrfToken }}'
+            },
+            success: function(response) {
+            if (response.success && response.data) {
+                window.analyticsCharts.deviceChart = new Chart(document.getElementById('device-chart'), {
+                    type: 'doughnut',
+                    data: {
+                        labels: response.data.labels,
+                        datasets: [{
+                            data: response.data.values,
+                            backgroundColor: chartColors.slice(0, 6)
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom'
+                            }
+                        }
+                    }
+                });
+            }
+            },
+            error: function(xhr) {
+                console.error('Failed to load device data:', xhr.responseText);
+            }
+        });
+
+
+        // Device brands chart
+        $.ajax({
+            url: '{{ actionUrl('smart-links/analytics/get-data')|raw }}',
+            type: 'POST',
+            dataType: 'json',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+            },
+            data: {
+                dateRange: currentRange,
+                type: 'device-brands',
+{{ craft.app.config.general.csrfTokenName }}: '{{ craft.app.request.csrfToken }}'
+            },
+            success: function(response) {
+                if (response.success && response.data) {
+                    window.analyticsCharts.brandChart = new Chart(document.getElementById('brand-chart'), {
+                        type: 'bar',
+                        data: {
+                            labels: response.data.labels,
+                            datasets: [{
+                                label: '{{ "Clicks"|t('smart-links') }}',
+                                data: response.data.values,
+                                backgroundColor: chartColors[0],
+                                borderColor: chartColors[0],
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    ticks: {
+                                        stepSize: 1,
+                                        precision: 0
+                                    }
+                                }
+                            },
+                            plugins: {
+                                legend: {
+                                    display: false
+                                }
+                            }
+                        }
+                    });
+                }
+            },
+            error: function(xhr) {
+                console.error('Failed to load device brand data:', xhr.responseText);
+            }
+        });
+
+        // OS breakdown chart
+        $.ajax({
+            url: '{{ actionUrl('smart-links/analytics/get-data')|raw }}',
+            type: 'POST',
+            dataType: 'json',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+            },
+            data: {
+                dateRange: currentRange,
+                type: 'os-breakdown',
+{{ craft.app.config.general.csrfTokenName }}: '{{ craft.app.request.csrfToken }}'
+            },
+            success: function(response) {
+                if (response.success && response.data) {
+                    window.analyticsCharts.osChart = new Chart(document.getElementById('os-chart'), {
+                        type: 'doughnut',
+                        data: {
+                            labels: response.data.labels,
+                            datasets: [{
+                                data: response.data.values,
+                                backgroundColor: chartColors
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    position: 'bottom'
+                                },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function(context) {
+                                            const label = context.label || '';
+                                            const value = context.parsed || 0;
+                                            const percentage = response.data.percentages[context.dataIndex] || 0;
+                                            return label + ': ' + value + ' clicks (' + percentage + '%)';
+                                        },
+                                        afterLabel: function(context) {
+                                            // Show version breakdown if available
+                                            if (response.data.breakdown && response.data.breakdown[context.label]) {
+                                                const versions = response.data.breakdown[context.label];
+                                                return versions.slice(0, 3).map(v => '  ' + v.version + ': ' + v.clicks + ' clicks');
+                                            }
+                                            return null;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+            },
+            error: function(xhr) {
+                console.error('Failed to load OS data:', xhr.responseText);
+            }
+        });
+
+        // Browser breakdown chart
+        $.ajax({
+            url: '{{ actionUrl('smart-links/analytics/get-data')|raw }}',
+            type: 'POST',
+            dataType: 'json',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+            },
+            data: {
+                dateRange: currentRange,
+                type: 'browsers',
+{{ craft.app.config.general.csrfTokenName }}: '{{ craft.app.request.csrfToken }}'
+            },
+            success: function(response) {
+                if (response.success && response.data) {
+                    window.analyticsCharts.browserChart = new Chart(document.getElementById('browser-donut-chart'), {
+                        type: 'doughnut',
+                        data: {
+                            labels: response.data.labels,
+                            datasets: [{
+                                data: response.data.values,
+                                backgroundColor: chartColors
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    position: 'bottom'
+                                },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function(context) {
+                                            const label = context.label || '';
+                                            const value = context.parsed || 0;
+                                            const percentage = response.data.percentages[context.dataIndex] || 0;
+                                            return label + ': ' + value + ' clicks (' + percentage + '%)';
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+            },
+            error: function(xhr) {
+                console.error('Failed to load browser data:', xhr.responseText);
+            }
+        });
+
+        // View all countries handler
+        $(document).on('click', '#view-all-countries', function(e) {
+            e.preventDefault();
+
+            // Create a modal to show all countries with map view
+            const modal = $('<div/>', {
+                class: 'modal',
+                style: 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 100000;',
+                html: `
+<div class="modal-content" style="background: white; width: 90%; max-width: 1200px; max-height: 90vh; border-radius: 8px; box-shadow: 0 4px 24px rgba(0,0,0,0.3); display: flex; flex-direction: column;">
+	<header class="header" style="padding: 20px 24px; border-bottom: 1px solid #e3e5e8; display: flex; align-items: center;">
+		<h1 style="margin: 0; font-size: 20px;">{{ "Geographic Analytics"|t('smart-links')|e('js') }}</h1>
+		<div style="flex-grow: 1;"></div>
+		<button type="button" class="btn-close" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #8b92a7; padding: 0; width: 30px; height: 30px;">&times;</button>
+	</header>
+	<div class="body" style="padding: 24px; flex: 1; overflow-y: auto;">
+		<div class="loading" style="text-align: center; padding: 40px;">
+			<div class="spinner"></div>
+			<p>{{ "Loading geographic data..."|t('smart-links')|e('js') }}</p>
+		</div>
+	</div>
+</div>
+`
+            });
+
+            // Add modal to page
+            $('body').append(modal);
+            modal.show();
+
+            // Disable body scroll
+            $('body').css('overflow', 'hidden');
+
+            // Function to close modal
+            function closeModal() {
+                modal.fadeOut(200, function() {
+                    modal.remove();
+                    $('body').css('overflow', ''); // Restore scroll
+                });
+            }
+
+            // Close modal handlers
+            modal.find('.btn-close').on('click', closeModal);
+
+            // Close on backdrop click
+            modal.on('click', function(e) {
+                if (e.target === this) {
+                    closeModal();
+                }
+            });
+
+            // Close on ESC key
+            $(document).on('keydown.modal', function(e) {
+                if (e.key === 'Escape' || e.keyCode === 27) {
+                    closeModal();
+                    $(document).off('keydown.modal'); // Remove the event listener
+                }
+            });
+
+            // Fetch all countries data
+            $.ajax({
+                url: '{{ actionUrl('smart-links/analytics/get-data')|raw }}',
+                type: 'POST',
+                dataType: 'json',
+                data: {
+                    dateRange: currentRange,
+                    type: 'all-countries',
+{{ craft.app.config.general.csrfTokenName }}: '{{ craft.app.request.csrfToken }}'
+                },
+                success: function(response) {
+                    if (response.success && response.data) {
+                        let html = '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">';
+	
+		                        // Left side - Countries table
+		                        html += '<div>';
+		                        html += '<h3>' + translations.countries + '</h3>';
+		                        html += '<table class="data fullwidth">';
+		                        html += '<thead><tr>';
+										                        html += '<th>' + translations.country + '</th>';
+										                        html += '<th>' + translations.clicks + '</th>';
+										                        html += '<th>' + translations.percentage + '</th>';
+										                        html += '</tr></thead><tbody>';
+				
+								                        response.data.forEach(function(country) {
+								                            html += '<tr>';
+								                            html += '<td>' + country.name + '</td>';
+								                            html += '<td>' + country.clicks + '</td>';
+								                            html += '<td>' + country.percentage + '%</td>';
+								                            html += '</tr>';
+								                        });
+				
+								                        html += '</tbody></table>';
+				                        html += '</div>';
+		
+				                        // Right side - Cities and additional data
+				                        html += '<div>';
+						                        html += '<h3>' + translations.topCitiesWorldwide + '</h3>';
+			
+						                        // Load cities data
+						                        $.ajax({
+						                            url: '{{ actionUrl('smart-links/analytics/get-data')|raw }}',
+						                            type: 'POST',
+						                            dataType: 'json',
+						                            data: {
+						                                dateRange: currentRange,
+						                                type: 'all-cities',
+		{{ craft.app.config.general.csrfTokenName }}: '{{ craft.app.request.csrfToken }}'
+				                            },
+				                            success: function(cityResponse) {
+				                                if (cityResponse.success && cityResponse.data) {
+				                                    let cityHtml = '<table class="data fullwidth">';
+						                                    cityHtml += '<thead><tr>';
+										                                    cityHtml += '<th>' + translations.city + '</th>';
+										                                    cityHtml += '<th>' + translations.country + '</th>';
+										                                    cityHtml += '<th>' + translations.clicks + '</th>';
+										                                    cityHtml += '</tr></thead><tbody>';
+				
+								                                    cityResponse.data.forEach(function(city) {
+								                                        cityHtml += '<tr>';
+								                                        cityHtml += '<td>' + city.city + '</td>';
+								                                        cityHtml += '<td>' + city.countryName + '</td>';
+								                                        cityHtml += '<td>' + city.clicks + '</td>';
+								                                        cityHtml += '</tr>';
+								                                    });
+				
+								                                    cityHtml += '</tbody></table>';
+				                                    modal.find('.body > div > div:last-child').html(
+				                                        '<h3>' + translations.topCitiesWorldwide + '</h3>' + cityHtml
+						                                    );
+						                                }
+						                            }
+						                        });
+			
+						                        html += '<div class="loading"><div class="spinner"></div></div>';
+				                        html += '</div>';
+				                        html += '</div>';
+		
+				                        // Add summary stats at bottom
+				                        const totalCountries = response.data.length;
+				                        const totalClicks = response.data.reduce((sum, country) => sum + country.clicks, 0);
+		
+				                        html += '<hr style="margin: 30px 0;">';
+				                        html += '<div style="text-align: center; color: #666;">';
+						                        html += '<strong>' + totalCountries + '</strong> ' + translations.countries.toLowerCase() + ' • ';
+		                        html += '<strong>' + totalClicks + '</strong> ' + translations.totalClicks;
+		                        html += '</div>';
+	
+		                        modal.find('.body').html(html);
+		                    }
+		                },
+		                error: function() {
+		                    modal.find('.body').html('<p class="error">' + translations.failedToLoadCountriesData + '</p>');
+				                }
+				            });
+				        });
+		
+				        // Load hourly analytics
+				        $.ajax({
+				            url: '{{ actionUrl('smart-links/analytics/get-data')|raw }}',
+				            type: 'POST',
+				            dataType: 'json',
+				            data: {
+				                dateRange: currentRange,
+				                type: 'hourly',
+{{ craft.app.config.general.csrfTokenName }}: '{{ craft.app.request.csrfToken }}'
+            },
+            success: function(response) {
+                if (response.success && response.data) {
+                    // Create hourly chart
+                    window.analyticsCharts.hourlyChart = new Chart(document.getElementById('hourly-chart'), {
+                        type: 'bar',
+                        data: {
+                            labels: Array.from({length: 24}, (_, i) => i + ':00'),
+                            datasets: [{
+                                label: '{{ "Clicks"|t('smart-links') }}',
+                                data: response.data.data,
+                                backgroundColor: chartColors[0],
+                                borderColor: chartColors[0],
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    ticks: {
+                                        stepSize: 1,
+                                        precision: 0
+                                    }
+                                }
+                            },
+                            plugins: {
+                                legend: {
+                                    display: false
+                                }
+                            }
+                        }
+                    });
+
+                    // Show peak hour
+                    $('#peak-hour-info').html(
+                        translations.peakUsageAt.replace('{hour}', '<strong>' + response.data.peakHourFormatted + '</strong>')
+		                    );
+		                }
+		            }
+		        });
+	
+		    }
+{% endjs %}

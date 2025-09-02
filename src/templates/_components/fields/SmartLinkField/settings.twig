@@ -1,0 +1,42 @@
+{% import "_includes/forms" as forms %}
+
+{{ forms.textField({
+    label: "Selection Label"|t('app'),
+    instructions: "The text to display on the Add button."|t('app'),
+    id: 'selectionLabel',
+    name: 'selectionLabel',
+    value: field.selectionLabel,
+    placeholder: 'smart-links'|t('Add a smart link'),
+}) }}
+
+{{ forms.lightswitchField({
+    label: "Allow Multiple"|t('smart-links'),
+    instructions: "Whether to allow multiple smart links to be selected"|t('smart-links'),
+    id: 'allowMultiple',
+    name: 'allowMultiple',
+    on: field.allowMultiple,
+    toggle: 'limit-container',
+}) }}
+
+<div id="limit-container" class="{{ not field.allowMultiple ? 'hidden' }}">
+    {{ forms.textField({
+        label: "Limit"|t('app'),
+        instructions: "The maximum number of smart links that can be selected."|t('app'),
+        id: 'limit',
+        name: 'limit',
+        value: field.limit,
+        type: 'number',
+        min: 1,
+    }) }}
+</div>
+
+{{ forms.checkboxSelectField({
+    label: "Sources"|t('app'),
+    instructions: "Which sources should be available to select smart links from?"|t('app'),
+    id: 'sources',
+    name: 'sources',
+    options: [
+        { label: "All"|t('app'), value: '*' },
+    ],
+    values: field.sources == '*' ? ['*'] : field.sources,
+}) }}

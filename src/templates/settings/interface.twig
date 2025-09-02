@@ -1,0 +1,50 @@
+{% extends "smart-links/_layouts/settings" %}
+{% set title = "Interface Settings"|t('smart-links') %}
+{% set fullPageForm = true %}
+{% set selectedSettingsItem = 'interface' %}
+
+{% set plugin = craft.app.plugins.getPlugin('smart-links') %}{% set crumbs = [
+    {
+        label: plugin.settings.pluginName|t('smart-links'),
+        url: url('smart-links'),
+    },
+    {
+        label: 'Settings'|t('smart-links'),
+        url: url('smart-links/settings'),
+    },
+    {
+        label: 'Interface'|t('smart-links'),
+        url: url('smart-links/settings/interface'),
+    },
+] %}
+
+{% import "_includes/forms" as forms %}
+
+{% block content %}
+    <form method="post" accept-charset="UTF-8">
+        {{ actionInput('smart-links/settings/save') }}
+        {{ csrfInput() }}
+        {{ redirectInput('smart-links/settings/interface') }}
+
+        <h2>{{ "Interface Settings"|t('smart-links') }}</h2>
+
+        {{ forms.textField({
+            label: "Items Per Page"|t('smart-links'),
+            instructions: "Number of smart links to show per page"|t('smart-links'),
+            id: 'itemsPerPage',
+            name: 'settings[itemsPerPage]',
+            value: settings.itemsPerPage ?? 100,
+            type: 'number',
+            min: 10,
+            max: 500,
+            disabled: settings.isOverriddenByConfig('itemsPerPage'),
+            warning: settings.isOverriddenByConfig('itemsPerPage') ? 
+                "This is being overridden by the <code>itemsPerPage</code> setting in <code>config/smart-links.php</code>."|t('smart-links')|raw : null,
+            errors: (settings is defined and settings) ? settings.getErrors('itemsPerPage') : []
+        }) }}
+
+        <div class="buttons">
+            <button type="submit" class="btn submit">{{ "Save Settings"|t('smart-links') }}</button>
+        </div>
+    </form>
+{% endblock %}

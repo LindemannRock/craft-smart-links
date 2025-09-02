@@ -1,0 +1,59 @@
+{% extends "_layouts/cp" %}
+
+{% set title = title ?? 'Settings'|t('smart-links') %}
+{% set selectedSettingsItem = selectedSettingsItem ?? 'general' %}
+{% set selectedSubnavItem = 'settings' %}
+
+{% block sidebar %}
+    <nav id="settings-nav">
+        <ul>
+            <li>
+                <a href="{{ url('smart-links/settings/general') }}" {% if selectedSettingsItem == 'general' %}class="sel"{% endif %} data-nav-item="general">
+                    {{ 'General'|t('smart-links') }}
+                </a>
+            </li>
+            <li>
+                <a href="{{ url('smart-links/settings/analytics') }}" {% if selectedSettingsItem == 'analytics' %}class="sel"{% endif %} data-nav-item="analytics">
+                    {{ 'Analytics'|t('smart-links') }}
+                </a>
+            </li>
+            <li>
+                <a href="{{ url('smart-links/settings/export') }}" {% if selectedSettingsItem == 'export' %}class="sel"{% endif %} data-nav-item="export">
+                    {{ 'Export'|t('smart-links') }}
+                </a>
+            </li>
+            <li>
+                <a href="{{ url('smart-links/settings/qr-code') }}" {% if selectedSettingsItem == 'qr-code' %}class="sel"{% endif %} data-nav-item="qr-code">
+                    {{ 'QR Code'|t('smart-links') }}
+                </a>
+            </li>
+            <li>
+                <a href="{{ url('smart-links/settings/redirect') }}" {% if selectedSettingsItem == 'redirect' %}class="sel"{% endif %} data-nav-item="redirect">
+                    {{ 'Redirect'|t('smart-links') }}
+                </a>
+            </li>
+            <li>
+                <a href="{{ url('smart-links/settings/interface') }}" {% if selectedSettingsItem == 'interface' %}class="sel"{% endif %} data-nav-item="interface">
+                    {{ 'Interface'|t('smart-links') }}
+                </a>
+            </li>
+            <li>
+                <a href="{{ url('smart-links/settings/advanced') }}" {% if selectedSettingsItem == 'advanced' %}class="sel"{% endif %} data-nav-item="advanced">
+                    {{ 'Advanced'|t('smart-links') }}
+                </a>
+            </li>
+        </ul>
+    </nav>
+{% endblock %}
+
+{% css %}
+    /* Prevent scroll-based highlighting */
+    #settings-nav a {
+        transition: none;
+    }
+    
+    /* Ensure only the current page link is highlighted */
+    #settings-nav a.sel {
+        cursor: default;
+    }
+{% endcss %}

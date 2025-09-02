@@ -1,0 +1,202 @@
+{% set dateRange = craft.app.request.getQueryParam('range') ?? 'last7days' %}
+
+{# Get analytics data #}
+{% if analyticsService is defined and smartLink is defined %}
+    {% set analytics = analyticsService.getSmartLinkAnalytics(smartLink.id, dateRange) %}
+{% else %}
+    {% set analytics = { totalClicks: 0 } %}
+{% endif %}
+
+<div class="analytics-container">
+    {# Date Range Selector - Always visible #}
+    <div class="analytics-header">
+        <div class="flex">
+            <div class="btngroup">
+                <button type="button" class="btn menubtn">
+                    <span>{{ dateRange == 'today' ? 'Today' : (dateRange == 'yesterday' ? 'Yesterday' : (dateRange == 'last7days' ? 'Last 7 days' : (dateRange == 'last30days' ? 'Last 30 days' : (dateRange == 'last90days' ? 'Last 90 days' : 'All time')))) }}</span>
+                </button>
+                <div class="menu">
+                    <ul>
+                        <li><a href="#" data-range="today" class="date-range-option {{ dateRange == 'today' ? 'sel' : '' }}">{{ "Today"|t('smart-links') }}</a></li>
+                        <li><a href="#" data-range="yesterday" class="date-range-option {{ dateRange == 'yesterday' ? 'sel' : '' }}">{{ "Yesterday"|t('smart-links') }}</a></li>
+                        <li><a href="#" data-range="last7days" class="date-range-option {{ dateRange == 'last7days' ? 'sel' : '' }}">{{ "Last 7 days"|t('smart-links') }}</a></li>
+                        <li><a href="#" data-range="last30days" class="date-range-option {{ dateRange == 'last30days' ? 'sel' : '' }}">{{ "Last 30 days"|t('smart-links') }}</a></li>
+                        <li><a href="#" data-range="last90days" class="date-range-option {{ dateRange == 'last90days' ? 'sel' : '' }}">{{ "Last 90 days"|t('smart-links') }}</a></li>
+                        <li><a href="#" data-range="all" class="date-range-option {{ dateRange == 'all' ? 'sel' : '' }}">{{ "All time"|t('smart-links') }}</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="flex-grow"></div>
+            <div class="btngroup">
+                <button type="button" class="btn menubtn" data-icon="download">{{ "Export"|t('smart-links') }}</button>
+                <div class="menu" data-align="right">
+                    <ul>
+                        <li><a href="#" class="export-analytics" data-format="csv">{{ "Export as CSV"|t('smart-links') }}</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="analytics-content" data-smart-link-id="{{ smartLink.id }}">
+        {% include "smart-links/smartlinks/_partials/analytics-content" %}
+    </div>
+</div>
+
+{% js %}
+$(document).ready(function() {
+    // Handle export clicks
+    $(document).on('click', '.export-analytics', function(e) {
+        e.preventDefault();
+        
+        const format = $(this).data('format');
+        const smartLinkId = $('#analytics-content').data('smart-link-id');
+        const currentRange = new URLSearchParams(window.location.search).get('range') || 'last7days';
+        
+        // Build export URL
+        const exportUrl = Craft.getActionUrl('smart-links/analytics/export', {
+            smartLinkId: smartLinkId,
+            dateRange: currentRange,
+            format: format
+        });
+        
+        // Trigger download
+        window.location.href = exportUrl;
+        
+        // Close the menu
+        $(this).closest('.menu').removeClass('active');
+        $(this).closest('.btngroup').find('.menubtn').removeClass('active');
+    });
+    
+    // Handle date range selection via AJAX
+    $(document).on('click', '.date-range-option', function(e) {
+        e.preventDefault();
+        
+        const $link = $(this);
+        const range = $link.data('range');
+        const smartLinkId = $('#analytics-content').data('smart-link-id');
+        
+        // Update the button text
+        const rangeLabels = {
+            'today': '{{ "Today"|t('smart-links')|e('js') }}',
+            'yesterday': '{{ "Yesterday"|t('smart-links')|e('js') }}',
+            'last7days': '{{ "Last 7 days"|t('smart-links')|e('js') }}',
+            'last30days': '{{ "Last 30 days"|t('smart-links')|e('js') }}',
+            'last90days': '{{ "Last 90 days"|t('smart-links')|e('js') }}',
+            'all': '{{ "All time"|t('smart-links')|e('js') }}'
+        };
+        
+        // Update button text immediately
+        $link.closest('.btngroup').find('.menubtn span').text(rangeLabels[range] || range);
+        
+        // Update selected state
+        $link.closest('ul').find('.sel').removeClass('sel');
+        $link.addClass('sel');
+        
+        // Close the menu
+        $link.closest('.menu').removeClass('active');
+        $link.closest('.btngroup').find('.menubtn').removeClass('active');
+        
+        // Show loading state
+        $('#analytics-content').addClass('loading').css('opacity', '0.5');
+        
+        // Make AJAX request
+        $.ajax({
+            url: Craft.getActionUrl('smart-links/analytics/get-analytics-data'),
+            type: 'GET',
+            dataType: 'json',
+            data: {
+                smartLinkId: smartLinkId,
+                range: range
+            },
+            success: function(response) {
+                if (response.success) {
+                    // Update the content
+                    $('#analytics-content').html(response.html);
+                    
+                    // Update URL without reload
+                    const url = new URL(window.location);
+                    url.searchParams.set('range', range);
+                    window.history.pushState({}, '', url);
+                    
+                    // Force update the button text again in case it didn't stick
+                    $('.analytics-header .menubtn span').text(rangeLabels[range] || range);
+                } else {
+                    Craft.cp.displayError(response.error || '{{ "Failed to load analytics data"|t('smart-links')|e('js') }}');
+                }
+            },
+            error: function() {
+                Craft.cp.displayError('{{ "Failed to load analytics data"|t('smart-links')|e('js') }}');
+            },
+            complete: function() {
+                $('#analytics-content').removeClass('loading').css('opacity', '1');
+            }
+        });
+    });
+});
+{% endjs %}
+
+{% css %}
+.analytics-container {
+    padding: 24px 0;
+}
+
+.analytics-header {
+    margin-bottom: 24px;
+}
+
+.analytics-header .flex {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.analytics-header .flex-grow {
+    flex-grow: 1;
+}
+
+.analytics-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 40px;
+}
+
+.stat-box {
+    background: #f3f7fc;
+    padding: 24px;
+    border-radius: 4px;
+    text-align: center;
+    border: 1px solid var(--border-hairline);
+}
+
+.stat-value {
+    font-size: 32px;
+    font-weight: 600;
+    color: #0d78f2;
+    margin-bottom: 8px;
+}
+
+.stat-label {
+    font-size: 14px;
+    color: #596673;
+}
+
+.device-stats,
+.platform-stats,
+.button-click-stats,
+.recent-clicks {
+    margin-bottom: 40px;
+}
+
+.button-click-stats p.light {
+    margin-bottom: 16px;
+    margin-top: -8px;
+}
+
+h3 {
+    margin-bottom: 16px;
+    font-size: 16px;
+    font-weight: 600;
+}
+{% endcss %}

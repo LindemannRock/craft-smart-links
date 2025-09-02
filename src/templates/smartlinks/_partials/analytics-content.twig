@@ -1,0 +1,330 @@
+{% set dateRange = dateRange ?? craft.app.request.getQueryParam('range') ?? 'last7days' %}
+
+{# Get analytics data #}
+{% if analyticsService is defined and smartLink is defined %}
+    {% set analytics = analyticsService.getSmartLinkAnalytics(smartLink.id, dateRange) %}
+{% else %}
+    {% set analytics = { totalClicks: 0 } %}
+{% endif %}
+
+{% if analytics.totalClicks == 0 %}
+    <div class="zilch">
+        <p>{{ "No analytics data yet"|t('smart-links') }}</p>
+        <p class="light">{{ "Analytics will appear here once your smart link starts receiving clicks."|t('smart-links') }}</p>
+    </div>
+{% else %}
+
+{# Extract analytics breakdown data #}
+{% set deviceStats = analytics.deviceBreakdown ?? {} %}
+{% set platformStats = analytics.platformBreakdown ?? {} %}
+{% set dailyClicks = analytics.dailyClicks ?? [] %}
+
+{# Summary Stats #}
+<div class="analytics-stats">
+    <div class="stat-box">
+        <div class="stat-value">{{ analytics.totalClicks|number }}</div>
+        <div class="stat-label">{{ "Total Interactions"|t('smart-links') }}</div>
+    </div>
+    <div class="stat-box">
+        <div class="stat-value">{{ analytics.uniqueClicks|number }}</div>
+        <div class="stat-label">{{ "Unique Visitors"|t('smart-links') }}</div>
+    </div>
+    <div class="stat-box">
+        <div class="stat-value">{{ analytics.averageClicksPerDay|number(2) }}</div>
+        <div class="stat-label">{{ "Avg. Clicks/Day"|t('smart-links') }}</div>
+    </div>
+</div>
+
+{# Charts Section #}
+<div class="analytics-charts two-columns" style="margin-top: 20px;">
+    {# Device Breakdown #}
+    <div class="chart-container">
+        <h3>{{ "Device Breakdown"|t('smart-links') }}</h3>
+        {% if deviceStats|length %}
+            <canvas id="device-breakdown-chart"></canvas>
+        {% else %}
+            <p class="light" style="text-align: center; padding: 40px 0;">{{ "Device information not available"|t('smart-links') }}</p>
+        {% endif %}
+    </div>
+
+    {# Operating System Breakdown #}
+    <div class="chart-container">
+        <h3>{{ "Operating System"|t('smart-links') }}</h3>
+        {% if platformStats|length %}
+            <canvas id="os-breakdown-chart"></canvas>
+        {% else %}
+            <p class="light" style="text-align: center; padding: 40px 0;">{{ "OS information not available"|t('smart-links') }}</p>
+        {% endif %}
+    </div>
+</div>
+
+
+{# Recent Clicks #}
+{% if analyticsService is defined %}
+    {% set recentClicks = analyticsService.getRecentClicks(smartLink.id, 20) %}
+{% else %}
+    {% set recentClicks = [] %}
+{% endif %}
+{% if recentClicks|length %}
+    <h3>{{ "Interactions"|t('smart-links') }}</h3>
+    <div class="recent-clicks">
+        <table class="data fullwidth">
+            <thead>
+                <tr>
+                    <th>{{ "Date"|t('smart-links') }}</th>
+                    <th>{{ "Site"|t('smart-links') }}</th>
+                    <th>{{ "Type"|t('smart-links') }}</th>
+                    <th>{{ "Button"|t('smart-links') }}</th>
+                    <th>{{ "Source"|t('smart-links') }}</th>
+                    <th>{{ "Destination URL"|t('smart-links') }}</th>
+                    <th>{{ "Device"|t('smart-links') }}</th>
+                    <th>{{ "OS"|t('smart-links') }}</th>
+                    <th>{{ "Location"|t('smart-links') }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for click in recentClicks %}
+                    {% set metadata = click.metadata ? click.metadata|json_decode : {} %}
+                    {% set clickType = metadata.clickType ?? 'redirect' %}
+                    <tr>
+                        <td>{{ click.dateCreated|datetime('short') }}</td>
+                        <td>
+                            {% if click.siteId %}
+                                {% set site = craft.app.sites.getSiteById(click.siteId) %}
+                                {{ site ? site.handle|upper : '—' }}
+                            {% else %}
+                                —
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if clickType == 'button' %}
+                                {{ "Button"|t('smart-links') }}
+                            {% else %}
+                                {{ "Redirect"|t('smart-links') }}
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if clickType == 'button' %}
+                                {% if metadata.platform is defined %}
+                                    {{ metadata.platform|capitalize|replace({'-': ' '}) }}
+                                {% else %}
+                                    —
+                                {% endif %}
+                            {% else %}
+                                —
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% set source = metadata.source ?? 'direct' %}
+                            {% if source == 'qr' %}
+                                {{ "QR"|t('smart-links') }}
+                            {% elseif source == 'landing' %}
+                                {{ "Landing"|t('smart-links') }}
+                            {% else %}
+                                {{ "Direct"|t('smart-links') }}
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if clickType == 'button' %}
+                                {% set url = metadata.buttonUrl ?? '' %}
+                            {% else %}
+                                {% set url = metadata.redirectUrl ?? '' %}
+                            {% endif %}
+                            {% if url %}
+                                {% set domain = url|replace({'https://': '', 'http://': ''})|split('/')[0] %}
+                                <span title="{{ url }}">{{ domain|truncate(30) }}</span>
+                            {% else %}
+                                —
+                            {% endif %}
+                        </td>
+                        <td>{{ click.deviceType ? click.deviceType|capitalize : '—' }}</td>
+                        <td>{{ click.osName ?? '—' }}</td>
+                        <td>
+                            {% if click.city and click.country %}
+                                {{ click.city }}, {{ click.country }}
+                            {% elseif click.country %}
+                                {{ click.country }}
+                            {% else %}
+                                —
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endif %}
+
+{# Chart Styles #}
+<style>
+.analytics-charts {
+    display: flex;
+    gap: 24px;
+    margin: 20px 0;
+}
+
+.analytics-charts.two-columns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+}
+
+.chart-container {
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    padding: 20px;
+}
+
+.chart-container h3 {
+    margin: 0 0 20px 0;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.chart-container canvas {
+    max-height: 300px;
+}
+
+@media (max-width: 768px) {
+    .analytics-charts.two-columns {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+
+{# Chart JavaScript #}
+{% if analytics.totalClicks > 0 %}
+<script>
+// Load Chart.js if not already loaded
+if (typeof Chart === 'undefined') {
+    const script = document.createElement('script');
+    script.src = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js';
+    script.onload = function() {
+        initializeCharts();
+    };
+    document.head.appendChild(script);
+} else {
+    // For AJAX loads, initialize immediately
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initializeCharts);
+    } else {
+        // DOM is already loaded (AJAX request), initialize now
+        initializeCharts();
+    }
+}
+
+// Store chart instances globally to destroy them before creating new ones
+window.smartLinkCharts = window.smartLinkCharts || {};
+
+function initializeCharts() {
+    // Destroy existing charts if they exist
+    if (window.smartLinkCharts.deviceChart) {
+        window.smartLinkCharts.deviceChart.destroy();
+    }
+    if (window.smartLinkCharts.osChart) {
+        window.smartLinkCharts.osChart.destroy();
+    }
+    
+    // Device Breakdown Chart
+    {% if deviceStats|length %}
+    const deviceCtx = document.getElementById('device-breakdown-chart');
+    if (deviceCtx) {
+        window.smartLinkCharts.deviceChart = new Chart(deviceCtx, {
+            type: 'doughnut',
+            data: {
+                labels: {{ deviceStats|keys|json_encode|raw }},
+                datasets: [{
+                    data: {{ deviceStats|values|json_encode|raw }},
+                    backgroundColor: [
+                        '#0EA5E9', // Sky blue
+                        '#8B5CF6', // Purple
+                        '#F59E0B', // Amber
+                        '#10B981', // Emerald
+                        '#EF4444', // Red
+                        '#6B7280'  // Gray
+                    ],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 15,
+                            font: {
+                                size: 12
+                            }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = ((context.parsed / total) * 100).toFixed(1);
+                                return context.label + ': ' + context.parsed + ' (' + percentage + '%)';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+    {% endif %}
+    
+    // OS Breakdown Chart
+    {% if platformStats|length %}
+    const osCtx = document.getElementById('os-breakdown-chart');
+    if (osCtx) {
+        window.smartLinkCharts.osChart = new Chart(osCtx, {
+            type: 'doughnut',
+            data: {
+                labels: {{ platformStats|keys|json_encode|raw }},
+                datasets: [{
+                    data: {{ platformStats|values|json_encode|raw }},
+                    backgroundColor: [
+                        '#3B82F6', // Blue
+                        '#10B981', // Green
+                        '#F59E0B', // Yellow
+                        '#EF4444', // Red
+                        '#8B5CF6', // Purple
+                        '#6B7280'  // Gray
+                    ],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 15,
+                            font: {
+                                size: 12
+                            }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = ((context.parsed / total) * 100).toFixed(1);
+                                return context.label + ': ' + context.parsed + ' (' + percentage + '%)';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+    {% endif %}
+}
+</script>
+{% endif %}
+
+{% endif %}{# end if analytics.totalClicks == 0 #}

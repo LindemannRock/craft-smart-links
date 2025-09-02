@@ -1,0 +1,57 @@
+{% extends "smart-links/_layouts/settings" %}
+{% set title = "Export Settings"|t('smart-links') %}
+{% set fullPageForm = true %}
+{% set selectedSettingsItem = 'export' %}
+
+{% set plugin = craft.app.plugins.getPlugin('smart-links') %}{% set crumbs = [
+    {
+        label: plugin.settings.pluginName|t('smart-links'),
+        url: url('smart-links'),
+    },
+    {
+        label: 'Settings'|t('smart-links'),
+        url: url('smart-links/settings'),
+    },
+    {
+        label: 'Export'|t('smart-links'),
+        url: url('smart-links/settings/export'),
+    },
+] %}
+
+{% import "_includes/forms" as forms %}
+
+{% block content %}
+    <form method="post" accept-charset="UTF-8">
+        {{ actionInput('smart-links/settings/save') }}
+        {{ csrfInput() }}
+        {{ redirectInput('smart-links/settings/export') }}
+
+        <h2>{{ "Analytics Export Options"|t('smart-links') }}</h2>
+
+        {{ forms.lightswitchField({
+            label: "Include Disabled Smart Links in Export"|t('smart-links'),
+            instructions: "When enabled, analytics exports will include data from disabled smart links"|t('smart-links'),
+            id: 'includeDisabledInExport',
+            name: 'settings[includeDisabledInExport]',
+            on: settings.includeDisabledInExport ?? false,
+            disabled: settings.isOverriddenByConfig('includeDisabledInExport'),
+            warning: settings.isOverriddenByConfig('includeDisabledInExport') ? 
+                "This is being overridden by the <code>includeDisabledInExport</code> setting in <code>config/smart-links.php</code>."|t('smart-links')|raw : null,
+        }) }}
+
+        {{ forms.lightswitchField({
+            label: "Include Expired Smart Links in Export"|t('smart-links'),
+            instructions: "When enabled, analytics exports will include data from expired smart links"|t('smart-links'),
+            id: 'includeExpiredInExport',
+            name: 'settings[includeExpiredInExport]',
+            on: settings.includeExpiredInExport ?? false,
+            disabled: settings.isOverriddenByConfig('includeExpiredInExport'),
+            warning: settings.isOverriddenByConfig('includeExpiredInExport') ? 
+                "This is being overridden by the <code>includeExpiredInExport</code> setting in <code>config/smart-links.php</code>."|t('smart-links')|raw : null,
+        }) }}
+
+        <div class="buttons">
+            <button type="submit" class="btn submit">{{ "Save Settings"|t('smart-links') }}</button>
+        </div>
+    </form>
+{% endblock %}

@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="{{ currentSite.language }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ smartLink.title }} - {{ siteName }}</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: #f5f5f5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+            max-width: 480px;
+            width: 100%;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .loader {
+            width: 60px;
+            height: 60px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 30px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        
+        .description {
+            color: #666;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+        
+        .redirect-message {
+            color: #999;
+            margin-bottom: 30px;
+        }
+        
+        .platforms {
+            margin-top: 30px;
+        }
+        
+        .platforms h2 {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 20px;
+            font-weight: normal;
+        }
+        
+        .platform-links {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .platform-link {
+            display: block;
+            padding: 16px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            border: 2px solid transparent;
+        }
+        
+        .platform-link.primary {
+            background-color: #007AFF;
+            color: white;
+        }
+        
+        .platform-link.primary:hover {
+            background-color: #0051D5;
+        }
+        
+        .platform-link.secondary {
+            background-color: #f0f0f0;
+            color: #333;
+            border-color: #e0e0e0;
+        }
+        
+        .platform-link.secondary:hover {
+            background-color: #e0e0e0;
+        }
+        
+        .qr-section {
+            margin-top: 40px;
+            padding-top: 40px;
+            border-top: 1px solid #e0e0e0;
+        }
+        
+        .qr-section h3 {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 20px;
+            font-weight: normal;
+        }
+        
+        .qr-code {
+            display: inline-block;
+            padding: 20px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .qr-code img {
+            display: block;
+            width: 200px;
+            height: 200px;
+        }
+        
+        @media (prefers-color-scheme: dark) {
+            body {
+                background-color: #1a1a1a;
+            }
+            
+            .container {
+                background: #2a2a2a;
+                box-shadow: 0 2px 20px rgba(0, 0, 0, 0.5);
+            }
+            
+            h1, .platform-link.secondary {
+                color: #f0f0f0;
+            }
+            
+            .description, .redirect-message, .platforms h2, .qr-section h3 {
+                color: #aaa;
+            }
+            
+            .platform-link.secondary {
+                background-color: #3a3a3a;
+                border-color: #4a4a4a;
+            }
+            
+            .platform-link.secondary:hover {
+                background-color: #4a4a4a;
+            }
+            
+            .qr-section {
+                border-top-color: #4a4a4a;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        {% if device.isMobile %}
+            <div class="loader"></div>
+        {% endif %}
+        
+        <h1>{{ smartLink.title }}</h1>
+        
+        {% if smartLink.description %}
+            <p class="description">{{ smartLink.description }}</p>
+        {% endif %}
+        
+        <p class="redirect-message" id="redirect-message">
+            {% if device.isMobile %}
+                {{ 'Redirecting to {platform}...'|t('smart-links', { platform: craft.smartLinks.module.deviceDetection.getAppStoreName(device.osName|lower) }) }}
+            {% else %}
+                {{ 'Choose your platform:'|t('smart-links') }}
+            {% endif %}
+        </p>
+        
+        <div class="platforms">
+            <div class="platform-links">
+                {% if smartLink.iosUrl %}
+                    <a href="{{ smartLink.iosUrl }}" class="platform-link primary">
+                        {{ 'Download on the App Store'|t('smart-links') }}
+                    </a>
+                {% endif %}
+                
+                {% if smartLink.androidUrl %}
+                    <a href="{{ smartLink.androidUrl }}" class="platform-link primary">
+                        {{ 'Get it on Google Play'|t('smart-links') }}
+                    </a>
+                {% endif %}
+                
+                {% if smartLink.huaweiUrl %}
+                    <a href="{{ smartLink.huaweiUrl }}" class="platform-link secondary">
+                        {{ 'Explore it on AppGallery'|t('smart-links') }}
+                    </a>
+                {% endif %}
+                
+                {% if smartLink.amazonUrl %}
+                    <a href="{{ smartLink.amazonUrl }}" class="platform-link secondary">
+                        {{ 'Get it from Amazon'|t('smart-links') }}
+                    </a>
+                {% endif %}
+                
+                {% if smartLink.windowsUrl %}
+                    <a href="{{ smartLink.windowsUrl }}" class="platform-link secondary">
+                        {{ 'Download from Microsoft Store'|t('smart-links') }}
+                    </a>
+                {% endif %}
+                
+                {% if smartLink.macUrl %}
+                    <a href="{{ smartLink.macUrl }}" class="platform-link secondary">
+                        {{ 'Download for Mac'|t('smart-links') }}
+                    </a>
+                {% endif %}
+                
+                <a href="{{ smartLink.fallbackUrl }}" class="platform-link secondary">
+                    {{ 'Visit Website'|t('smart-links') }}
+                </a>
+            </div>
+        </div>
+        
+        {% if not device.isMobile and smartLink.qrCodeEnabled %}
+            <div class="qr-section">
+                <h3>{{ 'Or scan with your phone:'|t('smart-links') }}</h3>
+                <div class="qr-code">
+                    <img src="{{ smartLink.getQrCodeUrl({ size: 200 }) }}" alt="QR Code" width="200" height="200">
+                </div>
+            </div>
+        {% endif %}
+    </div>
+    
+    {% if device.isMobile %}
+        <script>
+            // Auto-redirect for mobile devices
+            setTimeout(function() {
+                window.location.href = '{{ redirectUrl|e('js') }}';
+            }, 1500);
+        </script>
+    {% endif %}
+    
+    {% if smartLink.trackAnalytics and craft.smartLinks.settings.enableAnalytics %}
+        <script>
+            // Track button clicks
+            document.addEventListener('DOMContentLoaded', function() {
+                const platformLinks = document.querySelectorAll('.platform-btn');
+                
+                platformLinks.forEach(function(link) {
+                    link.addEventListener('click', function(e) {
+                        // Temporarily prevent navigation for testing
+                        e.preventDefault();
+                        
+                        // Determine platform from the link
+                        let platform = 'unknown';
+                        const href = this.getAttribute('href');
+                        const text = this.textContent.toLowerCase();
+                        
+                        if (href.includes('apps.apple.com') || text.includes('app store')) {
+                            platform = 'ios';
+                        } else if (href.includes('play.google.com') || text.includes('google play')) {
+                            platform = 'android';
+                        } else if (href.includes('appgallery') || text.includes('appgallery')) {
+                            platform = 'huawei';
+                        } else if (href.includes('amazon') || text.includes('amazon')) {
+                            platform = 'amazon';
+                        } else if (href.includes('microsoft.com') || text.includes('microsoft')) {
+                            platform = 'windows';
+                        } else if (text.includes('mac')) {
+                            platform = 'mac';
+                        } else if (text.includes('website')) {
+                            platform = 'web';
+                        }
+                        
+                        // Send tracking request
+                        fetch('{{ siteUrl('smart-links/redirect/track-button-click') }}', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-Token': '{{ craft.app.request.csrfToken }}',
+                                'Accept': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                smartLinkId: {{ smartLink.id }},
+                                platform: platform,
+                                url: href,
+                                {{ craft.app.config.general.csrfTokenName }}: '{{ craft.app.request.csrfToken }}'
+                            })
+                        }).then(function(response) {
+                            if (response.ok) {
+                                return response.json();
+                            }
+                            throw new Error('Network response was not ok');
+                        }).then(function(data) {
+                            // Navigate after tracking completes
+                            window.location.href = href;
+                        }).catch(function(error) {
+                            // Navigate anyway
+                            window.location.href = href;
+                        });
+                    });
+                });
+            });
+        </script>
+    {% endif %}
+</body>
+</html>
