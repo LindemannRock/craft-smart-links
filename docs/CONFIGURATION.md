@@ -14,30 +14,56 @@ You can override plugin settings by creating a `smart-links.php` file in your `c
 ```php
 <?php
 return [
+    // Plugin settings
+    'pluginName' => 'Smart Links',
+    
     // Analytics configuration
     'enableAnalytics' => true,
-    'analyticsRetentionDays' => 90, // 0 = forever, max 3650
-    'trackBotClicks' => false,
+    'analyticsRetention' => 90, // days (0 = unlimited, max 3650)
+    'includeDisabledInExport' => false,
+    'includeExpiredInExport' => false,
     
     // QR Code defaults
-    'qrCodeSize' => 300, // pixels
-    'qrCodeMargin' => 4,
-    'qrCodeForegroundColor' => '#000000',
-    'qrCodeBackgroundColor' => '#FFFFFF',
-    'qrCodeErrorCorrection' => 'M', // L, M, Q, H
-    'qrCodeFormat' => 'png', // png or svg
+    'defaultQrSize' => 256, // pixels (100-1000)
+    'defaultQrColor' => '#000000',
+    'defaultQrBgColor' => '#FFFFFF', 
+    'defaultQrFormat' => 'png', // png or svg
+    'defaultQrErrorCorrection' => 'M', // L, M, Q, H
+    'defaultQrMargin' => 4, // quiet zone (0-10)
+    'qrModuleStyle' => 'square', // square, rounded, dots
+    'qrEyeStyle' => 'square', // square, rounded, leaf
+    'qrEyeColor' => null, // null = same as module color
+    'qrCodeCacheDuration' => 86400, // 24 hours
     
-    // Caching
-    'cacheEnabled' => true,
-    'cacheDuration' => 3600, // seconds
+    // QR Code logo overlay
+    'enableQrLogo' => false,
+    'qrLogoVolumeUid' => null, // Asset volume UID for logos
+    'defaultQrLogoId' => null, // Default logo asset ID
+    'qrLogoSize' => 20, // Logo size percentage (10-30)
     
-    // Device detection
-    'deviceDetectionMethod' => 'user-agent', // user-agent or client-hints
-    'fallbackDevice' => 'desktop', // desktop, mobile, or tablet
+    // QR Code downloads
+    'enableQrDownload' => true,
+    'qrDownloadFilename' => '{slug}-qr-{size}', // Filename pattern
+    
+    // Image management
+    'imageVolumeUid' => null, // Asset volume UID for smart link images
+    
+    // Redirect settings
+    'redirectTemplate' => null, // Custom redirect template path
+    'notFoundRedirectUrl' => '/', // 404 redirect URL
+    
+    // Geographic detection
+    'enableGeoDetection' => false,
+    
+    // Device detection caching
+    'cacheDeviceDetection' => true,
+    'deviceDetectionCacheDuration' => 3600, // 1 hour
     
     // Language detection  
-    'languageDetectionMethod' => 'site', // site, browser, or query
-    'fallbackLanguage' => 'en',
+    'languageDetectionMethod' => 'browser', // browser, ip, or both
+    
+    // Interface settings
+    'itemsPerPage' => 100, // Items per page in CP (10-500)
 ];
 ```
 
@@ -90,44 +116,74 @@ return [
 
 ### Setting Descriptions
 
+#### Plugin Settings
+
+- **pluginName**: Display name for the plugin in Craft CP navigation
+
 #### Analytics Settings
 
 - **enableAnalytics**: Enable/disable click tracking and analytics
-- **analyticsRetentionDays**: How many days to keep analytics data (0-3650, 0 = forever)
-- **trackBotClicks**: Whether to track clicks from bots/crawlers
+- **analyticsRetention**: How many days to keep analytics data (0-3650, 0 = unlimited)
+- **includeDisabledInExport**: Include disabled smart links in CSV exports
+- **includeExpiredInExport**: Include expired smart links in CSV exports
 
 #### QR Code Settings
 
-- **qrCodeSize**: Default size in pixels for generated QR codes
-- **qrCodeMargin**: White space margin around QR code (quiet zone)
-- **qrCodeForegroundColor**: Hex color for QR code foreground
-- **qrCodeBackgroundColor**: Hex color for QR code background
-- **qrCodeErrorCorrection**: Error correction level
+- **defaultQrSize**: Default size in pixels for generated QR codes (100-1000)
+- **defaultQrColor**: Hex color for QR code foreground
+- **defaultQrBgColor**: Hex color for QR code background
+- **defaultQrFormat**: Output format (png or svg)
+- **defaultQrErrorCorrection**: Error correction level
   - `L` - ~7% correction
   - `M` - ~15% correction (default)
   - `Q` - ~25% correction
   - `H` - ~30% correction
-- **qrCodeFormat**: Output format (png or svg)
+- **defaultQrMargin**: White space margin around QR code (0-10)
+- **qrModuleStyle**: QR code module style (square, rounded, dots)
+- **qrEyeStyle**: QR code eye/finder pattern style (square, rounded, leaf)
+- **qrEyeColor**: Custom color for eye patterns (null = same as module color)
+- **qrCodeCacheDuration**: QR code cache duration in seconds
+
+#### QR Code Logo Settings
+
+- **enableQrLogo**: Enable logo overlay on QR codes
+- **qrLogoVolumeUid**: Asset volume UID for logo selection (null = all volumes)
+- **defaultQrLogoId**: Default logo asset ID (required when enableQrLogo is true)
+- **qrLogoSize**: Logo size as percentage of QR code (10-30)
+
+#### QR Code Download Settings
+
+- **enableQrDownload**: Enable QR code download functionality
+- **qrDownloadFilename**: Filename pattern for downloads (supports {slug} and {size})
+
+#### Asset Management Settings
+
+- **imageVolumeUid**: Asset volume UID for smart link images (null = all volumes)
+
+#### Redirect Settings
+
+- **redirectTemplate**: Path to custom redirect template (null = use default)
+- **notFoundRedirectUrl**: URL to redirect when smart link not found
+
+#### Geographic Settings
+
+- **enableGeoDetection**: Enable geographic detection for analytics
 
 #### Caching Settings
 
-- **cacheEnabled**: Enable/disable caching of device detection and QR codes
-- **cacheDuration**: Cache duration in seconds
-
-#### Device Detection Settings
-
-- **deviceDetectionMethod**: Method for detecting device type
-  - `user-agent` - Parse User-Agent header (default)
-  - `client-hints` - Use Client Hints API (modern browsers)
-- **fallbackDevice**: Default device type when detection fails
+- **cacheDeviceDetection**: Enable/disable caching of device detection results
+- **deviceDetectionCacheDuration**: Device detection cache duration in seconds
 
 #### Language Detection Settings
 
 - **languageDetectionMethod**: Method for detecting user language
-  - `site` - Use current Craft site language
-  - `browser` - Use Accept-Language header
-  - `query` - Use query parameter (?lang=xx)
-- **fallbackLanguage**: Default language code when detection fails
+  - `browser` - Use Accept-Language header (default)
+  - `ip` - Use IP-based detection
+  - `both` - Combine browser and IP detection
+
+#### Interface Settings
+
+- **itemsPerPage**: Number of items per page in CP element index (10-500)
 
 ### Precedence
 
