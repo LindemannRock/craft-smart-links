@@ -89,3 +89,4 @@ web/cpresources/
 *.zip
 releases/
 TODO.md
+backups/
