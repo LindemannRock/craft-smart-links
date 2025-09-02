@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.2](https://github.com/LindemannRock/smart-links/compare/v1.0.1...v1.0.2) (2025-09-02)
+
+
+### Bug Fixes
+
+* remove development backups and IDE files ([f078fdb](https://github.com/LindemannRock/smart-links/commit/f078fdb024b40398b2ad93c9d9499ffc9172a021))
+
 ## 1.0.1 (2025-09-02)
 
 
