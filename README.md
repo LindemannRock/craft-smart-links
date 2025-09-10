@@ -23,9 +23,8 @@ Intelligent URL shortening and redirect management plugin for Craft CMS 5.x with
 
 ## Requirements
 
-- Craft CMS 5.0.0 or later
-- PHP 8.2 or later
-- MySQL 5.7.8+ or PostgreSQL 13+
+- Craft CMS 5.0 or greater
+- PHP 8.2 or greater
 
 ## Installation
 
