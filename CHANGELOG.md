@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.4](https://github.com/LindemannRock/smart-links/compare/v1.0.3...v1.0.4) (2025-09-10)
+
+
+### Bug Fixes
+
+* update requirements in README for clarity and consistency ([a17ca25](https://github.com/LindemannRock/smart-links/commit/a17ca2501f162c2c60df0f82449f142f5337d7e3))
+
 ## [1.0.3](https://github.com/LindemannRock/smart-links/compare/v1.0.2...v1.0.3) (2025-09-10)
 
 
