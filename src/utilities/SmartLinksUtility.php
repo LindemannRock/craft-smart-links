@@ -23,7 +23,8 @@ class SmartLinksUtility extends Utility
      */
     public static function displayName(): string
     {
-        return Craft::t('smart-links', 'Smart Links');
+        $pluginName = SmartLinks::getInstance()->getSettings()->pluginName;
+        return $pluginName;
     }
 
     /**
@@ -37,9 +38,9 @@ class SmartLinksUtility extends Utility
     /**
      * @inheritdoc
      */
-    public static function iconPath(): ?string
+    public static function icon(): ?string
     {
-        return Craft::getAlias('@lindemannrock/smartlinks/icon.svg');
+        return 'link';
     }
 
     /**
