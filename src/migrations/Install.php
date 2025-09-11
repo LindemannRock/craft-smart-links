@@ -32,14 +32,17 @@ class Install extends Migration
                 'slug' => $this->string()->notNull(),
                 'icon' => $this->string()->null(),
                 'trackAnalytics' => $this->boolean()->defaultValue(true),
+                'active' => $this->boolean()->defaultValue(true),
                 'qrCodeEnabled' => $this->boolean()->defaultValue(true),
-                'qrCodeSize' => $this->integer()->defaultValue(256),
+                'qrCodeSize' => $this->integer()->defaultValue(200),
                 'qrCodeColor' => $this->string(7)->defaultValue('#000000'),
                 'qrCodeBgColor' => $this->string(7)->defaultValue('#FFFFFF'),
                 'qrCodeEyeColor' => $this->string(7)->null(),
                 'qrCodeFormat' => $this->string(10)->null(),
                 'qrLogoId' => $this->integer()->null(),
-                'languageDetection' => $this->json()->null(),
+                'hideTitle' => $this->boolean()->defaultValue(false)->notNull(),
+                'languageDetection' => $this->boolean()->defaultValue(false),
+                'clicks' => $this->integer()->defaultValue(0)->notNull(),
                 'metadata' => $this->json()->null(),
                 'authorId' => $this->integer()->null(),
                 'postDate' => $this->dateTime()->null(),
@@ -52,6 +55,8 @@ class Install extends Migration
 
             // Create indexes
             $this->createIndex(null, '{{%smartlinks}}', ['slug'], true);
+            $this->createIndex(null, '{{%smartlinks}}', ['active']);
+            $this->createIndex(null, '{{%smartlinks}}', ['dateCreated']);
             $this->createIndex(null, '{{%smartlinks}}', ['authorId']);
             $this->createIndex(null, '{{%smartlinks}}', ['postDate']);
             $this->createIndex(null, '{{%smartlinks}}', ['dateExpired']);
@@ -78,6 +83,8 @@ class Install extends Migration
                 'windowsUrl' => $this->string()->null(),
                 'macUrl' => $this->string()->null(),
                 'fallbackUrl' => $this->string()->notNull(),
+                'imageId' => $this->integer()->null(),
+                'imageSize' => $this->string(2)->defaultValue('xl')->notNull(),
                 'dateCreated' => $this->dateTime()->notNull(),
                 'dateUpdated' => $this->dateTime()->notNull(),
                 'uid' => $this->uid(),
@@ -86,10 +93,12 @@ class Install extends Migration
             // Create indexes
             $this->createIndex(null, '{{%smartlinks_content}}', ['smartLinkId', 'siteId'], true);
             $this->createIndex(null, '{{%smartlinks_content}}', ['siteId']);
+            $this->createIndex(null, '{{%smartlinks_content}}', ['imageId']);
 
             // Add foreign keys
             $this->addForeignKey(null, '{{%smartlinks_content}}', ['smartLinkId'], '{{%smartlinks}}', ['id'], 'CASCADE');
             $this->addForeignKey(null, '{{%smartlinks_content}}', ['siteId'], '{{%sites}}', ['id'], 'CASCADE');
+            $this->addForeignKey(null, '{{%smartlinks_content}}', ['imageId'], '{{%assets}}', ['id'], 'SET NULL');
         }
 
         // Create the smartlinks_analytics table
@@ -98,33 +107,29 @@ class Install extends Migration
                 'id' => $this->primaryKey(),
                 'linkId' => $this->integer()->notNull(),
                 'siteId' => $this->integer()->null(),
-                'platform' => $this->string(50)->null(),
                 'deviceType' => $this->string(50)->null(),
-                'deviceName' => $this->string(100)->null(),
                 'deviceBrand' => $this->string(50)->null(),
                 'deviceModel' => $this->string(100)->null(),
                 'osName' => $this->string(50)->null(),
                 'osVersion' => $this->string(50)->null(),
                 'browser' => $this->string(100)->null(),
-                'browserVersion' => $this->string(50)->null(),
+                'browserVersion' => $this->string(20)->null(),
                 'browserEngine' => $this->string(50)->null(),
                 'clientType' => $this->string(50)->null(),
                 'isRobot' => $this->boolean()->defaultValue(false),
-                'botName' => $this->string(100)->null(),
                 'isMobileApp' => $this->boolean()->defaultValue(false),
-                'redirectUrl' => $this->string()->null(),
-                'language' => $this->string(10)->null(),
-                'referrer' => $this->string()->null(),
-                'userAgent' => $this->text()->null(),
-                'ip' => $this->string(64)->null(),
+                'botName' => $this->string(100)->null(),
                 'country' => $this->string(2)->null(),
                 'city' => $this->string(100)->null(),
                 'region' => $this->string(100)->null(),
                 'timezone' => $this->string(50)->null(),
                 'latitude' => $this->decimal(10, 8)->null(),
                 'longitude' => $this->decimal(11, 8)->null(),
-                'isp' => $this->string(100)->null(),
-                'metadata' => $this->json()->null(),
+                'language' => $this->string(10)->null(),
+                'referrer' => $this->string()->null(),
+                'ip' => $this->string(64)->null(),
+                'userAgent' => $this->text()->null(),
+                'metadata' => $this->text()->null(),
                 'dateCreated' => $this->dateTime()->notNull(),
                 'dateUpdated' => $this->dateTime()->notNull(),
                 'uid' => $this->uid(),
@@ -133,7 +138,6 @@ class Install extends Migration
             // Create indexes for performance
             $this->createIndex(null, '{{%smartlinks_analytics}}', ['linkId']);
             $this->createIndex(null, '{{%smartlinks_analytics}}', ['siteId']);
-            $this->createIndex(null, '{{%smartlinks_analytics}}', ['platform']);
             $this->createIndex(null, '{{%smartlinks_analytics}}', ['deviceType']);
             $this->createIndex(null, '{{%smartlinks_analytics}}', ['country']);
             $this->createIndex(null, '{{%smartlinks_analytics}}', ['dateCreated']);
@@ -145,7 +149,6 @@ class Install extends Migration
 
             // Add foreign keys
             $this->addForeignKey(null, '{{%smartlinks_analytics}}', ['linkId'], '{{%smartlinks}}', ['id'], 'CASCADE');
-            $this->addForeignKey(null, '{{%smartlinks_analytics}}', ['siteId'], '{{%sites}}', ['id'], 'CASCADE');
         }
 
         // Create the smartlinks_settings table
@@ -155,41 +158,39 @@ class Install extends Migration
                 // Plugin settings
                 'pluginName' => $this->string(255)->notNull()->defaultValue('Smart Links'),
                 // Analytics settings
-                'enableAnalytics' => $this->boolean()->defaultValue(true),
-                'analyticsRetention' => $this->integer()->defaultValue(90),
-                'enableGeoDetection' => $this->boolean()->defaultValue(false),
+                'enableAnalytics' => $this->boolean()->notNull()->defaultValue(true),
+                'analyticsRetention' => $this->integer()->notNull()->defaultValue(90),
+                // Export settings
+                'includeDisabledInExport' => $this->boolean()->defaultValue(false),
+                'includeExpiredInExport' => $this->boolean()->notNull()->defaultValue(false),
                 // QR Code settings
-                'defaultQrSize' => $this->integer()->defaultValue(256),
-                'defaultQrColor' => $this->string(7)->defaultValue('#000000'),
-                'defaultQrBgColor' => $this->string(7)->defaultValue('#FFFFFF'),
-                'defaultQrFormat' => $this->string(3)->defaultValue('png'),
-                'defaultQrErrorCorrection' => $this->string(1)->defaultValue('M'),
-                'defaultQrMargin' => $this->integer()->defaultValue(4),
-                'qrModuleStyle' => $this->string(10)->defaultValue('square'),
-                'qrEyeStyle' => $this->string(10)->defaultValue('square'),
-                'qrEyeColor' => $this->string(7)->null(),
-                'qrCodeCacheDuration' => $this->integer()->defaultValue(86400),
-                // QR Logo settings
-                'enableQrLogo' => $this->boolean()->defaultValue(false),
+                'defaultQrSize' => $this->integer()->notNull()->defaultValue(256),
+                'defaultQrColor' => $this->string(7)->notNull()->defaultValue('#000000'),
+                'defaultQrBgColor' => $this->string(7)->notNull()->defaultValue('#FFFFFF'),
+                'defaultQrFormat' => $this->string(3)->notNull()->defaultValue('png'),
+                'qrCodeCacheDuration' => $this->integer()->notNull()->defaultValue(86400),
+                'defaultQrErrorCorrection' => $this->string(1)->notNull()->defaultValue('M'),
+                'enableQrLogo' => $this->boolean()->notNull()->defaultValue(false),
                 'qrLogoVolumeUid' => $this->string()->null(),
                 'imageVolumeUid' => $this->string()->null(),
                 'defaultQrLogoId' => $this->integer()->null(),
-                'qrLogoSize' => $this->integer()->defaultValue(20),
+                'qrLogoSize' => $this->integer()->notNull()->defaultValue(20),
+                'defaultQrMargin' => $this->integer()->notNull()->defaultValue(4),
+                'qrModuleStyle' => $this->string(10)->notNull()->defaultValue('square'),
+                'qrEyeStyle' => $this->string(10)->notNull()->defaultValue('square'),
+                'qrEyeColor' => $this->string(7)->null(),
                 // QR Download settings
-                'enableQrDownload' => $this->boolean()->defaultValue(true),
-                'qrDownloadFilename' => $this->string()->defaultValue('{slug}-qr-{size}'),
+                'enableQrDownload' => $this->boolean()->notNull()->defaultValue(true),
+                'qrDownloadFilename' => $this->string()->notNull()->defaultValue('{slug}-qr-{size}'),
                 // Redirect settings
-                'redirectTemplate' => $this->string(500)->null(),
-                'cacheDeviceDetection' => $this->boolean()->defaultValue(true),
-                'deviceDetectionCacheDuration' => $this->integer()->defaultValue(3600),
-                'languageDetectionMethod' => $this->string(10)->defaultValue('browser'),
-                'supportedLanguages' => $this->json()->null(),
-                'notFoundRedirectUrl' => $this->string()->defaultValue('/'),
+                'redirectTemplate' => $this->string()->null(),
+                'enableGeoDetection' => $this->boolean()->notNull()->defaultValue(false),
+                'cacheDeviceDetection' => $this->boolean()->notNull()->defaultValue(true),
+                'deviceDetectionCacheDuration' => $this->integer()->notNull()->defaultValue(3600),
+                'languageDetectionMethod' => $this->string(10)->notNull()->defaultValue('browser'),
                 // Interface settings
-                'itemsPerPage' => $this->integer()->defaultValue(100),
-                // Export settings
-                'includeDisabledInExport' => $this->boolean()->defaultValue(false),
-                'includeExpiredInExport' => $this->boolean()->defaultValue(false),
+                'itemsPerPage' => $this->integer()->notNull()->defaultValue(100),
+                'notFoundRedirectUrl' => $this->string()->notNull()->defaultValue('/'),
                 // Timestamps
                 'dateCreated' => $this->dateTime()->notNull(),
                 'dateUpdated' => $this->dateTime()->notNull(),
@@ -199,6 +200,7 @@ class Install extends Migration
             // Create indexes
             $this->createIndex(null, '{{%smartlinks_settings}}', ['enableAnalytics']);
             $this->createIndex(null, '{{%smartlinks_settings}}', ['enableGeoDetection']);
+            $this->createIndex(null, '{{%smartlinks_settings}}', ['cacheDeviceDetection']);
 
             // Add foreign key for logo
             $this->addForeignKey(null, '{{%smartlinks_settings}}', ['defaultQrLogoId'], '{{%assets}}', ['id'], 'SET NULL');
