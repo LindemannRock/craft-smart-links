@@ -6,7 +6,9 @@ Intelligent URL shortening and redirect management plugin for Craft CMS 5.x with
 
 - **URL Shortening**: Create memorable short URLs that redirect to any destination
 - **Device-Specific Redirects**: Different URLs for iOS, Android, Windows, macOS, and desktop users
+- **Image Management**: Upload and configure images with multiple size options (xl, lg, md, sm)
 - **QR Code Generation**: Automatic QR codes for each smart link with customizable colors
+- **Landing Page Customization**: Hide titles on landing pages, custom layouts
 - **Advanced Analytics**:
   - Geographic tracking with country and city-level data
   - Peak usage hours visualization
