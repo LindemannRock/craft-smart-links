@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.1.0](https://github.com/LindemannRock/smart-links/compare/v1.0.4...v1.1.0) (2025-09-11)
+
+
+### Features
+
+* enhance README with additional features for image management and landing page customization ([8162b36](https://github.com/LindemannRock/smart-links/commit/8162b36ffec42db3b9701d2cf6dd96cf92f9617f))
+
+
+### Bug Fixes
+
+* Smart Links database schema to match working installation ([03fe1dd](https://github.com/LindemannRock/smart-links/commit/03fe1dd45e8985bafe8996f3b38dde2d01740057))
+
 ## [1.0.4](https://github.com/LindemannRock/smart-links/compare/v1.0.3...v1.0.4) (2025-09-10)
 
 
