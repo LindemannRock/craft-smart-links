@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.0](https://github.com/LindemannRock/smart-links/compare/v1.1.0...v1.2.0) (2025-09-14)
+
+
+### Features
+
+* add plugin credit component to settings and analytics templates ([c22cf96](https://github.com/LindemannRock/smart-links/commit/c22cf96fde791c79b1e650964985cf44f8beeba6))
+
 ## [1.1.0](https://github.com/LindemannRock/smart-links/compare/v1.0.4...v1.1.0) (2025-09-11)
 
 
