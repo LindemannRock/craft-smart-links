@@ -43,6 +43,31 @@
 
         <hr>
 
+        <h2>{{ "Site Settings"|t('smart-links') }}</h2>
+
+        {# Site selection checkboxes #}
+        {% set siteOptions = [] %}
+        {% for site in craft.app.sites.getAllSites() %}
+            {% set siteOptions = siteOptions|merge([{
+                label: site.name,
+                value: site.id
+            }]) %}
+        {% endfor %}
+
+        {{ forms.checkboxGroupField({
+            label: "Enabled Sites"|t('smart-links'),
+            instructions: "Select which sites Smart Links should be enabled for. Leave empty to enable for all sites."|t('smart-links'),
+            id: 'enabledSites',
+            name: 'settings[enabledSites]',
+            options: siteOptions,
+            values: settings.enabledSites ?? [],
+            disabled: settings.isOverriddenByConfig('enabledSites'),
+            warning: settings.isOverriddenByConfig('enabledSites') ?
+                "This is being overridden by the <code>enabledSites</code> setting in <code>config/smart-links.php</code>."|t('smart-links')|raw : null,
+        }) }}
+
+        <hr>
+
         <h2>{{ "Asset Settings"|t('smart-links') }}</h2>
         
         {# Asset volume selection dropdown for Smart Link images #}
