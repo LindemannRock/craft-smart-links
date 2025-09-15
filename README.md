@@ -135,8 +135,9 @@ return [
 - **Access Control**: Direct access to disabled sites returns 403 Forbidden
 - **Backwards Compatibility**: Empty selection enables all sites
 
-**Important Note:**
-If the primary site is not included in `enabledSites`, Smart Links will not appear in the main CP navigation at all, as the navigation uses the primary site context. Ensure you include your primary site ID if you want Smart Links accessible from the main menu.
+**Important Notes:**
+- If the primary site is not included in `enabledSites`, Smart Links will not appear in the main CP navigation at all, as the navigation uses the primary site context. Ensure you include your primary site ID if you want Smart Links accessible from the main menu.
+- You can still access Smart Links on enabled non-primary sites via direct URLs, but the main navigation will be hidden.
 
 ## Usage
 

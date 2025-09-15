@@ -159,6 +159,8 @@ class Install extends Migration
                 'id' => $this->primaryKey(),
                 // Plugin settings
                 'pluginName' => $this->string(255)->notNull()->defaultValue('Smart Links'),
+                // Site settings
+                'enabledSites' => $this->text()->null()->comment('JSON array of enabled site IDs'),
                 // Analytics settings
                 'enableAnalytics' => $this->boolean()->notNull()->defaultValue(true),
                 'analyticsRetention' => $this->integer()->notNull()->defaultValue(90),
@@ -193,8 +195,6 @@ class Install extends Migration
                 // Interface settings
                 'itemsPerPage' => $this->integer()->notNull()->defaultValue(100),
                 'notFoundRedirectUrl' => $this->string()->notNull()->defaultValue('/'),
-                // Site settings
-                'enabledSites' => $this->text()->null()->comment('JSON array of enabled site IDs'),
                 // Timestamps
                 'dateCreated' => $this->dateTime()->notNull(),
                 'dateUpdated' => $this->dateTime()->notNull(),
