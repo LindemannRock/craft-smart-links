@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.3.0](https://github.com/LindemannRock/smart-links/compare/v1.2.2...v1.3.0) (2025-09-15)
+
+
+### Features
+
+* add checkbox group for enabling Smart Links on specific sites ([a0d6f85](https://github.com/LindemannRock/smart-links/commit/a0d6f8586d7135625128b61857bc50d52abcd46d))
+* add enabledSites property to Settings model for site-specific Smart Links configuration ([828b105](https://github.com/LindemannRock/smart-links/commit/828b105f4fc2335edec9227be4b0a81198233e31))
+* add multi-site management and site selection configuration for Smart Links ([304ebc1](https://github.com/LindemannRock/smart-links/commit/304ebc1470760ad2e8e7f66d11996358bc81f279))
+* add site settings and default settings row to smartlinks_settings table ([c143d41](https://github.com/LindemannRock/smart-links/commit/c143d41a1fb7d5b2cd0c2d8deb254284a5bff4e2))
+* implement site-specific Smart Links functionality and enable site selection in templates ([6c87105](https://github.com/LindemannRock/smart-links/commit/6c871052fcfa89f39611b97ed62c4bd2d1a04d60))
+
 ## [1.2.2](https://github.com/LindemannRock/smart-links/compare/v1.2.1...v1.2.2) (2025-09-15)
 
 
