@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.1](https://github.com/LindemannRock/smart-links/compare/v1.2.0...v1.2.1) (2025-09-15)
+
+
+### Bug Fixes
+
+* update copyright notice in LICENSE file ([3a2531c](https://github.com/LindemannRock/smart-links/commit/3a2531cd2086d5dddc2e7a16905ed3ae6fa35f05))
+
 ## [1.2.0](https://github.com/LindemannRock/smart-links/compare/v1.1.0...v1.2.0) (2025-09-14)
 
 
