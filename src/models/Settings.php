@@ -170,6 +170,11 @@ class Settings extends Model
     public string $notFoundRedirectUrl = '/';
 
     /**
+     * @var array Site IDs where Smart Links should be enabled
+     */
+    public array $enabledSites = [];
+
+    /**
      * @inheritdoc
      */
     protected function defineBehaviors(): array
@@ -216,6 +221,7 @@ class Settings extends Model
             }, 'message' => Craft::t('smart-links', 'Default logo is required when logo overlay is enabled.')],
             [['redirectTemplate', 'notFoundRedirectUrl'], 'string'],
             [['languageDetectionMethod'], 'in', 'range' => ['browser', 'ip', 'both']],
+            [['enabledSites'], 'each', 'rule' => ['integer']],
         ];
     }
 
@@ -271,11 +277,16 @@ class Settings extends Model
                 'deviceDetectionCacheDuration',
                 'itemsPerPage'
             ];
-            
+
             foreach ($integerFields as $field) {
                 if (isset($row[$field])) {
                     $row[$field] = (int) $row[$field];
                 }
+            }
+
+            // Handle array fields (JSON serialization)
+            if (isset($row['enabledSites'])) {
+                $row['enabledSites'] = !empty($row['enabledSites']) ? json_decode($row['enabledSites'], true) : [];
             }
             
             // Set attributes from database
@@ -295,13 +306,21 @@ class Settings extends Model
     public function saveToDatabase(): bool
     {
         if (!$this->validate()) {
+            Craft::error('Settings validation failed: ' . json_encode($this->getErrors()), 'smart-links');
             return false;
         }
 
         $db = Craft::$app->getDb();
         $attributes = $this->getAttributes();
-        
-        
+
+        // Debug: Log what we're trying to save
+        Craft::info('Attempting to save settings: ' . json_encode($attributes), 'smart-links');
+
+        // Handle array serialization
+        if (isset($attributes['enabledSites'])) {
+            $attributes['enabledSites'] = json_encode($attributes['enabledSites']);
+        }
+
         // Add/update timestamps
         $now = Db::prepareDateForDb(new \DateTime());
         $attributes['dateUpdated'] = $now;
@@ -311,13 +330,18 @@ class Settings extends Model
             $result = $db->createCommand()
                 ->update('{{%smartlinks_settings}}', $attributes, ['id' => 1])
                 ->execute();
-            
+
+            // Debug: Log the result
+            Craft::info('Database update result: ' . $result, 'smart-links');
+
             if ($result !== false) {
                 // Trigger event after successful save
                 $this->trigger(self::EVENT_AFTER_SAVE_SETTINGS);
+                Craft::info('Settings saved successfully to database', 'smart-links');
                 return true;
             }
-            
+
+            Craft::error('Database update returned false', 'smart-links');
             return false;
         } catch (\Exception $e) {
             Craft::error('Failed to save Smart Links settings: ' . $e->getMessage(), 'smart-links');
@@ -362,6 +386,39 @@ class Settings extends Model
     }
 
     /**
+     * Check if a site is enabled for Smart Links
+     *
+     * @param int $siteId
+     * @return bool
+     */
+    public function isSiteEnabled(int $siteId): bool
+    {
+        // If no sites are specifically enabled, assume all sites are enabled (backwards compatibility)
+        if (empty($this->enabledSites)) {
+            return true;
+        }
+
+        return in_array($siteId, $this->enabledSites);
+    }
+
+    /**
+     * Get enabled site IDs, defaulting to all sites if none specified
+     *
+     * @return array
+     */
+    public function getEnabledSiteIds(): array
+    {
+        if (empty($this->enabledSites)) {
+            // Return all site IDs if none specifically enabled
+            return array_map(function($site) {
+                return $site->id;
+            }, Craft::$app->getSites()->getAllSites());
+        }
+
+        return $this->enabledSites;
+    }
+
+    /**
      * Get attribute labels
      *
      * @return array
@@ -398,6 +455,7 @@ class Settings extends Model
             'languageDetectionMethod' => Craft::t('smart-links', 'Language Detection Method'),
             'itemsPerPage' => Craft::t('smart-links', 'Items Per Page'),
             'notFoundRedirectUrl' => Craft::t('smart-links', '404 Redirect URL'),
+            'enabledSites' => Craft::t('smart-links', 'Enabled Sites'),
         ];
     }
 }
