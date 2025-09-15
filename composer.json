@@ -2,7 +2,7 @@
     "name": "lindemannrock/smart-links",
     "description": "Intelligent device detection and app store routing for Craft CMS",
     "type": "craft-plugin",
-    "version": "1.2.0",
+    "version": "1.2.1",
     "keywords": [
         "craft",
         "cms",
