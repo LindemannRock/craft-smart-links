@@ -189,11 +189,11 @@ class SmartLinksController extends Controller
         
         // QR logo (elementSelectField returns an array)
         $qrLogoIds = $request->getBodyParam('qrLogoId');
-        $smartLink->qrLogoId = is_array($qrLogoIds) ? ($qrLogoIds[0] ?? null) : $qrLogoIds;
-        
+        $smartLink->qrLogoId = is_array($qrLogoIds) ? ($qrLogoIds[0] ?? null) : (empty($qrLogoIds) ? null : (int)$qrLogoIds);
+
         // Smart Link image (elementSelectField returns an array)
         $imageIds = $request->getBodyParam('imageId');
-        $smartLink->imageId = is_array($imageIds) ? ($imageIds[0] ?? null) : $imageIds;
+        $smartLink->imageId = is_array($imageIds) ? ($imageIds[0] ?? null) : (empty($imageIds) ? null : (int)$imageIds);
         
         // Smart Link image size
         $smartLink->imageSize = $request->getBodyParam('imageSize', 'xl');
