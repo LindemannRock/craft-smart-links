@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.0](https://github.com/LindemannRock/smart-links/compare/v1.3.0...v1.4.0) (2025-09-15)
+
+
+### Features
+
+* update README and migration for site settings in Smart Links ([c309b1b](https://github.com/LindemannRock/smart-links/commit/c309b1b98e1a00b75f09c039b6054c736e0ed1b5))
+
 ## [1.3.0](https://github.com/LindemannRock/smart-links/compare/v1.2.2...v1.3.0) (2025-09-15)
 
 
