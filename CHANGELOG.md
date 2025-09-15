@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.2](https://github.com/LindemannRock/smart-links/compare/v1.2.1...v1.2.2) (2025-09-15)
+
+
+### Bug Fixes
+
+* handle empty QR logo and image IDs in SmartLinksController ([d9a7e65](https://github.com/LindemannRock/smart-links/commit/d9a7e65055ca27534f382ad29aec7a95eeaa10e7))
+
 ## [1.2.1](https://github.com/LindemannRock/smart-links/compare/v1.2.0...v1.2.1) (2025-09-15)
 
 
