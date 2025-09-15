@@ -9,6 +9,8 @@
 namespace lindemannrock\smartlinks\migrations;
 
 use craft\db\Migration;
+use craft\helpers\Db;
+use craft\helpers\StringHelper;
 
 /**
  * Smart Links Install Migration
@@ -191,6 +193,8 @@ class Install extends Migration
                 // Interface settings
                 'itemsPerPage' => $this->integer()->notNull()->defaultValue(100),
                 'notFoundRedirectUrl' => $this->string()->notNull()->defaultValue('/'),
+                // Site settings
+                'enabledSites' => $this->text()->null()->comment('JSON array of enabled site IDs'),
                 // Timestamps
                 'dateCreated' => $this->dateTime()->notNull(),
                 'dateUpdated' => $this->dateTime()->notNull(),
@@ -204,6 +208,13 @@ class Install extends Migration
 
             // Add foreign key for logo
             $this->addForeignKey(null, '{{%smartlinks_settings}}', ['defaultQrLogoId'], '{{%assets}}', ['id'], 'SET NULL');
+
+            // Insert default settings row
+            $this->insert('{{%smartlinks_settings}}', [
+                'dateCreated' => Db::prepareDateForDb(new \DateTime()),
+                'dateUpdated' => Db::prepareDateForDb(new \DateTime()),
+                'uid' => StringHelper::UUID(),
+            ]);
         }
 
         return true;
