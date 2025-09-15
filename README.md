@@ -87,6 +87,8 @@ return [
     'itemsPerPage' => 100,
     'languageDetectionMethod' => 'browser', // 'browser', 'ip', or 'both'
     'notFoundRedirectUrl' => '/',
+    // Site selection
+    'enabledSites' => [1, 2], // Array of site IDs where Smart Links should be enabled
     // Multi-environment support
     'production' => [
         'enableAnalytics' => true,
@@ -97,6 +99,44 @@ return [
 ```
 
 See [Configuration Documentation](docs/CONFIGURATION.md) for all available options.
+
+## Multi-Site Management
+
+Smart Links supports restricting functionality to specific sites in multi-site installations.
+
+### Site Selection
+
+Configure which sites Smart Links should be enabled for:
+
+**Via Control Panel:**
+- Go to **Settings → Plugins → Smart Links → General**
+- Check the sites where Smart Links should be available
+- Leave empty to enable for all sites
+
+**Via Configuration File:**
+```php
+// config/smart-links.php
+return [
+    'enabledSites' => [1, 2], // Only enable for sites 1 and 2
+
+    // Environment-specific overrides
+    'dev' => [
+        'enabledSites' => [1], // Only main site in development
+    ],
+    'production' => [
+        'enabledSites' => [1, 2, 3], // All sites in production
+    ],
+];
+```
+
+**Behavior:**
+- **CP Navigation**: Smart Links only appears in sidebar for enabled sites
+- **Site Switcher**: Only enabled sites appear in the site dropdown
+- **Access Control**: Direct access to disabled sites returns 403 Forbidden
+- **Backwards Compatibility**: Empty selection enables all sites
+
+**Important Note:**
+If the primary site is not included in `enabledSites`, Smart Links will not appear in the main CP navigation at all, as the navigation uses the primary site context. Ensure you include your primary site ID if you want Smart Links accessible from the main menu.
 
 ## Usage
 
