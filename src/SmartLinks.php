@@ -233,8 +233,16 @@ class SmartLinks extends Plugin
      */
     public function getCpNavItem(): ?array
     {
+        // Check if Smart Links is enabled for the current site
+        $currentSite = Craft::$app->getSites()->getCurrentSite();
+        $settings = $this->getSettings();
+
+        if (!$settings->isSiteEnabled($currentSite->id)) {
+            return null; // Hide navigation item entirely
+        }
+
         $item = parent::getCpNavItem();
-        
+
         if ($item) {
             $item['label'] = $this->getSettings()->pluginName;
             
@@ -319,6 +327,23 @@ class SmartLinks extends Plugin
         }
         
         return $settings;
+    }
+
+    /**
+     * Get sites where Smart Links is enabled
+     *
+     * @return array
+     */
+    public function getEnabledSites(): array
+    {
+        $settings = $this->getSettings();
+        $enabledSiteIds = $settings->getEnabledSiteIds();
+
+
+        // Return only enabled sites
+        return array_filter(Craft::$app->getSites()->getAllSites(), function($site) use ($enabledSiteIds) {
+            return in_array($site->id, $enabledSiteIds);
+        });
     }
 
     /**

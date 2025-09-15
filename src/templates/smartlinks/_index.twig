@@ -3,10 +3,37 @@
 {% set title = plugin.settings.pluginName|t('smart-links') %}
 {% set elementType = 'lindemannrock\\smartlinks\\elements\\SmartLink' %}
 {% set selectedSubnavItem = 'links' %}
+{% set showSiteMenu = false %}
 
-{% set crumbs = [
+{# Site switcher (first item) #}
+{% set crumbs = [] %}
+{% if craft.app.getIsMultiSite() %}
+    {% set currentSite = craft.app.sites.getCurrentSite() %}
+
+    {# Get site menu items - only enabled sites #}
+    {% set siteMenuItems = [] %}
+    {% for site in plugin.getEnabledSites() %}
+        {% set siteMenuItems = siteMenuItems|merge([{
+            label: site.name,
+            url: url('smart-links', {site: site.handle}),
+            selected: site.id == currentSite.id
+        }]) %}
+    {% endfor %}
+
+    {% set crumbs = [{
+        id: 'site-crumb',
+        icon: 'world',
+        label: currentSite.name|t('site'),
+        menu: {
+            items: siteMenuItems,
+            label: 'Select site'|t('app')
+        }
+    }] %}
+{% endif %}
+
+{% set crumbs = crumbs|merge([
     { label: plugin.settings.pluginName|t('smart-links'), url: url('smart-links') }
-] %}
+]) %}
 
 {% block actionButton %}
     {% if currentUser.can('smartLinks:createLinks') %}

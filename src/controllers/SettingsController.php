@@ -204,6 +204,9 @@ class SettingsController extends Controller
      */
     public function actionSave(): Response
     {
+        // Basic debug - write to file
+        file_put_contents('/tmp/smart-links-debug.log', date('Y-m-d H:i:s') . " - Save action called\n", FILE_APPEND);
+
         $this->requirePostRequest();
         
         // Check permission first
@@ -219,12 +222,28 @@ class SettingsController extends Controller
         }
         
         $settingsData = Craft::$app->getRequest()->getBodyParam('settings');
-        
+
+        // Debug: Log what we received
+        Craft::info('Settings data received: ' . json_encode($settingsData), 'smart-links');
+
         // Handle pluginName field
         if (isset($settingsData['pluginName'])) {
             $settings->pluginName = $settingsData['pluginName'];
         }
         
+        // Handle enabledSites checkbox group
+        if (isset($settingsData['enabledSites'])) {
+            if (is_array($settingsData['enabledSites'])) {
+                // Convert string values to integers
+                $settingsData['enabledSites'] = array_map('intval', array_filter($settingsData['enabledSites']));
+            } else {
+                $settingsData['enabledSites'] = [];
+            }
+        } else {
+            // No sites selected = empty array (which means all sites enabled)
+            $settingsData['enabledSites'] = [];
+        }
+
         // Handle asset field (returns array)
         if (isset($settingsData['defaultQrLogoId']) && is_array($settingsData['defaultQrLogoId'])) {
             $settingsData['defaultQrLogoId'] = $settingsData['defaultQrLogoId'][0] ?? null;
@@ -248,6 +267,9 @@ class SettingsController extends Controller
         }
         
         $settings->setAttributes($settingsData, false);
+
+        // Debug: Log what's in settings after setAttributes
+        Craft::info('Settings after setAttributes - enabledSites: ' . json_encode($settings->enabledSites), 'smart-links');
 
         if (!$settings->validate()) {
             // Log validation errors for debugging

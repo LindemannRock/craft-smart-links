@@ -184,6 +184,7 @@ class Settings extends Model
                 'class' => EnvAttributeParserBehavior::class,
                 'attributes' => [
                     'redirectTemplate',
+                    'enabledSites',
                 ],
             ],
         ];

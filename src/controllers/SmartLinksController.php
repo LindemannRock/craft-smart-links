@@ -53,6 +53,12 @@ class SmartLinksController extends Controller
             $site = Craft::$app->getSites()->getCurrentSite();
         }
 
+        // Check if Smart Links is enabled for this site
+        $settings = SmartLinks::getInstance()->getSettings();
+        if (!$settings->isSiteEnabled($site->id)) {
+            throw new \yii\web\ForbiddenHttpException('Smart Links is not enabled for this site.');
+        }
+
         // Get the smart link
         if ($smartLinkId !== null) {
             if ($smartLink === null) {
@@ -118,6 +124,9 @@ class SmartLinksController extends Controller
         if ($smartLink->id && $plugin && $plugin->getSettings()->enableAnalytics) {
             $variables['analyticsService'] = $plugin->analytics;
         }
+
+        // Pass enabled sites for site switcher
+        $variables['enabledSites'] = $plugin->getEnabledSites();
 
         return $this->renderTemplate('smart-links/smartlinks/_edit', $variables);
     }

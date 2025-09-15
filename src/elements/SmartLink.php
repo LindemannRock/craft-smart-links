@@ -317,6 +317,20 @@ class SmartLink extends Element
         return new SmartLinkQuery(static::class);
     }
 
+    /**
+     * @inheritdoc
+     */
+    public static function supportedSites(): array
+    {
+        $settings = SmartLinks::getInstance()->getSettings();
+        $enabledSiteIds = $settings->getEnabledSiteIds();
+
+
+        // Return array of site IDs that support this element type
+        return array_map(function($siteId) {
+            return ['siteId' => $siteId, 'enabledByDefault' => true];
+        }, $enabledSiteIds);
+    }
 
     /**
      * @inheritdoc
@@ -727,7 +741,7 @@ class SmartLink extends Element
             $site = Craft::$app->sites->getSiteById($this->siteId);
             if ($site) {
                 $baseUrl = $site->getBaseUrl();
-                if (strpos($url, $baseUrl) !== false && substr_count($url, $baseUrl) > 1) {
+                if (!empty($baseUrl) && strpos($url, $baseUrl) !== false && substr_count($url, $baseUrl) > 1) {
                     Craft::warning("Double URL detected in getRedirectUrl() for slug '{$this->slug}': {$url}", 'smart-links');
                 }
             }

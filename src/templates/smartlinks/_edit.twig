@@ -34,7 +34,7 @@
     
     {# Get site menu items #}
     {% set siteMenuItems = [] %}
-    {% for site in craft.app.sites.getEditableSites() %}
+    {% for site in enabledSites %}
         {% set siteMenuItems = siteMenuItems|merge([{
             label: site.name,
             url: smartLink.id ? url('smart-links/smartlinks/' ~ smartLink.id, {site: site.handle}) : url('smart-links/new', {site: site.handle}),
