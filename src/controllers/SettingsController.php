@@ -226,6 +226,15 @@ class SettingsController extends Controller
         // Debug: Log what we received
         Craft::info('Settings data received: ' . json_encode($settingsData), 'smart-links');
 
+        // Debug: Specifically check imageVolumeUid
+        if (isset($settingsData['imageVolumeUid'])) {
+            Craft::info('imageVolumeUid type: ' . gettype($settingsData['imageVolumeUid']), 'smart-links');
+            Craft::info('imageVolumeUid value: ' . json_encode($settingsData['imageVolumeUid']), 'smart-links');
+        }
+
+        // Debug: Log all POST data
+        Craft::info('All POST data: ' . json_encode(Craft::$app->getRequest()->getBodyParams()), 'smart-links');
+
         // Handle pluginName field
         if (isset($settingsData['pluginName'])) {
             $settings->pluginName = $settingsData['pluginName'];
@@ -247,6 +256,12 @@ class SettingsController extends Controller
         // Handle asset field (returns array)
         if (isset($settingsData['defaultQrLogoId']) && is_array($settingsData['defaultQrLogoId'])) {
             $settingsData['defaultQrLogoId'] = $settingsData['defaultQrLogoId'][0] ?? null;
+        }
+
+        // Auto-set qrLogoVolumeUid to same value as imageVolumeUid
+        if (isset($settingsData['imageVolumeUid'])) {
+            $settingsData['qrLogoVolumeUid'] = $settingsData['imageVolumeUid'];
+            Craft::info('Auto-setting qrLogoVolumeUid to match imageVolumeUid: ' . $settingsData['imageVolumeUid'], 'smart-links');
         }
         
         // Fix color fields - add # if missing
