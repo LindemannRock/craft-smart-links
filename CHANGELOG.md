@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.0](https://github.com/LindemannRock/craft-smart-links/compare/v1.4.2...v1.5.0) (2025-09-24)
+
+
+### Features
+
+* enhance settings handling with additional debug logging and auto-setting for qrLogoVolumeUid ([a3b7d71](https://github.com/LindemannRock/craft-smart-links/commit/a3b7d7112493de5c0c56a27c29914bf02c87768a))
+
 ## [1.4.2](https://github.com/LindemannRock/craft-smart-links/compare/v1.4.1...v1.4.2) (2025-09-24)
 
 
