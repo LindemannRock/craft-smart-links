@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.1](https://github.com/LindemannRock/smart-links/compare/v1.4.0...v1.4.1) (2025-09-24)
+
+
+### Bug Fixes
+
+* improve description in CleanupAnalyticsJob and format .gitignore entries ([3a58cbc](https://github.com/LindemannRock/smart-links/commit/3a58cbc9cd5403b2413e9a644ec7b7026baab72f))
+
 ## [1.4.0](https://github.com/LindemannRock/smart-links/compare/v1.3.0...v1.4.0) (2025-09-15)
 
 
