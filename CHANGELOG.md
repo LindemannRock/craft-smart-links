@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.2](https://github.com/LindemannRock/craft-smart-links/compare/v1.4.1...v1.4.2) (2025-09-24)
+
+
+### Bug Fixes
+
+* update repository links in README and composer.json to reflect new naming ([a239296](https://github.com/LindemannRock/craft-smart-links/commit/a239296fbe4e9cc70bd86863bd89fbcec3031043))
+
 ## [1.4.1](https://github.com/LindemannRock/smart-links/compare/v1.4.0...v1.4.1) (2025-09-24)
 
 
