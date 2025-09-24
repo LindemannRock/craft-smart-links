@@ -36,7 +36,7 @@ Until published on Packagist, install directly from the repository:
 
 ```bash
 cd /path/to/project
-composer config repositories.smart-links vcs https://github.com/LindemannRock/smart-links
+composer config repositories.smart-links vcs https://github.com/LindemannRock/craft-smart-links
 composer require lindemannrock/smart-links:dev-main
 ./craft plugin/install smart-links
 ```
@@ -391,8 +391,8 @@ Multi-site support is coming soon. Future features will include:
 
 ## Support
 
-- **Documentation**: [https://github.com/LindemannRock/smart-links](https://github.com/LindemannRock/smart-links)
-- **Issues**: [https://github.com/LindemannRock/smart-links/issues](https://github.com/LindemannRock/smart-links/issues)
+- **Documentation**: [https://github.com/LindemannRock/craft-smart-links](https://github.com/LindemannRock/craft-smart-links)
+- **Issues**: [https://github.com/LindemannRock/craft-smart-links/issues](https://github.com/LindemannRock/craft-smart-links/issues)
 - **Email**: [support@lindemannrock.com](mailto:support@lindemannrock.com)
 
 ## License

@@ -1,5 +1,5 @@
 {
-    "name": "lindemannrock/smart-links",
+    "name": "lindemannrock/craft-smart-links",
     "description": "Intelligent device detection and app store routing for Craft CMS",
     "type": "craft-plugin",
     "version": "1.4.1",
@@ -29,10 +29,10 @@
     ],
     "support": {
         "email": "support@lindemannrock.com",
-        "issues": "https://github.com/LindemannRock/smart-links/issues",
-        "source": "https://github.com/LindemannRock/smart-links",
-        "docs": "https://github.com/LindemannRock/smart-links/blob/main/README.md",
-        "rss": "https://github.com/LindemannRock/smart-links/commits/main.atom"
+        "issues": "https://github.com/LindemannRock/craft-smart-links/issues",
+        "source": "https://github.com/LindemannRock/craft-smart-links",
+        "docs": "https://github.com/LindemannRock/craft-smart-links/blob/main/README.md",
+        "rss": "https://github.com/LindemannRock/craft-smart-links/commits/main.atom"
     },
     "require": {
         "php": "^8.0.2",
@@ -50,8 +50,8 @@
         "handle": "smart-links",
         "developer": "LindemannRock",
         "developerUrl": "https://lindemannrock.com",
-        "documentationUrl": "https://github.com/LindemannRock/smart-links/blob/main/README.md",
-        "changelogUrl": "https://github.com/LindemannRock/smart-links/blob/main/CHANGELOG.md",
+        "documentationUrl": "https://github.com/LindemannRock/craft-smart-links/blob/main/README.md",
+        "changelogUrl": "https://github.com/LindemannRock/craft-smart-links/blob/main/CHANGELOG.md",
         "class": "lindemannrock\\smartlinks\\SmartLinks"
     }
 }
