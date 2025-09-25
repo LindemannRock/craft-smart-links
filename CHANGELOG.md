@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.0](https://github.com/LindemannRock/craft-smart-links/compare/v1.5.0...v1.6.0) (2025-09-25)
+
+
+### Features
+
+* add Smart Links utility template with link statistics and recent analytics ([acf62c7](https://github.com/LindemannRock/craft-smart-links/commit/acf62c7ad344275381fdce7cfbefa74b8f674591))
+
 ## [1.5.0](https://github.com/LindemannRock/craft-smart-links/compare/v1.4.2...v1.5.0) (2025-09-24)
 
 
