@@ -60,7 +60,7 @@ class SmartLinksUtility extends Utility
         // Get recent analytics
         $recentAnalytics = $smartLinks->analytics->getAnalyticsSummary('last7days');
         
-        return Craft::$app->getView()->renderTemplate('smart-links/_components/utilities/SmartLinksUtility', [
+        return Craft::$app->getView()->renderTemplate('smart-links/utilities/index', [
             'totalLinks' => $totalLinks,
             'activeLinks' => $activeLinks,
             'totalClicks' => $totalClicks,
