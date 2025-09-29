@@ -35,7 +35,7 @@
         "rss": "https://github.com/LindemannRock/craft-smart-links/commits/main.atom"
     },
     "require": {
-        "php": "^8.0.2",
+        "php": "^8.2",
         "craftcms/cms": "^5.0.0",
         "matomo/device-detector": "^6.4",
         "bacon/bacon-qr-code": "^2.0"
