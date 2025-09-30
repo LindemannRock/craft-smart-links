@@ -369,39 +369,31 @@ class DeviceDetectionService extends Component
      */
     private function _getUrlForPlatform(string $platform, array $urls, SmartLink $smartLink): string
     {
-        // Get fallback URL from the array or from the SmartLink object
-        $fallbackUrl = $urls['fallbackUrl'] ?? $smartLink->fallbackUrl ?? '';
-
         switch ($platform) {
             case 'ios':
-                $url = $urls['iosUrl'] ?? '';
-                return !empty($url) ? $url : $fallbackUrl;
+                return $urls['iosUrl'] ?? '';
 
             case 'huawei':
-                $url = $urls['huaweiUrl'] ?? $urls['androidUrl'] ?? '';
-                return !empty($url) ? $url : $fallbackUrl;
+                // Try Huawei first, then fallback to Android URL
+                return $urls['huaweiUrl'] ?? $urls['androidUrl'] ?? '';
 
             case 'android':
                 // Check if it's Amazon device
                 $ua = strtolower(Craft::$app->getRequest()->getUserAgent() ?? '');
                 if (strpos($ua, 'kindle') !== false || strpos($ua, 'silk') !== false) {
-                    $url = $urls['amazonUrl'] ?? $urls['androidUrl'] ?? '';
-                    return !empty($url) ? $url : $fallbackUrl;
+                    return $urls['amazonUrl'] ?? $urls['androidUrl'] ?? '';
                 }
-                $url = $urls['androidUrl'] ?? '';
-                return !empty($url) ? $url : $fallbackUrl;
+                return $urls['androidUrl'] ?? '';
 
             case 'windows':
-                // For Windows Phone/Mobile, use the Windows URL
-                $url = $urls['windowsUrl'] ?? '';
-                return !empty($url) ? $url : $fallbackUrl;
+                return $urls['windowsUrl'] ?? '';
 
             case 'macos':
-                $url = $urls['macUrl'] ?? '';
-                return !empty($url) ? $url : $fallbackUrl;
+                return $urls['macUrl'] ?? '';
 
             default:
-                return $fallbackUrl;
+                // Unknown platform - return empty, show landing page
+                return '';
         }
     }
 }

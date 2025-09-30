@@ -175,9 +175,17 @@ class SmartLinksVariable
         $view->registerAssetBundle(\lindemannrock\smartlinks\web\assets\redirect\RedirectAsset::class);
 
         // Register the tracking configuration
+        // Pass ALL URLs to JavaScript, let it decide based on client-side device detection
         $trackingConfig = [
             'smartLinkId' => $smartLink->id,
-            'redirectUrl' => $redirectUrl,
+            'urls' => [
+                'ios' => $smartLink->iosUrl ?: '',
+                'android' => $smartLink->androidUrl ?: '',
+                'huawei' => $smartLink->huaweiUrl ?: '',
+                'amazon' => $smartLink->amazonUrl ?: '',
+                'windows' => $smartLink->windowsUrl ?: '',
+                'mac' => $smartLink->macUrl ?: '',
+            ],
             'trackAnalytics' => $smartLink->trackAnalytics,
             'trackingEndpoint' => \craft\helpers\UrlHelper::siteUrl('smart-links/redirect/track-button-click'),
             'csrfEndpoint' => \craft\helpers\UrlHelper::siteUrl('smart-links/redirect/refresh-csrf'),

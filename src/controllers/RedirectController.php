@@ -116,6 +116,7 @@ class RedirectController extends Controller
         return $this->asJson([
             'csrfToken' => Craft::$app->request->getCsrfToken(),
             'isMobile' => $deviceInfo->isMobile ?? false,
+            'platform' => $deviceInfo->platform ?? 'unknown',
         ]);
     }
 

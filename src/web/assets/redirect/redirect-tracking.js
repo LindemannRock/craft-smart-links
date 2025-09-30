@@ -26,7 +26,7 @@
     }
     window._smartLinksTracked = true;
 
-    const redirectUrl = config.redirectUrl;
+    const urls = config.urls || {};
     const smartLinkId = config.smartLinkId;
     const trackAnalytics = config.trackAnalytics;
     const trackingEndpoint = config.trackingEndpoint;
@@ -36,7 +36,7 @@
     const urlParams = new URLSearchParams(window.location.search);
     const source = urlParams.get('src') || 'direct';
 
-    log('Starting tracking...', {smartLinkId, source, trackAnalytics});
+    log('Starting tracking...', {smartLinkId, source, trackAnalytics, urls});
 
     // Fetch fresh device detection and CSRF token from uncached endpoint
     fetch(csrfEndpoint, {
@@ -50,10 +50,27 @@
     .then(data => {
         log('CSRF data:', data);
 
+        // Determine redirect URL based on platform from fresh device detection
+        let redirectUrl = '';
+        const platform = data.platform || 'unknown';
+
+        if (platform === 'ios') {
+            redirectUrl = urls.ios || '';
+        } else if (platform === 'android' || platform === 'huawei') {
+            // Try platform-specific first, fallback to android
+            redirectUrl = urls[platform] || urls.android || '';
+        } else if (platform === 'windows') {
+            redirectUrl = urls.windows || '';
+        } else if (platform === 'macos') {
+            redirectUrl = urls.mac || '';
+        }
+
+        log('Platform detected:', platform, 'Redirect URL:', redirectUrl);
+
         // Only track if:
-        // 1. Mobile device (will auto-redirect) OR
+        // 1. Has redirect URL (mobile/desktop with platform URL set) OR
         // 2. QR code scan (has ?src=qr parameter)
-        const shouldTrack = data.isMobile || source === 'qr';
+        const shouldTrack = (redirectUrl && data.isMobile) || source === 'qr';
 
         if (trackAnalytics && shouldTrack) {
             log('Sending tracking beacon...');
@@ -78,15 +95,15 @@
                 }).then(() => log('Fetch tracking sent')).catch(err => error('Tracking failed:', err));
             }
         } else {
-            log('Not tracking page load (desktop without QR parameter)');
+            log('Not tracking page load (no redirect URL or desktop without QR parameter)');
         }
 
-        // If mobile device, redirect immediately after tracking
-        if (data.isMobile && redirectUrl) {
-            log('Mobile detected, redirecting to:', redirectUrl);
+        // Redirect if URL is set (regardless of device type - mobile OR desktop)
+        if (redirectUrl) {
+            log('Redirecting to:', redirectUrl);
             window.location.replace(redirectUrl);
         } else {
-            log('Desktop device, showing page');
+            log('No redirect URL for platform:', platform, '- showing landing page');
         }
     })
     .catch(err => {
