@@ -27,6 +27,19 @@ class RedirectController extends Controller
     protected array|int|bool $allowAnonymous = true;
 
     /**
+     * @inheritdoc
+     */
+    public function beforeAction($action): bool
+    {
+        // Disable CSRF validation for tracking endpoints (uses sendBeacon)
+        if (in_array($action->id, ['refresh-csrf', 'track-button-click'])) {
+            $this->enableCsrfValidation = false;
+        }
+
+        return parent::beforeAction($action);
+    }
+
+    /**
      * Handle smart link redirect
      *
      * @param string $slug
