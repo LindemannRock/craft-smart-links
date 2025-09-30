@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.13.1](https://github.com/LindemannRock/craft-smart-links/compare/v1.13.0...v1.13.1) (2025-09-30)
+
+
+### Bug Fixes
+
+* improve tracking and analytics display ([d94701c](https://github.com/LindemannRock/craft-smart-links/commit/d94701c5290c2323bc811a7b1acdf0fd5a8a6f48))
+
 ## [1.13.0](https://github.com/LindemannRock/craft-smart-links/compare/v1.12.0...v1.13.0) (2025-09-30)
 
 
