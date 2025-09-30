@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.12.0](https://github.com/LindemannRock/craft-smart-links/compare/v1.11.0...v1.12.0) (2025-09-30)
+
+
+### Features
+
+* add QR code cache busting setting to fix tracking with CDN caching ([72eac94](https://github.com/LindemannRock/craft-smart-links/commit/72eac947123e427262617346103543810347fb4d))
+
 ## [1.11.0](https://github.com/LindemannRock/craft-smart-links/compare/v1.10.0...v1.11.0) (2025-09-30)
 
 
