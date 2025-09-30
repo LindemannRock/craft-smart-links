@@ -45,18 +45,6 @@
         }) }}
 
         {{ forms.textField({
-            label: "Custom Redirect Template"|t('smart-links'),
-            instructions: "Path to custom template in your templates/ folder (e.g., smart-links/redirect)"|t('smart-links'),
-            id: 'redirectTemplate',
-            name: 'settings[redirectTemplate]',
-            value: settings.redirectTemplate ?? '',
-            placeholder: 'smart-links/redirect',
-            disabled: settings.isOverriddenByConfig('redirectTemplate'),
-            warning: settings.isOverriddenByConfig('redirectTemplate') ?
-                "This is being overridden by the <code>redirectTemplate</code> setting in <code>config/smart-links.php</code>."|t('smart-links')|raw : null,
-        }) }}
-
-        {{ forms.textField({
             label: "404 Redirect URL"|t('smart-links'),
             instructions: "Where to redirect when a smart link is not found or disabled"|t('smart-links'),
             id: 'notFoundRedirectUrl',

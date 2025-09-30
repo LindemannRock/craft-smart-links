@@ -41,6 +41,10 @@
                 "This is being overridden by the <code>pluginName</code> setting in <code>config/smart-links.php</code>."|t('smart-links')|raw : null,
         }) }}
 
+        <hr>
+
+        <h2>{{ "URL Settings"|t('smart-links') }}</h2>
+
         {{ forms.textField({
             label: "Smart Link URL Prefix"|t('smart-links'),
             instructions: "The URL prefix for smart links (e.g., 'go' creates /go/your-link). Clear routes cache after changing (php craft clear-caches/compiled-templates)."|t('smart-links'),
@@ -52,6 +56,47 @@
             disabled: settings.isOverriddenByConfig('slugPrefix'),
             warning: settings.isOverriddenByConfig('slugPrefix') ?
                 "This is being overridden by the <code>slugPrefix</code> setting in <code>config/smart-links.php</code>. Clear routes cache after changing."|t('smart-links')|raw : null,
+        }) }}
+
+        {{ forms.textField({
+            label: "QR Code URL Prefix"|t('smart-links'),
+            instructions: "The URL prefix for QR code pages (e.g., 'qr' creates /qr/your-link). Clear routes cache after changing (php craft clear-caches/compiled-templates)."|t('smart-links'),
+            id: 'qrPrefix',
+            name: 'settings[qrPrefix]',
+            value: settings.qrPrefix ?? 'qr',
+            placeholder: 'qr',
+            required: true,
+            disabled: settings.isOverriddenByConfig('qrPrefix'),
+            warning: settings.isOverriddenByConfig('qrPrefix') ?
+                "This is being overridden by the <code>qrPrefix</code> setting in <code>config/smart-links.php</code>. Clear routes cache after changing."|t('smart-links')|raw : null,
+        }) }}
+
+        <hr>
+
+        <h2>{{ "Template Settings"|t('smart-links') }}</h2>
+
+        {{ forms.textField({
+            label: "Custom Redirect Template"|t('smart-links'),
+            instructions: "Path to custom template in your templates/ folder (e.g., smart-links/redirect)"|t('smart-links'),
+            id: 'redirectTemplate',
+            name: 'settings[redirectTemplate]',
+            value: settings.redirectTemplate ?? '',
+            placeholder: 'smart-links/redirect',
+            disabled: settings.isOverriddenByConfig('redirectTemplate'),
+            warning: settings.isOverriddenByConfig('redirectTemplate') ?
+                "This is being overridden by the <code>redirectTemplate</code> setting in <code>config/smart-links.php</code>."|t('smart-links')|raw : null,
+        }) }}
+
+        {{ forms.textField({
+            label: "Custom QR Code Template"|t('smart-links'),
+            instructions: "Path to custom template in your templates/ folder (e.g., smart-links/qr)"|t('smart-links'),
+            id: 'qrTemplate',
+            name: 'settings[qrTemplate]',
+            value: settings.qrTemplate ?? '',
+            placeholder: 'smart-links/qr',
+            disabled: settings.isOverriddenByConfig('qrTemplate'),
+            warning: settings.isOverriddenByConfig('qrTemplate') ?
+                "This is being overridden by the <code>qrTemplate</code> setting in <code>config/smart-links.php</code>."|t('smart-links')|raw : null,
         }) }}
 
         <hr>
