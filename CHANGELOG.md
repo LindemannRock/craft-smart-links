@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.9.0](https://github.com/LindemannRock/craft-smart-links/compare/v1.8.0...v1.9.0) (2025-09-30)
+
+
+### Features
+
+* update caching strategy in RedirectController to vary by device type ([9bb8e4b](https://github.com/LindemannRock/craft-smart-links/commit/9bb8e4bd881509e72fb5f8f60f2c8d9726ddfbc1))
+
 ## [1.8.0](https://github.com/LindemannRock/craft-smart-links/compare/v1.7.1...v1.8.0) (2025-09-30)
 
 
