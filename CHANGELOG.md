@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.9.2](https://github.com/LindemannRock/craft-smart-links/compare/v1.9.1...v1.9.2) (2025-09-30)
+
+
+### Bug Fixes
+
+* update device detection method in RedirectController ([198fc1a](https://github.com/LindemannRock/craft-smart-links/commit/198fc1acadd5a050052b2c1ca8db9343bfea914e))
+
 ## [1.9.1](https://github.com/LindemannRock/craft-smart-links/compare/v1.9.0...v1.9.1) (2025-09-30)
 
 
