@@ -127,8 +127,12 @@ class RedirectController extends Controller
         // Prevent caching of this response
         $this->response->setNoCacheHeaders();
 
+        // Detect device using the same library as redirect action
+        $deviceInfo = SmartLinks::$plugin->deviceDetector->detect();
+
         return $this->asJson([
             'csrfToken' => Craft::$app->request->getCsrfToken(),
+            'isMobile' => $deviceInfo['isMobile'] ?? false,
         ]);
     }
 
