@@ -23,42 +23,82 @@
  */
 
 return [
-    // Analytics settings
+    // Plugin Settings
+    'pluginName' => 'Smart Links',
+
+    // Site Settings
+    'enabledSites' => [], // Array of site IDs where Smart Links should be enabled (empty = all sites)
+
+    // Analytics Settings
     'enableAnalytics' => true,
-    'analyticsRetentionDays' => 90, // 0-3650 days (0 = forever)
-    'trackBotClicks' => false,
+    'analyticsRetention' => 90, // Days to keep analytics data (0 = unlimited, max 3650)
 
-    // QR Code defaults
-    'qrCodeSize' => 300,
-    'qrCodeMargin' => 4,
-    'qrCodeForegroundColor' => '#000000',
-    'qrCodeBackgroundColor' => '#FFFFFF',
-    'qrCodeErrorCorrection' => 'M', // L, M, Q, H
-    'qrCodeFormat' => 'svg', // png, svg
+    // Analytics Export Options
+    'includeDisabledInExport' => false, // Include disabled smart links in analytics exports
+    'includeExpiredInExport' => false,  // Include expired smart links in analytics exports
 
-    // Caching
-    'cacheEnabled' => true,
-    'cacheDuration' => 3600, // seconds
+    // QR Code Appearance Settings
+    'defaultQrSize' => 256,            // Size in pixels (100-1000)
+    'defaultQrColor' => '#000000',     // Foreground color
+    'defaultQrBgColor' => '#FFFFFF',   // Background color
+    'defaultQrFormat' => 'png',        // Format: 'png' or 'svg'
+    'defaultQrMargin' => 4,            // White space around QR code (0-10 modules)
 
-    // Device detection
-    'deviceDetectionMethod' => 'user-agent', // user-agent, client-hints
-    'fallbackDevice' => 'desktop', // desktop, mobile, tablet
+    // QR Code Technical Options
+    'defaultQrErrorCorrection' => 'M', // Error correction level: L, M, Q, H
+    'qrModuleStyle' => 'square',       // Module shape: 'square', 'rounded', 'dots'
+    'qrEyeStyle' => 'square',          // Eye shape: 'square', 'rounded', 'leaf'
+    'qrEyeColor' => null,              // Eye color (null = use main color)
 
-    // Language detection
-    'languageDetectionMethod' => 'site', // site, browser, query
-    'fallbackLanguage' => 'en',
+    // QR Code Logo Settings
+    'enableQrLogo' => false,           // Enable logo overlay in center of QR codes
+    'qrLogoSize' => 20,                // Logo size as percentage (10-30%)
+    // 'qrLogoVolumeUid' => null,      // Asset volume UID for logo selection
+    'defaultQrLogoId' => null,         // Default logo asset ID
+
+    // QR Code Download Settings
+    'enableQrDownload' => true,        // Allow users to download QR codes
+    'qrDownloadFilename' => '{slug}-qr-{size}', // Pattern with {slug}, {size}, {format}
+
+    // Template Settings
+    'redirectTemplate' => null,        // Custom redirect landing page template path
+    'qrTemplate' => null,              // Custom QR code display page template path
+
+    // Geographic & Device Detection
+    'enableGeoDetection' => false,     // Detect user location for analytics
+    'cacheDeviceDetection' => true,    // Cache device detection results
+    'deviceDetectionCacheDuration' => 3600, // Device detection cache in seconds
+
+    // Language & Redirect Settings
+    'languageDetectionMethod' => 'browser', // Options: 'browser', 'ip', 'both'
+    'notFoundRedirectUrl' => '/',      // Where to redirect for 404/disabled links
+
+    // Caching Settings
+    'qrCodeCacheDuration' => 86400,    // QR code cache duration in seconds (24 hours)
+
+    // Interface Settings
+    'itemsPerPage' => 100,             // Number of smart links per page (10-500)
+
+    // Asset Settings
+    // 'imageVolumeUid' => null,       // Asset volume UID for Smart Link images
 
     // Multi-environment example
-    // '*' => [
-    //     'enableAnalytics' => true,
-    // ],
-    // 'dev' => [
-    //     'enableAnalytics' => false,
-    //     'cacheEnabled' => false,
-    // ],
-    // 'production' => [
-    //     'enableAnalytics' => true,
-    //     'analyticsRetentionDays' => 180,
-    //     'cacheEnabled' => true,
-    // ],
+    '*' => [
+        // Default settings for all environments
+    ],
+    'dev' => [
+        'enableAnalytics' => true,
+        'analyticsRetention' => 30,    // Keep less data in dev
+        'cacheDeviceDetection' => false,
+    ],
+    'staging' => [
+        'enableAnalytics' => true,
+        'analyticsRetention' => 90,
+    ],
+    'production' => [
+        'enableAnalytics' => true,
+        'analyticsRetention' => 365,   // Keep more data in production
+        'cacheDeviceDetection' => true,
+        'deviceDetectionCacheDuration' => 7200, // Longer cache in production
+    ],
 ];

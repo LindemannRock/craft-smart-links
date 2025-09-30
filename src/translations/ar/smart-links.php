@@ -234,6 +234,8 @@ return [
     // Redirect Settings
     'Custom Redirect Template' => 'قالب إعادة توجيه مخصص',
     'Path to custom template in your templates/ folder (e.g., smart-links/redirect)' => 'مسار القالب المخصص في مجلد templates/ (مثال: smart-links/redirect)',
+    'Custom QR Code Template' => 'قالب رمز الاستجابة السريعة المخصص',
+    'Path to custom template in your templates/ folder (e.g., smart-links/qr)' => 'مسار القالب المخصص في مجلد templates/ (مثال: smart-links/qr)',
     'Redirect Settings' => 'إعدادات إعادة التوجيه',
     'Redirect Behavior' => 'سلوك إعادة التوجيه',
     '404 Redirect URL' => 'رابط إعادة توجيه 404',
@@ -357,6 +359,7 @@ return [
     'This is being overridden by the <code>enableQrDownload</code> setting in <code>config/smart-links.php</code>.' => 'يتم تجاوز هذا بواسطة إعداد <code>enableQrDownload</code> في <code>config/smart-links.php</code>.',
     'This is being overridden by the <code>qrDownloadFilename</code> setting in <code>config/smart-links.php</code>.' => 'يتم تجاوز هذا بواسطة إعداد <code>qrDownloadFilename</code> في <code>config/smart-links.php</code>.',
     'This is being overridden by the <code>redirectTemplate</code> setting in <code>config/smart-links.php</code>.' => 'يتم تجاوز هذا بواسطة إعداد <code>redirectTemplate</code> في <code>config/smart-links.php</code>.',
+    'This is being overridden by the <code>qrTemplate</code> setting in <code>config/smart-links.php</code>.' => 'يتم تجاوز هذا بواسطة إعداد <code>qrTemplate</code> في <code>config/smart-links.php</code>.',
     'This is being overridden by the <code>enableGeoDetection</code> setting in <code>config/smart-links.php</code>.' => 'يتم تجاوز هذا بواسطة إعداد <code>enableGeoDetection</code> في <code>config/smart-links.php</code>.',
     'This is being overridden by the <code>cacheDeviceDetection</code> setting in <code>config/smart-links.php</code>.' => 'يتم تجاوز هذا بواسطة إعداد <code>cacheDeviceDetection</code> في <code>config/smart-links.php</code>.',
     'This is being overridden by the <code>deviceDetectionCacheDuration</code> setting in <code>config/smart-links.php</code>.' => 'يتم تجاوز هذا بواسطة إعداد <code>deviceDetectionCacheDuration</code> في <code>config/smart-links.php</code>.',

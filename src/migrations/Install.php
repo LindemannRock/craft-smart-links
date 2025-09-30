@@ -188,6 +188,7 @@ class Install extends Migration
                 'qrDownloadFilename' => $this->string()->notNull()->defaultValue('{slug}-qr-{size}'),
                 // Redirect settings
                 'redirectTemplate' => $this->string()->null(),
+                'qrTemplate' => $this->string()->null(),
                 'enableGeoDetection' => $this->boolean()->notNull()->defaultValue(false),
                 'cacheDeviceDetection' => $this->boolean()->notNull()->defaultValue(true),
                 'deviceDetectionCacheDuration' => $this->integer()->notNull()->defaultValue(3600),

@@ -99,8 +99,12 @@ class QrCodeController extends Controller
             } else {
                 $templateVars['qrCodeData'] = base64_encode($qrCode);
             }
-            
-            return $this->renderTemplate('smart-links/qr', $templateVars);
+
+            // Get custom template path from settings
+            $settings = SmartLinks::$plugin->getSettings();
+            $template = $settings->qrTemplate ?: 'smart-links/qr';
+
+            return $this->renderTemplate($template, $templateVars);
             
         } catch (\Exception $e) {
             Craft::error('Failed to generate QR code: ' . $e->getMessage(), __METHOD__);

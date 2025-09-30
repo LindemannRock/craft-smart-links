@@ -234,6 +234,8 @@ return [
     // Redirect Settings
     'Custom Redirect Template' => 'Custom Redirect Template',
     'Path to custom template in your templates/ folder (e.g., smart-links/redirect)' => 'Path to custom template in your templates/ folder (e.g., smart-links/redirect)',
+    'Custom QR Code Template' => 'Custom QR Code Template',
+    'Path to custom template in your templates/ folder (e.g., smart-links/qr)' => 'Path to custom template in your templates/ folder (e.g., smart-links/qr)',
     'Redirect Settings' => 'Redirect Settings',
     'Redirect Behavior' => 'Redirect Behavior',
     '404 Redirect URL' => '404 Redirect URL',
@@ -357,6 +359,7 @@ return [
     'This is being overridden by the <code>enableQrDownload</code> setting in <code>config/smart-links.php</code>.' => 'This is being overridden by the <code>enableQrDownload</code> setting in <code>config/smart-links.php</code>.',
     'This is being overridden by the <code>qrDownloadFilename</code> setting in <code>config/smart-links.php</code>.' => 'This is being overridden by the <code>qrDownloadFilename</code> setting in <code>config/smart-links.php</code>.',
     'This is being overridden by the <code>redirectTemplate</code> setting in <code>config/smart-links.php</code>.' => 'This is being overridden by the <code>redirectTemplate</code> setting in <code>config/smart-links.php</code>.',
+    'This is being overridden by the <code>qrTemplate</code> setting in <code>config/smart-links.php</code>.' => 'This is being overridden by the <code>qrTemplate</code> setting in <code>config/smart-links.php</code>.',
     'This is being overridden by the <code>enableGeoDetection</code> setting in <code>config/smart-links.php</code>.' => 'This is being overridden by the <code>enableGeoDetection</code> setting in <code>config/smart-links.php</code>.',
     'This is being overridden by the <code>cacheDeviceDetection</code> setting in <code>config/smart-links.php</code>.' => 'This is being overridden by the <code>cacheDeviceDetection</code> setting in <code>config/smart-links.php</code>.',
     'This is being overridden by the <code>deviceDetectionCacheDuration</code> setting in <code>config/smart-links.php</code>.' => 'This is being overridden by the <code>deviceDetectionCacheDuration</code> setting in <code>config/smart-links.php</code>.',

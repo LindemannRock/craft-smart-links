@@ -140,6 +140,11 @@ class Settings extends Model
     public ?string $redirectTemplate = null;
 
     /**
+     * @var string|null Custom QR code display template path
+     */
+    public ?string $qrTemplate = null;
+
+    /**
      * @var bool Enable geographic detection
      */
     public bool $enableGeoDetection = false;
@@ -184,6 +189,7 @@ class Settings extends Model
                 'class' => EnvAttributeParserBehavior::class,
                 'attributes' => [
                     'redirectTemplate',
+                    'qrTemplate',
                     'imageVolumeUid',
                     'qrLogoVolumeUid',
                 ],
@@ -221,7 +227,7 @@ class Settings extends Model
             [['defaultQrLogoId'], 'required', 'when' => function($model) {
                 return $model->enableQrLogo;
             }, 'message' => Craft::t('smart-links', 'Default logo is required when logo overlay is enabled.')],
-            [['redirectTemplate', 'notFoundRedirectUrl'], 'string'],
+            [['redirectTemplate', 'qrTemplate', 'notFoundRedirectUrl'], 'string'],
             [['languageDetectionMethod'], 'in', 'range' => ['browser', 'ip', 'both']],
             [['enabledSites'], 'each', 'rule' => ['integer']],
         ];
@@ -452,6 +458,7 @@ class Settings extends Model
             'enableQrDownload' => Craft::t('smart-links', 'Enable QR Code Downloads'),
             'qrDownloadFilename' => Craft::t('smart-links', 'Download Filename Pattern'),
             'redirectTemplate' => Craft::t('smart-links', 'Custom Redirect Template'),
+            'qrTemplate' => Craft::t('smart-links', 'Custom QR Code Template'),
             'enableGeoDetection' => Craft::t('smart-links', 'Enable Geographic Detection'),
             'cacheDeviceDetection' => Craft::t('smart-links', 'Cache Device Detection'),
             'deviceDetectionCacheDuration' => Craft::t('smart-links', 'Device Detection Cache Duration (seconds)'),
