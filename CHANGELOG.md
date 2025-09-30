@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.8.0](https://github.com/LindemannRock/craft-smart-links/compare/v1.7.1...v1.8.0) (2025-09-30)
+
+
+### Features
+
+* enhance CSRF token response with device detection information ([5af440b](https://github.com/LindemannRock/craft-smart-links/commit/5af440ba912c25b3e97df877cf8f60de1747af26))
+
 ## [1.7.1](https://github.com/LindemannRock/craft-smart-links/compare/v1.7.0...v1.7.1) (2025-09-30)
 
 
