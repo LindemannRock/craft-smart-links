@@ -187,8 +187,8 @@ class SmartLinksVariable
                 'mac' => $smartLink->macUrl ?: '',
             ],
             'trackAnalytics' => $smartLink->trackAnalytics,
-            'trackingEndpoint' => \craft\helpers\UrlHelper::siteUrl('smart-links/redirect/track-button-click'),
-            'csrfEndpoint' => \craft\helpers\UrlHelper::siteUrl('smart-links/redirect/refresh-csrf'),
+            'trackingEndpoint' => \craft\helpers\UrlHelper::actionUrl('smart-links/redirect/track-button-click'),
+            'csrfEndpoint' => \craft\helpers\UrlHelper::actionUrl('smart-links/redirect/refresh-csrf'),
             'debug' => $options['debug'] ?? false,
         ];
 
