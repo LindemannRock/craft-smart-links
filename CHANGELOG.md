@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.13.3](https://github.com/LindemannRock/craft-smart-links/compare/v1.13.2...v1.13.3) (2025-09-30)
+
+
+### Bug Fixes
+
+* use action URLs for tracking endpoints to bypass CDN caching ([44ba917](https://github.com/LindemannRock/craft-smart-links/commit/44ba917e05622ac04902e6ac4426bccbf675e207))
+
 ## [1.13.2](https://github.com/LindemannRock/craft-smart-links/compare/v1.13.1...v1.13.2) (2025-09-30)
 
 
