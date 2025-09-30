@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.13.0](https://github.com/LindemannRock/craft-smart-links/compare/v1.12.0...v1.13.0) (2025-09-30)
+
+
+### Features
+
+* refactor analytics tracking to client-side JavaScript for CDN compatibility ([edfd7a9](https://github.com/LindemannRock/craft-smart-links/commit/edfd7a91bccb7bacc0caeba9ea805e59c2b3cf42))
+
 ## [1.12.0](https://github.com/LindemannRock/craft-smart-links/compare/v1.11.0...v1.12.0) (2025-09-30)
 
 
