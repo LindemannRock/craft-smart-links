@@ -35,11 +35,17 @@ class RedirectController extends Controller
      */
     public function actionIndex(string $slug): Response
     {
-        // Prevent caching of this response since it depends on device detection
+        // Detect device first to set appropriate cache headers
+        $deviceInfo = SmartLinks::$plugin->deviceDetector->detect();
+        $isMobile = $deviceInfo['isMobile'] ?? false;
+
+        // Allow caching but vary by device type for Servd static cache
         $response = Craft::$app->getResponse();
-        $response->headers->set('Cache-Control', 'no-cache, no-store, must-revalidate');
-        $response->headers->set('Pragma', 'no-cache');
-        $response->headers->set('Expires', '0');
+        $response->headers->set('Vary', 'User-Agent');
+        $response->headers->set('Cache-Control', 'public, max-age=300'); // Cache for 5 minutes
+
+        // Set custom header for device type that Servd can use for cache variation
+        $response->headers->set('X-Device-Type', $isMobile ? 'mobile' : 'desktop');
         
         // Get the smart link
         $smartLink = SmartLink::find()
