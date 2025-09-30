@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.7.1](https://github.com/LindemannRock/craft-smart-links/compare/v1.7.0...v1.7.1) (2025-09-30)
+
+
+### Bug Fixes
+
+* update site selection logic in multi-site configuration ([d2bd97b](https://github.com/LindemannRock/craft-smart-links/commit/d2bd97baae4bd6f865f9da53621e581f12e36cca))
+
 ## [1.7.0](https://github.com/LindemannRock/craft-smart-links/compare/v1.6.0...v1.7.0) (2025-09-30)
 
 
