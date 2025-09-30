@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.7.0](https://github.com/LindemannRock/craft-smart-links/compare/v1.6.0...v1.7.0) (2025-09-30)
+
+
+### Features
+
+* add CSRF token refresh for cached pages and fix metadata serialization ([c22c2b1](https://github.com/LindemannRock/craft-smart-links/commit/c22c2b138e3c93382621cb7f1fcaaf9999a4c898))
+
+
+### Bug Fixes
+
+* update instruction for custom redirect template field ([de0a299](https://github.com/LindemannRock/craft-smart-links/commit/de0a299fd959ff56f2f8a48357e0e3424455548f))
+* update PHP requirement from ^8.0.2 to ^8.2 in composer.json ([29d375d](https://github.com/LindemannRock/craft-smart-links/commit/29d375d857f2f3eb9277318c24150ac3034e1120))
+* use array_key_exists for attribute checks in settings configuration ([31e8b40](https://github.com/LindemannRock/craft-smart-links/commit/31e8b40191b9c7f1d689e86e97a10f26f401a347))
+
 ## [1.6.0](https://github.com/LindemannRock/craft-smart-links/compare/v1.5.0...v1.6.0) (2025-09-25)
 
 
