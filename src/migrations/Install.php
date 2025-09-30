@@ -196,6 +196,7 @@ class Install extends Migration
                 // URL settings
                 'slugPrefix' => $this->string(50)->notNull()->defaultValue('go'),
                 'qrPrefix' => $this->string(50)->notNull()->defaultValue('qr'),
+                'qrCacheBusting' => $this->boolean()->notNull()->defaultValue(true),
                 // Interface settings
                 'itemsPerPage' => $this->integer()->notNull()->defaultValue(100),
                 'notFoundRedirectUrl' => $this->string()->notNull()->defaultValue('/'),

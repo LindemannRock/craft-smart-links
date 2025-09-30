@@ -154,15 +154,21 @@ class QrCodeController extends Controller
 
             // Generate full URL for the smart link with QR tracking parameter
             $url = $smartLink->getRedirectUrl();
-            
+
             // Debug logging
             Craft::info('SmartLink redirect URL (generate): ' . $url, 'smart-links');
-            
+
             // The redirect URL should already be a full URL from UrlHelper::siteUrl()
-            // Just add the QR source parameter
+            // Add the QR source parameter
             $separator = strpos($url, '?') !== false ? '&' : '?';
             $fullUrl = $url . $separator . 'src=qr';
-            
+
+            // Add cache-busting timestamp if enabled to ensure tracking works with CDN/static caching
+            $settings = SmartLinks::$plugin->getSettings();
+            if ($settings->qrCacheBusting) {
+                $fullUrl .= '&_t=' . time();
+            }
+
             Craft::info('Full URL for QR: ' . $fullUrl, 'smart-links');
         }
 
@@ -187,16 +193,16 @@ class QrCodeController extends Controller
         // Generate QR code
         try {
             $qrCode = SmartLinks::$plugin->qrCode->generateQrCode($fullUrl, $options);
-            
+
             // Determine content type
             $format = $options['format'] ?? SmartLinks::$plugin->getSettings()->defaultQrFormat;
             $contentType = $format === 'svg' ? 'image/svg+xml' : 'image/png';
-            
+
             // Return response
             $response = Craft::$app->response;
             $response->format = Response::FORMAT_RAW;
             $response->headers->set('Content-Type', $contentType);
-            $response->headers->set('Cache-Control', 'public, max-age=86400'); // Cache for 1 day
+            $response->headers->set('Cache-Control', 'public, max-age=86400'); // Cache for 1 day - tracking happens via redirect with ?src=qr
             
             // Handle download request
             if ($request->getQueryParam('download') && $smartLink) {

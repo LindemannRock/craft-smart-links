@@ -76,6 +76,7 @@ return [
     // URL Settings
     'slugPrefix' => 'go',              // URL prefix for smart links (e.g., 'go' creates /go/your-link)
     'qrPrefix' => 'qr',                // URL prefix for QR code pages (e.g., 'qr' creates /qr/your-link)
+    'qrCacheBusting' => true,          // Add timestamp to QR URLs to ensure tracking works with CDN caching
 
     // Caching Settings
     'qrCodeCacheDuration' => 86400,    // QR code cache duration in seconds (24 hours)

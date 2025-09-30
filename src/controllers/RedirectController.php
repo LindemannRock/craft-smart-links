@@ -80,31 +80,38 @@ class RedirectController extends Controller
             $language
         );
         
-        // Track analytics ONLY for mobile auto-redirects (actual clicks/conversions)
-        // Desktop landing page views are just impressions, not clicks
-        if (SmartLinks::$plugin->deviceDetection->isMobileDevice($deviceInfo)) {
-            if ($smartLink->trackAnalytics && SmartLinks::$plugin->getSettings()->enableAnalytics) {
-                // Check if this came from QR code
-                $isQrCode = Craft::$app->request->getQueryParam('src') === 'qr';
-                
-                SmartLinks::$plugin->analytics->trackClick(
-                    $smartLink,
-                    $deviceInfo,
-                    [
-                        'clickType' => 'redirect',
-                        'redirectUrl' => $redirectUrl,
-                        'language' => $language,
-                        'referrer' => Craft::$app->request->getReferrer(),
-                        'source' => $isQrCode ? 'qr' : 'direct',
-                    ]
-                );
-            }
+        // Check if this came from QR code
+        $isQrCode = Craft::$app->request->getQueryParam('src') === 'qr';
+
+        // Track analytics for mobile auto-redirects OR QR code scans (QR scans are always tracked regardless of device)
+        $shouldTrack = SmartLinks::$plugin->deviceDetection->isMobileDevice($deviceInfo) || $isQrCode;
+
+        if ($shouldTrack && $smartLink->trackAnalytics && SmartLinks::$plugin->getSettings()->enableAnalytics) {
+            SmartLinks::$plugin->analytics->trackClick(
+                $smartLink,
+                $deviceInfo,
+                [
+                    'clickType' => 'redirect',
+                    'redirectUrl' => $redirectUrl,
+                    'language' => $language,
+                    'referrer' => Craft::$app->request->getReferrer(),
+                    'source' => $isQrCode ? 'qr' : 'direct',
+                ]
+            );
         }
 
-        // Check if it's a mobile device
+        // Mobile devices - redirect immediately
         if (SmartLinks::$plugin->deviceDetection->isMobileDevice($deviceInfo)) {
-            // Mobile devices - redirect immediately
-            return $this->redirect($redirectUrl);
+            $response = $this->redirect($redirectUrl);
+
+            // Prevent caching of QR redirects to ensure tracking works every time
+            if ($isQrCode) {
+                $response->headers->set('Cache-Control', 'no-cache, no-store, must-revalidate, private');
+                $response->headers->set('Pragma', 'no-cache');
+                $response->headers->set('Expires', '0');
+            }
+
+            return $response;
         }
 
         // Desktop - show redirect page
@@ -150,8 +157,8 @@ class RedirectController extends Controller
     public function actionTrackButtonClick(): Response
     {
         $this->requirePostRequest();
-        $this->requireAcceptsJson();
-        
+        // Don't require JSON - sendBeacon sends FormData without Accept: application/json header
+
         $request = Craft::$app->getRequest();
         $smartLinkId = $request->getRequiredBodyParam('smartLinkId');
         $platform = $request->getRequiredBodyParam('platform');
