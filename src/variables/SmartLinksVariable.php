@@ -160,12 +160,14 @@ class SmartLinksVariable
      *
      * Usage in templates:
      * {% do craft.smartLinks.registerTracking(smartLink, redirectUrl) %}
+     * {% do craft.smartLinks.registerTracking(smartLink, redirectUrl, {debug: true}) %}
      *
      * @param SmartLink $smartLink
      * @param string $redirectUrl
+     * @param array $options Optional configuration (debug: bool)
      * @return void
      */
-    public function registerTracking(SmartLink $smartLink, string $redirectUrl): void
+    public function registerTracking(SmartLink $smartLink, string $redirectUrl, array $options = []): void
     {
         $view = Craft::$app->getView();
 
@@ -179,6 +181,7 @@ class SmartLinksVariable
             'trackAnalytics' => $smartLink->trackAnalytics,
             'trackingEndpoint' => \craft\helpers\UrlHelper::siteUrl('smart-links/redirect/track-button-click'),
             'csrfEndpoint' => \craft\helpers\UrlHelper::siteUrl('smart-links/redirect/refresh-csrf'),
+            'debug' => $options['debug'] ?? false,
         ];
 
         $view->registerJs(

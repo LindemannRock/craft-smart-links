@@ -80,19 +80,15 @@ class RedirectController extends Controller
             $language
         );
 
-        // Note: All tracking is now handled client-side via JavaScript to work with CDN caching
-        // Server-side tracking doesn't work when Servd caches the redirect response
+        // Note: All tracking AND redirects are now handled client-side via JavaScript to work with CDN caching
+        // The JavaScript will detect mobile devices and redirect after tracking
+        // This allows the HTML to be cached while JavaScript runs on every page load
 
-        // Mobile devices - redirect immediately (tracking happens via JavaScript sendBeacon before redirect)
-        if (SmartLinks::$plugin->deviceDetection->isMobileDevice($deviceInfo)) {
-            return $this->redirect($redirectUrl);
-        }
-
-        // Desktop - show redirect page
+        // Render the template for ALL devices (mobile and desktop)
+        // JavaScript will handle mobile auto-redirect after tracking
         $settings = SmartLinks::$plugin->getSettings();
         $template = $settings->redirectTemplate ?: 'smart-links/redirect';
-        
-        // Render the template (will use site templates by default)
+
         return $this->renderTemplate($template, [
             'smartLink' => $smartLink,
             'device' => $deviceInfo,

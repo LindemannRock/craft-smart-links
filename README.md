@@ -564,13 +564,20 @@ Event::on(
 - Ensure smart link is enabled
 - Verify URLs are properly formatted
 
-### Mobile Auto-Redirect Not Working with Page Caching
-If mobile users see the landing page instead of being auto-redirected when pages are cached (Servd, Cloudflare):
-- Ensure you're using `{% do craft.smartLinks.registerTracking(smartLink, redirectUrl) %}` in your template
-- The plugin uses client-side JavaScript with an uncached endpoint for device detection
+### How Mobile Redirects Work
+Mobile users will briefly see the landing page before being automatically redirected:
+1. All users (mobile and desktop) see the landing page with JavaScript
+2. JavaScript fetches fresh device detection from `/smart-links/redirect/refresh-csrf` (uncached endpoint)
+3. If mobile device is detected, JavaScript tracks the interaction then redirects
+4. Desktop users stay on the landing page with platform buttons
+
+This client-side approach ensures tracking works correctly even when pages are cached by CDN (Servd, Cloudflare).
+
+**Troubleshooting:**
+- Ensure you're using `{% do craft.smartLinks.registerTracking(smartLink, redirectUrl) %}` in custom templates
 - Ensure `/smart-links/redirect/refresh-csrf` endpoint is not being cached
-- Check browser console for any fetch errors (enable debug mode: `{debug: true}`)
-- The redirect uses DeviceDetector library for accurate device detection
+- Check browser console for errors (enable debug mode: `{debug: true}`)
+- The brief landing page flash is normal and necessary for tracking to work with page caching
 
 ### Analytics Not Tracking
 - Confirm analytics is enabled globally in Settings → General

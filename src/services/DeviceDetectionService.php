@@ -371,29 +371,35 @@ class DeviceDetectionService extends Component
     {
         // Get fallback URL from the array or from the SmartLink object
         $fallbackUrl = $urls['fallbackUrl'] ?? $smartLink->fallbackUrl ?? '';
-        
+
         switch ($platform) {
             case 'ios':
-                return $urls['iosUrl'] ?? $fallbackUrl;
-                
+                $url = $urls['iosUrl'] ?? '';
+                return !empty($url) ? $url : $fallbackUrl;
+
             case 'huawei':
-                return $urls['huaweiUrl'] ?? $urls['androidUrl'] ?? $fallbackUrl;
-                
+                $url = $urls['huaweiUrl'] ?? $urls['androidUrl'] ?? '';
+                return !empty($url) ? $url : $fallbackUrl;
+
             case 'android':
                 // Check if it's Amazon device
                 $ua = strtolower(Craft::$app->getRequest()->getUserAgent() ?? '');
                 if (strpos($ua, 'kindle') !== false || strpos($ua, 'silk') !== false) {
-                    return $urls['amazonUrl'] ?? $urls['androidUrl'] ?? $fallbackUrl;
+                    $url = $urls['amazonUrl'] ?? $urls['androidUrl'] ?? '';
+                    return !empty($url) ? $url : $fallbackUrl;
                 }
-                return $urls['androidUrl'] ?? $fallbackUrl;
-                
+                $url = $urls['androidUrl'] ?? '';
+                return !empty($url) ? $url : $fallbackUrl;
+
             case 'windows':
                 // For Windows Phone/Mobile, use the Windows URL
-                return $urls['windowsUrl'] ?? $fallbackUrl;
-                
+                $url = $urls['windowsUrl'] ?? '';
+                return !empty($url) ? $url : $fallbackUrl;
+
             case 'macos':
-                return $urls['macUrl'] ?? $fallbackUrl;
-                
+                $url = $urls['macUrl'] ?? '';
+                return !empty($url) ? $url : $fallbackUrl;
+
             default:
                 return $fallbackUrl;
         }

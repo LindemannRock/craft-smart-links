@@ -300,15 +300,20 @@ class AnalyticsService extends Component
     {
         $startDate = $this->getStartDateForRange($dateRange);
         $endDate = $this->getEndDateForRange($dateRange);
-        
+
+        // Debug logging
+        if ($dateRange === 'today') {
+            \Craft::info("Today filter - Start: {$startDate}, End: {$endDate}", 'smart-links');
+        }
+
         if ($startDate) {
             $query->andWhere(['>=', $dateColumn, $startDate]);
         }
-        
+
         if ($endDate) {
             $query->andWhere(['<=', $dateColumn, $endDate]);
         }
-        
+
         return $query;
     }
     
@@ -317,10 +322,15 @@ class AnalyticsService extends Component
      */
     public function getClicksData(?int $smartLinkId, string $dateRange): array
     {
+        // Get Craft's timezone offset for MySQL CONVERT_TZ
+        $timezone = \Craft::$app->getTimeZone();
+        $dateTime = new \DateTime('now', new \DateTimeZone($timezone));
+        $offset = $dateTime->format('P'); // e.g., +03:00
+
         $query = (new Query())
             ->from('{{%smartlinks_analytics}}')
-            ->select(['DATE(dateCreated) as date', 'COUNT(*) as count'])
-            ->groupBy(['DATE(dateCreated)'])
+            ->select(["DATE(CONVERT_TZ(dateCreated, '+00:00', '{$offset}')) as date", 'COUNT(*) as count'])
+            ->groupBy(["DATE(CONVERT_TZ(dateCreated, '+00:00', '{$offset}'))"])
             ->orderBy(['date' => SORT_ASC]);
         
         // Apply date range filter
@@ -341,23 +351,42 @@ class AnalyticsService extends Component
             $values[] = (int)$row['count'];
         }
         
-        // Get the actual date range boundaries
-        $startDate = $this->getStartDateForRange($dateRange);
-        $endDate = $this->getEndDateForRange($dateRange);
-        
-        // Determine the date range
-        if ($startDate) {
-            $startTimestamp = strtotime($startDate);
+        // Get the actual date range boundaries in Craft's timezone
+        $timezone = \Craft::$app->getTimeZone();
+
+        // For "today", just use today's date in the site timezone
+        if ($dateRange === 'today') {
+            $now = new \DateTime('now', new \DateTimeZone($timezone));
+            $startTimestamp = strtotime($now->format('Y-m-d'));
+            $endTimestamp = $startTimestamp;
+        } else if ($dateRange === 'yesterday') {
+            $yesterday = new \DateTime('yesterday', new \DateTimeZone($timezone));
+            $startTimestamp = strtotime($yesterday->format('Y-m-d'));
+            $endTimestamp = $startTimestamp;
         } else {
-            // For ranges like "all", use the first data point or 30 days ago as fallback
-            $startTimestamp = !empty($results) ? strtotime($results[0]['date']) : strtotime('-30 days');
-        }
-        
-        if ($endDate) {
-            $endTimestamp = strtotime($endDate);
-        } else {
-            // For open-ended ranges, use today
-            $endTimestamp = strtotime('today 23:59:59');
+            // For other ranges, calculate from the query dates
+            $startDate = $this->getStartDateForRange($dateRange);
+            $endDate = $this->getEndDateForRange($dateRange);
+
+            if ($startDate) {
+                // Convert UTC date to local timezone date
+                $start = new \DateTime($startDate, new \DateTimeZone('UTC'));
+                $start->setTimezone(new \DateTimeZone($timezone));
+                $startTimestamp = strtotime($start->format('Y-m-d'));
+            } else {
+                // For ranges like "all", use the first data point or 30 days ago as fallback
+                $startTimestamp = !empty($results) ? strtotime($results[0]['date']) : strtotime('-30 days');
+            }
+
+            if ($endDate) {
+                // Convert UTC date to local timezone date
+                $end = new \DateTime($endDate, new \DateTimeZone('UTC'));
+                $end->setTimezone(new \DateTimeZone($timezone));
+                $endTimestamp = strtotime($end->format('Y-m-d'));
+            } else {
+                // For open-ended ranges, use today
+                $endTimestamp = strtotime('today');
+            }
         }
         
         // Create a map of existing data
@@ -1258,19 +1287,22 @@ class AnalyticsService extends Component
      */
     public function getAllRecentClicks(string $dateRange = 'last7days', int $limit = 20): array
     {
+        // Join with the site where the click happened (a.siteId), not the current CP site
+        // This way Arabic clicks show Arabic title, English clicks show English title
         $query = (new Query())
             ->from(['a' => '{{%smartlinks_analytics}}'])
             ->innerJoin(['s' => '{{%smartlinks}}'], 'a.linkId = s.id')
             ->innerJoin(['e' => '{{%elements}}'], 's.id = e.id')
+            ->leftJoin(['c' => '{{%smartlinks_content}}'], 'c.smartLinkId = s.id AND c.siteId = a.siteId')
             ->select([
                 'a.*',
-                's.title as smartLinkTitle',
+                'COALESCE(c.title, s.title) as smartLinkTitle',
                 's.slug as smartLinkSlug'
             ])
             ->where(['e.enabled' => true])
             ->orderBy('a.dateCreated DESC')
             ->limit($limit);
-        
+
         // Apply date range filter
         $this->applyDateRangeFilter($query, $dateRange, 'a.dateCreated');
         
