@@ -36,7 +36,7 @@ class RedirectController extends Controller
     public function actionIndex(string $slug): Response
     {
         // Detect device first to set appropriate cache headers
-        $deviceInfo = SmartLinks::$plugin->deviceDetector->detect();
+        $deviceInfo = SmartLinks::$plugin->deviceDetection->detect();
         $isMobile = $deviceInfo['isMobile'] ?? false;
 
         // Allow caching but vary by device type for Servd static cache
@@ -134,7 +134,7 @@ class RedirectController extends Controller
         $this->response->setNoCacheHeaders();
 
         // Detect device using the same library as redirect action
-        $deviceInfo = SmartLinks::$plugin->deviceDetector->detect();
+        $deviceInfo = SmartLinks::$plugin->deviceDetection->detect();
 
         return $this->asJson([
             'csrfToken' => Craft::$app->request->getCsrfToken(),
