@@ -9,6 +9,12 @@
 {% set crumbs = [] %}
 {% if craft.app.getIsMultiSite() %}
     {% set currentSite = craft.app.sites.getCurrentSite() %}
+    {# Check for site parameter in URL to properly highlight selected site #}
+    {% set siteParam = craft.app.request.getParam('site') %}
+    {% set selectedSiteHandle = siteParam ?: currentSite.handle %}
+
+    {# Get the actual selected site object for the label #}
+    {% set selectedSite = siteParam ? craft.app.sites.getSiteByHandle(siteParam) : currentSite %}
 
     {# Get site menu items - only enabled sites #}
     {% set siteMenuItems = [] %}
@@ -16,14 +22,14 @@
         {% set siteMenuItems = siteMenuItems|merge([{
             label: site.name,
             url: url('smart-links', {site: site.handle}),
-            selected: site.id == currentSite.id
+            selected: site.handle == selectedSiteHandle
         }]) %}
     {% endfor %}
 
     {% set crumbs = [{
         id: 'site-crumb',
         icon: 'world',
-        label: currentSite.name|t('site'),
+        label: selectedSite.name|t('site'),
         menu: {
             items: siteMenuItems,
             label: 'Select site'|t('app')
