@@ -49,6 +49,17 @@ return [
     'Enabled Sites' => 'Enabled Sites',
     'Select which sites Smart Links should be enabled for. Leave empty to enable for all sites.' => 'Select which sites Smart Links should be enabled for. Leave empty to enable for all sites.',
 
+    // URL Settings
+    'URL Settings' => 'URL Settings',
+    'Smart Link URL Prefix' => 'Smart Link URL Prefix',
+    'QR Code URL Prefix' => 'QR Code URL Prefix',
+    'The URL prefix for smart links (e.g., \'go\' creates /go/your-link)' => 'The URL prefix for smart links (e.g., \'go\' creates /go/your-link)',
+    'The URL prefix for QR code pages (e.g., \'qr\' creates /qr/your-link)' => 'The URL prefix for QR code pages (e.g., \'qr\' creates /qr/your-link)',
+    'Only letters, numbers, hyphens, and underscores are allowed.' => 'Only letters, numbers, hyphens, and underscores are allowed.',
+    'This is being overridden by the <code>slugPrefix</code> setting in <code>config/smart-links.php</code>. Clear routes cache after changing this.' => 'This is being overridden by the <code>slugPrefix</code> setting in <code>config/smart-links.php</code>. Clear routes cache after changing this.',
+    'This is being overridden by the <code>qrPrefix</code> setting in <code>config/smart-links.php</code>. Clear routes cache after changing this.' => 'This is being overridden by the <code>qrPrefix</code> setting in <code>config/smart-links.php</code>. Clear routes cache after changing this.',
+    'Clear routes cache after changing this (php craft clear-caches/compiled-templates).' => 'Clear routes cache after changing this (php craft clear-caches/compiled-templates).',
+
     // Smart Link Fields
     'Title' => 'Title',
     'The title of this smart link' => 'The title of this smart link',

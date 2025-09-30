@@ -37,8 +37,21 @@
             name: 'settings[pluginName]',
             value: settings.pluginName,
             disabled: settings.isOverriddenByConfig('pluginName'),
-            warning: settings.isOverriddenByConfig('pluginName') ? 
+            warning: settings.isOverriddenByConfig('pluginName') ?
                 "This is being overridden by the <code>pluginName</code> setting in <code>config/smart-links.php</code>."|t('smart-links')|raw : null,
+        }) }}
+
+        {{ forms.textField({
+            label: "Smart Link URL Prefix"|t('smart-links'),
+            instructions: "The URL prefix for smart links (e.g., 'go' creates /go/your-link). Clear routes cache after changing (php craft clear-caches/compiled-templates)."|t('smart-links'),
+            id: 'slugPrefix',
+            name: 'settings[slugPrefix]',
+            value: settings.slugPrefix ?? 'go',
+            placeholder: 'go',
+            required: true,
+            disabled: settings.isOverriddenByConfig('slugPrefix'),
+            warning: settings.isOverriddenByConfig('slugPrefix') ?
+                "This is being overridden by the <code>slugPrefix</code> setting in <code>config/smart-links.php</code>. Clear routes cache after changing."|t('smart-links')|raw : null,
         }) }}
 
         <hr>

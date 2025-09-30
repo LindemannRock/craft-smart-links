@@ -193,6 +193,9 @@ class Install extends Migration
                 'cacheDeviceDetection' => $this->boolean()->notNull()->defaultValue(true),
                 'deviceDetectionCacheDuration' => $this->integer()->notNull()->defaultValue(3600),
                 'languageDetectionMethod' => $this->string(10)->notNull()->defaultValue('browser'),
+                // URL settings
+                'slugPrefix' => $this->string(50)->notNull()->defaultValue('go'),
+                'qrPrefix' => $this->string(50)->notNull()->defaultValue('qr'),
                 // Interface settings
                 'itemsPerPage' => $this->integer()->notNull()->defaultValue(100),
                 'notFoundRedirectUrl' => $this->string()->notNull()->defaultValue('/'),

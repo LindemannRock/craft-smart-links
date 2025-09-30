@@ -168,6 +168,16 @@ class Settings extends Model
      * @var int Items per page in element index
      */
     public int $itemsPerPage = 100;
+
+    /**
+     * @var string URL prefix for smart links (default: 'go')
+     */
+    public string $slugPrefix = 'go';
+
+    /**
+     * @var string URL prefix for QR codes (default: 'qr')
+     */
+    public string $qrPrefix = 'qr';
     
     /**
      * @var string URL to redirect to when smart link is not found (404)
@@ -203,8 +213,10 @@ class Settings extends Model
     protected function defineRules(): array
     {
         return [
-            [['pluginName'], 'required'],
+            [['pluginName', 'slugPrefix', 'qrPrefix'], 'required'],
             [['pluginName'], 'string', 'max' => 255],
+            [['slugPrefix', 'qrPrefix'], 'string', 'max' => 50],
+            [['slugPrefix', 'qrPrefix'], 'match', 'pattern' => '/^[a-zA-Z0-9\-\_]+$/', 'message' => Craft::t('smart-links', 'Only letters, numbers, hyphens, and underscores are allowed.')],
             [['enableAnalytics', 'enableGeoDetection', 'cacheDeviceDetection', 'includeDisabledInExport', 'includeExpiredInExport'], 'boolean'],
             [['analyticsRetention', 'defaultQrSize', 'qrCodeCacheDuration', 'deviceDetectionCacheDuration', 'itemsPerPage'], 'integer'],
             [['analyticsRetention'], 'integer', 'min' => 0, 'max' => 3650], // 0 for unlimited, up to 10 years
@@ -436,6 +448,8 @@ class Settings extends Model
     {
         return [
             'pluginName' => Craft::t('smart-links', 'Plugin Name'),
+            'slugPrefix' => Craft::t('smart-links', 'Smart Link URL Prefix'),
+            'qrPrefix' => Craft::t('smart-links', 'QR Code URL Prefix'),
             'enableAnalytics' => Craft::t('smart-links', 'Enable Analytics'),
             'analyticsRetention' => Craft::t('smart-links', 'Analytics Retention (days)'),
             'includeDisabledInExport' => Craft::t('smart-links', 'Include Disabled Links in Export'),

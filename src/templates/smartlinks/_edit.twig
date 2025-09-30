@@ -477,7 +477,7 @@
             const eyeColorInput = document.getElementById('qrCodeEyeColor');
             const sizeInput = document.getElementById('qrCodeSize');
             const formatSelect = document.getElementById('qrCodeFormat');
-            const baseUrl = '{{ siteUrl('qr/' ~ smartLink.slug) }}';
+            const baseUrl = '{{ siteUrl((craft.app.plugins.getPlugin('smart-links').settings.qrPrefix ?: 'qr') ~ '/' ~ smartLink.slug) }}';
             let updateTimeout;
             
             function updateQrCode() {
@@ -743,7 +743,7 @@
         const format = $('#qrCodeFormat').val() || '{{ craft.smartLinks.settings.defaultQrFormat ?? 'png' }}';
         
         // Build download URL
-        let downloadUrl = '{{ siteUrl('qr/' ~ smartLink.slug) }}' + 
+        let downloadUrl = '{{ siteUrl((craft.app.plugins.getPlugin('smart-links').settings.qrPrefix ?: 'qr') ~ '/' ~ smartLink.slug) }}' + 
             '?size=' + size + 
             '&color=' + color + 
             '&bg=' + bgColor + 

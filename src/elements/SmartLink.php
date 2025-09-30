@@ -767,9 +767,13 @@ class SmartLink extends Element
      */
     public function getRedirectUrl(): string
     {
+        // Get the slug prefix from settings
+        $settings = SmartLinks::$plugin->getSettings();
+        $slugPrefix = $settings->slugPrefix ?? 'go';
+
         // Generate URL for the element's site (respects CP site switcher)
-        $url = UrlHelper::siteUrl("go/{$this->slug}", null, null, $this->siteId);
-        
+        $url = UrlHelper::siteUrl("{$slugPrefix}/{$this->slug}", null, null, $this->siteId);
+
         // Debug: Check for double URL issue
         if (Craft::$app->config->general->devMode) {
             $site = Craft::$app->sites->getSiteById($this->siteId);
@@ -780,7 +784,7 @@ class SmartLink extends Element
                 }
             }
         }
-        
+
         return $url;
     }
     
@@ -826,7 +830,10 @@ class SmartLink extends Element
             }
         }
 
-        return UrlHelper::siteUrl("qr/{$this->slug}", $params);
+        // Get the QR prefix from settings
+        $qrPrefix = $settings->qrPrefix ?? 'qr';
+
+        return UrlHelper::siteUrl("{$qrPrefix}/{$this->slug}", $params);
     }
     
     /**
@@ -847,8 +854,11 @@ class SmartLink extends Element
         
         // Remove null values
         $params = array_filter($params, fn($value) => $value !== null);
-        
-        return UrlHelper::siteUrl("qr/{$this->slug}/view", $params);
+
+        // Get the QR prefix from settings
+        $qrPrefix = $settings->qrPrefix ?? 'qr';
+
+        return UrlHelper::siteUrl("{$qrPrefix}/{$this->slug}/view", $params);
     }
 
     /**

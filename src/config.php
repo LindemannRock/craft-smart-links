@@ -73,6 +73,10 @@ return [
     'languageDetectionMethod' => 'browser', // Options: 'browser', 'ip', 'both'
     'notFoundRedirectUrl' => '/',      // Where to redirect for 404/disabled links
 
+    // URL Settings
+    'slugPrefix' => 'go',              // URL prefix for smart links (e.g., 'go' creates /go/your-link)
+    'qrPrefix' => 'qr',                // URL prefix for QR code pages (e.g., 'qr' creates /qr/your-link)
+
     // Caching Settings
     'qrCodeCacheDuration' => 86400,    // QR code cache duration in seconds (24 hours)
 

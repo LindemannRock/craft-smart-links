@@ -49,6 +49,17 @@ return [
     'Enabled Sites' => 'المواقع المُفعلة',
     'Select which sites Smart Links should be enabled for. Leave empty to enable for all sites.' => 'اختر المواقع التي يجب تفعيل الروابط الذكية فيها. اتركها فارغة للتفعيل في جميع المواقع.',
 
+    // URL Settings
+    'URL Settings' => 'إعدادات عنوان URL',
+    'Smart Link URL Prefix' => 'بادئة عنوان URL للرابط الذكي',
+    'QR Code URL Prefix' => 'بادئة عنوان URL لرمز QR',
+    'The URL prefix for smart links (e.g., \'go\' creates /go/your-link)' => 'بادئة عنوان URL للروابط الذكية (مثلاً، \'go\' تنشئ /go/your-link)',
+    'The URL prefix for QR code pages (e.g., \'qr\' creates /qr/your-link)' => 'بادئة عنوان URL لصفحات رمز QR (مثلاً، \'qr\' تنشئ /qr/your-link)',
+    'Only letters, numbers, hyphens, and underscores are allowed.' => 'يُسمح فقط بالحروف والأرقام والشُرط والشُرط السفلية.',
+    'This is being overridden by the <code>slugPrefix</code> setting in <code>config/smart-links.php</code>. Clear routes cache after changing this.' => 'يتم تجاوز هذا الإعداد بواسطة إعداد <code>slugPrefix</code> في <code>config/smart-links.php</code>. امسح ذاكرة التخزين المؤقت للمسارات بعد تغيير هذا.',
+    'This is being overridden by the <code>qrPrefix</code> setting in <code>config/smart-links.php</code>. Clear routes cache after changing this.' => 'يتم تجاوز هذا الإعداد بواسطة إعداد <code>qrPrefix</code> في <code>config/smart-links.php</code>. امسح ذاكرة التخزين المؤقت للمسارات بعد تغيير هذا.',
+    'Clear routes cache after changing this (php craft clear-caches/compiled-templates).' => 'امسح ذاكرة التخزين المؤقت للمسارات بعد تغيير هذا (php craft clear-caches/compiled-templates).',
+
     // Smart Link Fields
     'Title' => 'العنوان',
     'The title of this smart link' => 'عنوان هذا الرابط الذكي',
