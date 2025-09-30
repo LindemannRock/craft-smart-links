@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.10.0](https://github.com/LindemannRock/craft-smart-links/compare/v1.9.2...v1.10.0) (2025-09-30)
+
+
+### Features
+
+* add configurable URL prefixes for smart links and QR codes ([f7239b2](https://github.com/LindemannRock/craft-smart-links/commit/f7239b2f47d3e3329c1d0bc4dc181e69eb033b4d))
+* add custom QR code template settings and update related translations ([c362642](https://github.com/LindemannRock/craft-smart-links/commit/c362642eb71a064e27da7cbc360225efe100ae3e))
+* add customizable URL prefixes and templates for smart links and QR codes ([eff264d](https://github.com/LindemannRock/craft-smart-links/commit/eff264d7cc39d6d81d622f1628978a6d261ef28f))
+
 ## [1.9.2](https://github.com/LindemannRock/craft-smart-links/compare/v1.9.1...v1.9.2) (2025-09-30)
 
 
