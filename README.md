@@ -347,9 +347,12 @@ Or configure via Settings → Redirect Settings → Custom Redirect Template and
 <head>
     <title>{{ smartLink.title }}</title>
     <script>
-        // Auto-redirect mobile users (works with cached pages)
+        // Auto-redirect mobile users (works with cached pages and tracks analytics)
         (function() {
             const redirectUrl = '{{ redirectUrl|raw }}';
+            const smartLinkId = {{ smartLink.id }};
+            const trackAnalytics = {{ smartLink.trackAnalytics ? 'true' : 'false' }};
+
             fetch('{{ siteUrl('smart-links/redirect/refresh-csrf') }}', {
                 credentials: 'same-origin',
                 cache: 'no-store'
@@ -357,7 +360,29 @@ Or configure via Settings → Redirect Settings → Custom Redirect Template and
             .then(r => r.json())
             .then(data => {
                 if (data.isMobile && redirectUrl) {
-                    window.location.replace(redirectUrl);
+                    // Track the auto-redirect before navigating
+                    if (trackAnalytics) {
+                        fetch('{{ siteUrl('smart-links/redirect/track-button-click') }}', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-Token': data.csrfToken,
+                                'Accept': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                smartLinkId: smartLinkId,
+                                platform: 'auto-redirect',
+                                url: redirectUrl,
+                                source: 'redirect'
+                            })
+                        }).then(() => {
+                            window.location.replace(redirectUrl);
+                        }).catch(() => {
+                            window.location.replace(redirectUrl);
+                        });
+                    } else {
+                        window.location.replace(redirectUrl);
+                    }
                 }
             });
         })();
