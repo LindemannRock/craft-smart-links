@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.13.5](https://github.com/LindemannRock/craft-smart-links/compare/v1.13.4...v1.13.5) (2025-09-30)
+
+
+### Bug Fixes
+
+* replace sendBeacon with fetch POST for CDN compatibility ([71a62dd](https://github.com/LindemannRock/craft-smart-links/commit/71a62dd917f1a1d8ec8d4b9bf97b8ac11708af59))
+
 ## [1.13.4](https://github.com/LindemannRock/craft-smart-links/compare/v1.13.3...v1.13.4) (2025-09-30)
 
 
