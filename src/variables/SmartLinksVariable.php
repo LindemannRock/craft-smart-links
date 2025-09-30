@@ -154,4 +154,36 @@ class SmartLinksVariable
     {
         return SmartLinks::$plugin->getSettings();
     }
+
+    /**
+     * Register redirect tracking assets
+     *
+     * Usage in templates:
+     * {% do craft.smartLinks.registerTracking(smartLink, redirectUrl) %}
+     *
+     * @param SmartLink $smartLink
+     * @param string $redirectUrl
+     * @return void
+     */
+    public function registerTracking(SmartLink $smartLink, string $redirectUrl): void
+    {
+        $view = Craft::$app->getView();
+
+        // Register the asset bundle
+        $view->registerAssetBundle(\lindemannrock\smartlinks\web\assets\redirect\RedirectAsset::class);
+
+        // Register the tracking configuration
+        $trackingConfig = [
+            'smartLinkId' => $smartLink->id,
+            'redirectUrl' => $redirectUrl,
+            'trackAnalytics' => $smartLink->trackAnalytics,
+            'trackingEndpoint' => \craft\helpers\UrlHelper::siteUrl('smart-links/redirect/track-button-click'),
+            'csrfEndpoint' => \craft\helpers\UrlHelper::siteUrl('smart-links/redirect/refresh-csrf'),
+        ];
+
+        $view->registerJs(
+            'window.smartLinksTracking = ' . json_encode($trackingConfig) . ';',
+            $view::POS_HEAD
+        );
+    }
 }

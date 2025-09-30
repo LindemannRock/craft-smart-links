@@ -179,10 +179,6 @@ class Settings extends Model
      */
     public string $qrPrefix = 'qr';
 
-    /**
-     * @var bool Enable cache-busting for QR code URLs to ensure tracking with CDN/static caching
-     */
-    public bool $qrCacheBusting = true;
 
     /**
      * @var string URL to redirect to when smart link is not found (404)
@@ -222,7 +218,7 @@ class Settings extends Model
             [['pluginName'], 'string', 'max' => 255],
             [['slugPrefix', 'qrPrefix'], 'string', 'max' => 50],
             [['slugPrefix', 'qrPrefix'], 'match', 'pattern' => '/^[a-zA-Z0-9\-\_]+$/', 'message' => Craft::t('smart-links', 'Only letters, numbers, hyphens, and underscores are allowed.')],
-            [['enableAnalytics', 'enableGeoDetection', 'cacheDeviceDetection', 'includeDisabledInExport', 'includeExpiredInExport', 'qrCacheBusting'], 'boolean'],
+            [['enableAnalytics', 'enableGeoDetection', 'cacheDeviceDetection', 'includeDisabledInExport', 'includeExpiredInExport'], 'boolean'],
             [['analyticsRetention', 'defaultQrSize', 'qrCodeCacheDuration', 'deviceDetectionCacheDuration', 'itemsPerPage'], 'integer'],
             [['analyticsRetention'], 'integer', 'min' => 0, 'max' => 3650], // 0 for unlimited, up to 10 years
             [['defaultQrSize'], 'integer', 'min' => 100, 'max' => 1000],
@@ -285,8 +281,7 @@ class Settings extends Model
                 'enableGeoDetection',
                 'cacheDeviceDetection',
                 'enableQrLogo',
-                'enableQrDownload',
-                'qrCacheBusting'
+                'enableQrDownload'
             ];
             
             foreach ($booleanFields as $field) {
@@ -486,7 +481,6 @@ class Settings extends Model
             'itemsPerPage' => Craft::t('smart-links', 'Items Per Page'),
             'notFoundRedirectUrl' => Craft::t('smart-links', '404 Redirect URL'),
             'enabledSites' => Craft::t('smart-links', 'Enabled Sites'),
-            'qrCacheBusting' => Craft::t('smart-links', 'QR Code Cache Busting'),
         ];
     }
 }

@@ -78,10 +78,13 @@ class QrCodeController extends Controller
         Craft::info('SmartLink redirect URL (display): ' . $url, 'smart-links');
         
         // The redirect URL should already be a full URL from UrlHelper::siteUrl()
-        // Just add the QR source parameter
+        // Add the QR source parameter to track QR code scans
         $separator = strpos($url, '?') !== false ? '&' : '?';
         $fullUrl = $url . $separator . 'src=qr';
-        
+
+        // Note: Tracking is handled client-side via JavaScript (redirect-tracking.js)
+        // QR codes contain static URLs - no cache busting needed
+
         Craft::info('Full URL for QR: ' . $fullUrl, 'smart-links');
 
         try {
@@ -159,15 +162,12 @@ class QrCodeController extends Controller
             Craft::info('SmartLink redirect URL (generate): ' . $url, 'smart-links');
 
             // The redirect URL should already be a full URL from UrlHelper::siteUrl()
-            // Add the QR source parameter
+            // Add the QR source parameter to track QR code scans
             $separator = strpos($url, '?') !== false ? '&' : '?';
             $fullUrl = $url . $separator . 'src=qr';
 
-            // Add cache-busting timestamp if enabled to ensure tracking works with CDN/static caching
-            $settings = SmartLinks::$plugin->getSettings();
-            if ($settings->qrCacheBusting) {
-                $fullUrl .= '&_t=' . time();
-            }
+            // Note: Tracking is handled client-side via JavaScript (redirect-tracking.js)
+            // QR codes contain static URLs - no cache busting needed
 
             Craft::info('Full URL for QR: ' . $fullUrl, 'smart-links');
         }

@@ -346,62 +346,22 @@ Or configure via Settings → Redirect Settings → Custom Redirect Template and
 <html>
 <head>
     <title>{{ smartLink.title }}</title>
-    <script>
-        // Auto-redirect mobile users (works with cached pages and tracks analytics)
-        (function() {
-            const redirectUrl = '{{ redirectUrl|raw }}';
-            const smartLinkId = {{ smartLink.id }};
-            const trackAnalytics = {{ smartLink.trackAnalytics ? 'true' : 'false' }};
-
-            fetch('{{ siteUrl('smart-links/redirect/refresh-csrf') }}', {
-                credentials: 'same-origin',
-                cache: 'no-store'
-            })
-            .then(r => r.json())
-            .then(data => {
-                if (data.isMobile && redirectUrl) {
-                    // Track the auto-redirect before navigating
-                    if (trackAnalytics) {
-                        fetch('{{ siteUrl('smart-links/redirect/track-button-click') }}', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRF-Token': data.csrfToken,
-                                'Accept': 'application/json'
-                            },
-                            body: JSON.stringify({
-                                smartLinkId: smartLinkId,
-                                platform: 'auto-redirect',
-                                url: redirectUrl,
-                                source: 'redirect'
-                            })
-                        }).then(() => {
-                            window.location.replace(redirectUrl);
-                        }).catch(() => {
-                            window.location.replace(redirectUrl);
-                        });
-                    } else {
-                        window.location.replace(redirectUrl);
-                    }
-                }
-            });
-        })();
-    </script>
+    {% do craft.smartLinks.registerTracking(smartLink, redirectUrl) %}
 </head>
 <body>
     <h1>{{ smartLink.title }}</h1>
 
-    {# Show platform-specific buttons #}
+    {# Show platform-specific buttons with tracking #}
     {% if smartLink.iosUrl %}
-        <a href="{{ smartLink.iosUrl }}">Download on App Store</a>
+        <a href="{{ smartLink.iosUrl }}" class="smartlink-btn">Download on App Store</a>
     {% endif %}
 
     {% if smartLink.androidUrl %}
-        <a href="{{ smartLink.androidUrl }}">Get it on Google Play</a>
+        <a href="{{ smartLink.androidUrl }}" class="smartlink-btn">Get it on Google Play</a>
     {% endif %}
 
-    {# Fallback button #}
-    <a href="{{ smartLink.fallbackUrl }}">Continue to Website</a>
+    {# Fallback button with custom platform name #}
+    <a href="{{ smartLink.fallbackUrl }}" class="trackable-link" data-platform="fallback">Continue to Website</a>
 
     {# QR Code #}
     {% if smartLink.qrCodeEnabled %}
@@ -409,6 +369,22 @@ Or configure via Settings → Redirect Settings → Custom Redirect Template and
     {% endif %}
 </body>
 </html>
+```
+
+**Tracking Details:**
+
+The `registerTracking()` function automatically handles:
+- Mobile auto-redirects (tracked as Type: redirect, Source: direct)
+- QR code scans with `?src=qr` parameter (tracked as Type: redirect, Source: qr)
+- Button clicks with `.smartlink-btn` or `.trackable-link` classes (tracked as Type: button, Source: landing)
+- Works with CDN/static page caching (like Servd, Cloudflare)
+- Desktop page loads without QR parameter are NOT tracked
+
+**Debug Mode:**
+
+Enable debug logging by passing options:
+```twig
+{% do craft.smartLinks.registerTracking(smartLink, redirectUrl, {debug: true}) %}
 ```
 
 **Available Template Variables:**
@@ -590,15 +566,19 @@ Event::on(
 
 ### Mobile Auto-Redirect Not Working with Page Caching
 If mobile users see the landing page instead of being auto-redirected when pages are cached (Servd, Cloudflare):
-- The plugin uses an uncached endpoint to fetch fresh device detection
+- Ensure you're using `{% do craft.smartLinks.registerTracking(smartLink, redirectUrl) %}` in your template
+- The plugin uses client-side JavaScript with an uncached endpoint for device detection
 - Ensure `/smart-links/redirect/refresh-csrf` endpoint is not being cached
-- Check browser console for any fetch errors
+- Check browser console for any fetch errors (enable debug mode: `{debug: true}`)
 - The redirect uses DeviceDetector library for accurate device detection
 
 ### Analytics Not Tracking
-- Confirm analytics is enabled in settings
-- Check browser isn't blocking JavaScript
-- Verify database migrations ran successfully
+- Confirm analytics is enabled globally in Settings → General
+- Verify per-link analytics is enabled for the smart link
+- Ensure you're using `{% do craft.smartLinks.registerTracking(smartLink, redirectUrl) %}` in custom templates
+- Check browser isn't blocking JavaScript or `sendBeacon` API
+- Enable debug mode to see console logs: `{% do craft.smartLinks.registerTracking(smartLink, redirectUrl, {debug: true}) %}`
+- Desktop page loads without `?src=qr` parameter are intentionally NOT tracked
 
 ### Wrong Location in Local Development
 When running locally (DDEV, localhost), analytics will default to Saudi Arabia because local IPs can't be geolocated. To set your actual location for testing:

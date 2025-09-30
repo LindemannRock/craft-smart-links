@@ -79,39 +79,13 @@ class RedirectController extends Controller
             $deviceInfo,
             $language
         );
-        
-        // Check if this came from QR code
-        $isQrCode = Craft::$app->request->getQueryParam('src') === 'qr';
 
-        // Track analytics for mobile auto-redirects OR QR code scans (QR scans are always tracked regardless of device)
-        $shouldTrack = SmartLinks::$plugin->deviceDetection->isMobileDevice($deviceInfo) || $isQrCode;
+        // Note: All tracking is now handled client-side via JavaScript to work with CDN caching
+        // Server-side tracking doesn't work when Servd caches the redirect response
 
-        if ($shouldTrack && $smartLink->trackAnalytics && SmartLinks::$plugin->getSettings()->enableAnalytics) {
-            SmartLinks::$plugin->analytics->trackClick(
-                $smartLink,
-                $deviceInfo,
-                [
-                    'clickType' => 'redirect',
-                    'redirectUrl' => $redirectUrl,
-                    'language' => $language,
-                    'referrer' => Craft::$app->request->getReferrer(),
-                    'source' => $isQrCode ? 'qr' : 'direct',
-                ]
-            );
-        }
-
-        // Mobile devices - redirect immediately
+        // Mobile devices - redirect immediately (tracking happens via JavaScript sendBeacon before redirect)
         if (SmartLinks::$plugin->deviceDetection->isMobileDevice($deviceInfo)) {
-            $response = $this->redirect($redirectUrl);
-
-            // Prevent caching of QR redirects to ensure tracking works every time
-            if ($isQrCode) {
-                $response->headers->set('Cache-Control', 'no-cache, no-store, must-revalidate, private');
-                $response->headers->set('Pragma', 'no-cache');
-                $response->headers->set('Expires', '0');
-            }
-
-            return $response;
+            return $this->redirect($redirectUrl);
         }
 
         // Desktop - show redirect page
@@ -177,20 +151,23 @@ class RedirectController extends Controller
         
         // Get device info
         $deviceInfo = SmartLinks::$plugin->deviceDetection->detectDevice();
-        
-        // Track the button click with platform info
+
+        // Track the click - platform can be 'redirect' or actual button platform (e.g., 'app-store', 'google-play')
+        // If platform is 'redirect', it's an auto-redirect/QR scan, otherwise it's a button click
+        $clickType = $platform === 'redirect' ? 'redirect' : 'button';
+
         SmartLinks::$plugin->analytics->trackClick(
             $smartLink,
             $deviceInfo,
             [
-                'clickType' => 'button',
+                'clickType' => $clickType,
                 'platform' => $platform,
                 'buttonUrl' => $url,
                 'referrer' => Craft::$app->request->getReferrer(),
                 'source' => $source,
             ]
         );
-        
+
         return $this->asJson(['success' => true]);
     }
 }

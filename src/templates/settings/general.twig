@@ -71,17 +71,6 @@
                 "This is being overridden by the <code>qrPrefix</code> setting in <code>config/smart-links.php</code>. Clear routes cache after changing."|t('smart-links')|raw : null,
         }) }}
 
-        {{ forms.lightswitchField({
-            label: "QR Code Cache Busting"|t('smart-links'),
-            instructions: "Add timestamp parameter to QR code URLs to ensure tracking works correctly with CDN/static page caching (e.g., Servd). Recommended to keep enabled."|t('smart-links'),
-            id: 'qrCacheBusting',
-            name: 'settings[qrCacheBusting]',
-            on: settings.qrCacheBusting ?? true,
-            disabled: settings.isOverriddenByConfig('qrCacheBusting'),
-            warning: settings.isOverriddenByConfig('qrCacheBusting') ?
-                "This is being overridden by the <code>qrCacheBusting</code> setting in <code>config/smart-links.php</code>."|t('smart-links')|raw : null,
-        }) }}
-
         <hr>
 
         <h2>{{ "Template Settings"|t('smart-links') }}</h2>
