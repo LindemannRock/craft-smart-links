@@ -5,10 +5,11 @@ Intelligent URL shortening and redirect management plugin for Craft CMS 5.x with
 ## Features
 
 - **URL Shortening**: Create memorable short URLs that redirect to any destination
-- **Device-Specific Redirects**: Different URLs for iOS, Android, Windows, macOS, and desktop users
+- **Device-Specific Redirects**: Different URLs for iOS, Android, Huawei, Amazon, Windows, macOS, and desktop users using accurate DeviceDetector library
+- **Cache-Safe Device Detection**: Works with CDN/static page caching (Servd, Cloudflare) by fetching fresh device detection via uncached endpoint
 - **Image Management**: Upload and configure images with multiple size options (xl, lg, md, sm)
-- **QR Code Generation**: Automatic QR codes for each smart link with customizable colors
-- **Landing Page Customization**: Hide titles on landing pages, custom layouts
+- **QR Code Generation**: Automatic QR codes for each smart link with customizable colors, styles, and logo overlay
+- **Landing Page Customization**: Hide titles on landing pages, custom layouts, and template override support
 - **Advanced Analytics**:
   - Geographic tracking with country and city-level data
   - Peak usage hours visualization
@@ -264,24 +265,110 @@ When smart links are trashed:
 
 ## Templating
 
+### Custom Redirect Template
+
+You can create a custom landing page template by setting `redirectTemplate` in your config or CP settings:
+
+**Configuration:**
+```php
+// config/smart-links.php
+return [
+    'redirectTemplate' => 'smart-links/redirect', // Path relative to templates/
+];
+```
+
+**Basic Template Example:**
+```twig
+{# templates/smart-links/redirect.twig #}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ smartLink.title }}</title>
+    <script>
+        // Auto-redirect mobile users (works with cached pages)
+        (function() {
+            const redirectUrl = '{{ redirectUrl|raw }}';
+            fetch('{{ siteUrl('smart-links/redirect/refresh-csrf') }}', {
+                credentials: 'same-origin',
+                cache: 'no-store'
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.isMobile && redirectUrl) {
+                    window.location.replace(redirectUrl);
+                }
+            });
+        })();
+    </script>
+</head>
+<body>
+    <h1>{{ smartLink.title }}</h1>
+
+    {# Show platform-specific buttons #}
+    {% if smartLink.iosUrl %}
+        <a href="{{ smartLink.iosUrl }}">Download on App Store</a>
+    {% endif %}
+
+    {% if smartLink.androidUrl %}
+        <a href="{{ smartLink.androidUrl }}">Get it on Google Play</a>
+    {% endif %}
+
+    {# Fallback button #}
+    <a href="{{ smartLink.fallbackUrl }}">Continue to Website</a>
+
+    {# QR Code #}
+    {% if smartLink.qrCodeEnabled %}
+        <img src="{{ smartLink.getQrCodeUrl() }}" alt="QR Code">
+    {% endif %}
+</body>
+</html>
+```
+
+**Available Template Variables:**
+- `smartLink` - The SmartLink element
+- `device` - DeviceInfo object with detection results
+- `redirectUrl` - The calculated redirect URL for current device
+- `language` - Detected language code
+
 ### Available Properties
 
 ```twig
 smartLink.id
 smartLink.name
 smartLink.slug
-smartLink.desktopUrl
-smartLink.mobileUrl
-smartLink.tabletUrl
+smartLink.title
+smartLink.description
+smartLink.fallbackUrl
+smartLink.iosUrl
+smartLink.androidUrl
+smartLink.huaweiUrl
+smartLink.amazonUrl
+smartLink.windowsUrl
+smartLink.macUrl
 smartLink.enabled
 smartLink.trackAnalytics
 smartLink.qrCodeEnabled
-smartLink.qrCodeSize
-smartLink.qrCodeColor
-smartLink.qrCodeBgColor
+smartLink.hideTitle
+smartLink.getImage()
+smartLink.imageSize
 smartLink.clicks
 smartLink.dateCreated
 smartLink.dateUpdated
+```
+
+### Device Detection Properties
+
+```twig
+device.isMobile
+device.isTablet
+device.isDesktop
+device.platform  {# ios, android, huawei, windows, macos, linux, other #}
+device.deviceType
+device.brand
+device.osName
+device.osVersion
+device.browser
+device.language
 ```
 
 ### Methods
@@ -293,8 +380,14 @@ smartLink.getRedirectUrl()
 {# Get QR code URL #}
 smartLink.getQrCodeUrl(size = 200)
 
+{# Get QR code display page URL #}
+smartLink.getQrCodeDisplayUrl()
+
 {# Get full URL #}
 smartLink.getUrl()
+
+{# Get image asset #}
+smartLink.getImage()
 ```
 
 ### GraphQL Support
@@ -362,6 +455,13 @@ Event::on(
 - Check `.htaccess` or nginx config allows `/go/` URLs
 - Ensure smart link is enabled
 - Verify URLs are properly formatted
+
+### Mobile Auto-Redirect Not Working with Page Caching
+If mobile users see the landing page instead of being auto-redirected when pages are cached (Servd, Cloudflare):
+- The plugin uses an uncached endpoint to fetch fresh device detection
+- Ensure `/smart-links/redirect/refresh-csrf` endpoint is not being cached
+- Check browser console for any fetch errors
+- The redirect uses DeviceDetector library for accurate device detection
 
 ### Analytics Not Tracking
 - Confirm analytics is enabled in settings
