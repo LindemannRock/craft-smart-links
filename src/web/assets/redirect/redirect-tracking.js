@@ -81,19 +81,12 @@
             trackingData.append('source', source);  // QR or Direct
             trackingData.append('CRAFT_CSRF_TOKEN', data.csrfToken);
 
-            // sendBeacon guarantees delivery even if we navigate away
-            if (navigator.sendBeacon) {
-                const sent = navigator.sendBeacon(trackingEndpoint, trackingData);
-                log('Beacon sent:', sent);
-            } else {
-                // Fallback for older browsers
-                log('Using fetch fallback');
-                fetch(trackingEndpoint, {
-                    method: 'POST',
-                    body: trackingData,
-                    keepalive: true
-                }).then(() => log('Fetch tracking sent')).catch(err => error('Tracking failed:', err));
-            }
+            // Use fetch with keepalive instead of sendBeacon (better CDN compatibility)
+            fetch(trackingEndpoint, {
+                method: 'POST',
+                body: trackingData,
+                keepalive: true
+            }).then(() => log('Tracking sent')).catch(err => error('Tracking failed:', err));
         } else {
             log('Not tracking page load (no redirect URL or desktop without QR parameter)');
         }
