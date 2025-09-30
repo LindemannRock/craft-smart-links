@@ -369,18 +369,19 @@ class Settings extends Model
         $rawConfig = require $configPath;
         
         // Check for the attribute in the config
-        if (isset($rawConfig[$attribute])) {
+        // Use array_key_exists instead of isset to detect null values
+        if (array_key_exists($attribute, $rawConfig)) {
             return true;
         }
-        
+
         // Check environment-specific configs
         $env = \Craft::$app->getConfig()->env;
-        if ($env && isset($rawConfig[$env][$attribute])) {
+        if ($env && is_array($rawConfig[$env] ?? null) && array_key_exists($attribute, $rawConfig[$env])) {
             return true;
         }
-        
+
         // Check wildcard config
-        if (isset($rawConfig['*'][$attribute])) {
+        if (is_array($rawConfig['*'] ?? null) && array_key_exists($attribute, $rawConfig['*'])) {
             return true;
         }
         
