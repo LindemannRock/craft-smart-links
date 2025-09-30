@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.11.0](https://github.com/LindemannRock/craft-smart-links/compare/v1.10.0...v1.11.0) (2025-09-30)
+
+
+### Features
+
+* enhance settings UI with URL and template configuration options for smart links and QR codes ([239219d](https://github.com/LindemannRock/craft-smart-links/commit/239219d1c4449067f558148b5bab2d1ca0ae7d88))
+
 ## [1.10.0](https://github.com/LindemannRock/craft-smart-links/compare/v1.9.2...v1.10.0) (2025-09-30)
 
 
