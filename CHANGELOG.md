@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.13.6](https://github.com/LindemannRock/craft-smart-links/compare/v1.13.5...v1.13.6) (2025-09-30)
+
+
+### Bug Fixes
+
+* wait for tracking to complete before redirect ([4400b5e](https://github.com/LindemannRock/craft-smart-links/commit/4400b5e7196541cb65ceaa86b40bbc570594be60))
+
 ## [1.13.5](https://github.com/LindemannRock/craft-smart-links/compare/v1.13.4...v1.13.5) (2025-09-30)
 
 
