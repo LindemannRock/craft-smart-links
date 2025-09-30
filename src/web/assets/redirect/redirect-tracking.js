@@ -72,6 +72,7 @@
         // 2. QR code scan (has ?src=qr parameter)
         const shouldTrack = (redirectUrl && data.isMobile) || source === 'qr';
 
+        // Handle tracking and redirect
         if (trackAnalytics && shouldTrack) {
             log('Sending tracking beacon...');
             const trackingData = new FormData();
@@ -81,22 +82,34 @@
             trackingData.append('source', source);  // QR or Direct
             trackingData.append('CRAFT_CSRF_TOKEN', data.csrfToken);
 
-            // Use fetch with keepalive instead of sendBeacon (better CDN compatibility)
+            // Send tracking, THEN redirect after it completes
             fetch(trackingEndpoint, {
                 method: 'POST',
-                body: trackingData,
-                keepalive: true
-            }).then(() => log('Tracking sent')).catch(err => error('Tracking failed:', err));
+                body: trackingData
+            }).then(() => {
+                log('Tracking sent');
+                // Redirect after tracking completes
+                if (redirectUrl) {
+                    log('Redirecting to:', redirectUrl);
+                    window.location.replace(redirectUrl);
+                }
+            }).catch(err => {
+                error('Tracking failed:', err);
+                // Redirect anyway even if tracking fails
+                if (redirectUrl) {
+                    log('Redirecting to:', redirectUrl);
+                    window.location.replace(redirectUrl);
+                }
+            });
         } else {
             log('Not tracking page load (no redirect URL or desktop without QR parameter)');
-        }
-
-        // Redirect if URL is set (regardless of device type - mobile OR desktop)
-        if (redirectUrl) {
-            log('Redirecting to:', redirectUrl);
-            window.location.replace(redirectUrl);
-        } else {
-            log('No redirect URL for platform:', platform, '- showing landing page');
+            // Redirect immediately if no tracking needed
+            if (redirectUrl) {
+                log('Redirecting to:', redirectUrl);
+                window.location.replace(redirectUrl);
+            } else {
+                log('No redirect URL for platform:', platform, '- showing landing page');
+            }
         }
     })
     .catch(err => {
