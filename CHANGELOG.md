@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.13.2](https://github.com/LindemannRock/craft-smart-links/compare/v1.13.1...v1.13.2) (2025-09-30)
+
+
+### Bug Fixes
+
+* make redirects truly cache-safe by moving URL selection to client-side ([bdbfa15](https://github.com/LindemannRock/craft-smart-links/commit/bdbfa15bacdaf5484602b10e623f935420c509d9))
+
 ## [1.13.1](https://github.com/LindemannRock/craft-smart-links/compare/v1.13.0...v1.13.1) (2025-09-30)
 
 
