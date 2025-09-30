@@ -393,6 +393,7 @@ class SmartLinks extends Plugin
             'go/<slug:[a-zA-Z0-9\-\_]+>' => 'smart-links/redirect/index',
             'qr/<slug:[a-zA-Z0-9\-\_]+>' => 'smart-links/qr-code/generate',
             'qr/<slug:[a-zA-Z0-9\-\_]+>/view' => 'smart-links/qr-code/display',
+            'smart-links/redirect/refresh-csrf' => 'smart-links/redirect/refresh-csrf',
             'smart-links/redirect/track-button-click' => 'smart-links/redirect/track-button-click',
             'smart-links/qr-code/generate' => 'smart-links/qr-code/generate',
         ];

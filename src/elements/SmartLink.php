@@ -175,12 +175,46 @@ class SmartLink extends Element
     /**
      * @var array|null Metadata
      */
-    public ?array $metadata = null;
+    private ?array $_metadata = null;
 
     /**
      * @var int|null Total clicks (cached value)
      */
     private ?int $_clicks = null;
+
+    // Public Methods
+    // =========================================================================
+
+    /**
+     * Set metadata - handles JSON decoding from database
+     */
+    public function setMetadata(array|string|null $value): void
+    {
+        if (is_string($value)) {
+            $decoded = json_decode($value, true);
+            $this->_metadata = is_array($decoded) ? $decoded : null;
+        } else {
+            $this->_metadata = $value;
+        }
+    }
+
+    // Magic property getter/setter for metadata
+    public function __get($name)
+    {
+        if ($name === 'metadata') {
+            return $this->_metadata;
+        }
+        return parent::__get($name);
+    }
+
+    public function __set($name, $value)
+    {
+        if ($name === 'metadata') {
+            $this->setMetadata($value);
+        } else {
+            parent::__set($name, $value);
+        }
+    }
 
     // Static Methods
     // =========================================================================
@@ -1139,7 +1173,7 @@ class SmartLink extends Element
             $record->qrCodeEyeColor = $this->qrCodeEyeColor;
             $record->qrLogoId = $this->qrLogoId;
             $record->languageDetection = $this->languageDetection;
-            $record->metadata = $this->metadata;
+            $record->metadata = $this->_metadata ? json_encode($this->_metadata) : null;
 
             $record->save(false);
 

@@ -115,6 +115,24 @@ class RedirectController extends Controller
     }
     
     /**
+     * Refresh CSRF token for cached pages
+     *
+     * @return Response
+     */
+    public function actionRefreshCsrf(): Response
+    {
+        // Ensure session is started
+        Craft::$app->getSession()->open();
+
+        // Prevent caching of this response
+        $this->response->setNoCacheHeaders();
+
+        return $this->asJson([
+            'csrfToken' => Craft::$app->request->getCsrfToken(),
+        ]);
+    }
+
+    /**
      * Track button click via AJAX
      *
      * @return Response
