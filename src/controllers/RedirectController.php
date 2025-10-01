@@ -27,39 +27,13 @@ class RedirectController extends Controller
     protected array|int|bool $allowAnonymous = true;
 
     /**
-     * @inheritdoc
-     */
-    public function beforeAction($action): bool
-    {
-        // Disable CSRF validation for tracking endpoints (uses sendBeacon)
-        if (in_array($action->id, ['refresh-csrf', 'track-button-click'])) {
-            $this->enableCsrfValidation = false;
-        }
-
-        return parent::beforeAction($action);
-    }
-
-    /**
-     * Handle smart link redirect
+     * Handle smart link landing page display
      *
      * @param string $slug
      * @return Response
-     * @throws NotFoundHttpException
      */
     public function actionIndex(string $slug): Response
     {
-        // Detect device first to set appropriate cache headers
-        $deviceInfo = SmartLinks::$plugin->deviceDetection->detectDevice();
-        $isMobile = $deviceInfo->isMobile ?? false;
-
-        // Allow caching but vary by device type for Servd static cache
-        $response = Craft::$app->getResponse();
-        $response->headers->set('Vary', 'User-Agent');
-        $response->headers->set('Cache-Control', 'public, max-age=300'); // Cache for 5 minutes
-
-        // Set custom header for device type that Servd can use for cache variation
-        $response->headers->set('X-Device-Type', $isMobile ? 'mobile' : 'desktop');
-        
         // Get the smart link
         $smartLink = SmartLink::find()
             ->slug($slug)
@@ -70,60 +44,126 @@ class RedirectController extends Controller
             // Get the 404 redirect URL from settings
             $settings = SmartLinks::$plugin->getSettings();
             $redirectUrl = $settings->notFoundRedirectUrl ?: '/';
-            
+
             // Handle relative URLs
             if (strpos($redirectUrl, '://') === false && strpos($redirectUrl, '/') !== 0) {
                 $redirectUrl = '/' . $redirectUrl;
             }
-            
-            // Redirect to configured URL instead of throwing 404
+
             return $this->redirect($redirectUrl);
         }
 
-        // Get device info
+        // Get device info and language for template display
         $deviceInfo = SmartLinks::$plugin->deviceDetection->detectDevice();
-        
-        // Get language
         $language = SmartLinks::$plugin->deviceDetection->detectLanguage();
-        
-        // Get redirect URL
-        $redirectUrl = SmartLinks::$plugin->deviceDetection->getRedirectUrl(
-            $smartLink,
-            $deviceInfo,
-            $language
-        );
 
-        // Note: All tracking AND redirects are now handled client-side via JavaScript to work with CDN caching
-        // The JavaScript will detect mobile devices and redirect after tracking
-        // This allows the HTML to be cached while JavaScript runs on every page load
+        // Set cache headers - this page can be fully cached
+        $response = Craft::$app->getResponse();
+        $response->headers->set('Cache-Control', 'public, max-age=3600'); // Cache for 1 hour
 
-        // Render the template for ALL devices (mobile and desktop)
-        // JavaScript will handle mobile auto-redirect after tracking
+        // Render the template - all links will point to action URLs for tracking
         $settings = SmartLinks::$plugin->getSettings();
         $template = $settings->redirectTemplate ?: 'smart-links/redirect';
 
         return $this->renderTemplate($template, [
             'smartLink' => $smartLink,
             'device' => $deviceInfo,
-            'redirectUrl' => $redirectUrl,
             'language' => $language,
         ]);
     }
-    
+
     /**
-     * Refresh CSRF token for cached pages
+     * Track and redirect to platform URL
+     * This endpoint handles all navigation with server-side tracking
+     *
+     * @param string $slug
+     * @param string $platform Platform identifier (ios, android, huawei, amazon, windows, mac, fallback, auto)
+     * @return Response
+     */
+    public function actionGo(string $slug, string $platform = 'auto'): Response
+    {
+        // Get the smart link
+        $smartLink = SmartLink::find()
+            ->slug($slug)
+            ->status(SmartLink::STATUS_ENABLED)
+            ->one();
+
+        if (!$smartLink) {
+            $settings = SmartLinks::$plugin->getSettings();
+            $redirectUrl = $settings->notFoundRedirectUrl ?: '/';
+            return $this->redirect($redirectUrl);
+        }
+
+        // Get device info for tracking
+        $deviceInfo = SmartLinks::$plugin->deviceDetection->detectDevice();
+        $language = SmartLinks::$plugin->deviceDetection->detectLanguage();
+
+        // Get source parameter for QR tracking
+        $source = Craft::$app->getRequest()->getParam('src', 'direct');
+
+        // Determine destination URL
+        $destinationUrl = null;
+        $clickType = 'button';
+
+        if ($platform === 'auto') {
+            // Auto-detect platform and redirect (for mobile auto-redirect)
+            $destinationUrl = SmartLinks::$plugin->deviceDetection->getRedirectUrl(
+                $smartLink,
+                $deviceInfo,
+                $language
+            );
+            $clickType = 'redirect';
+            $platform = $deviceInfo->platform ?? 'unknown';
+        } else {
+            // Manual platform selection from button click
+            $destinationUrl = match($platform) {
+                'ios' => $smartLink->iosUrl,
+                'android' => $smartLink->androidUrl,
+                'huawei' => $smartLink->huaweiUrl,
+                'amazon' => $smartLink->amazonUrl,
+                'windows' => $smartLink->windowsUrl,
+                'mac' => $smartLink->macUrl,
+                'fallback' => $smartLink->fallbackUrl,
+                default => $smartLink->fallbackUrl,
+            };
+        }
+
+        // Track the click if analytics are enabled
+        if ($smartLink->trackAnalytics && SmartLinks::$plugin->getSettings()->enableAnalytics) {
+            SmartLinks::$plugin->analytics->trackClick(
+                $smartLink,
+                $deviceInfo,
+                [
+                    'clickType' => $clickType,
+                    'platform' => $platform,
+                    'buttonUrl' => $destinationUrl,
+                    'referrer' => Craft::$app->request->getReferrer(),
+                    'source' => $source,
+                ]
+            );
+        }
+
+        // Redirect to destination
+        if ($destinationUrl) {
+            return $this->redirect($destinationUrl, 302);
+        }
+
+        // No destination URL available, redirect to fallback
+        return $this->redirect($smartLink->fallbackUrl, 302);
+    }
+
+    /**
+     * Get fresh device detection (for cached pages)
+     * This endpoint is never cached and provides real-time device info
      *
      * @return Response
      */
     public function actionRefreshCsrf(): Response
     {
-        // Ensure session is started
-        Craft::$app->getSession()->open();
-
         // Prevent caching of this response
         $this->response->setNoCacheHeaders();
 
-        // Detect device using the same library as redirect action
+        // Detect device using the plugin's device detection service
         $deviceInfo = SmartLinks::$plugin->deviceDetection->detectDevice();
 
         return $this->asJson([
@@ -131,53 +171,5 @@ class RedirectController extends Controller
             'isMobile' => $deviceInfo->isMobile ?? false,
             'platform' => $deviceInfo->platform ?? 'unknown',
         ]);
-    }
-
-    /**
-     * Track button click via AJAX
-     *
-     * @return Response
-     */
-    public function actionTrackButtonClick(): Response
-    {
-        $this->requirePostRequest();
-        // Don't require JSON - sendBeacon sends FormData without Accept: application/json header
-
-        $request = Craft::$app->getRequest();
-        $smartLinkId = $request->getRequiredBodyParam('smartLinkId');
-        $platform = $request->getRequiredBodyParam('platform');
-        $url = $request->getBodyParam('url');
-        $source = $request->getBodyParam('source', 'direct');
-        
-        // Get the smart link
-        $smartLink = SmartLink::find()
-            ->id($smartLinkId)
-            ->status(SmartLink::STATUS_ENABLED)
-            ->one();
-            
-        if (!$smartLink || !$smartLink->enabled || !$smartLink->trackAnalytics || !SmartLinks::$plugin->getSettings()->enableAnalytics) {
-            return $this->asJson(['success' => false]);
-        }
-        
-        // Get device info
-        $deviceInfo = SmartLinks::$plugin->deviceDetection->detectDevice();
-
-        // Track the click - platform can be 'redirect' or actual button platform (e.g., 'app-store', 'google-play')
-        // If platform is 'redirect', it's an auto-redirect/QR scan, otherwise it's a button click
-        $clickType = $platform === 'redirect' ? 'redirect' : 'button';
-
-        SmartLinks::$plugin->analytics->trackClick(
-            $smartLink,
-            $deviceInfo,
-            [
-                'clickType' => $clickType,
-                'platform' => $platform,
-                'buttonUrl' => $url,
-                'referrer' => Craft::$app->request->getReferrer(),
-                'source' => $source,
-            ]
-        );
-
-        return $this->asJson(['success' => true]);
     }
 }

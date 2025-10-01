@@ -154,47 +154,4 @@ class SmartLinksVariable
     {
         return SmartLinks::$plugin->getSettings();
     }
-
-    /**
-     * Register redirect tracking assets
-     *
-     * Usage in templates:
-     * {% do craft.smartLinks.registerTracking(smartLink, redirectUrl) %}
-     * {% do craft.smartLinks.registerTracking(smartLink, redirectUrl, {debug: true}) %}
-     *
-     * @param SmartLink $smartLink
-     * @param string $redirectUrl
-     * @param array $options Optional configuration (debug: bool)
-     * @return void
-     */
-    public function registerTracking(SmartLink $smartLink, string $redirectUrl, array $options = []): void
-    {
-        $view = Craft::$app->getView();
-
-        // Register the asset bundle
-        $view->registerAssetBundle(\lindemannrock\smartlinks\web\assets\redirect\RedirectAsset::class);
-
-        // Register the tracking configuration
-        // Pass ALL URLs to JavaScript, let it decide based on client-side device detection
-        $trackingConfig = [
-            'smartLinkId' => $smartLink->id,
-            'urls' => [
-                'ios' => $smartLink->iosUrl ?: '',
-                'android' => $smartLink->androidUrl ?: '',
-                'huawei' => $smartLink->huaweiUrl ?: '',
-                'amazon' => $smartLink->amazonUrl ?: '',
-                'windows' => $smartLink->windowsUrl ?: '',
-                'mac' => $smartLink->macUrl ?: '',
-            ],
-            'trackAnalytics' => $smartLink->trackAnalytics,
-            'trackingEndpoint' => \craft\helpers\UrlHelper::actionUrl('smart-links/redirect/track-button-click'),
-            'csrfEndpoint' => \craft\helpers\UrlHelper::actionUrl('smart-links/redirect/refresh-csrf'),
-            'debug' => $options['debug'] ?? false,
-        ];
-
-        $view->registerJs(
-            'window.smartLinksTracking = ' . json_encode($trackingConfig) . ';',
-            $view::POS_HEAD
-        );
-    }
 }
