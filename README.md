@@ -340,24 +340,49 @@ When smart links are trashed:
 
 ## Templating
 
-### Custom Templates
+### Template Requirements
 
-You can create custom templates for both redirect landing pages and QR code display pages.
+**Smart Links requires custom templates** for the redirect landing page and QR code display. These templates must be created in your project's `templates/` directory.
 
-#### Custom Redirect Template
+#### Default Template Paths
 
-Create a custom landing page template by setting `redirectTemplate` in your config or CP settings:
+When `redirectTemplate` and `qrTemplate` are not configured (set to `null`), the plugin looks for:
+- **Redirect landing page:** `templates/smart-links/redirect.twig`
+- **QR code display:** `templates/smart-links/qr.twig`
 
-**Configuration:**
+**Important:** If these templates don't exist, visitors will see a "Unable to find template" error when accessing your smart links.
+
+#### Quick Start: Copy Example Templates
+
+The plugin includes example templates you can copy to get started:
+
+```bash
+# Create templates directory
+mkdir -p templates/smart-links
+
+# Copy example templates
+cp vendor/lindemannrock/smart-links/src/templates/redirect.twig templates/smart-links/
+cp vendor/lindemannrock/smart-links/src/templates/qr.twig templates/smart-links/
+
+# Customize the templates to match your site's design
+```
+
+#### Custom Template Paths
+
+You can use different template paths by configuring them:
+
+**Via Config File:**
 ```php
 // config/smart-links.php
 return [
-    'redirectTemplate' => 'smart-links/redirect', // Path relative to templates/
-    'qrTemplate' => 'smart-links/qr', // Path relative to templates/
+    'redirectTemplate' => 'my-custom/landing', // Path relative to templates/
+    'qrTemplate' => 'my-custom/qr-display',    // Path relative to templates/
 ];
 ```
 
-Or configure via Settings → Redirect Settings → Custom Redirect Template and Settings → QR Code → Display Settings → Custom QR Code Template.
+**Via Control Panel:**
+Settings → Redirect Settings → Custom Redirect Template
+Settings → QR Code → Custom QR Code Template
 
 **Basic Template Example:**
 ```twig

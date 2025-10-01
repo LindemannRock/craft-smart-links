@@ -4,6 +4,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ smartLink.title }} - {{ siteName }}</title>
+
+    <script>
+        // Client-side mobile detection for auto-redirect (works with cached pages)
+        (function() {
+            fetch('{{ actionUrl('smart-links/redirect/refresh-csrf')|raw }}', {
+                credentials: 'same-origin',
+                cache: 'no-store'
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.isMobile) {
+                    window.location.replace('{{ actionUrl('smart-links/redirect/go', {slug: smartLink.slug, platform: 'auto'})|raw }}');
+                }
+            })
+            .catch(err => {
+                console.error('Device detection failed:', err);
+            });
+        })();
+    </script>
+
     <style>
         * {
             margin: 0;
@@ -171,70 +191,65 @@
 </head>
 <body>
     <div class="container">
-        {% if device.isMobile %}
-            <div class="loader"></div>
-        {% endif %}
-        
+        {# Loader will be shown by JavaScript for mobile users #}
+        <div class="loader" id="mobile-loader" style="display: none;"></div>
+
         <h1>{{ smartLink.title }}</h1>
-        
+
         {% if smartLink.description %}
             <p class="description">{{ smartLink.description }}</p>
         {% endif %}
-        
+
         <p class="redirect-message" id="redirect-message">
-            {% if device.isMobile %}
-                {{ 'Redirecting to {platform}...'|t('smart-links', { platform: craft.smartLinks.module.deviceDetection.getAppStoreName(device.osName|lower) }) }}
-            {% else %}
-                {{ 'Choose your platform:'|t('smart-links') }}
-            {% endif %}
+            {{ 'Choose your platform:'|t('smart-links') }}
         </p>
         
         <div class="platforms">
             <div class="platform-links">
                 {% if smartLink.iosUrl %}
-                    <a href="{{ smartLink.iosUrl }}" class="platform-link primary">
+                    <a href="{{ actionUrl('smart-links/redirect/go', {slug: smartLink.slug, platform: 'ios'}) }}" class="platform-link primary">
                         {{ 'Download on the App Store'|t('smart-links') }}
                     </a>
                 {% endif %}
-                
+
                 {% if smartLink.androidUrl %}
-                    <a href="{{ smartLink.androidUrl }}" class="platform-link primary">
+                    <a href="{{ actionUrl('smart-links/redirect/go', {slug: smartLink.slug, platform: 'android'}) }}" class="platform-link primary">
                         {{ 'Get it on Google Play'|t('smart-links') }}
                     </a>
                 {% endif %}
-                
+
                 {% if smartLink.huaweiUrl %}
-                    <a href="{{ smartLink.huaweiUrl }}" class="platform-link secondary">
+                    <a href="{{ actionUrl('smart-links/redirect/go', {slug: smartLink.slug, platform: 'huawei'}) }}" class="platform-link secondary">
                         {{ 'Explore it on AppGallery'|t('smart-links') }}
                     </a>
                 {% endif %}
-                
+
                 {% if smartLink.amazonUrl %}
-                    <a href="{{ smartLink.amazonUrl }}" class="platform-link secondary">
+                    <a href="{{ actionUrl('smart-links/redirect/go', {slug: smartLink.slug, platform: 'amazon'}) }}" class="platform-link secondary">
                         {{ 'Get it from Amazon'|t('smart-links') }}
                     </a>
                 {% endif %}
-                
+
                 {% if smartLink.windowsUrl %}
-                    <a href="{{ smartLink.windowsUrl }}" class="platform-link secondary">
+                    <a href="{{ actionUrl('smart-links/redirect/go', {slug: smartLink.slug, platform: 'windows'}) }}" class="platform-link secondary">
                         {{ 'Download from Microsoft Store'|t('smart-links') }}
                     </a>
                 {% endif %}
-                
+
                 {% if smartLink.macUrl %}
-                    <a href="{{ smartLink.macUrl }}" class="platform-link secondary">
+                    <a href="{{ actionUrl('smart-links/redirect/go', {slug: smartLink.slug, platform: 'mac'}) }}" class="platform-link secondary">
                         {{ 'Download for Mac'|t('smart-links') }}
                     </a>
                 {% endif %}
-                
-                <a href="{{ smartLink.fallbackUrl }}" class="platform-link secondary">
+
+                <a href="{{ actionUrl('smart-links/redirect/go', {slug: smartLink.slug, platform: 'fallback'}) }}" class="platform-link secondary">
                     {{ 'Visit Website'|t('smart-links') }}
                 </a>
             </div>
         </div>
         
-        {% if not device.isMobile and smartLink.qrCodeEnabled %}
-            <div class="qr-section">
+        {% if smartLink.qrCodeEnabled %}
+            <div class="qr-section" id="qr-section">
                 <h3>{{ 'Or scan with your phone:'|t('smart-links') }}</h3>
                 <div class="qr-code">
                     <img src="{{ smartLink.getQrCodeUrl({ size: 200 }) }}" alt="QR Code" width="200" height="200">
@@ -242,78 +257,5 @@
             </div>
         {% endif %}
     </div>
-    
-    {% if device.isMobile %}
-        <script>
-            // Auto-redirect for mobile devices
-            setTimeout(function() {
-                window.location.href = '{{ redirectUrl|e('js') }}';
-            }, 1500);
-        </script>
-    {% endif %}
-    
-    {% if smartLink.trackAnalytics and craft.smartLinks.settings.enableAnalytics %}
-        <script>
-            // Track button clicks
-            document.addEventListener('DOMContentLoaded', function() {
-                const platformLinks = document.querySelectorAll('.platform-btn');
-                
-                platformLinks.forEach(function(link) {
-                    link.addEventListener('click', function(e) {
-                        // Temporarily prevent navigation for testing
-                        e.preventDefault();
-                        
-                        // Determine platform from the link
-                        let platform = 'unknown';
-                        const href = this.getAttribute('href');
-                        const text = this.textContent.toLowerCase();
-                        
-                        if (href.includes('apps.apple.com') || text.includes('app store')) {
-                            platform = 'ios';
-                        } else if (href.includes('play.google.com') || text.includes('google play')) {
-                            platform = 'android';
-                        } else if (href.includes('appgallery') || text.includes('appgallery')) {
-                            platform = 'huawei';
-                        } else if (href.includes('amazon') || text.includes('amazon')) {
-                            platform = 'amazon';
-                        } else if (href.includes('microsoft.com') || text.includes('microsoft')) {
-                            platform = 'windows';
-                        } else if (text.includes('mac')) {
-                            platform = 'mac';
-                        } else if (text.includes('website')) {
-                            platform = 'web';
-                        }
-                        
-                        // Send tracking request
-                        fetch('{{ siteUrl('smart-links/redirect/track-button-click') }}', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRF-Token': '{{ craft.app.request.csrfToken }}',
-                                'Accept': 'application/json'
-                            },
-                            body: JSON.stringify({
-                                smartLinkId: {{ smartLink.id }},
-                                platform: platform,
-                                url: href,
-                                {{ craft.app.config.general.csrfTokenName }}: '{{ craft.app.request.csrfToken }}'
-                            })
-                        }).then(function(response) {
-                            if (response.ok) {
-                                return response.json();
-                            }
-                            throw new Error('Network response was not ok');
-                        }).then(function(data) {
-                            // Navigate after tracking completes
-                            window.location.href = href;
-                        }).catch(function(error) {
-                            // Navigate anyway
-                            window.location.href = href;
-                        });
-                    });
-                });
-            });
-        </script>
-    {% endif %}
 </body>
 </html>

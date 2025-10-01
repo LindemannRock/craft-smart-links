@@ -1,18 +1,53 @@
 # Smart Links Template Guide
 
+## Template Requirements
+
+**Smart Links requires custom templates** to display redirect landing pages and QR code views. These templates are NOT optional - the plugin will throw errors if they don't exist.
+
+### Default Template Paths
+
+When template paths are not configured (set to `null` in config), the plugin expects templates at:
+
+- **Redirect landing page:** `templates/smart-links/redirect.twig` (used by `/go/{slug}`)
+- **QR code display:** `templates/smart-links/qr.twig` (used by `/qr/{slug}/view`)
+
+**If these templates don't exist, visitors will get a "Unable to find template" error.**
+
+### Quick Start
+
+The plugin includes example templates in `vendor/lindemannrock/smart-links/src/templates/`. Copy them to get started:
+
+```bash
+# Create templates directory
+mkdir -p templates/smart-links
+
+# Copy example templates
+cp vendor/lindemannrock/smart-links/src/templates/redirect.twig templates/smart-links/
+cp vendor/lindemannrock/smart-links/src/templates/qr.twig templates/smart-links/
+
+# Customize to match your site's design
+```
+
 ## Custom Redirect Templates
 
-You can override the default redirect template to customize the landing page appearance.
+You can customize the redirect landing page template to match your site's design.
 
 ### Creating a Custom Template
 
 1. Create a template file in your `templates/` directory (e.g., `templates/smart-links/redirect.twig`)
-2. Configure the template path in Settings → General → Custom Redirect Template
+2. Configure the template path in Settings → Redirect Settings → Custom Redirect Template
 3. Or set it in `config/smart-links.php`:
 
 ```php
 return [
-    'redirectTemplate' => 'smart-links/redirect',
+    'redirectTemplate' => 'smart-links/redirect', // Defaults to this if null
+];
+```
+
+**To use a different path:**
+```php
+return [
+    'redirectTemplate' => 'my-custom/landing-page', // Custom path
 ];
 ```
 
@@ -159,15 +194,56 @@ The tracking system records these interaction types:
 
 ## Custom QR Code Templates
 
-You can also customize the QR code display page:
+The QR code display page (`/qr/{slug}/view`) requires a custom template.
+
+### Default Template Path
+
+When `qrTemplate` is not configured (set to `null`), the plugin looks for:
+- **QR code display:** `templates/smart-links/qr.twig`
+
+The plugin includes an example QR template you can copy (see Quick Start above).
+
+### Creating a QR Template
+
+Here's a basic example (`templates/smart-links/qr.twig`):
+
+```twig
+<!DOCTYPE html>
+<html lang="{{ currentSite.language }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ smartLink.title }} - QR Code</title>
+</head>
+<body>
+    <div class="qr-display">
+        <h1>{{ smartLink.title }}</h1>
+
+        {% if smartLink.description %}
+            <p>{{ smartLink.description }}</p>
+        {% endif %}
+
+        <div class="qr-code">
+            <img src="{{ smartLink.getQrCodeUrl({ size: size ?? 300 }) }}"
+                 alt="{{ smartLink.title }} QR Code">
+        </div>
+
+        <p>Scan with your phone's camera</p>
+    </div>
+</body>
+</html>
+```
+
+### Custom Template Path
 
 ```php
 return [
-    'qrTemplate' => 'smart-links/qr',
+    'qrTemplate' => 'my-custom/qr-display', // Custom path
 ];
 ```
 
-Available variables:
+### Available Variables
+
 - `smartLink` - The SmartLink element
 - `qrCodeSvg` - SVG markup (if format is SVG)
 - `qrCodeData` - Base64 encoded image data (if format is PNG)
