@@ -25,70 +25,67 @@ The following variables are available in your redirect template:
 - `device` - Device information object
 - `language` - Detected language code
 
-### Registering Tracking
+### Mobile Detection and Tracking
 
-To enable analytics tracking in your custom template, add this to your template's head block:
+To enable mobile auto-redirect and analytics tracking, add this JavaScript to your template's head:
 
 ```twig
 {% block head %}
     {{ parent() }}
-    {% do craft.smartLinks.registerTracking(smartLink, redirectUrl) %}
+    <script>
+        // Client-side mobile detection for auto-redirect (works with cached pages)
+        (function() {
+            fetch('{{ actionUrl('smart-links/redirect/refresh-csrf')|raw }}', {
+                credentials: 'same-origin',
+                cache: 'no-store'
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.isMobile) {
+                    window.location.replace('{{ actionUrl('smart-links/redirect/go', {slug: smartLink.slug, platform: 'auto'})|raw }}');
+                }
+            })
+            .catch(err => {
+                console.error('Device detection failed:', err);
+            });
+        })();
+    </script>
 {% endblock %}
 ```
 
-This single line:
-- Registers the tracking JavaScript asset bundle (`redirect-tracking.js`)
-- Configures tracking for redirects, QR code scans, and button clicks
-- Handles mobile auto-redirect using client-side device detection
-- Works with CDN/static page caching (like Servd, Cloudflare)
-- Only tracks meaningful interactions (mobile redirects, QR scans, button clicks)
+This approach:
+- Fetches fresh device detection from uncached endpoint
+- Works with CDN/static page caching (Servd, Cloudflare, Blitz)
+- Tracks mobile redirects automatically via the redirect controller
+- Desktop users remain on the landing page
 
-**Debug Mode:**
+### Button Links
 
-Enable console logging for troubleshooting:
-
-```twig
-{% do craft.smartLinks.registerTracking(smartLink, redirectUrl, {debug: true}) %}
-```
-
-### Button Tracking
-
-Buttons are automatically tracked if they have the `.smartlink-btn` or `.trackable-link` CSS class:
+All buttons should use the redirect controller action to enable tracking:
 
 ```twig
-<a href="{{ smartLink.iosUrl }}" class="smartlink-btn">
-    App Store
+<a href="{{ actionUrl('smart-links/redirect/go', {slug: smartLink.slug, platform: 'ios'}) }}">
+    Download on App Store
 </a>
-```
 
-You can specify a custom platform name using the `data-platform` attribute:
+<a href="{{ actionUrl('smart-links/redirect/go', {slug: smartLink.slug, platform: 'android'}) }}">
+    Get it on Google Play
+</a>
 
-```twig
-<a href="{{ smartLink.fallbackUrl }}"
-   class="trackable-link"
-   data-platform="fallback">
+<a href="{{ actionUrl('smart-links/redirect/go', {slug: smartLink.slug, platform: 'fallback'}) }}">
     Continue to Website
 </a>
 ```
 
-Without `data-platform`, the button text is used (e.g., "App Store" → "app-store").
+The redirect controller tracks each click before redirecting to the appropriate URL.
 
 ### What Gets Tracked
 
-The tracking system records three types of interactions:
+The tracking system records these interaction types:
 
-1. **Mobile Auto-Redirects** - When mobile users are automatically redirected
-   - Type: `redirect`
-   - Source: `direct`
-
+1. **Mobile Auto-Redirects** - When mobile users are automatically redirected via `platform: 'auto'`
 2. **QR Code Scans** - When users visit with `?src=qr` parameter
-   - Type: `redirect`
-   - Source: `qr`
-
-3. **Button Clicks** - When users click platform buttons
-   - Type: `button`
-   - Source: `landing`
-   - Platform: Derived from button text or `data-platform` attribute
+3. **Button Clicks** - When users click platform buttons that use the redirect controller
 
 **Note:** Desktop page loads without the QR parameter are NOT tracked - the page simply displays without counting as an interaction.
 
@@ -103,7 +100,24 @@ The tracking system records three types of interactions:
 
 {% block head %}
     {{ parent() }}
-    {% do craft.smartLinks.registerTracking(smartLink, redirectUrl) %}
+    <script>
+        // Client-side mobile detection for auto-redirect
+        (function() {
+            fetch('{{ actionUrl('smart-links/redirect/refresh-csrf')|raw }}', {
+                credentials: 'same-origin',
+                cache: 'no-store'
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.isMobile) {
+                    window.location.replace('{{ actionUrl('smart-links/redirect/go', {slug: smartLink.slug, platform: 'auto'})|raw }}');
+                }
+            })
+            .catch(err => {
+                console.error('Device detection failed:', err);
+            });
+        })();
+    </script>
 {% endblock %}
 
 {% block content %}
@@ -116,21 +130,19 @@ The tracking system records three types of interactions:
 
         <div class="app-buttons">
             {% if smartLink.iosUrl %}
-                <a href="{{ smartLink.iosUrl }}" class="smartlink-btn">
+                <a href="{{ actionUrl('smart-links/redirect/go', {slug: smartLink.slug, platform: 'ios'}) }}">
                     Download on App Store
                 </a>
             {% endif %}
 
             {% if smartLink.androidUrl %}
-                <a href="{{ smartLink.androidUrl }}" class="smartlink-btn">
+                <a href="{{ actionUrl('smart-links/redirect/go', {slug: smartLink.slug, platform: 'android'}) }}">
                     Get it on Google Play
                 </a>
             {% endif %}
 
             {% if smartLink.fallbackUrl %}
-                <a href="{{ smartLink.fallbackUrl }}"
-                   class="trackable-link"
-                   data-platform="fallback">
+                <a href="{{ actionUrl('smart-links/redirect/go', {slug: smartLink.slug, platform: 'fallback'}) }}">
                     Visit Website
                 </a>
             {% endif %}
@@ -175,6 +187,113 @@ You can also fetch and display smart links directly in any template:
 
 {# Get smart link by ID #}
 {% set link = craft.smartLinks.getById(123) %}
+```
+
+## SEOmatic Integration Example
+
+Smart Links supports custom fields through field layouts. Here's an example using SEOmatic fields:
+
+### Adding SEOmatic Field to Smart Links
+
+1. Go to **Settings → Smart Links → Field Layout**
+2. Drag an SEOmatic field into the layout
+3. Save the field layout
+
+### Template Usage
+
+If you have SEOmatic fields in your Smart Links field layout, you can access them in templates:
+
+```twig
+{% extends "_layouts/base.twig" %}
+
+{% block head %}
+    {{ parent() }}
+
+    {# Mobile detection for auto-redirect #}
+    <script>
+        (function() {
+            fetch('{{ actionUrl('smart-links/redirect/refresh-csrf')|raw }}', {
+                credentials: 'same-origin',
+                cache: 'no-store'
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.isMobile) {
+                    window.location.replace('{{ actionUrl('smart-links/redirect/go', {slug: smartLink.slug, platform: 'auto'})|raw }}');
+                }
+            });
+        })();
+    </script>
+
+    {# SEOmatic meta tags for the Smart Link #}
+    {% do seomatic.meta.get(smartLink) %}
+{% endblock %}
+
+{% block content %}
+    <div class="smart-link-page">
+        <h1>{{ smartLink.title }}</h1>
+
+        {% if smartLink.description %}
+            <p>{{ smartLink.description }}</p>
+        {% endif %}
+
+        {# Platform buttons #}
+        <div class="app-buttons">
+            {% if smartLink.iosUrl %}
+                <a href="{{ actionUrl('smart-links/redirect/go', {slug: smartLink.slug, platform: 'ios'}) }}">
+                    Download on App Store
+                </a>
+            {% endif %}
+
+            {% if smartLink.androidUrl %}
+                <a href="{{ actionUrl('smart-links/redirect/go', {slug: smartLink.slug, platform: 'android'}) }}">
+                    Get it on Google Play
+                </a>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
+```
+
+### Custom SEO per Smart Link
+
+You can also manually set SEO values:
+
+```twig
+{% do seomatic.meta.seoTitle(smartLink.title) %}
+{% do seomatic.meta.seoDescription(smartLink.description) %}
+{% do seomatic.meta.seoImage(smartLink.getImage()) %}
+
+{# Open Graph tags for social sharing #}
+{% do seomatic.meta.ogTitle(smartLink.title) %}
+{% do seomatic.meta.ogDescription(smartLink.description) %}
+{% do seomatic.meta.ogImage(smartLink.getImage()) %}
+
+{# Twitter Card tags #}
+{% do seomatic.meta.twitterTitle(smartLink.title) %}
+{% do seomatic.meta.twitterDescription(smartLink.description) %}
+{% do seomatic.meta.twitterImage(smartLink.getImage()) %}
+```
+
+### Accessing Custom Fields
+
+Any custom fields added to the Smart Links field layout are accessible:
+
+```twig
+{# Access SEOmatic field (if named 'seo') #}
+{% if smartLink.seo is defined %}
+    {{ smartLink.seo.metaTitle }}
+    {{ smartLink.seo.metaDescription }}
+{% endif %}
+
+{# Access other custom fields #}
+{{ smartLink.customTextField }}
+{{ smartLink.customRichTextField|raw }}
+
+{# Matrix fields #}
+{% for block in smartLink.customMatrixField.all() %}
+    {# ... #}
+{% endfor %}
 ```
 
 ## Template Hooks

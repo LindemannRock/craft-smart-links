@@ -148,6 +148,26 @@ php craft clear-caches/compiled-templates
 
 See [Configuration Documentation](docs/CONFIGURATION.md) for all available options.
 
+### Read-Only Mode
+
+Smart Links respects Craft's `allowAdminChanges` setting for production environments. When `allowAdminChanges` is disabled:
+
+- All settings pages display in read-only mode with a notice banner
+- Field layout designer is disabled
+- Save actions return 403 Forbidden errors
+- Config file settings override database settings
+
+**Enable read-only mode in your `.env`:**
+```bash
+CRAFT_ALLOW_ADMIN_CHANGES=false
+```
+
+This ensures settings and field layouts can only be modified through:
+1. Project config (synced across environments)
+2. Configuration files (`config/smart-links.php`)
+
+**Best Practice:** Use `allowAdminChanges=false` in staging/production to prevent direct CP modifications and ensure consistency across environments.
+
 ## Multi-Site Management
 
 Smart Links supports restricting functionality to specific sites in multi-site installations.
@@ -346,22 +366,40 @@ Or configure via Settings → Redirect Settings → Custom Redirect Template and
 <html>
 <head>
     <title>{{ smartLink.title }}</title>
-    {% do craft.smartLinks.registerTracking(smartLink, redirectUrl) %}
+
+    <script>
+        // Client-side mobile detection for auto-redirect (works with cached pages)
+        (function() {
+            fetch('{{ actionUrl('smart-links/redirect/refresh-csrf')|raw }}', {
+                credentials: 'same-origin',
+                cache: 'no-store'
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.isMobile) {
+                    window.location.replace('{{ actionUrl('smart-links/redirect/go', {slug: smartLink.slug, platform: 'auto'})|raw }}');
+                }
+            })
+            .catch(err => {
+                console.error('Device detection failed:', err);
+            });
+        })();
+    </script>
 </head>
 <body>
     <h1>{{ smartLink.title }}</h1>
 
-    {# Show platform-specific buttons with tracking #}
+    {# Platform-specific buttons that track clicks via redirect controller #}
     {% if smartLink.iosUrl %}
-        <a href="{{ smartLink.iosUrl }}" class="smartlink-btn">Download on App Store</a>
+        <a href="{{ actionUrl('smart-links/redirect/go', {slug: smartLink.slug, platform: 'ios'}) }}">Download on App Store</a>
     {% endif %}
 
     {% if smartLink.androidUrl %}
-        <a href="{{ smartLink.androidUrl }}" class="smartlink-btn">Get it on Google Play</a>
+        <a href="{{ actionUrl('smart-links/redirect/go', {slug: smartLink.slug, platform: 'android'}) }}">Get it on Google Play</a>
     {% endif %}
 
-    {# Fallback button with custom platform name #}
-    <a href="{{ smartLink.fallbackUrl }}" class="trackable-link" data-platform="fallback">Continue to Website</a>
+    {# Fallback button #}
+    <a href="{{ actionUrl('smart-links/redirect/go', {slug: smartLink.slug, platform: 'fallback'}) }}">Continue to Website</a>
 
     {# QR Code #}
     {% if smartLink.qrCodeEnabled %}
@@ -371,21 +409,14 @@ Or configure via Settings → Redirect Settings → Custom Redirect Template and
 </html>
 ```
 
-**Tracking Details:**
+**How Tracking Works:**
 
-The `registerTracking()` function automatically handles:
-- Mobile auto-redirects (tracked as Type: redirect, Source: direct)
-- QR code scans with `?src=qr` parameter (tracked as Type: redirect, Source: qr)
-- Button clicks with `.smartlink-btn` or `.trackable-link` classes (tracked as Type: button, Source: landing)
-- Works with CDN/static page caching (like Servd, Cloudflare)
-- Desktop page loads without QR parameter are NOT tracked
-
-**Debug Mode:**
-
-Enable debug logging by passing options:
-```twig
-{% do craft.smartLinks.registerTracking(smartLink, redirectUrl, {debug: true}) %}
-```
+The tracking system uses the redirect controller to log all interactions:
+- **Mobile auto-redirects**: JavaScript detects mobile and redirects via `platform: 'auto'`
+- **Button clicks**: All buttons use `actionUrl('smart-links/redirect/go')` which tracks before redirecting
+- **QR code scans**: QR codes include `?src=qr` parameter for source tracking
+- **Works with CDN caching**: Device detection happens client-side via uncached endpoint
+- **Desktop page loads**: Not tracked unless a button is clicked
 
 **Available Template Variables:**
 - `smartLink` - The SmartLink element
@@ -536,15 +567,6 @@ Event::on(
 ## Console Commands
 
 ```bash
-# List all smart links
-./craft smart-links/links/list
-
-# Create a smart link
-./craft smart-links/links/create --name="Promo" --slug="promo" --url="https://example.com"
-
-# Delete old analytics data
-./craft smart-links/analytics/cleanup --days=90
-
 # Update missing country data for analytics
 ./craft smart-links/analytics/update-countries
 
@@ -568,23 +590,23 @@ Event::on(
 Mobile users will briefly see the landing page before being automatically redirected:
 1. All users (mobile and desktop) see the landing page with JavaScript
 2. JavaScript fetches fresh device detection from `/smart-links/redirect/refresh-csrf` (uncached endpoint)
-3. If mobile device is detected, JavaScript tracks the interaction then redirects
+3. If mobile device is detected, JavaScript redirects via `actionUrl('smart-links/redirect/go', {platform: 'auto'})`
 4. Desktop users stay on the landing page with platform buttons
 
 This client-side approach ensures tracking works correctly even when pages are cached by CDN (Servd, Cloudflare).
 
 **Troubleshooting:**
-- Ensure you're using `{% do craft.smartLinks.registerTracking(smartLink, redirectUrl) %}` in custom templates
+- Ensure mobile detection script is in your template (fetches from `refresh-csrf` endpoint)
 - Ensure `/smart-links/redirect/refresh-csrf` endpoint is not being cached
-- Check browser console for errors (enable debug mode: `{debug: true}`)
+- Check browser console for errors
 - The brief landing page flash is normal and necessary for tracking to work with page caching
 
 ### Analytics Not Tracking
 - Confirm analytics is enabled globally in Settings → General
 - Verify per-link analytics is enabled for the smart link
-- Ensure you're using `{% do craft.smartLinks.registerTracking(smartLink, redirectUrl) %}` in custom templates
-- Check browser isn't blocking JavaScript or `sendBeacon` API
-- Enable debug mode to see console logs: `{% do craft.smartLinks.registerTracking(smartLink, redirectUrl, {debug: true}) %}`
+- Ensure buttons use `actionUrl('smart-links/redirect/go')` instead of direct URLs
+- Check browser isn't blocking JavaScript
+- Check browser console for errors
 - Desktop page loads without `?src=qr` parameter are intentionally NOT tracked
 
 ### Wrong Location in Local Development

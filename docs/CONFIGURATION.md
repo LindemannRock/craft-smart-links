@@ -194,6 +194,75 @@ Settings are loaded in this order (later overrides earlier):
 3. Config file settings
 4. Environment-specific config settings
 
+**Note:** Config file settings always override database settings, making them ideal for production environments where you want to enforce specific values.
+
+## Read-Only Mode & Production Environments
+
+Smart Links fully supports Craft's `allowAdminChanges` setting for production deployments.
+
+### Enabling Read-Only Mode
+
+Add to your `.env` file:
+
+```bash
+CRAFT_ALLOW_ADMIN_CHANGES=false
+```
+
+### What Happens in Read-Only Mode
+
+When `allowAdminChanges` is disabled:
+
+1. **Settings Pages** - Display with a read-only notice banner
+2. **Form Fields** - All inputs are disabled (can view but not edit)
+3. **Field Layout Designer** - Completely disabled, no drag-and-drop
+4. **Save Actions** - Return 403 Forbidden HTTP errors
+5. **Config Overrides** - Config file settings remain the source of truth
+
+### Best Practices
+
+**Development Environment:**
+```bash
+# .env
+CRAFT_ALLOW_ADMIN_CHANGES=true
+```
+
+Configure settings through the Control Panel, which saves to the database.
+
+**Staging/Production Environments:**
+```bash
+# .env
+CRAFT_ALLOW_ADMIN_CHANGES=false
+```
+
+Use `config/smart-links.php` to manage settings:
+
+```php
+<?php
+return [
+    'production' => [
+        'enableAnalytics' => true,
+        'analyticsRetention' => 90,
+        'defaultQrSize' => 256,
+        'slugPrefix' => 'go',
+        // ... other production settings
+    ],
+];
+```
+
+### Field Layout Management
+
+Field layouts are stored in project config and sync across environments:
+
+- **Location:** `config/project/smart-links/fieldLayouts/{uid}.yaml`
+- **Syncing:** Automatically applied when project config is synced
+- **Read-Only:** Cannot be modified in CP when `allowAdminChanges=false`
+
+To modify field layouts in production:
+1. Make changes in development environment
+2. Commit the updated YAML files in `config/project/`
+3. Deploy to production
+4. Run `php craft project-config/apply` if needed
+
 ### Performance Recommendations
 
 For production environments:
