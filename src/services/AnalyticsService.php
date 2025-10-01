@@ -1146,8 +1146,8 @@ class AnalyticsService extends Component
                         $buttonPlatform = ucfirst($metadata['platform']);
                     }
                 } else {
-                    // For redirects, show which URL they were sent to
-                    $targetUrl = $metadata['redirectUrl'] ?? '';
+                    // For redirects, show which URL they were sent to (check both old and new formats)
+                    $targetUrl = $metadata['redirectUrl'] ?? $metadata['buttonUrl'] ?? '';
                 }
                 
                 // Keep the actual referrer URL
@@ -1317,7 +1317,8 @@ class AnalyticsService extends Component
             if ($clickType == 'button') {
                 $destinationUrl = $metadata['buttonUrl'] ?? '';
             } else {
-                $destinationUrl = $metadata['redirectUrl'] ?? '';
+                // For redirects, check both redirectUrl (old format) and buttonUrl (new format)
+                $destinationUrl = $metadata['redirectUrl'] ?? $metadata['buttonUrl'] ?? '';
             }
             
             $clicks[] = [

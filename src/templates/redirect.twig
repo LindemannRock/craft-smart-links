@@ -15,7 +15,14 @@
             .then(r => r.json())
             .then(data => {
                 if (data.isMobile) {
-                    window.location.replace('{{ actionUrl('smart-links/redirect/go', {slug: smartLink.slug, platform: 'auto'})|raw }}');
+                    // Preserve src parameter from QR codes
+                    var redirectUrl = '{{ actionUrl('smart-links/redirect/go', {slug: smartLink.slug, platform: 'auto'})|raw }}';
+                    var urlParams = new URLSearchParams(window.location.search);
+                    var source = urlParams.get('src');
+                    if (source) {
+                        redirectUrl += '&src=' + encodeURIComponent(source);
+                    }
+                    window.location.replace(redirectUrl);
                 }
             })
             .catch(err => {
