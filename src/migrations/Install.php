@@ -34,7 +34,6 @@ class Install extends Migration
                 'slug' => $this->string()->notNull(),
                 'icon' => $this->string()->null(),
                 'trackAnalytics' => $this->boolean()->defaultValue(true),
-                'active' => $this->boolean()->defaultValue(true),
                 'qrCodeEnabled' => $this->boolean()->defaultValue(true),
                 'qrCodeSize' => $this->integer()->defaultValue(200),
                 'qrCodeColor' => $this->string(7)->defaultValue('#000000'),
@@ -44,7 +43,6 @@ class Install extends Migration
                 'qrLogoId' => $this->integer()->null(),
                 'hideTitle' => $this->boolean()->defaultValue(false)->notNull(),
                 'languageDetection' => $this->boolean()->defaultValue(false),
-                'clicks' => $this->integer()->defaultValue(0)->notNull(),
                 'metadata' => $this->json()->null(),
                 'authorId' => $this->integer()->null(),
                 'postDate' => $this->dateTime()->null(),
@@ -57,7 +55,6 @@ class Install extends Migration
 
             // Create indexes
             $this->createIndex(null, '{{%smartlinks}}', ['slug'], true);
-            $this->createIndex(null, '{{%smartlinks}}', ['active']);
             $this->createIndex(null, '{{%smartlinks}}', ['dateCreated']);
             $this->createIndex(null, '{{%smartlinks}}', ['authorId']);
             $this->createIndex(null, '{{%smartlinks}}', ['postDate']);

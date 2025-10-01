@@ -173,9 +173,13 @@ class SmartLinksController extends Controller
         $smartLink->authorId = is_array($authorIds) ? ($authorIds[0] ?? null) : $authorIds;
         $smartLink->trackAnalytics = (bool)$request->getBodyParam('trackAnalytics');
         $smartLink->hideTitle = (bool)$request->getBodyParam('hideTitle');
-        
+
         // Handle enabled status - this is per-site
-        $smartLink->enabled = (bool)$request->getBodyParam('enabled', true);
+        $enabledParam = $request->getBodyParam('enabled');
+        $enabled = $enabledParam === '1' || $enabledParam === 1 || $enabledParam === true;
+
+        // Set enabled for the current site
+        $smartLink->setEnabledForSite($enabled);
         
         
         $smartLink->qrCodeEnabled = (bool)$request->getBodyParam('qrCodeEnabled');

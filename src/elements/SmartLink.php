@@ -1181,7 +1181,9 @@ class SmartLink extends Element
         if (isset(self::$_generatedSlug) && $this->propagating && !$isNew) {
             $this->slug = self::$_generatedSlug;
         }
-        
+
+        Craft::error("beforeSave - enabled: " . var_export($this->enabled, true), 'smart-links');
+
         return parent::beforeSave($isNew);
     }
 
@@ -1205,14 +1207,14 @@ class SmartLink extends Element
 
             // Save non-translatable fields to main table
             $record->title = $this->title;
-            
+
             // Use the generated slug if available during duplication
             if (isset(self::$_generatedSlug) && $this->duplicateOf) {
                 $record->slug = self::$_generatedSlug;
             } else {
                 $record->slug = $this->slug;
             }
-            
+
             $record->icon = $this->icon;
             $record->authorId = $this->authorId;
             $record->postDate = $this->postDate;

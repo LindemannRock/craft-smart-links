@@ -248,19 +248,12 @@
     <fieldset>
         <legend class="h6">Status</legend>
         <div class="meta">
-            <div class="field lightswitch-field" id="enabled-field">
-                <div class="heading">
-                    <label id="enabled-label" for="enabled">{{ "Enabled"|t('app') }}</label>
-                </div>
-                <div class="input">
-                    <button type="button" class="lightswitch {{ smartLink.enabled ? 'on' : '' }}" id="enabled" role="switch" aria-checked="{{ smartLink.enabled ? 'true' : 'false' }}" aria-labelledby="enabled-label">
-                        <div class="lightswitch-container">
-                            <div class="handle"></div>
-                        </div>
-                        <input type="hidden" name="enabled" value="{{ smartLink.enabled ? '1' : '0' }}">
-                    </button>
-                </div>
-            </div>
+            {{ forms.lightswitchField({
+                label: "Enabled"|t('app'),
+                id: 'enabled',
+                name: 'enabled',
+                on: smartLink.enabled
+            }) }}
         </div>
     </fieldset>
 
