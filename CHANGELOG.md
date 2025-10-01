@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.17.0](https://github.com/LindemannRock/craft-smart-links/compare/v1.16.0...v1.17.0) (2025-10-01)
+
+
+### Features
+
+* Add read-only mode for Smart Links settings when allowAdminChanges is disabled ([a9ad703](https://github.com/LindemannRock/craft-smart-links/commit/a9ad70344ceaf8b304b848de739600a2d0d00e90))
+
 ## [1.16.0](https://github.com/LindemannRock/craft-smart-links/compare/v1.15.0...v1.16.0) (2025-10-01)
 
 
