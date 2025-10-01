@@ -102,6 +102,9 @@ class SmartLinks extends Plugin
         // Schedule analytics cleanup if retention is enabled
         $this->scheduleAnalyticsCleanup();
 
+        // Register project config event handlers
+        $this->registerProjectConfigEventHandlers();
+
         // Register translations
         Craft::$app->i18n->translations['smart-links'] = [
             'class' => \craft\i18n\PhpMessageSource::class,
@@ -466,5 +469,26 @@ class SmartLinks extends Plugin
                 );
             }
         }
+    }
+
+    /**
+     * Register project config event handlers
+     *
+     * @return void
+     */
+    private function registerProjectConfigEventHandlers(): void
+    {
+        // Listen for project config changes to field layout
+        Craft::$app->getProjectConfig()
+            ->onAdd('smart-links.fieldLayout', function($event) {
+                // Field layout UID has been added/updated in project config
+                // Craft will handle the actual field layout sync
+            })
+            ->onUpdate('smart-links.fieldLayout', function($event) {
+                // Field layout UID has been updated in project config
+            })
+            ->onRemove('smart-links.fieldLayout', function($event) {
+                // Field layout has been removed
+            });
     }
 }

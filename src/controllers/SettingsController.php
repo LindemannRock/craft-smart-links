@@ -246,6 +246,13 @@ class SettingsController extends Controller
             return null;
         }
 
+        // Save field layout UID to project config so it syncs across environments
+        Craft::$app->getProjectConfig()->set(
+            'smart-links.fieldLayout',
+            $fieldLayout->uid,
+            "Save Smart Links field layout"
+        );
+
         Craft::$app->getSession()->setNotice(Craft::t('smart-links', 'Field layout saved.'));
         return $this->redirectToPostedUrl();
     }
