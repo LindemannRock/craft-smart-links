@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.17.2](https://github.com/LindemannRock/craft-smart-links/compare/v1.17.1...v1.17.2) (2025-10-01)
+
+
+### Bug Fixes
+
+* Show read-only notice only on Field Layout settings page ([049d7ca](https://github.com/LindemannRock/craft-smart-links/commit/049d7ca021d451ccf7756a1e06af4c4b73949924))
+
 ## [1.17.1](https://github.com/LindemannRock/craft-smart-links/compare/v1.17.0...v1.17.1) (2025-10-01)
 
 
