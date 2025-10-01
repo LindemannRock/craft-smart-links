@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.16.0](https://github.com/LindemannRock/craft-smart-links/compare/v1.15.0...v1.16.0) (2025-10-01)
+
+
+### Features
+
+* Add field layout support with project config sync ([21e0ba8](https://github.com/LindemannRock/craft-smart-links/commit/21e0ba8551bd5a7c58e603e93db3651cadcac3cc))
+
 ## [1.15.0](https://github.com/LindemannRock/craft-smart-links/compare/v1.14.0...v1.15.0) (2025-10-01)
 
 
