@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.13.7](https://github.com/LindemannRock/craft-smart-links/compare/v1.13.6...v1.13.7) (2025-10-01)
+
+
+### Bug Fixes
+
+* smart link tracking to work with static page caching ([1fb2774](https://github.com/LindemannRock/craft-smart-links/commit/1fb2774df9761bd8b8c5c7aaad9cf925ed969add))
+
 ## [1.13.6](https://github.com/LindemannRock/craft-smart-links/compare/v1.13.5...v1.13.6) (2025-09-30)
 
 
