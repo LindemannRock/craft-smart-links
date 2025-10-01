@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.14.0](https://github.com/LindemannRock/craft-smart-links/compare/v1.13.7...v1.14.0) (2025-10-01)
+
+
+### Features
+
+* Add Field Layout support to Smart Links element type ([7b77015](https://github.com/LindemannRock/craft-smart-links/commit/7b77015311250dd08af76b7069c8bb3e0d8377eb))
+
 ## [1.13.7](https://github.com/LindemannRock/craft-smart-links/compare/v1.13.6...v1.13.7) (2025-10-01)
 
 
