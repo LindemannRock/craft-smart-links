@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.15.0](https://github.com/LindemannRock/craft-smart-links/compare/v1.14.0...v1.15.0) (2025-10-01)
+
+
+### Features
+
+* Register project config event handlers and save field layout UID ([3490026](https://github.com/LindemannRock/craft-smart-links/commit/34900265fa6609fd8fbc092d67fa53100dab01dc))
+
 ## [1.14.0](https://github.com/LindemannRock/craft-smart-links/compare/v1.13.7...v1.14.0) (2025-10-01)
 
 
