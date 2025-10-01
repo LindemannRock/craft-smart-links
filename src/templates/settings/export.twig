@@ -26,7 +26,7 @@
         {{ csrfInput() }}
         {{ redirectInput('smart-links/settings/export') }}
 
-        <h2>{{ "Analytics Export Options"|t('smart-links') }}</h2>
+        <h2 style="margin-top: 0px;">{{ "Analytics Export Options"|t('smart-links') }}</h2>
 
         {{ forms.lightswitchField({
             label: "Include Disabled Smart Links in Export"|t('smart-links'),
@@ -35,7 +35,7 @@
             name: 'settings[includeDisabledInExport]',
             on: settings.includeDisabledInExport ?? false,
             disabled: settings.isOverriddenByConfig('includeDisabledInExport'),
-            warning: settings.isOverriddenByConfig('includeDisabledInExport') ? 
+            warning: settings.isOverriddenByConfig('includeDisabledInExport') ?
                 "This is being overridden by the <code>includeDisabledInExport</code> setting in <code>config/smart-links.php</code>."|t('smart-links')|raw : null,
         }) }}
 
@@ -46,7 +46,7 @@
             name: 'settings[includeExpiredInExport]',
             on: settings.includeExpiredInExport ?? false,
             disabled: settings.isOverriddenByConfig('includeExpiredInExport'),
-            warning: settings.isOverriddenByConfig('includeExpiredInExport') ? 
+            warning: settings.isOverriddenByConfig('includeExpiredInExport') ?
                 "This is being overridden by the <code>includeExpiredInExport</code> setting in <code>config/smart-links.php</code>."|t('smart-links')|raw : null,
         }) }}
 

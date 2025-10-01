@@ -26,7 +26,7 @@
         {{ csrfInput() }}
         {{ redirectInput('smart-links/settings/interface') }}
 
-        <h2>{{ "Interface Settings"|t('smart-links') }}</h2>
+        <h2 style="margin-top: 0px;">{{ "Interface Settings"|t('smart-links') }}</h2>
 
         {{ forms.textField({
             label: "Items Per Page"|t('smart-links'),
@@ -38,7 +38,7 @@
             min: 10,
             max: 500,
             disabled: settings.isOverriddenByConfig('itemsPerPage'),
-            warning: settings.isOverriddenByConfig('itemsPerPage') ? 
+            warning: settings.isOverriddenByConfig('itemsPerPage') ?
                 "This is being overridden by the <code>itemsPerPage</code> setting in <code>config/smart-links.php</code>."|t('smart-links')|raw : null,
             errors: (settings is defined and settings) ? settings.getErrors('itemsPerPage') : []
         }) }}

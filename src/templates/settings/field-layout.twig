@@ -4,12 +4,16 @@
 {% set title = 'Field Layout'|t('smart-links') %}
 {% set selectedSettingsItem = 'field-layout' %}
 {% set fullPageForm = not (readOnly ?? false) %}
+{% if readOnly ?? false %}
+    {% set contentNotice = readOnlyNotice() %}
+{% endif %}
 
 {% block content %}
     {% if not (readOnly ?? false) %}
         {{ actionInput('smart-links/settings/save-field-layout') }}
         {{ redirectInput('smart-links/settings/field-layout') }}
     {% endif %}
+    
 
     <div class="field">
         <p class="readable">
@@ -25,5 +29,8 @@
     {% else %}
         <p class="notice">{{ 'No field layout available.'|t('smart-links') }}</p>
     {% endif %}
+
+{% include 'smart-links/_components/plugin-credit.twig' %}
+
 
 {% endblock %}

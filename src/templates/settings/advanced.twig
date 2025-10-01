@@ -26,7 +26,7 @@
         {{ csrfInput() }}
         {{ redirectInput('smart-links/settings/advanced') }}
 
-        <h2>{{ "Advanced Settings"|t('smart-links') }}</h2>
+        <h2 style="margin-top: 0px;">{{ "Advanced Settings"|t('smart-links') }}</h2>
 
         {{ forms.lightswitchField({
             label: "Cache Device Detection"|t('smart-links'),
@@ -35,7 +35,7 @@
             name: 'settings[cacheDeviceDetection]',
             on: settings.cacheDeviceDetection ?? true,
             disabled: settings.isOverriddenByConfig('cacheDeviceDetection'),
-            warning: settings.isOverriddenByConfig('cacheDeviceDetection') ? 
+            warning: settings.isOverriddenByConfig('cacheDeviceDetection') ?
                 "This is being overridden by the <code>cacheDeviceDetection</code> setting in <code>config/smart-links.php</code>."|t('smart-links')|raw : null,
         }) }}
 
@@ -48,7 +48,7 @@
             type: 'number',
             min: 0,
             disabled: settings.isOverriddenByConfig('deviceDetectionCacheDuration'),
-            warning: settings.isOverriddenByConfig('deviceDetectionCacheDuration') ? 
+            warning: settings.isOverriddenByConfig('deviceDetectionCacheDuration') ?
                 "This is being overridden by the <code>deviceDetectionCacheDuration</code> setting in <code>config/smart-links.php</code>."|t('smart-links')|raw : null,
         }) }}
 

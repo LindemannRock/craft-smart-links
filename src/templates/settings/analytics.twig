@@ -26,7 +26,7 @@
         {{ csrfInput() }}
         {{ redirectInput('smart-links/settings/analytics') }}
 
-        <h2>{{ "Analytics"|t('smart-links') }}</h2>
+        <h2 style="margin-top: 0px;">{{ "Analytics"|t('smart-links') }}</h2>
 
         {{ forms.lightswitchField({
             label: "Enable Analytics"|t('smart-links'),
@@ -36,7 +36,7 @@
             on: settings.enableAnalytics ?? true,
             toggle: 'analytics-settings',
             disabled: settings.isOverriddenByConfig('enableAnalytics'),
-            warning: settings.isOverriddenByConfig('enableAnalytics') ? 
+            warning: settings.isOverriddenByConfig('enableAnalytics') ?
                 "This is being overridden by the <code>enableAnalytics</code> setting in <code>config/smart-links.php</code>."|t('smart-links')|raw : null,
         }) }}
 
@@ -56,7 +56,7 @@
                 name: 'settings[enableGeoDetection]',
                 on: settings.enableGeoDetection ?? false,
                 disabled: settings.isOverriddenByConfig('enableGeoDetection'),
-                warning: settings.isOverriddenByConfig('enableGeoDetection') ? 
+                warning: settings.isOverriddenByConfig('enableGeoDetection') ?
                     "This is being overridden by the <code>enableGeoDetection</code> setting in <code>config/smart-links.php</code>."|t('smart-links')|raw : null,
             }) }}
 
@@ -74,11 +74,11 @@
             min: 0,
             max: 3650,
             disabled: settings.isOverriddenByConfig('analyticsRetention'),
-            warning: settings.isOverriddenByConfig('analyticsRetention') ? 
+            warning: settings.isOverriddenByConfig('analyticsRetention') ?
                 "This is being overridden by the <code>analyticsRetention</code> setting in <code>config/smart-links.php</code>."|t('smart-links')|raw : null,
             errors: (settings is defined and settings) ? settings.getErrors('analyticsRetention') : []
         }) }}
-        
+
         {% if (settings.analyticsRetention ?? 90) > 0 %}
             <div class="field" style="margin-top: 20px;">
                 <div class="heading">
@@ -117,10 +117,10 @@
         if (!confirm('{{ "Are you sure you want to clean up old analytics data now?"|t('smart-links')|e('js') }}')) {
             return;
         }
-        
+
         const $btn = $(this);
         $btn.addClass('loading').prop('disabled', true);
-        
+
         $.ajax({
             url: '{{ actionUrl('smart-links/settings/cleanup-analytics')|raw }}',
             type: 'POST',

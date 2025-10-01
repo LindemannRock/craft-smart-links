@@ -28,7 +28,7 @@
         {{ redirectInput('smart-links/settings/general') }}
         {{ hiddenInput('section', 'general') }}
 
-        <h2>{{ "Plugin Settings"|t('smart-links') }}</h2>
+        <h2 style="margin-top: 0px;">{{ "Plugin Settings"|t('smart-links') }}</h2>
 
         {{ forms.textField({
             label: "Plugin Name"|t('smart-links'),
@@ -127,7 +127,7 @@
         <hr>
 
         <h2>{{ "Asset Settings"|t('smart-links') }}</h2>
-        
+
         {# Asset volume selection dropdown for Smart Link images #}
         {% set volumeOptions = [{label: 'All asset volumes'|t('smart-links'), value: ''}] %}
         {% for volume in craft.app.volumes.getAllVolumes() %}
@@ -136,7 +136,7 @@
                 value: volume.uid
             }]) %}
         {% endfor %}
-        
+
         {{ forms.selectField({
             label: "Smart Link Image Volume"|t('smart-links'),
             instructions: "Which asset volume should be used for Smart Link images"|t('smart-links'),
@@ -145,7 +145,7 @@
             options: volumeOptions,
             value: settings.imageVolumeUid ?? '',
             disabled: settings.isOverriddenByConfig('imageVolumeUid'),
-            warning: settings.isOverriddenByConfig('imageVolumeUid') ? 
+            warning: settings.isOverriddenByConfig('imageVolumeUid') ?
                 "This is being overridden by the <code>imageVolumeUid</code> setting in <code>config/smart-links.php</code>."|t('smart-links')|raw : null,
         }) }}
 
