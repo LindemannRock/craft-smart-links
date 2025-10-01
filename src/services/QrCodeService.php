@@ -56,23 +56,19 @@ class QrCodeService extends Component
         
         // Create cache key including new style parameters and logo
         $cacheKey = $this->_getCacheKey($url, $size, $color, $bgColor, $format, $margin, $moduleStyle, $eyeStyle, $eyeColor, $logoId, $logoSize);
-        
-        // Check cache
-        $cached = Craft::$app->cache->get($cacheKey);
-        if ($cached !== false) {
+
+        // Check cache using custom file storage
+        $cached = $this->_getCachedQrCode($cacheKey);
+        if ($cached !== null) {
             return $cached;
         }
-        
+
         // Generate QR code
         $qrCode = $this->_generateQrCode($url, $size, $color, $bgColor, $format, $margin, $moduleStyle, $eyeStyle, $eyeColor, $logoId, $logoSize);
-        
-        // Cache the result
-        Craft::$app->cache->set(
-            $cacheKey,
-            $qrCode,
-            $settings->qrCodeCacheDuration
-        );
-        
+
+        // Cache the result using custom file storage
+        $this->_cacheQrCode($cacheKey, $qrCode, $settings->qrCodeCacheDuration);
+
         return $qrCode;
     }
 
@@ -396,5 +392,52 @@ class QrCodeService extends Component
             Craft::error('Failed to add logo to QR code: ' . $e->getMessage(), __METHOD__);
             return $qrCodeData; // Return original on any error
         }
+    }
+
+    /**
+     * Get cached QR code from custom file storage
+     *
+     * @param string $cacheKey
+     * @return string|null
+     */
+    private function _getCachedQrCode(string $cacheKey): ?string
+    {
+        $cachePath = Craft::$app->path->getRuntimePath() . '/smart-links/qr/';
+        $cacheFile = $cachePath . md5($cacheKey) . '.cache';
+
+        if (!file_exists($cacheFile)) {
+            return null;
+        }
+
+        // Check if cache is expired
+        $mtime = filemtime($cacheFile);
+        $settings = SmartLinks::$plugin->getSettings();
+        if (time() - $mtime > $settings->qrCodeCacheDuration) {
+            @unlink($cacheFile);
+            return null;
+        }
+
+        return file_get_contents($cacheFile);
+    }
+
+    /**
+     * Cache QR code to custom file storage
+     *
+     * @param string $cacheKey
+     * @param string $data
+     * @param int $duration
+     * @return void
+     */
+    private function _cacheQrCode(string $cacheKey, string $data, int $duration): void
+    {
+        $cachePath = Craft::$app->path->getRuntimePath() . '/smart-links/qr/';
+
+        // Create directory if it doesn't exist
+        if (!is_dir($cachePath)) {
+            \craft\helpers\FileHelper::createDirectory($cachePath);
+        }
+
+        $cacheFile = $cachePath . md5($cacheKey) . '.cache';
+        file_put_contents($cacheFile, $data);
     }
 }

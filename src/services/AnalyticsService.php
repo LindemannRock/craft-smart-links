@@ -1852,4 +1852,113 @@ class AnalyticsService extends Component
 
         return $countries[$code] ?? $code;
     }
+
+    /**
+     * Clean up invalid platform values in analytics metadata
+     *
+     * @return int Number of records updated
+     */
+    public function cleanupPlatformValues(): int
+    {
+        $db = Craft::$app->getDb();
+        $updated = 0;
+
+        // Get all analytics records
+        $records = (new Query())
+            ->from('{{%smartlinks_analytics}}')
+            ->select(['id', 'metadata'])
+            ->all();
+
+        foreach ($records as $record) {
+            $metadata = Json::decodeIfJson($record['metadata']);
+            if (!$metadata || !isset($metadata['platform'])) {
+                continue;
+            }
+
+            $oldPlatform = $metadata['platform'];
+            $newPlatform = null;
+
+            // Map invalid platform values to correct ones
+            $platformMap = [
+                // App store platforms -> correct platform
+                'app-store' => 'ios',
+                'google-play' => 'android',
+                'mac-app-store' => 'macos',
+                'amazon-appstore' => 'amazon',
+
+                // Click types that were incorrectly stored as platform
+                'redirect' => null,  // Will be derived from osName
+                'auto-redirect' => null,  // Will be derived from osName
+                'button' => null,  // Will be derived from osName
+
+                // Test data
+                'test' => null,  // Will be derived from osName
+
+                // Fix capitalization
+                'iOS' => 'ios',
+                'Ios' => 'ios',
+                'IOS' => 'ios',
+                'Android' => 'android',
+                'ANDROID' => 'android',
+                'Windows' => 'windows',
+                'WINDOWS' => 'windows',
+                'macOS' => 'macos',
+                'MacOS' => 'macos',
+                'Mac' => 'macos',
+                'MAC' => 'macos',
+                'Linux' => 'linux',
+                'LINUX' => 'linux',
+            ];
+
+            // If platform is in our map, update it
+            if (isset($platformMap[$oldPlatform])) {
+                $newPlatform = $platformMap[$oldPlatform];
+
+                // If mapped to null, derive from osName
+                if ($newPlatform === null) {
+                    $osName = (new Query())
+                        ->from('{{%smartlinks_analytics}}')
+                        ->select(['osName'])
+                        ->where(['id' => $record['id']])
+                        ->scalar();
+
+                    if ($osName) {
+                        $osNameLower = strtolower($osName);
+                        // Map OS name to platform
+                        if (str_contains($osNameLower, 'ios')) {
+                            $newPlatform = 'ios';
+                        } elseif (str_contains($osNameLower, 'android')) {
+                            $newPlatform = 'android';
+                        } elseif (str_contains($osNameLower, 'windows')) {
+                            $newPlatform = 'windows';
+                        } elseif (str_contains($osNameLower, 'mac')) {
+                            $newPlatform = 'macos';
+                        } elseif (str_contains($osNameLower, 'linux')) {
+                            $newPlatform = 'linux';
+                        } else {
+                            $newPlatform = 'other';
+                        }
+                    } else {
+                        $newPlatform = 'other';
+                    }
+                }
+
+                // Update the metadata
+                $metadata['platform'] = $newPlatform;
+
+                // Save back to database
+                $db->createCommand()
+                    ->update(
+                        '{{%smartlinks_analytics}}',
+                        ['metadata' => Json::encode($metadata)],
+                        ['id' => $record['id']]
+                    )
+                    ->execute();
+
+                $updated++;
+            }
+        }
+
+        return $updated;
+    }
 }

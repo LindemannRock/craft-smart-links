@@ -85,6 +85,16 @@ class RedirectController extends Controller
      */
     public function actionGo(string $slug, string $platform = 'auto'): Response
     {
+        // Normalize platform parameter to lowercase first
+        $platform = strtolower($platform);
+
+        // Validate platform parameter - only allow valid values
+        $validPlatforms = ['auto', 'ios', 'android', 'huawei', 'amazon', 'windows', 'mac', 'fallback'];
+        if (!in_array($platform, $validPlatforms)) {
+            // Invalid platform, default to auto
+            $platform = 'auto';
+        }
+
         // Get site from param or fall back to current site
         $siteParam = Craft::$app->getRequest()->getParam('site');
         if ($siteParam) {
@@ -143,12 +153,24 @@ class RedirectController extends Controller
 
         // Track the click if analytics are enabled
         if ($smartLink->trackAnalytics && SmartLinks::$plugin->getSettings()->enableAnalytics) {
+            // Normalize platform value to match DeviceInfo valid values
+            $normalizedPlatform = match($platform) {
+                'mac' => 'macos',
+                'fallback' => 'other',
+                default => $platform
+            };
+
+            // If platform is 'auto', use the detected platform from deviceInfo
+            if ($normalizedPlatform === 'auto') {
+                $normalizedPlatform = $deviceInfo->platform ?? 'other';
+            }
+
             SmartLinks::$plugin->analytics->trackClick(
                 $smartLink,
                 $deviceInfo,
                 [
                     'clickType' => $clickType,
-                    'platform' => $platform,
+                    'platform' => $normalizedPlatform,
                     'buttonUrl' => $destinationUrl,
                     'referrer' => Craft::$app->request->getReferrer(),
                     'source' => $source,

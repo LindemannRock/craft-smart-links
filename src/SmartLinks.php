@@ -13,15 +13,18 @@ namespace lindemannrock\smartlinks;
 use Craft;
 use craft\base\Plugin;
 use craft\base\Model;
+use craft\events\RegisterCacheOptionsEvent;
 use craft\events\RegisterComponentTypesEvent;
 use craft\events\RegisterTemplateRootsEvent;
 use craft\events\RegisterUrlRulesEvent;
 use craft\events\RegisterUserPermissionsEvent;
 use craft\fields\Link as LinkField;
+use craft\helpers\FileHelper;
 use craft\services\Elements;
 use craft\services\Fields;
 use craft\services\UserPermissions;
 use craft\services\Utilities;
+use craft\utilities\ClearCaches;
 use craft\web\UrlManager;
 use craft\web\View;
 use craft\web\twig\variables\CraftVariable;
@@ -197,6 +200,48 @@ class SmartLinks extends Plugin
             Utilities::EVENT_REGISTER_UTILITIES,
             function(RegisterComponentTypesEvent $event) {
                 $event->types[] = SmartLinksUtility::class;
+            }
+        );
+
+        // Register cache clearing options
+        Event::on(
+            ClearCaches::class,
+            ClearCaches::EVENT_REGISTER_CACHE_OPTIONS,
+            function(RegisterCacheOptionsEvent $event) {
+                $settings = $this->getSettings();
+                $pluginName = $settings->pluginName ?? 'Smart Links';
+
+                $event->options[] = [
+                    'key' => 'smart-links-cache',
+                    'label' => Craft::t('smart-links', '{pluginName} Cache', ['pluginName' => $pluginName]),
+                    'action' => function() {
+                        $cleared = 0;
+
+                        // Clear QR code caches
+                        $qrPath = Craft::$app->path->getRuntimePath() . '/smart-links/qr/';
+                        if (is_dir($qrPath)) {
+                            $files = glob($qrPath . '*.cache');
+                            foreach ($files as $file) {
+                                if (@unlink($file)) {
+                                    $cleared++;
+                                }
+                            }
+                        }
+
+                        // Clear device detection caches
+                        $devicePath = Craft::$app->path->getRuntimePath() . '/smart-links/device/';
+                        if (is_dir($devicePath)) {
+                            $files = glob($devicePath . '*.cache');
+                            foreach ($files as $file) {
+                                if (@unlink($file)) {
+                                    $cleared++;
+                                }
+                            }
+                        }
+
+                        Craft::info("Cleared {$cleared} Smart Links cache entries", __METHOD__);
+                    },
+                ];
             }
         );
 

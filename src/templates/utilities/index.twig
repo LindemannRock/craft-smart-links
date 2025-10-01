@@ -1,80 +1,521 @@
 {% import "_includes/forms" as forms %}
 
-<div class="smart-links-utility">
+<div style="margin-bottom: 32px;">
     <h2>{{ "Smart Links Overview"|t('smart-links') }}</h2>
-    
-    <div class="data">
-        <div class="item">
-            <div class="label">{{ "Total Links"|t('smart-links') }}</div>
-            <div class="value">{{ totalLinks|number }}</div>
-        </div>
-        <div class="item">
-            <div class="label">{{ "Active Links"|t('smart-links') }}</div>
-            <div class="value">{{ activeLinks|number }}</div>
-        </div>
-        <div class="item">
-            <div class="label">{{ "Total Clicks"|t('smart-links') }}</div>
-            <div class="value">{{ totalClicks|number }}</div>
-        </div>
-    </div>
-
-    <hr>
-
-    <div class="buttons">
-        <a href="{{ url('smart-links') }}" class="btn">
-            {{ "Manage Smart Links"|t('smart-links') }}
-        </a>
-        <a href="{{ url('smart-links/analytics') }}" class="btn">
-            {{ "View Analytics"|t('smart-links') }}
-        </a>
-    </div>
-
-    {% if recentAnalytics.topLinks is defined and recentAnalytics.topLinks|length %}
-        <hr>
-        
-        <h3>{{ "Top Performing Links (Last 7 Days)"|t('smart-links') }}</h3>
-        
-        <table class="data">
-            <thead>
-                <tr>
-                    <th>{{ "Name"|t('smart-links') }}</th>
-                    <th>{{ "Clicks"|t('smart-links') }}</th>
-                    <th>{{ "Last Click"|t('smart-links') }}</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for link in recentAnalytics.topLinks|slice(0, 5) %}
-                    <tr>
-                        <td>
-                            <a href="{{ url('smart-links/smartlinks/' ~ link.id) }}">
-                                {{ link.name }}
-                            </a>
-                        </td>
-                        <td>{{ link.clicks|number }}</td>
-                        <td>{{ link.lastClick ? link.lastClick|datetime('short') : '-' }}</td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    {% endif %}
+    <p class="light">{{ "Monitor link performance, track analytics, and manage cache for your smart link redirects and QR codes."|t('smart-links') }}</p>
 </div>
 
-{% css %}
-    .smart-links-utility .data {
-        display: flex;
-        gap: 40px;
-        margin: 20px 0;
+<div style="margin-bottom: 40px;">
+    <h2>{{ "System Overview"|t('smart-links') }}</h2>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; align-items: stretch;">
+        <!-- Links Status Card -->
+        {% set coverage = totalLinks > 0 ? ((activeLinks / totalLinks) * 100)|round : 100 %}
+        <div class="pane" style="padding: 24px; margin-block: 0; background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); display: flex; flex-direction: column; height: 100%;">
+            <!-- Header -->
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+                <div style="width: 12px; height: 12px; border-radius: 50%; background: {% if coverage == 100 %}#059669{% elseif coverage >= 90 %}#d97706{% else %}#dc2626{% endif %};"></div>
+                <h4 style="margin: 0; color: #374151; font-size: 15px; font-weight: 600;">{{ "Links Status"|t('smart-links') }}</h4>
+            </div>
+
+            <!-- Main Content -->
+            <div style="flex: 1; display: flex; flex-direction: column;">
+                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                    <div style="font-size: 28px; font-weight: 700; color: {% if coverage == 100 %}#059669{% elseif coverage >= 90 %}#d97706{% else %}#dc2626{% endif %}; line-height: 1;">
+                        {{ coverage }}%
+                    </div>
+                    <div style="padding: 3px 10px; border-radius: 16px; font-size: 11px; font-weight: 700; text-transform: uppercase; color: white; background: {% if coverage == 100 %}#059669{% elseif coverage >= 90 %}#d97706{% else %}#dc2626{% endif %};">
+                        {% if coverage == 100 %}{{ 'Active'|t('smart-links') }}{% elseif coverage >= 90 %}{{ 'Good'|t('smart-links') }}{% else %}{{ 'Check Links'|t('smart-links') }}{% endif %}
+                    </div>
+                </div>
+                <div style="font-size: 14px; color: #4b5563; margin-bottom: 12px;">
+                    {{ "Active smart links"|t('smart-links') }}
+                </div>
+
+                <!-- Bottom Boxes -->
+                <div style="margin-top: auto;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                        <div style="padding: 12px; background: rgba(255,255,255,0.9); border: 1px solid #e5e7eb; border-radius: 8px; text-align: center; min-height: 60px; display: flex; flex-direction: column; justify-content: center;">
+                            <div style="font-size: 16px; font-weight: 600; color: #374151; margin-bottom: 4px;">{{ totalLinks|number_format }}</div>
+                            <div style="font-size: 11px; color: #4b5563; text-transform: uppercase;">{{ 'Total Links'|t('smart-links') }}</div>
+                        </div>
+                        <div style="padding: 12px; background: rgba(255,255,255,0.9); border: 1px solid #e5e7eb; border-radius: 8px; text-align: center; min-height: 60px; display: flex; flex-direction: column; justify-content: center;">
+                            <div style="font-size: 16px; font-weight: 600; color: #374151; margin-bottom: 4px;">{{ activeLinks|number_format }}</div>
+                            <div style="font-size: 11px; color: #4b5563; text-transform: uppercase;">{{ 'Active'|t('smart-links') }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Performance Card -->
+        <div class="pane" style="padding: 24px; margin-block: 0; background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); display: flex; flex-direction: column; height: 100%;">
+            <!-- Header -->
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+                <div style="width: 12px; height: 12px; border-radius: 50%; background: #0ea5e9;"></div>
+                <h4 style="margin: 0; color: #374151; font-size: 15px; font-weight: 600;">{{ "Performance"|t('smart-links') }}</h4>
+            </div>
+
+            <!-- Main Content -->
+            <div style="flex: 1; display: flex; flex-direction: column;">
+                <div style="display: flex; align-items: baseline; gap: 12px; margin-bottom: 12px;">
+                    <div style="font-size: 28px; font-weight: 700; color: #0f172a; line-height: 1;">
+                        {{ totalClicks|number_format }}
+                    </div>
+                </div>
+                <div style="font-size: 14px; color: #4b5563; margin-bottom: 12px;">
+                    {{ "Total clicks tracked"|t('smart-links') }}
+                </div>
+
+                <!-- Bottom Boxes -->
+                <div style="margin-top: auto;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                        <div style="padding: 12px; background: rgba(255,255,255,0.9); border: 1px solid #e5e7eb; border-radius: 8px; text-align: center; min-height: 60px; display: flex; flex-direction: column; justify-content: center;">
+                            <div style="font-size: 16px; font-weight: 600; color: #374151; margin-bottom: 4px;">{{ qrScans|number_format }}</div>
+                            <div style="font-size: 11px; color: #4b5563; text-transform: uppercase;">{{ 'QR Scans'|t('smart-links') }}</div>
+                        </div>
+                        <div style="padding: 12px; background: rgba(255,255,255,0.9); border: 1px solid #e5e7eb; border-radius: 8px; text-align: center; min-height: 60px; display: flex; flex-direction: column; justify-content: center;">
+                            <div style="font-size: 16px; font-weight: 600; color: #374151; margin-bottom: 4px;">
+                                {% if totalClicks > 0 %}{{ ((qrScans / totalClicks) * 100)|round }}%{% else %}0%{% endif %}
+                            </div>
+                            <div style="font-size: 11px; color: #4b5563; text-transform: uppercase;">{{ 'QR Rate'|t('smart-links') }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cache Status Card -->
+        <div class="pane" style="padding: 24px; margin-block: 0; background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); display: flex; flex-direction: column; height: 100%;">
+            <!-- Header -->
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+                <div style="width: 12px; height: 12px; border-radius: 50%; background: #22c55e;"></div>
+                <h4 style="margin: 0; color: #374151; font-size: 15px; font-weight: 600;">{{ "Cache Status"|t('smart-links') }}</h4>
+            </div>
+
+            <!-- Main Content -->
+            <div style="flex: 1; display: flex; flex-direction: column;">
+                <div style="display: flex; align-items: baseline; gap: 12px; margin-bottom: 12px;">
+                    <div style="font-size: 28px; font-weight: 700; color: #0f172a; line-height: 1;">
+                        {{ (qrCacheFiles + deviceCacheFiles)|number_format }}
+                    </div>
+                </div>
+                <div style="font-size: 14px; color: #4b5563; margin-bottom: 12px;">
+                    {{ "Total cached entries"|t('smart-links') }}
+                </div>
+
+                <!-- Bottom Boxes -->
+                <div style="margin-top: auto;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                        <div style="padding: 12px; background: rgba(255,255,255,0.9); border: 1px solid #e5e7eb; border-radius: 8px; text-align: center; min-height: 60px; display: flex; flex-direction: column; justify-content: center;">
+                            <div style="font-size: 16px; font-weight: 600; color: #374151; margin-bottom: 4px;">{{ qrCacheFiles|number_format }}</div>
+                            <div style="font-size: 11px; color: #4b5563; text-transform: uppercase;">{{ 'QR Codes'|t('smart-links') }}</div>
+                        </div>
+                        <div style="padding: 12px; background: rgba(255,255,255,0.9); border: 1px solid #e5e7eb; border-radius: 8px; text-align: center; min-height: 60px; display: flex; flex-direction: column; justify-content: center;">
+                            <div style="font-size: 16px; font-weight: 600; color: #374151; margin-bottom: 4px;">{{ deviceCacheFiles|number_format }}</div>
+                            <div style="font-size: 11px; color: #4b5563; text-transform: uppercase;">{{ 'Devices'|t('smart-links') }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div style="margin-top: 32px;">
+        <h3 style="margin-bottom: 16px; color: #374151;">{{ 'Analytics'|t('smart-links') }}</h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px;">
+            <!-- Platform Distribution Chart -->
+            {% if platformStats|length %}
+            <div class="pane" style="padding: 20px; margin-block: 0; background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%); border: 1px solid #e2e8f0;">
+                <div style="margin-bottom: 16px;">
+                    <h4 style="margin: 0; color: #374151; font-size: 15px; font-weight: 600;">{{ 'Clicks by Platform'|t('smart-links') }}</h4>
+                </div>
+                <div style="height: 220px; position: relative;">
+                    <canvas id="platform-chart"></canvas>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Click Types Chart -->
+            {% if clickTypes|length %}
+            <div class="pane" style="padding: 20px; margin-block: 0; background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%); border: 1px solid #e2e8f0;">
+                <div style="margin-bottom: 16px;">
+                    <h4 style="margin: 0; color: #374151; font-size: 15px; font-weight: 600;">{{ 'Click Types'|t('smart-links') }}</h4>
+                </div>
+                <div style="height: 220px; position: relative;">
+                    <canvas id="click-types-chart"></canvas>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Recent Activity Chart -->
+            {% if dailyClicks|length %}
+            <div class="pane" style="padding: 20px; margin-block: 0; background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%); border: 1px solid #e2e8f0;">
+                <div style="margin-bottom: 16px;">
+                    <h4 style="margin: 0; color: #374151; font-size: 15px; font-weight: 600;">{{ 'Daily Activity (14 Days)'|t('smart-links') }}</h4>
+                </div>
+                <div style="height: 220px; position: relative;">
+                    <canvas id="activity-chart"></canvas>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div style="margin-bottom: 40px;">
+    <h2>{{ 'Quick Actions'|t('smart-links') }}</h2>
+
+    <div class="pane">
+        <div style="margin-bottom: 24px;">
+            <h3 style="margin-bottom: 8px;">{{ "Navigation"|t('smart-links') }}</h3>
+            <p class="light" style="margin-bottom: 16px;">{{ "Access main plugin sections"|t('smart-links') }}</p>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <a href="{{ url('smart-links') }}" class="btn">
+                    {{ "Manage Smart Links"|t('smart-links') }}
+                </a>
+                <a href="{{ url('smart-links/analytics') }}" class="btn">
+                    {{ "View Detailed Analytics"|t('smart-links') }}
+                </a>
+            </div>
+        </div>
+
+        <hr style="margin: 24px 0; border: none; border-top: 1px solid #e5e7eb;">
+
+        <div>
+            <h3 style="margin-bottom: 8px;">{{ "Cache Management"|t('smart-links') }}</h3>
+            <p class="light" style="margin-bottom: 16px;">{{ "Clear cached data to force regeneration. Useful after changing QR code settings or when troubleshooting."|t('smart-links') }}</p>
+
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                {% if settings.qrCodeCacheDuration > 0 %}
+                    <button type="button" class="btn" id="clear-qr-cache">
+                        {{ "Clear QR Cache"|t('smart-links') }} ({{ qrCacheFiles }})
+                    </button>
+                {% endif %}
+
+                {% if settings.cacheDeviceDetection %}
+                    <button type="button" class="btn" id="clear-device-cache">
+                        {{ "Clear Device Cache"|t('smart-links') }} ({{ deviceCacheFiles }})
+                    </button>
+                {% endif %}
+
+                <button type="button" class="btn secondary" id="clear-all-caches">
+                    {{ "Clear All Caches"|t('smart-links') }} ({{ (qrCacheFiles + deviceCacheFiles) }})
+                </button>
+            </div>
+        </div>
+
+        <hr style="margin: 24px 0; border: none; border-top: 1px solid #e5e7eb;">
+
+        <div>
+            <h3 style="margin-bottom: 8px;">{{ "Analytics Data Management"|t('smart-links') }}</h3>
+            <p class="light" style="margin-bottom: 16px;">{{ "Clean up or reset analytics data. Use 'Fix Platform Data' to correct invalid platform values in existing analytics (e.g., fixing test data or incorrect classifications). Use 'Clear All Analytics' to permanently delete all tracking data."|t('smart-links') }}</p>
+
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <button type="button" class="btn submit {% if invalidPlatformCount == 0 %}disabled{% endif %}" id="cleanup-platform-values" {% if invalidPlatformCount == 0 %}disabled style="cursor: not-allowed; opacity: 0.5;"{% endif %}>
+                    {{ "Fix Platform Data"|t('smart-links') }}{% if invalidPlatformCount > 0 %} ({{ invalidPlatformCount }}){% endif %}
+                </button>
+
+                <button type="button" class="btn submit" id="clear-all-analytics" style="background: #dc2626; border-color: #dc2626; color: white;">
+                    {{ "Clear All Analytics"|t('smart-links') }}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% js %}
+// Load Chart.js and initialize charts
+if (typeof Chart === 'undefined') {
+    var script = document.createElement('script');
+    script.src = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js';
+    script.onload = function() {
+        initSmartLinksCharts();
+    };
+    document.head.appendChild(script);
+} else {
+    initSmartLinksCharts();
+}
+
+function initSmartLinksCharts() {
+    {% if platformStats|length %}
+    // Platform name mapping for proper brand display
+    const platformNames = {
+        'ios': 'iOS',
+        'android': 'Android',
+        'macos': 'macOS',
+        'windows': 'Windows',
+        'linux': 'Linux',
+        'huawei': 'Huawei',
+        'amazon': 'Amazon',
+        'other': 'Other'
+    };
+
+    // Platform Distribution Chart
+    new Chart(document.getElementById('platform-chart'), {
+        type: 'doughnut',
+        data: {
+            labels: [{% for stat in platformStats %}platformNames['{{ stat.platform }}'] || '{{ stat.platform|title }}'{% if not loop.last %},{% endif %}{% endfor %}],
+            datasets: [{
+                data: [{% for stat in platformStats %}{{ stat.count }}{% if not loop.last %},{% endif %}{% endfor %}],
+                backgroundColor: ['#3b82f6', '#8b5cf6', '#22c55e', '#f59e0b', '#ef4444', '#06b6d4'],
+                borderWidth: 2,
+                borderColor: '#fff'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        padding: 16,
+                        usePointStyle: true,
+                        font: { size: 12 }
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const total = {{ totalClicks }};
+                            const value = context.parsed;
+                            const percentage = total > 0 ? Math.round((value / total) * 100) : 0;
+                            return context.label + ': ' + value + ' (' + percentage + '%)';
+                        }
+                    }
+                }
+            }
+        }
+    });
+    {% endif %}
+
+    {% if clickTypes|length %}
+    // Click Types Chart
+    new Chart(document.getElementById('click-types-chart'), {
+        type: 'doughnut',
+        data: {
+            labels: [{% for type in clickTypes %}'{{ type.clickType|title }}'{% if not loop.last %},{% endif %}{% endfor %}],
+            datasets: [{
+                data: [{% for type in clickTypes %}{{ type.count }}{% if not loop.last %},{% endif %}{% endfor %}],
+                backgroundColor: ['#10b981', '#f59e0b', '#8b5cf6'],
+                borderWidth: 2,
+                borderColor: '#fff'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        padding: 16,
+                        usePointStyle: true,
+                        font: { size: 12 }
+                    }
+                }
+            }
+        }
+    });
+    {% endif %}
+
+    {% if dailyClicks|length %}
+    // Daily Activity Chart
+    new Chart(document.getElementById('activity-chart'), {
+        type: 'line',
+        data: {
+            labels: [{% for day in dailyClicks %}'{{ day.date|date('M j') }}'{% if not loop.last %},{% endif %}{% endfor %}],
+            datasets: [{
+                label: '{{ "Clicks"|t('smart-links') }}',
+                data: [{% for day in dailyClicks %}{{ day.clicks }}{% if not loop.last %},{% endif %}{% endfor %}],
+                borderColor: '#3b82f6',
+                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                borderWidth: 2,
+                fill: true,
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: { stepSize: 1 }
+                }
+            }
+        }
+    });
+    {% endif %}
+}
+
+// Cache clearing handlers
+{% if settings.qrCodeCacheDuration > 0 %}
+$('#clear-qr-cache').on('click', function() {
+    const $btn = $(this);
+    $btn.addClass('loading').prop('disabled', true);
+
+    $.ajax({
+        url: '{{ actionUrl('smart-links/settings/clear-qr-cache')|raw }}',
+        type: 'POST',
+        dataType: 'json',
+        data: {
+            {{ craft.app.config.general.csrfTokenName }}: '{{ craft.app.request.csrfToken }}'
+        },
+        success: function(response) {
+            if (response.success) {
+                Craft.cp.displayNotice(response.message);
+                setTimeout(() => window.location.reload(), 1500);
+            } else {
+                Craft.cp.displayError(response.error || '{{ "Failed to clear QR cache"|t('smart-links')|e('js') }}');
+            }
+        },
+        error: function() {
+            Craft.cp.displayError('{{ "Failed to clear QR cache"|t('smart-links')|e('js') }}');
+        },
+        complete: function() {
+            $btn.removeClass('loading').prop('disabled', false);
+        }
+    });
+});
+{% endif %}
+
+{% if settings.cacheDeviceDetection %}
+$('#clear-device-cache').on('click', function() {
+    const $btn = $(this);
+    $btn.addClass('loading').prop('disabled', true);
+
+    $.ajax({
+        url: '{{ actionUrl('smart-links/settings/clear-device-cache')|raw }}',
+        type: 'POST',
+        dataType: 'json',
+        data: {
+            {{ craft.app.config.general.csrfTokenName }}: '{{ craft.app.request.csrfToken }}'
+        },
+        success: function(response) {
+            if (response.success) {
+                Craft.cp.displayNotice(response.message);
+                setTimeout(() => window.location.reload(), 1500);
+            } else {
+                Craft.cp.displayError(response.error || '{{ "Failed to clear device cache"|t('smart-links')|e('js') }}');
+            }
+        },
+        error: function() {
+            Craft.cp.displayError('{{ "Failed to clear device cache"|t('smart-links')|e('js') }}');
+        },
+        complete: function() {
+            $btn.removeClass('loading').prop('disabled', false);
+        }
+    });
+});
+{% endif %}
+
+$('#clear-all-caches').on('click', function() {
+    if (!confirm('{{ "Are you sure you want to clear all Smart Links caches?"|t('smart-links')|e('js') }}')) {
+        return;
     }
-    
-    .smart-links-utility .data .item .value {
-        font-size: 24px;
-        font-weight: bold;
-        color: #0d78f2;
-        margin-top: 4px;
+
+    const $btn = $(this);
+    $btn.addClass('loading').prop('disabled', true);
+
+    $.ajax({
+        url: '{{ actionUrl('smart-links/settings/clear-all-caches')|raw }}',
+        type: 'POST',
+        dataType: 'json',
+        data: {
+            {{ craft.app.config.general.csrfTokenName }}: '{{ craft.app.request.csrfToken }}'
+        },
+        success: function(response) {
+            if (response.success) {
+                Craft.cp.displayNotice(response.message);
+                setTimeout(() => window.location.reload(), 1500);
+            } else {
+                Craft.cp.displayError(response.error || '{{ "Failed to clear caches"|t('smart-links')|e('js') }}');
+            }
+        },
+        error: function() {
+            Craft.cp.displayError('{{ "Failed to clear caches"|t('smart-links')|e('js') }}');
+        },
+        complete: function() {
+            $btn.removeClass('loading').prop('disabled', false);
+        }
+    });
+});
+
+$('#cleanup-platform-values').on('click', function() {
+    if (!confirm('{{ "This will fix invalid platform values in your analytics data. Continue?"|t('smart-links')|e('js') }}')) {
+        return;
     }
-    
-    .smart-links-utility .buttons {
-        display: flex;
-        gap: 10px;
+
+    const $btn = $(this);
+    $btn.addClass('loading').prop('disabled', true);
+
+    $.ajax({
+        url: '{{ actionUrl('smart-links/settings/cleanup-platform-values')|raw }}',
+        type: 'POST',
+        dataType: 'json',
+        data: {
+            {{ craft.app.config.general.csrfTokenName }}: '{{ craft.app.request.csrfToken }}'
+        },
+        success: function(response) {
+            if (response.success) {
+                Craft.cp.displayNotice(response.message);
+                setTimeout(() => window.location.reload(), 1500);
+            } else {
+                Craft.cp.displayError(response.error || '{{ "Failed to cleanup platform values"|t('smart-links')|e('js') }}');
+            }
+        },
+        error: function() {
+            Craft.cp.displayError('{{ "Failed to cleanup platform values"|t('smart-links')|e('js') }}');
+        },
+        complete: function() {
+            $btn.removeClass('loading').prop('disabled', false);
+        }
+    });
+});
+
+$('#clear-all-analytics').on('click', function() {
+    if (!confirm('{{ "Are you sure you want to permanently delete ALL analytics data? This action cannot be undone!"|t('smart-links')|e('js') }}')) {
+        return;
     }
-{% endcss %}
+
+    // Second confirmation for extra safety
+    if (!confirm('{{ "This will delete all click tracking data and reset all click counts. Are you absolutely sure?"|t('smart-links')|e('js') }}')) {
+        return;
+    }
+
+    const $btn = $(this);
+    $btn.addClass('loading').prop('disabled', true);
+
+    $.ajax({
+        url: '{{ actionUrl('smart-links/settings/clear-all-analytics')|raw }}',
+        type: 'POST',
+        dataType: 'json',
+        data: {
+            {{ craft.app.config.general.csrfTokenName }}: '{{ craft.app.request.csrfToken }}'
+        },
+        success: function(response) {
+            if (response.success) {
+                Craft.cp.displayNotice(response.message);
+                setTimeout(() => window.location.reload(), 2000);
+            } else {
+                Craft.cp.displayError(response.error || '{{ "Failed to clear analytics"|t('smart-links')|e('js') }}');
+            }
+        },
+        error: function() {
+            Craft.cp.displayError('{{ "Failed to clear analytics"|t('smart-links')|e('js') }}');
+        },
+        complete: function() {
+            $btn.removeClass('loading').prop('disabled', false);
+        }
+    });
+});
+{% endjs %}
+
+{% include 'smart-links/_components/plugin-credit.twig' %}

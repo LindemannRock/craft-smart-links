@@ -40,10 +40,9 @@ class DeviceDetectionService extends Component
         
         // Try to get from cache if enabled
         if ($settings->cacheDeviceDetection && $userAgent) {
-            $cacheKey = 'smart-links-device-' . md5($userAgent);
-            $cached = Craft::$app->getCache()->get($cacheKey);
-            
-            if ($cached !== false) {
+            $cached = $this->_getCachedDeviceInfo($userAgent);
+
+            if ($cached !== null) {
                 $deviceInfo = new DeviceInfo();
                 $deviceInfo->setAttributes($cached, false);
                 return $deviceInfo;
@@ -143,12 +142,7 @@ class DeviceDetectionService extends Component
         
         // Cache the result if enabled
         if ($settings->cacheDeviceDetection && $userAgent) {
-            $cacheKey = 'smart-links-device-' . md5($userAgent);
-            Craft::$app->getCache()->set(
-                $cacheKey,
-                $deviceInfo->toArray(),
-                $settings->deviceDetectionCacheDuration
-            );
+            $this->_cacheDeviceInfo($userAgent, $deviceInfo->toArray(), $settings->deviceDetectionCacheDuration);
         }
         
         return $deviceInfo;
@@ -395,5 +389,53 @@ class DeviceDetectionService extends Component
                 // Unknown platform - return empty, show landing page
                 return '';
         }
+    }
+
+    /**
+     * Get cached device info from custom file storage
+     *
+     * @param string $userAgent
+     * @return array|null
+     */
+    private function _getCachedDeviceInfo(string $userAgent): ?array
+    {
+        $cachePath = Craft::$app->path->getRuntimePath() . '/smart-links/device/';
+        $cacheFile = $cachePath . md5($userAgent) . '.cache';
+
+        if (!file_exists($cacheFile)) {
+            return null;
+        }
+
+        // Check if cache is expired
+        $mtime = filemtime($cacheFile);
+        $settings = SmartLinks::$plugin->getSettings();
+        if (time() - $mtime > $settings->deviceDetectionCacheDuration) {
+            @unlink($cacheFile);
+            return null;
+        }
+
+        $data = file_get_contents($cacheFile);
+        return unserialize($data);
+    }
+
+    /**
+     * Cache device info to custom file storage
+     *
+     * @param string $userAgent
+     * @param array $data
+     * @param int $duration
+     * @return void
+     */
+    private function _cacheDeviceInfo(string $userAgent, array $data, int $duration): void
+    {
+        $cachePath = Craft::$app->path->getRuntimePath() . '/smart-links/device/';
+
+        // Create directory if it doesn't exist
+        if (!is_dir($cachePath)) {
+            \craft\helpers\FileHelper::createDirectory($cachePath);
+        }
+
+        $cacheFile = $cachePath . md5($userAgent) . '.cache';
+        file_put_contents($cacheFile, serialize($data));
     }
 }

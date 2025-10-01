@@ -164,7 +164,17 @@
 									</td>
 									<td>
 										{% if click.clickType == 'button' and click.platform %}
-											{{ click.platform|capitalize|replace({'-': ' '}) }}
+											{% set platformDisplay = {
+												'ios': 'iOS',
+												'android': 'Android',
+												'macos': 'macOS',
+												'windows': 'Windows',
+												'linux': 'Linux',
+												'huawei': 'Huawei',
+												'amazon': 'Amazon',
+												'other': 'Other'
+											} %}
+											{{ platformDisplay[click.platform] ?? click.platform|capitalize }}
 										{% else %}
 											—
 										{% endif %}

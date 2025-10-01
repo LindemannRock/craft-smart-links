@@ -39,7 +39,10 @@ class SettingsController extends Controller
         // View actions allowed without allowAdminChanges
         $viewActions = ['index', 'general', 'analytics', 'export', 'qr-code', 'redirect', 'interface', 'advanced', 'field-layout', 'debug'];
 
-        if (in_array($action->id, $viewActions)) {
+        // Cache clearing actions don't require allowAdminChanges (cache is runtime data, not config)
+        $cacheActions = ['clear-qr-cache', 'clear-device-cache', 'clear-all-caches', 'clear-all-analytics', 'cleanup-platform-values'];
+
+        if (in_array($action->id, $viewActions) || in_array($action->id, $cacheActions)) {
             $this->requirePermission('smartLinks:settings');
         } else {
             // Save actions require allowAdminChanges
@@ -461,19 +464,215 @@ class SettingsController extends Controller
     {
         $this->requirePostRequest();
         $this->requireAcceptsJson();
-        
+
         // Check admin permissions
         if (!Craft::$app->getUser()->getIsAdmin()) {
             throw new ForbiddenHttpException('User is not an admin');
         }
-        
+
         try {
             // Queue the cleanup job
             Craft::$app->queue->push(new CleanupAnalyticsJob());
-            
+
             return $this->asJson([
                 'success' => true,
                 'message' => Craft::t('smart-links', 'Analytics cleanup job has been queued. It will run in the background.')
+            ]);
+        } catch (\Exception $e) {
+            return $this->asJson([
+                'success' => false,
+                'error' => $e->getMessage()
+            ]);
+        }
+    }
+
+    /**
+     * Clear QR code cache
+     *
+     * @return Response
+     */
+    public function actionClearQrCache(): Response
+    {
+        $this->requirePostRequest();
+        $this->requireAcceptsJson();
+
+        try {
+            $cachePath = Craft::$app->path->getRuntimePath() . '/smart-links/qr/';
+            $cleared = 0;
+
+            if (is_dir($cachePath)) {
+                $files = glob($cachePath . '*.cache');
+                foreach ($files as $file) {
+                    if (@unlink($file)) {
+                        $cleared++;
+                    }
+                }
+            }
+
+            return $this->asJson([
+                'success' => true,
+                'message' => Craft::t('smart-links', 'Cleared {count} QR code caches.', ['count' => $cleared])
+            ]);
+        } catch (\Exception $e) {
+            return $this->asJson([
+                'success' => false,
+                'error' => $e->getMessage()
+            ]);
+        }
+    }
+
+    /**
+     * Clear device detection cache
+     *
+     * @return Response
+     */
+    public function actionClearDeviceCache(): Response
+    {
+        $this->requirePostRequest();
+        $this->requireAcceptsJson();
+
+        try {
+            $cachePath = Craft::$app->path->getRuntimePath() . '/smart-links/device/';
+            $cleared = 0;
+
+            if (is_dir($cachePath)) {
+                $files = glob($cachePath . '*.cache');
+                foreach ($files as $file) {
+                    if (@unlink($file)) {
+                        $cleared++;
+                    }
+                }
+            }
+
+            return $this->asJson([
+                'success' => true,
+                'message' => Craft::t('smart-links', 'Cleared {count} device detection caches.', ['count' => $cleared])
+            ]);
+        } catch (\Exception $e) {
+            return $this->asJson([
+                'success' => false,
+                'error' => $e->getMessage()
+            ]);
+        }
+    }
+
+    /**
+     * Clear all Smart Links caches
+     *
+     * @return Response
+     */
+    public function actionClearAllCaches(): Response
+    {
+        $this->requirePostRequest();
+        $this->requireAcceptsJson();
+
+        try {
+            $totalCleared = 0;
+
+            // Clear QR code caches
+            $qrPath = Craft::$app->path->getRuntimePath() . '/smart-links/qr/';
+            if (is_dir($qrPath)) {
+                $files = glob($qrPath . '*.cache');
+                foreach ($files as $file) {
+                    if (@unlink($file)) {
+                        $totalCleared++;
+                    }
+                }
+            }
+
+            // Clear device detection caches
+            $devicePath = Craft::$app->path->getRuntimePath() . '/smart-links/device/';
+            if (is_dir($devicePath)) {
+                $files = glob($devicePath . '*.cache');
+                foreach ($files as $file) {
+                    if (@unlink($file)) {
+                        $totalCleared++;
+                    }
+                }
+            }
+
+            return $this->asJson([
+                'success' => true,
+                'message' => Craft::t('smart-links', 'Cleared {count} cache entries.', ['count' => $totalCleared])
+            ]);
+        } catch (\Exception $e) {
+            return $this->asJson([
+                'success' => false,
+                'error' => $e->getMessage()
+            ]);
+        }
+    }
+
+    /**
+     * Clear all analytics data
+     *
+     * @return Response
+     */
+    public function actionClearAllAnalytics(): Response
+    {
+        $this->requirePostRequest();
+        $this->requireAcceptsJson();
+
+        // Require admin permission for deleting analytics data
+        if (!Craft::$app->getUser()->getIsAdmin()) {
+            return $this->asJson([
+                'success' => false,
+                'error' => Craft::t('smart-links', 'Only administrators can clear analytics data.')
+            ]);
+        }
+
+        try {
+            // Get count before deleting
+            $count = (new \craft\db\Query())
+                ->from('{{%smartlinks_analytics}}')
+                ->count();
+
+            // Delete all analytics records
+            Craft::$app->db->createCommand()
+                ->delete('{{%smartlinks_analytics}}')
+                ->execute();
+
+            // Reset click counts on all smart links
+            Craft::$app->db->createCommand()
+                ->update('{{%smartlinks}}', ['clicks' => 0])
+                ->execute();
+
+            return $this->asJson([
+                'success' => true,
+                'message' => Craft::t('smart-links', 'Cleared {count} analytics records and reset all click counts.', ['count' => $count])
+            ]);
+        } catch (\Exception $e) {
+            return $this->asJson([
+                'success' => false,
+                'error' => $e->getMessage()
+            ]);
+        }
+    }
+
+    /**
+     * Clean up invalid platform values in analytics data
+     *
+     * @return Response
+     */
+    public function actionCleanupPlatformValues(): Response
+    {
+        $this->requirePostRequest();
+        $this->requireAcceptsJson();
+
+        // Require admin permission
+        if (!Craft::$app->getUser()->getIsAdmin()) {
+            return $this->asJson([
+                'success' => false,
+                'error' => Craft::t('smart-links', 'Only administrators can clean up analytics data.')
+            ]);
+        }
+
+        try {
+            $updated = SmartLinks::$plugin->analytics->cleanupPlatformValues();
+
+            return $this->asJson([
+                'success' => true,
+                'message' => Craft::t('smart-links', 'Cleaned up {count} analytics records with invalid platform values.', ['count' => $updated])
             ]);
         } catch (\Exception $e) {
             return $this->asJson([

@@ -106,7 +106,17 @@
                         <td>
                             {% if clickType == 'button' %}
                                 {% if metadata.platform is defined %}
-                                    {{ metadata.platform|capitalize|replace({'-': ' '}) }}
+                                    {% set platformDisplay = {
+                                        'ios': 'iOS',
+                                        'android': 'Android',
+                                        'macos': 'macOS',
+                                        'windows': 'Windows',
+                                        'linux': 'Linux',
+                                        'huawei': 'Huawei',
+                                        'amazon': 'Amazon',
+                                        'other': 'Other'
+                                    } %}
+                                    {{ platformDisplay[metadata.platform] ?? metadata.platform|capitalize }}
                                 {% else %}
                                     —
                                 {% endif %}
