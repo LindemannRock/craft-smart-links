@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.17.1](https://github.com/LindemannRock/craft-smart-links/compare/v1.17.0...v1.17.1) (2025-10-01)
+
+
+### Bug Fixes
+
+* Preserve QR source parameter and display destination URLs in analytics ([a579481](https://github.com/LindemannRock/craft-smart-links/commit/a579481cb2fc65772a47fc380405b8c106527f78))
+
 ## [1.17.0](https://github.com/LindemannRock/craft-smart-links/compare/v1.16.0...v1.17.0) (2025-10-01)
 
 
