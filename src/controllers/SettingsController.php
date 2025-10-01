@@ -206,24 +206,40 @@ class SettingsController extends Controller
     {
         $this->requirePermission('smartLinks:settings');
 
-        // Get the current field layout, or create a new one if it doesn't exist
-        $fieldLayout = Craft::$app->fields->getLayoutByType(\lindemannrock\smartlinks\elements\SmartLink::class);
+        // Try new format first (smart-links.fieldLayouts)
+        $fieldLayouts = Craft::$app->getProjectConfig()->get('smart-links.fieldLayouts') ?? [];
+
+        $fieldLayout = null;
+
+        if (!empty($fieldLayouts)) {
+            // Get the first (and only) field layout
+            $fieldLayoutUid = array_key_first($fieldLayouts);
+            $fieldLayout = Craft::$app->getFields()->getLayoutByUid($fieldLayoutUid);
+        }
+
+        // Backwards compatibility: try old format (smart-links.fieldLayout with just UID)
+        if (!$fieldLayout) {
+            $oldUid = Craft::$app->getProjectConfig()->get('smart-links.fieldLayout');
+            if ($oldUid) {
+                $fieldLayout = Craft::$app->getFields()->getLayoutByUid($oldUid);
+            }
+        }
+
+        // Fallback: try to get by type (in case it exists in database)
+        if (!$fieldLayout) {
+            $fieldLayout = Craft::$app->getFields()->getLayoutByType(\lindemannrock\smartlinks\elements\SmartLink::class);
+        }
 
         if (!$fieldLayout) {
+            // Create a new field layout if none exists
             $fieldLayout = new \craft\models\FieldLayout([
                 'type' => \lindemannrock\smartlinks\elements\SmartLink::class,
             ]);
         }
 
-        // Debug
-        error_log('Field Layout Type: ' . $fieldLayout->type);
-        error_log('Field Layout ID: ' . ($fieldLayout->id ?? 'NULL'));
-
         $variables = [
             'fieldLayout' => $fieldLayout,
         ];
-
-        error_log('Variables being passed: ' . print_r(array_keys($variables), true));
 
         return $this->renderTemplate('smart-links/settings/field-layout', $variables);
     }
@@ -246,12 +262,20 @@ class SettingsController extends Controller
             return null;
         }
 
-        // Save field layout UID to project config so it syncs across environments
-        Craft::$app->getProjectConfig()->set(
-            'smart-links.fieldLayout',
-            $fieldLayout->uid,
-            "Save Smart Links field layout"
-        );
+        // Save field layout config to project config so it syncs across environments
+        $fieldLayoutConfig = $fieldLayout->getConfig();
+        if ($fieldLayoutConfig) {
+            Craft::$app->getProjectConfig()->set(
+                "smart-links.fieldLayouts.{$fieldLayout->uid}",
+                $fieldLayoutConfig,
+                "Save Smart Links field layout"
+            );
+
+            // Remove old format if it exists (migration)
+            if (Craft::$app->getProjectConfig()->get('smart-links.fieldLayout')) {
+                Craft::$app->getProjectConfig()->remove('smart-links.fieldLayout');
+            }
+        }
 
         Craft::$app->getSession()->setNotice(Craft::t('smart-links', 'Field layout saved.'));
         return $this->redirectToPostedUrl();

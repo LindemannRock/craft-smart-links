@@ -478,17 +478,50 @@ class SmartLinks extends Plugin
      */
     private function registerProjectConfigEventHandlers(): void
     {
-        // Listen for project config changes to field layout
+        // Listen for project config changes to field layouts
         Craft::$app->getProjectConfig()
-            ->onAdd('smart-links.fieldLayout', function($event) {
-                // Field layout UID has been added/updated in project config
-                // Craft will handle the actual field layout sync
-            })
-            ->onUpdate('smart-links.fieldLayout', function($event) {
-                // Field layout UID has been updated in project config
-            })
-            ->onRemove('smart-links.fieldLayout', function($event) {
-                // Field layout has been removed
-            });
+            ->onAdd('smart-links.fieldLayouts.{uid}', [$this, 'handleChangedFieldLayout'])
+            ->onUpdate('smart-links.fieldLayouts.{uid}', [$this, 'handleChangedFieldLayout'])
+            ->onRemove('smart-links.fieldLayouts.{uid}', [$this, 'handleDeletedFieldLayout']);
+    }
+
+    /**
+     * Handle field layout changes from project config
+     *
+     * @param \craft\events\ConfigEvent $event
+     * @return void
+     */
+    public function handleChangedFieldLayout(\craft\events\ConfigEvent $event): void
+    {
+        // Rebuild field layout from config
+        $uid = $event->tokenMatches[0];
+        $data = $event->newValue;
+
+        $fieldLayout = \craft\models\FieldLayout::createFromConfig($data);
+        $fieldLayout->uid = $uid;
+        $fieldLayout->type = \lindemannrock\smartlinks\elements\SmartLink::class;
+
+        Craft::$app->getFields()->saveLayout($fieldLayout, false);
+
+        Craft::info(
+            Craft::t('smart-links', 'Applied Smart Links field layout from project config'),
+            __METHOD__
+        );
+    }
+
+    /**
+     * Handle field layout deletion from project config
+     *
+     * @param \craft\events\ConfigEvent $event
+     * @return void
+     */
+    public function handleDeletedFieldLayout(\craft\events\ConfigEvent $event): void
+    {
+        $uid = $event->tokenMatches[0];
+        $fieldLayout = Craft::$app->getFields()->getLayoutByUid($uid);
+
+        if ($fieldLayout) {
+            Craft::$app->getFields()->deleteLayoutById($fieldLayout->id);
+        }
     }
 }

@@ -716,6 +716,19 @@ class SmartLink extends Element
      */
     public function getFieldLayout(): ?FieldLayout
     {
+        // Get field layouts from project config
+        $fieldLayouts = Craft::$app->getProjectConfig()->get('smart-links.fieldLayouts') ?? [];
+
+        if (!empty($fieldLayouts)) {
+            // Get the first (and only) field layout
+            $fieldLayoutUid = array_key_first($fieldLayouts);
+            $fieldLayout = Craft::$app->getFields()->getLayoutByUid($fieldLayoutUid);
+            if ($fieldLayout) {
+                return $fieldLayout;
+            }
+        }
+
+        // Fallback to getting by type (for backwards compatibility)
         return Craft::$app->fields->getLayoutByType(SmartLink::class);
     }
 
