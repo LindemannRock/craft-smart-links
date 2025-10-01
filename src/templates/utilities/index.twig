@@ -69,16 +69,18 @@
 
                 <!-- Bottom Boxes -->
                 <div style="margin-top: auto;">
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;">
                         <div style="padding: 12px; background: rgba(255,255,255,0.9); border: 1px solid #e5e7eb; border-radius: 8px; text-align: center; min-height: 60px; display: flex; flex-direction: column; justify-content: center;">
                             <div style="font-size: 16px; font-weight: 600; color: #374151; margin-bottom: 4px;">{{ qrScans|number_format }}</div>
                             <div style="font-size: 11px; color: #4b5563; text-transform: uppercase;">{{ 'QR Scans'|t('smart-links') }}</div>
                         </div>
                         <div style="padding: 12px; background: rgba(255,255,255,0.9); border: 1px solid #e5e7eb; border-radius: 8px; text-align: center; min-height: 60px; display: flex; flex-direction: column; justify-content: center;">
-                            <div style="font-size: 16px; font-weight: 600; color: #374151; margin-bottom: 4px;">
-                                {% if totalClicks > 0 %}{{ ((qrScans / totalClicks) * 100)|round }}%{% else %}0%{% endif %}
-                            </div>
-                            <div style="font-size: 11px; color: #4b5563; text-transform: uppercase;">{{ 'QR Rate'|t('smart-links') }}</div>
+                            <div style="font-size: 16px; font-weight: 600; color: #374151; margin-bottom: 4px;">{{ autoRedirects|number_format }}</div>
+                            <div style="font-size: 11px; color: #4b5563; text-transform: uppercase;">{{ 'Auto Redirects'|t('smart-links') }}</div>
+                        </div>
+                        <div style="padding: 12px; background: rgba(255,255,255,0.9); border: 1px solid #e5e7eb; border-radius: 8px; text-align: center; min-height: 60px; display: flex; flex-direction: column; justify-content: center;">
+                            <div style="font-size: 16px; font-weight: 600; color: #374151; margin-bottom: 4px;">{{ buttonClicks|number_format }}</div>
+                            <div style="font-size: 11px; color: #4b5563; text-transform: uppercase;">{{ 'Button Clicks'|t('smart-links') }}</div>
                         </div>
                     </div>
                 </div>

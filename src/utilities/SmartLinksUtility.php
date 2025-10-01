@@ -69,6 +69,18 @@ class SmartLinksUtility extends Utility
             ->where("JSON_UNQUOTE(JSON_EXTRACT(metadata, '$.source')) = 'qr'")
             ->count();
 
+        // Get auto redirects (clickType = redirect)
+        $autoRedirects = (int) (new Query())
+            ->from('{{%smartlinks_analytics}}')
+            ->where("JSON_UNQUOTE(JSON_EXTRACT(metadata, '$.clickType')) = 'redirect'")
+            ->count();
+
+        // Get button clicks (clickType = button)
+        $buttonClicks = (int) (new Query())
+            ->from('{{%smartlinks_analytics}}')
+            ->where("JSON_UNQUOTE(JSON_EXTRACT(metadata, '$.clickType')) = 'button'")
+            ->count();
+
         // Get platform breakdown from JSON metadata
         $platformStats = (new Query())
             ->select(["JSON_UNQUOTE(JSON_EXTRACT(metadata, '$.platform')) as platform", 'COUNT(*) as count'])
@@ -131,6 +143,8 @@ class SmartLinksUtility extends Utility
             'disabledLinks' => $disabledLinks,
             'totalClicks' => $totalClicks,
             'qrScans' => $qrScans,
+            'autoRedirects' => $autoRedirects,
+            'buttonClicks' => $buttonClicks,
             'platformStats' => $platformStats,
             'clickTypes' => $clickTypes,
             'dailyClicks' => $dailyClicks,
