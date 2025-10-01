@@ -27,6 +27,33 @@ class SettingsController extends Controller
     protected array|bool|int $allowAnonymous = false;
 
     /**
+     * @var bool
+     */
+    private bool $readOnly;
+
+    /**
+     * @inheritdoc
+     */
+    public function beforeAction($action): bool
+    {
+        // View actions allowed without allowAdminChanges
+        $viewActions = ['index', 'general', 'analytics', 'export', 'qr-code', 'redirect', 'interface', 'advanced', 'field-layout', 'debug'];
+
+        if (in_array($action->id, $viewActions)) {
+            $this->requirePermission('smartLinks:settings');
+        } else {
+            // Save actions require allowAdminChanges
+            $this->requirePermission('smartLinks:settings');
+            if (!Craft::$app->getConfig()->getGeneral()->allowAdminChanges) {
+                throw new ForbiddenHttpException('Administrative changes are disallowed in this environment.');
+            }
+        }
+
+        $this->readOnly = !Craft::$app->getConfig()->getGeneral()->allowAdminChanges;
+        return parent::beforeAction($action);
+    }
+
+    /**
      * Settings index - redirect to general
      *
      * @return Response
@@ -67,22 +94,21 @@ class SettingsController extends Controller
      */
     public function actionGeneral(): Response
     {
-        $this->requirePermission('smartLinks:settings');
-        
         // Get settings from plugin (includes config overrides)
         $plugin = SmartLinks::getInstance();
         $settings = $plugin->getSettings();
-        
+
         // Debug: Make absolutely sure we have a settings object
         if (!$settings instanceof Settings) {
             throw new \Exception('Settings is not an instance of Settings class');
         }
-        
+
         // Minimal test
         try {
             return $this->renderTemplate('smart-links/settings/general', [
                 'settings' => $settings,
                 'plugin' => $plugin,
+                'readOnly' => $this->readOnly,
             ]);
         } catch (\Exception $e) {
             throw new \Exception('Template render error: ' . $e->getMessage());
@@ -96,14 +122,13 @@ class SettingsController extends Controller
      */
     public function actionAnalytics(): Response
     {
-        $this->requirePermission('smartLinks:settings');
-        
         // Get settings from plugin (includes config overrides)
         $plugin = SmartLinks::getInstance();
         $settings = $plugin->getSettings();
 
         return $this->renderTemplate('smart-links/settings/analytics', [
             'settings' => $settings,
+            'readOnly' => $this->readOnly,
         ]);
     }
 
@@ -114,14 +139,13 @@ class SettingsController extends Controller
      */
     public function actionExport(): Response
     {
-        $this->requirePermission('smartLinks:settings');
-        
         // Get settings from plugin (includes config overrides)
         $plugin = SmartLinks::getInstance();
         $settings = $plugin->getSettings();
 
         return $this->renderTemplate('smart-links/settings/export', [
             'settings' => $settings,
+            'readOnly' => $this->readOnly,
         ]);
     }
 
@@ -132,14 +156,13 @@ class SettingsController extends Controller
      */
     public function actionQrCode(): Response
     {
-        $this->requirePermission('smartLinks:settings');
-        
         // Get settings from plugin (includes config overrides)
         $plugin = SmartLinks::getInstance();
         $settings = $plugin->getSettings();
 
         return $this->renderTemplate('smart-links/settings/qr-code', [
             'settings' => $settings,
+            'readOnly' => $this->readOnly,
         ]);
     }
 
@@ -150,14 +173,13 @@ class SettingsController extends Controller
      */
     public function actionRedirect(): Response
     {
-        $this->requirePermission('smartLinks:settings');
-        
         // Get settings from plugin (includes config overrides)
         $plugin = SmartLinks::getInstance();
         $settings = $plugin->getSettings();
 
         return $this->renderTemplate('smart-links/settings/redirect', [
             'settings' => $settings,
+            'readOnly' => $this->readOnly,
         ]);
     }
 
@@ -168,14 +190,13 @@ class SettingsController extends Controller
      */
     public function actionInterface(): Response
     {
-        $this->requirePermission('smartLinks:settings');
-        
         // Get settings from plugin (includes config overrides)
         $plugin = SmartLinks::getInstance();
         $settings = $plugin->getSettings();
 
         return $this->renderTemplate('smart-links/settings/interface', [
             'settings' => $settings,
+            'readOnly' => $this->readOnly,
         ]);
     }
 
@@ -186,14 +207,13 @@ class SettingsController extends Controller
      */
     public function actionAdvanced(): Response
     {
-        $this->requirePermission('smartLinks:settings');
-
         // Get settings from plugin (includes config overrides)
         $plugin = SmartLinks::getInstance();
         $settings = $plugin->getSettings();
 
         return $this->renderTemplate('smart-links/settings/advanced', [
             'settings' => $settings,
+            'readOnly' => $this->readOnly,
         ]);
     }
 
@@ -204,8 +224,6 @@ class SettingsController extends Controller
      */
     public function actionFieldLayout(): Response
     {
-        $this->requirePermission('smartLinks:settings');
-
         // Try new format first (smart-links.fieldLayouts)
         $fieldLayouts = Craft::$app->getProjectConfig()->get('smart-links.fieldLayouts') ?? [];
 
@@ -235,11 +253,40 @@ class SettingsController extends Controller
             $fieldLayout = new \craft\models\FieldLayout([
                 'type' => \lindemannrock\smartlinks\elements\SmartLink::class,
             ]);
+
+            // Save the empty field layout so it has an ID (needed for designer to work)
+            Craft::$app->getFields()->saveLayout($fieldLayout);
+
+            // Save to project config only if not in read-only mode
+            if (!$this->readOnly) {
+                $fieldLayoutConfig = $fieldLayout->getConfig();
+                if ($fieldLayoutConfig) {
+                    Craft::$app->getProjectConfig()->set(
+                        "smart-links.fieldLayouts.{$fieldLayout->uid}",
+                        $fieldLayoutConfig,
+                        "Create Smart Links field layout"
+                    );
+                }
+            }
         }
+
+        // Debug field layout
+        Craft::info('Field Layout ID: ' . ($fieldLayout->id ?? 'null'), 'smart-links');
+        Craft::info('Field Layout UID: ' . ($fieldLayout->uid ?? 'null'), 'smart-links');
+        Craft::info('Field Layout Type: ' . ($fieldLayout->type ?? 'null'), 'smart-links');
+        Craft::info('Field Layout class: ' . get_class($fieldLayout), 'smart-links');
 
         $variables = [
             'fieldLayout' => $fieldLayout,
+            'readOnly' => $this->readOnly,
         ];
+
+        // Debug logging
+        Craft::info('actionFieldLayout called - Variables: ' . json_encode([
+            'fieldLayout_exists' => $fieldLayout !== null,
+            'fieldLayout_id' => $fieldLayout ? $fieldLayout->id : null,
+            'readOnly' => $this->readOnly,
+        ]), 'smart-links');
 
         return $this->renderTemplate('smart-links/settings/field-layout', $variables);
     }

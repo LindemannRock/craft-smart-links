@@ -3,11 +3,13 @@
 
 {% set title = 'Field Layout'|t('smart-links') %}
 {% set selectedSettingsItem = 'field-layout' %}
-{% set fullPageForm = true %}
+{% set fullPageForm = not (readOnly ?? false) %}
 
 {% block content %}
-    {{ actionInput('smart-links/settings/save-field-layout') }}
-    {{ redirectInput('smart-links/settings/field-layout') }}
+    {% if not (readOnly ?? false) %}
+        {{ actionInput('smart-links/settings/save-field-layout') }}
+        {{ redirectInput('smart-links/settings/field-layout') }}
+    {% endif %}
 
     <div class="field">
         <p class="readable">
@@ -15,8 +17,13 @@
         </p>
     </div>
 
-    {{ forms.fieldLayoutDesignerField({
-        fieldLayout: craft.app.fields.getLayoutByType('lindemannrock\\smartlinks\\elements\\SmartLink'),
-    }) }}
+    {% if fieldLayout is defined and fieldLayout %}
+        {{ forms.fieldLayoutDesignerField({
+            fieldLayout: fieldLayout,
+            disabled: readOnly ?? false,
+        }) }}
+    {% else %}
+        <p class="notice">{{ 'No field layout available.'|t('smart-links') }}</p>
+    {% endif %}
 
 {% endblock %}

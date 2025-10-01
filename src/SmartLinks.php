@@ -380,7 +380,9 @@ class SmartLinks extends Plugin
             'smart-links/settings/redirect' => 'smart-links/settings/redirect',
             'smart-links/settings/interface' => 'smart-links/settings/interface',
             'smart-links/settings/advanced' => 'smart-links/settings/advanced',
+            'smart-links/settings/field-layout' => 'smart-links/settings/field-layout',
             'smart-links/settings/save' => 'smart-links/settings/save',
+            'smart-links/settings/save-field-layout' => 'smart-links/settings/save-field-layout',
             'smart-links/settings/cleanup-analytics' => 'smart-links/settings/cleanup-analytics',
             // QR Code generation for preview
             'smart-links/qr-code/generate' => 'smart-links/qr-code/generate',

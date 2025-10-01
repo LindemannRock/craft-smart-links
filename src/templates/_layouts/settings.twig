@@ -3,6 +3,9 @@
 {% set title = title ?? 'Settings'|t('smart-links') %}
 {% set selectedSettingsItem = selectedSettingsItem ?? 'general' %}
 {% set selectedSubnavItem = 'settings' %}
+{% if readOnly ?? false %}
+    {% set contentNotice = readOnlyNotice() %}
+{% endif %}
 
 {% block sidebar %}
     <nav id="settings-nav">
