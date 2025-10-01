@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.18.0](https://github.com/LindemannRock/craft-smart-links/compare/v1.17.2...v1.18.0) (2025-10-01)
+
+
+### Features
+
+* Improve analytics data management and platform display ([d60def7](https://github.com/LindemannRock/craft-smart-links/commit/d60def7a5fa4014e6ed9a201e251bedc28879c4f))
+
+
+### Bug Fixes
+
+* multi-site analytics tracking ([493bbc4](https://github.com/LindemannRock/craft-smart-links/commit/493bbc427bca5b0ba4e4575f88c4d98ef1405ac9))
+* Update URL assignment to check both redirectUrl and buttonUrl formats ([832f196](https://github.com/LindemannRock/craft-smart-links/commit/832f1962242a6be8ac206f21e5d27ea8b1f212bd))
+
 ## [1.17.2](https://github.com/LindemannRock/craft-smart-links/compare/v1.17.1...v1.17.2) (2025-10-01)
 
 
