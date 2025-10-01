@@ -37,26 +37,26 @@ class AnalyticsService extends Component
     {
         $query = (new Query())
             ->from('{{%smartlinks_analytics}}');
-        
+
         // Apply date range filter
         $this->applyDateRangeFilter($query, $dateRange);
-        
+
         // Filter by smart link if specified
         if ($smartLinkId) {
             $query->andWhere(['linkId' => $smartLinkId]);
         }
-        
+
         $totalClicks = (int) $query->count();
         $uniqueVisitors = (int) $query->select('COUNT(DISTINCT ip)')->scalar();
-        
+
         // Get active links count
         $activeLinks = SmartLink::find()
             ->status(SmartLink::STATUS_ENABLED)
             ->count();
-        
+
         // Get total links
         $totalLinks = SmartLink::find()->count();
-        
+
         // Get count of ACTIVE links that have been clicked in this period
         $linksQuery = (new Query())
             ->from('{{%smartlinks_analytics}} a')
@@ -64,16 +64,16 @@ class AnalyticsService extends Component
             ->innerJoin('{{%elements}} e', 's.id = e.id')
             ->select('COUNT(DISTINCT a.linkId)')
             ->where(['e.enabled' => true]);
-        
+
         // Apply date filter to analytics table
         $this->applyDateRangeFilter($linksQuery, $dateRange, 'a.dateCreated');
-        
+
         $linksWithClicks = (int) $linksQuery->scalar();
-        
+
         // Calculate what percentage of active links have been used
         // Cap at 100% to avoid confusion
         $linksUsedPercentage = $activeLinks > 0 ? min(100, round(($linksWithClicks / $activeLinks) * 100, 0)) : 0;
-        
+
         return [
             'totalClicks' => $totalClicks,
             'uniqueVisitors' => $uniqueVisitors,
@@ -87,7 +87,7 @@ class AnalyticsService extends Component
             'recentClicks' => $this->getAllRecentClicks($dateRange, 20),
         ];
     }
-    
+
     /**
      * Get analytics for a specific smart link
      *
@@ -100,43 +100,43 @@ class AnalyticsService extends Component
         $query = (new Query())
             ->from('{{%smartlinks_analytics}}')
             ->where(['linkId' => $smartLinkId]);
-        
+
         // Apply date range filter
         $this->applyDateRangeFilter($query, $dateRange);
-        
+
         // Get total and unique clicks
         $totalClicks = (int) $query->count();
         $uniqueClicks = (int) (clone $query)->select('COUNT(DISTINCT ip)')->scalar();
-        
+
         // Get device breakdown
         $deviceResults = (clone $query)
             ->select(['deviceType', 'COUNT(*) as count'])
             ->groupBy('deviceType')
             ->all();
-        
+
         $deviceBreakdown = [];
         foreach ($deviceResults as $row) {
             if (!empty($row['deviceType'])) {
                 $deviceBreakdown[$row['deviceType']] = (int) $row['count'];
             }
         }
-        
+
         // Get OS breakdown (replacing platform)
         $osResults = (clone $query)
             ->select(['osName', 'COUNT(*) as count'])
             ->groupBy('osName')
             ->all();
-        
+
         $platformBreakdown = [];
         foreach ($osResults as $row) {
             if (!empty($row['osName'])) {
                 $platformBreakdown[$row['osName']] = (int) $row['count'];
             }
         }
-        
+
         // Get button clicks breakdown
         $buttonClicks = $this->getButtonClicks($smartLinkId, $dateRange);
-        
+
         // Calculate average clicks per day
         $days = 1;
         $startDate = $this->getStartDateForRange($dateRange);
@@ -147,7 +147,7 @@ class AnalyticsService extends Component
             $days = max(1, $interval->days + 1);
         }
         $averageClicksPerDay = $totalClicks / $days;
-        
+
         return [
             'totalClicks' => $totalClicks,
             'uniqueClicks' => $uniqueClicks,
@@ -157,7 +157,7 @@ class AnalyticsService extends Component
             'buttonClicks' => $buttonClicks,
         ];
     }
-    
+
     /**
      * Get recent clicks for a smart link
      *
@@ -173,17 +173,17 @@ class AnalyticsService extends Component
             ->orderBy('dateCreated DESC')
             ->limit($limit)
             ->all();
-        
+
         // Convert dateCreated to DateTime objects for consistent timezone handling
         foreach ($results as &$result) {
             if (isset($result['dateCreated'])) {
                 $result['dateCreated'] = DateTimeHelper::toDateTime($result['dateCreated']);
             }
         }
-        
+
         return $results;
     }
-    
+
     /**
      * Get button click analytics
      *
@@ -197,17 +197,17 @@ class AnalyticsService extends Component
             ->from('{{%smartlinks_analytics}}')
             ->where(['linkId' => $smartLinkId])
             ->andWhere(['like', 'metadata', '"clickType":"button"']);
-        
+
         // Apply date range filter
         $this->applyDateRangeFilter($query, $dateRange);
-        
+
         // Get all button click records
         $records = $query->all();
-        
+
         // Parse platform data from metadata
         $platformCounts = [];
         $totalButtonClicks = 0;
-        
+
         foreach ($records as $record) {
             $metadata = Json::decodeIfJson($record['metadata']);
             if (isset($metadata['platform'])) {
@@ -219,16 +219,16 @@ class AnalyticsService extends Component
                 $totalButtonClicks++;
             }
         }
-        
+
         // Sort by count descending
         arsort($platformCounts);
-        
+
         return [
             'total' => $totalButtonClicks,
             'byPlatform' => $platformCounts,
         ];
     }
-    
+
     /**
      * Get start date for date range
      *
@@ -238,7 +238,7 @@ class AnalyticsService extends Component
     private function getStartDateForRange(string $range): ?string
     {
         $date = null;
-        
+
         switch ($range) {
             case 'today':
                 $date = DateTimeHelper::now()->setTime(0, 0, 0);
@@ -260,10 +260,10 @@ class AnalyticsService extends Component
             default:
                 return null;
         }
-        
+
         return $date ? Db::prepareDateForDb($date) : null;
     }
-    
+
     /**
      * Get end date for date range (for specific day filtering)
      *
@@ -273,7 +273,7 @@ class AnalyticsService extends Component
     private function getEndDateForRange(string $range): ?string
     {
         $date = null;
-        
+
         switch ($range) {
             case 'today':
                 $date = DateTimeHelper::now()->setTime(23, 59, 59);
@@ -284,10 +284,10 @@ class AnalyticsService extends Component
             default:
                 return null;
         }
-        
+
         return $date ? Db::prepareDateForDb($date) : null;
     }
-    
+
     /**
      * Apply date range filter to query
      *
@@ -316,7 +316,7 @@ class AnalyticsService extends Component
 
         return $query;
     }
-    
+
     /**
      * Get clicks data for charts
      */
@@ -332,25 +332,25 @@ class AnalyticsService extends Component
             ->select(["DATE(CONVERT_TZ(dateCreated, '+00:00', '{$offset}')) as date", 'COUNT(*) as count'])
             ->groupBy(["DATE(CONVERT_TZ(dateCreated, '+00:00', '{$offset}'))"])
             ->orderBy(['date' => SORT_ASC]);
-        
+
         // Apply date range filter
         $this->applyDateRangeFilter($query, $dateRange);
-        
+
         // Filter by smart link if specified
         if ($smartLinkId) {
             $query->andWhere(['linkId' => $smartLinkId]);
         }
-        
+
         $results = $query->all();
-        
+
         $labels = [];
         $values = [];
-        
+
         foreach ($results as $row) {
             $labels[] = date('M j', strtotime($row['date']));
             $values[] = (int)$row['count'];
         }
-        
+
         // Get the actual date range boundaries in Craft's timezone
         $timezone = \Craft::$app->getTimeZone();
 
@@ -388,29 +388,29 @@ class AnalyticsService extends Component
                 $endTimestamp = strtotime('today');
             }
         }
-        
+
         // Create a map of existing data
         $dataMap = [];
         foreach ($results as $row) {
             $dataMap[date('M j', strtotime($row['date']))] = (int)$row['count'];
         }
-        
+
         // Fill in all dates in the range
         $filledLabels = [];
         $filledValues = [];
-        
+
         for ($timestamp = $startTimestamp; $timestamp <= $endTimestamp; $timestamp += 86400) {
             $label = date('M j', $timestamp);
             $filledLabels[] = $label;
             $filledValues[] = $dataMap[$label] ?? 0;
         }
-        
+
         return [
             'labels' => $filledLabels,
             'values' => $filledValues
         ];
     }
-    
+
     /**
      * Get device breakdown (mobile, tablet, desktop)
      */
@@ -420,25 +420,25 @@ class AnalyticsService extends Component
             ->from('{{%smartlinks_analytics}}')
             ->select(['deviceType', 'COUNT(*) as count'])
             ->groupBy(['deviceType']);
-        
+
         // Apply date range filter
         $this->applyDateRangeFilter($query, $dateRange);
-        
+
         // Filter by smart link if specified
         if ($smartLinkId) {
             $query->andWhere(['linkId' => $smartLinkId]);
         }
-        
+
         $results = $query->all();
-        
+
         $labels = [];
         $values = [];
-        
+
         foreach ($results as $row) {
             $labels[] = ucfirst($row['deviceType']);
             $values[] = (int)$row['count'];
         }
-        
+
         // Return empty data if no analytics exist
         if (empty($labels)) {
             return [
@@ -446,13 +446,13 @@ class AnalyticsService extends Component
                 'values' => [1] // Show empty state
             ];
         }
-        
+
         return [
             'labels' => $labels,
             'values' => $values
         ];
     }
-    
+
     /**
      * Get platform breakdown (iOS, Android, Windows, macOS, Linux)
      */
@@ -462,20 +462,20 @@ class AnalyticsService extends Component
             ->from('{{%smartlinks_analytics}}')
             ->select(['osName', 'COUNT(*) as count'])
             ->groupBy(['osName']);
-        
+
         // Apply date range filter
         $this->applyDateRangeFilter($query, $dateRange);
-        
+
         // Filter by smart link if specified
         if ($smartLinkId) {
             $query->andWhere(['linkId' => $smartLinkId]);
         }
-        
+
         $results = $query->all();
-        
+
         $labels = [];
         $values = [];
-        
+
         // Map platform names to more user-friendly labels
         $platformLabels = [
             'ios' => 'iOS',
@@ -486,13 +486,13 @@ class AnalyticsService extends Component
             'huawei' => 'HarmonyOS',
             'other' => 'Other'
         ];
-        
+
         foreach ($results as $row) {
             $osName = strtolower($row['osName'] ?? '');
             $labels[] = $platformLabels[$osName] ?? ucfirst($row['osName'] ?? 'Unknown');
             $values[] = (int)$row['count'];
         }
-        
+
         // Return empty data if no analytics exist
         if (empty($labels)) {
             return [
@@ -500,13 +500,13 @@ class AnalyticsService extends Component
                 'values' => [1] // Show empty state
             ];
         }
-        
+
         return [
             'labels' => $labels,
             'values' => $values
         ];
     }
-    
+
     /**
      * Get top countries
      */
@@ -519,19 +519,19 @@ class AnalyticsService extends Component
             ->groupBy(['country'])
             ->orderBy(['clicks' => SORT_DESC])
             ->limit(15);
-        
+
         // Apply date range filter
         $this->applyDateRangeFilter($query, $dateRange);
-        
+
         // Filter by smart link if specified
         if ($smartLinkId) {
             $query->andWhere(['linkId' => $smartLinkId]);
         }
-        
+
         $results = $query->all();
         $totalClicks = array_sum(array_column($results, 'clicks'));
         $countries = [];
-        
+
         foreach ($results as $row) {
             $countries[] = [
                 'code' => $row['country'],
@@ -540,10 +540,10 @@ class AnalyticsService extends Component
                 'percentage' => $totalClicks > 0 ? round(($row['clicks'] / $totalClicks) * 100, 1) : 0,
             ];
         }
-        
+
         return $countries;
     }
-    
+
     /**
      * Get all countries (no limit)
      */
@@ -551,7 +551,7 @@ class AnalyticsService extends Component
     {
         return $this->getTopCountries($smartLinkId, $dateRange, 9999);
     }
-    
+
     /**
      * Get top cities
      */
@@ -564,19 +564,19 @@ class AnalyticsService extends Component
             ->groupBy(['city', 'country'])
             ->orderBy(['clicks' => SORT_DESC])
             ->limit($limit);
-        
+
         // Apply date range filter
         $this->applyDateRangeFilter($query, $dateRange);
-        
+
         // Filter by smart link if specified
         if ($smartLinkId) {
             $query->andWhere(['linkId' => $smartLinkId]);
         }
-        
+
         $results = $query->all();
         $totalClicks = array_sum(array_column($results, 'clicks'));
         $cities = [];
-        
+
         foreach ($results as $row) {
             $cities[] = [
                 'city' => $row['city'],
@@ -586,10 +586,10 @@ class AnalyticsService extends Component
                 'percentage' => $totalClicks > 0 ? round(($row['clicks'] / $totalClicks) * 100, 1) : 0,
             ];
         }
-        
+
         return $cities;
     }
-    
+
     /**
      * Get hourly analytics for peak usage times
      */
@@ -603,41 +603,41 @@ class AnalyticsService extends Component
             ])
             ->groupBy(['hour'])
             ->orderBy(['hour' => SORT_ASC]);
-        
+
         // Apply date range filter
         $this->applyDateRangeFilter($query, $dateRange);
-        
+
         // Filter by smart link if specified
         if ($smartLinkId) {
             $query->andWhere(['linkId' => $smartLinkId]);
         }
-        
+
         $results = $query->all();
-        
+
         // Initialize all hours with 0
         $hourlyData = array_fill(0, 24, 0);
-        
+
         foreach ($results as $row) {
             $hourlyData[(int)$row['hour']] = (int)$row['clicks'];
         }
-        
+
         // Find peak hour
         $peakHour = array_search(max($hourlyData), $hourlyData);
-        
+
         return [
             'data' => $hourlyData,
             'peakHour' => $peakHour,
             'peakHourFormatted' => date('g A', strtotime("{$peakHour}:00")),
         ];
     }
-    
+
     /**
      * Get insights (cross-referenced analytics)
      */
     public function getInsights(string $dateRange): array
     {
         $insights = [];
-        
+
         // Mobile usage by top cities
         $query = (new Query())
             ->from('{{%smartlinks_analytics}}')
@@ -651,10 +651,10 @@ class AnalyticsService extends Component
             ->having(['>', 'total_clicks', 10]) // Only cities with significant traffic
             ->orderBy(['total_clicks' => SORT_DESC])
             ->limit(5);
-        
+
         // Apply date range filter
         $this->applyDateRangeFilter($query, $dateRange);
-        
+
         $cityMobileUsage = [];
         foreach ($query->all() as $row) {
             $mobilePercentage = round(($row['mobile_clicks'] / $row['total_clicks']) * 100, 1);
@@ -664,7 +664,7 @@ class AnalyticsService extends Component
                 'totalClicks' => (int)$row['total_clicks'],
             ];
         }
-        
+
         // Browser usage by country
         $browserByCountry = (new Query())
             ->from('{{%smartlinks_analytics}}')
@@ -678,10 +678,10 @@ class AnalyticsService extends Component
             ->groupBy(['country', 'browser'])
             ->orderBy(['clicks' => SORT_DESC])
             ->limit(10);
-        
+
         // Apply date range filter
         $this->applyDateRangeFilter($browserByCountry, $dateRange);
-        
+
         $browserData = [];
         foreach ($browserByCountry->all() as $row) {
             $countryName = $this->_getCountryName($row['country']);
@@ -693,7 +693,7 @@ class AnalyticsService extends Component
                 'clicks' => (int)$row['clicks'],
             ];
         }
-        
+
         // Device brands by country
         $brandsByCountry = (new Query())
             ->from('{{%smartlinks_analytics}}')
@@ -706,10 +706,10 @@ class AnalyticsService extends Component
             ->andWhere(['not', ['deviceBrand' => null]])
             ->groupBy(['country', 'deviceBrand'])
             ->orderBy(['clicks' => SORT_DESC]);
-        
+
         // Apply date range filter
         $this->applyDateRangeFilter($brandsByCountry, $dateRange);
-        
+
         $brandsData = [];
         foreach ($brandsByCountry->all() as $row) {
             $countryName = $this->_getCountryName($row['country']);
@@ -724,14 +724,14 @@ class AnalyticsService extends Component
                 ];
             }
         }
-        
+
         return [
             'cityMobileUsage' => $cityMobileUsage,
             'browserByCountry' => $browserData,
             'brandsByCountry' => $brandsData,
         ];
     }
-    
+
     /**
      * Get language breakdown
      */
@@ -742,7 +742,7 @@ class AnalyticsService extends Component
             'values' => []
         ];
     }
-    
+
     /**
      * Get device brand breakdown
      */
@@ -759,28 +759,28 @@ class AnalyticsService extends Component
             ->groupBy(['deviceBrand'])
             ->orderBy(['clicks' => SORT_DESC])
             ->limit(10);
-        
+
         // Apply date range filter
         $this->applyDateRangeFilter($query, $dateRange);
-        
+
         // Filter by smart link if specified
         if ($smartLinkId) {
             $query->andWhere(['linkId' => $smartLinkId]);
         }
-        
+
         $results = $query->all();
         $totalClicks = array_sum(array_column($results, 'clicks'));
-        
+
         $labels = [];
         $values = [];
         $percentages = [];
-        
+
         foreach ($results as $row) {
             $labels[] = $row['deviceBrand'] ?: 'Unknown';
             $values[] = (int)$row['clicks'];
             $percentages[] = $totalClicks > 0 ? round(($row['clicks'] / $totalClicks) * 100, 1) : 0;
         }
-        
+
         return [
             'labels' => $labels,
             'values' => $values,
@@ -788,7 +788,7 @@ class AnalyticsService extends Component
             'totalClicks' => $totalClicks,
         ];
     }
-    
+
     /**
      * Get OS breakdown with versions
      */
@@ -806,18 +806,18 @@ class AnalyticsService extends Component
             ->groupBy(['osName', 'osVersion'])
             ->orderBy(['clicks' => SORT_DESC])
             ->limit(15);
-        
+
         // Apply date range filter
         $this->applyDateRangeFilter($query, $dateRange);
-        
+
         // Filter by smart link if specified
         if ($smartLinkId) {
             $query->andWhere(['linkId' => $smartLinkId]);
         }
-        
+
         $results = $query->all();
         $totalClicks = array_sum(array_column($results, 'clicks'));
-        
+
         // Group by OS name first
         $osData = [];
         foreach ($results as $row) {
@@ -829,9 +829,9 @@ class AnalyticsService extends Component
                     'versions' => []
                 ];
             }
-            
+
             $osData[$osName]['totalClicks'] += (int)$row['clicks'];
-            
+
             if ($row['osVersion']) {
                 $osData[$osName]['versions'][] = [
                     'version' => $row['osVersion'],
@@ -839,16 +839,16 @@ class AnalyticsService extends Component
                 ];
             }
         }
-        
+
         // Sort by total clicks and prepare final data
         uasort($osData, function($a, $b) {
             return $b['totalClicks'] - $a['totalClicks'];
         });
-        
+
         $labels = [];
         $values = [];
         $details = [];
-        
+
         foreach ($osData as $os) {
             $labels[] = $os['name'];
             $values[] = $os['totalClicks'];
@@ -859,7 +859,7 @@ class AnalyticsService extends Component
                 'versions' => array_slice($os['versions'], 0, 5) // Top 5 versions per OS
             ];
         }
-        
+
         return [
             'labels' => $labels,
             'values' => $values,
@@ -867,7 +867,7 @@ class AnalyticsService extends Component
             'totalClicks' => $totalClicks,
         ];
     }
-    
+
     /**
      * Get browser breakdown with versions
      */
@@ -885,18 +885,18 @@ class AnalyticsService extends Component
             ->groupBy(['browser', 'browserVersion'])
             ->orderBy(['clicks' => SORT_DESC])
             ->limit(20);
-        
+
         // Apply date range filter
         $this->applyDateRangeFilter($query, $dateRange);
-        
+
         // Filter by smart link if specified
         if ($smartLinkId) {
             $query->andWhere(['linkId' => $smartLinkId]);
         }
-        
+
         $results = $query->all();
         $totalClicks = array_sum(array_column($results, 'clicks'));
-        
+
         // Group by browser name first
         $browserData = [];
         foreach ($results as $row) {
@@ -908,36 +908,36 @@ class AnalyticsService extends Component
                     'versions' => []
                 ];
             }
-            
+
             $browserData[$browserName]['totalClicks'] += (int)$row['clicks'];
-            
+
             if ($row['browserVersion']) {
                 // Simplify version (e.g., "102.0.5005.124" -> "102.0")
                 $versionParts = explode('.', $row['browserVersion']);
-                $simplifiedVersion = count($versionParts) >= 2 
-                    ? $versionParts[0] . '.' . $versionParts[1] 
+                $simplifiedVersion = count($versionParts) >= 2
+                    ? $versionParts[0] . '.' . $versionParts[1]
                     : $row['browserVersion'];
-                
+
                 if (!isset($browserData[$browserName]['versions'][$simplifiedVersion])) {
                     $browserData[$browserName]['versions'][$simplifiedVersion] = 0;
                 }
                 $browserData[$browserName]['versions'][$simplifiedVersion] += (int)$row['clicks'];
             }
         }
-        
+
         // Sort by total clicks and prepare final data
         uasort($browserData, function($a, $b) {
             return $b['totalClicks'] - $a['totalClicks'];
         });
-        
+
         $labels = [];
         $values = [];
         $details = [];
-        
+
         foreach ($browserData as $browser) {
             $labels[] = $browser['name'];
             $values[] = $browser['totalClicks'];
-            
+
             // Sort versions by clicks
             arsort($browser['versions']);
             $versions = [];
@@ -947,7 +947,7 @@ class AnalyticsService extends Component
                     'clicks' => $clicks
                 ];
             }
-            
+
             $details[] = [
                 'name' => $browser['name'],
                 'clicks' => $browser['totalClicks'],
@@ -955,7 +955,7 @@ class AnalyticsService extends Component
                 'versions' => $versions
             ];
         }
-        
+
         return [
             'labels' => $labels,
             'values' => $values,
@@ -963,7 +963,7 @@ class AnalyticsService extends Component
             'totalClicks' => $totalClicks,
         ];
     }
-    
+
     /**
      * Get detailed device type breakdown
      */
@@ -979,18 +979,18 @@ class AnalyticsService extends Component
             ->andWhere(['not', ['deviceType' => '']])
             ->groupBy(['deviceType'])
             ->orderBy(['clicks' => SORT_DESC]);
-        
+
         // Apply date range filter
         $this->applyDateRangeFilter($query, $dateRange);
-        
+
         // Filter by smart link if specified
         if ($smartLinkId) {
             $query->andWhere(['linkId' => $smartLinkId]);
         }
-        
+
         $results = $query->all();
         $totalClicks = array_sum(array_column($results, 'clicks'));
-        
+
         // Map device types to friendly names and categories
         $deviceTypeMap = [
             'smartphone' => ['name' => 'Smartphone', 'category' => 'mobile'],
@@ -1006,7 +1006,7 @@ class AnalyticsService extends Component
             'desktop' => ['name' => 'Desktop', 'category' => 'desktop'],
             'unknown' => ['name' => 'Unknown', 'category' => 'unknown'],
         ];
-        
+
         $labels = [];
         $values = [];
         $categories = [
@@ -1015,22 +1015,22 @@ class AnalyticsService extends Component
             'other' => 0,
             'unknown' => 0
         ];
-        
+
         foreach ($results as $row) {
             $deviceType = strtolower($row['deviceType'] ?: 'unknown');
             $deviceInfo = $deviceTypeMap[$deviceType] ?? ['name' => ucfirst($deviceType), 'category' => 'other'];
-            
+
             $labels[] = $deviceInfo['name'];
             $values[] = (int)$row['clicks'];
             $categories[$deviceInfo['category']] += (int)$row['clicks'];
         }
-        
+
         // Calculate percentages for categories
         $categoryPercentages = [];
         foreach ($categories as $category => $clicks) {
             $categoryPercentages[$category] = $totalClicks > 0 ? round(($clicks / $totalClicks) * 100, 1) : 0;
         }
-        
+
         return [
             'labels' => $labels,
             'values' => $values,
@@ -1039,7 +1039,7 @@ class AnalyticsService extends Component
             'totalClicks' => $totalClicks,
         ];
     }
-    
+
     /**
      * Export analytics data
      */
@@ -1067,45 +1067,45 @@ class AnalyticsService extends Component
                 'userAgent'
             ])
             ->orderBy(['dateCreated' => SORT_DESC]);
-        
+
         // Apply date range filter
         $this->applyDateRangeFilter($query, $dateRange);
-        
+
         // Filter by smart link if specified
         if ($smartLinkId) {
             $query->andWhere(['linkId' => $smartLinkId]);
         }
-        
+
         $results = $query->all();
-        
+
         // CSV format only
             $csv = "Date,Time,Smart Link Title,Smart Link Status,Smart Link URL,Site,Type,Button,Source,Destination URL,Referrer,User Device Type,User Device Brand,User Device Model,User OS,User OS Version,User Browser,User Browser Version,User Country,User City,User Language,User Agent\n";
-            
+
             foreach ($results as $row) {
                 // Check settings to determine if we should include disabled/expired links
                 $settings = SmartLinks::$plugin->getSettings();
                 $includeDisabled = $settings->includeDisabledInExport ?? false;
                 $includeExpired = $settings->includeExpiredInExport ?? false;
-                
+
                 // Always get the link with all statuses to check if it exists and its status
                 $smartLink = SmartLink::find()->id($row['linkId'])->status(null)->one();
-                
+
                 if (!$smartLink) {
                     continue;
                 }
-                
+
                 // Get the actual status
                 $status = $smartLink->getStatus();
-                
+
                 // Skip based on settings
                 if (!$includeDisabled && $status === SmartLink::STATUS_DISABLED) {
                     continue;
                 }
-                
+
                 if (!$includeExpired && $status === SmartLink::STATUS_EXPIRED) {
                     continue;
                 }
-                
+
                 $linkName = $smartLink->title;
                 $linkStatus = match($status) {
                     SmartLink::STATUS_ENABLED => 'Active',
@@ -1115,7 +1115,7 @@ class AnalyticsService extends Component
                     default => 'Unknown'
                 };
                 $linkUrl = '';
-                
+
                 // Get site handle and build the smart link URL
                 $siteHandle = '';
                 if (!empty($row['siteId'])) {
@@ -1126,18 +1126,18 @@ class AnalyticsService extends Component
                         $linkUrl = UrlHelper::siteUrl("go/{$smartLink->slug}", null, null, $row['siteId']);
                     }
                 }
-                
+
                 $date = DateTimeHelper::toDateTime($row['dateCreated']);
                 $dateStr = $date ? $date->format('Y-m-d') : '';
                 $timeStr = $date ? $date->format('H:i:s') : '';
-                
+
                 // Parse metadata
                 $metadata = $row['metadata'] ? Json::decode($row['metadata']) : [];
                 $source = $metadata['source'] ?? 'direct';
                 $clickType = $metadata['clickType'] ?? 'redirect';
                 $buttonPlatform = '';
                 $targetUrl = '';
-                
+
                 // Get the URL that was used
                 if ($clickType === 'button') {
                     // For button clicks, show which button URL was clicked
@@ -1149,17 +1149,17 @@ class AnalyticsService extends Component
                     // For redirects, show which URL they were sent to (check both old and new formats)
                     $targetUrl = $metadata['redirectUrl'] ?? $metadata['buttonUrl'] ?? '';
                 }
-                
+
                 // Keep the actual referrer URL
                 $referrerDisplay = $row['referrer'] ?? '';
-                
+
                 // Convert source to display format
                 $sourceDisplay = match($source) {
                     'qr' => 'QR',
                     'landing' => 'Landing',
                     default => 'Direct'
                 };
-                
+
                 $csv .= sprintf(
                     '"%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s"' . "\n",
                     $dateStr,
@@ -1186,7 +1186,7 @@ class AnalyticsService extends Component
                     $row['userAgent'] ?? ''
                 );
             }
-            
+
             return $csv;
     }
     /**
@@ -1201,8 +1201,8 @@ class AnalyticsService extends Component
         $query = (new Query())
             ->from(['a' => '{{%smartlinks_analytics}}'])
             ->select([
-                'a.linkId', 
-                'COUNT(*) as clicks', 
+                'a.linkId',
+                'COUNT(*) as clicks',
                 'MAX(a.dateCreated) as lastClick',
                 'SUM(CASE WHEN JSON_EXTRACT(a.metadata, \'$.source\') = \'qr\' THEN 1 ELSE 0 END) as qrScans',
                 'SUM(CASE WHEN JSON_EXTRACT(a.metadata, \'$.source\') != \'qr\' OR JSON_EXTRACT(a.metadata, \'$.source\') IS NULL THEN 1 ELSE 0 END) as directVisits'
@@ -1210,13 +1210,13 @@ class AnalyticsService extends Component
             ->groupBy(['a.linkId'])
             ->orderBy(['clicks' => SORT_DESC])
             ->limit($limit);
-        
+
         // Apply date range filter
         $this->applyDateRangeFilter($query, $dateRange, 'a.dateCreated');
-        
+
         $results = $query->all();
         $topLinks = [];
-        
+
         foreach ($results as $row) {
             $smartLink = SmartLink::find()->id($row['linkId'])->one();
             if ($smartLink && $smartLink->enabled) { // Only include active links
@@ -1225,18 +1225,18 @@ class AnalyticsService extends Component
                     ->from('{{%smartlinks_analytics}}')
                     ->where(['linkId' => $row['linkId']])
                     ->orderBy(['dateCreated' => SORT_DESC]);
-                
+
                 // Apply same date range filter
                 $this->applyDateRangeFilter($lastInteractionQuery, $dateRange);
-                
+
                 $lastInteraction = $lastInteractionQuery->one();
-                
+
                 $lastInteractionType = 'Unknown';
                 $lastDestinationUrl = '';
-                
+
                 if ($lastInteraction && !empty($lastInteraction['metadata'])) {
                     $metadata = Json::decodeIfJson($lastInteraction['metadata']);
-                    
+
                     // Determine interaction type
                     if (isset($metadata['action'])) {
                         $lastInteractionType = $metadata['action'] === 'redirect' ? 'Redirect' : 'Button';
@@ -1249,7 +1249,7 @@ class AnalyticsService extends Component
                         // If there's a buttonUrl but no clickType, it's a button click
                         $lastInteractionType = 'Button';
                     }
-                    
+
                     // Get destination URL
                     if (isset($metadata['buttonUrl'])) {
                         $lastDestinationUrl = $metadata['buttonUrl'];
@@ -1259,7 +1259,7 @@ class AnalyticsService extends Component
                         $lastDestinationUrl = $metadata['destinationUrl'];
                     }
                 }
-                
+
                 $topLinks[] = [
                     'id' => $smartLink->id,
                     'name' => $smartLink->title,
@@ -1274,10 +1274,10 @@ class AnalyticsService extends Component
                 ];
             }
         }
-        
+
         return $topLinks;
     }
-    
+
     /**
      * Get recent clicks across all smart links
      *
@@ -1305,22 +1305,22 @@ class AnalyticsService extends Component
 
         // Apply date range filter
         $this->applyDateRangeFilter($query, $dateRange, 'a.dateCreated');
-        
+
         $results = $query->all();
         $clicks = [];
-        
+
         foreach ($results as $row) {
             $metadata = $row['metadata'] ? Json::decode($row['metadata']) : [];
             $clickType = $metadata['clickType'] ?? 'redirect';
             $destinationUrl = '';
-            
+
             if ($clickType == 'button') {
                 $destinationUrl = $metadata['buttonUrl'] ?? '';
             } else {
                 // For redirects, check both redirectUrl (old format) and buttonUrl (new format)
                 $destinationUrl = $metadata['redirectUrl'] ?? $metadata['buttonUrl'] ?? '';
             }
-            
+
             $clicks[] = [
                 'id' => $row['id'],
                 'linkId' => $row['linkId'],
@@ -1338,10 +1338,10 @@ class AnalyticsService extends Component
                 'source' => $metadata['source'] ?? 'direct',
             ];
         }
-        
+
         return $clicks;
     }
-    
+
     /**
      * Track a click on a smart link
      *
@@ -1354,7 +1354,7 @@ class AnalyticsService extends Component
     {
         // Add IP address to metadata now
         $metadata['ip'] = Craft::$app->request->getUserIP();
-        
+
         // Save analytics directly (like Retour does)
         try {
             $this->saveAnalytics(
@@ -1366,7 +1366,7 @@ class AnalyticsService extends Component
             // Log but don't throw - analytics shouldn't break the redirect
             Craft::error('Failed to save analytics: ' . $e->getMessage(), __METHOD__);
         }
-        
+
         // Update click count in metadata
         $this->_incrementClickCount($smartLink);
     }
@@ -1382,14 +1382,14 @@ class AnalyticsService extends Component
     public function saveAnalytics(int $linkId, array $deviceInfo, array $metadata = []): bool
     {
         Craft::info('saveAnalytics called with linkId: ' . $linkId, __METHOD__);
-        
+
         try {
             $db = Craft::$app->getDb();
-            
+
             // Prepare the data according to actual database columns
             $data = [
                 'linkId' => $linkId,
-                'siteId' => Craft::$app->getSites()->getCurrentSite()->id,
+                'siteId' => $metadata['siteId'] ?? Craft::$app->getSites()->getCurrentSite()->id,
                 'deviceType' => $deviceInfo['deviceType'] ?? $deviceInfo['type'] ?? null,
                 // 'deviceName' => REMOVED
                 'deviceBrand' => $deviceInfo['brand'] ?? null,
@@ -1414,7 +1414,7 @@ class AnalyticsService extends Component
                 'dateUpdated' => Db::prepareDateForDb(new \DateTime()),
                 'uid' => StringHelper::UUID(),
             ];
-            
+
             // Get location data from IP if geo detection is enabled
             if (SmartLinks::$plugin->getSettings()->enableGeoDetection && isset($metadata['ip'])) {
                 $location = $this->getLocationFromIp($metadata['ip']);
@@ -1428,11 +1428,11 @@ class AnalyticsService extends Component
                     // 'isp' => REMOVED
                 }
             }
-            
+
             return (bool)$db->createCommand()
                 ->insert('{{%smartlinks_analytics}}', $data)
                 ->execute();
-                
+
         } catch (\Exception $e) {
             Craft::error('Failed to save analytics: ' . $e->getMessage() . ' | Data: ' . json_encode($data), __METHOD__);
             Craft::error('Stack trace: ' . $e->getTraceAsString(), __METHOD__);
@@ -1452,31 +1452,31 @@ class AnalyticsService extends Component
         $query = (new Query())
             ->from(['{{%smartlinks_analytics}}'])
             ->where(['linkId' => $smartLink->id]);
-        
+
         // Date range filter
         if (isset($criteria['from'])) {
             $query->andWhere(['>=', 'timestamp', Db::prepareDateForDb($criteria['from'])]);
         }
-        
+
         if (isset($criteria['to'])) {
             $query->andWhere(['<=', 'timestamp', Db::prepareDateForDb($criteria['to'])]);
         }
-        
+
         // OS filter (replacing platform)
         if (isset($criteria['os'])) {
             $query->andWhere(['osName' => $criteria['os']]);
         }
-        
+
         // Get total count
         $total = (clone $query)->count();
-        
+
         // Get device breakdown
         $devices = (clone $query)
             ->select(['devicePlatform', 'COUNT(*) as count'])
             ->groupBy(['devicePlatform'])
             ->indexBy('devicePlatform')
             ->column();
-        
+
         // Get daily breakdown for last 30 days
         $daily = [];
         if (!isset($criteria['skipDaily']) || !$criteria['skipDaily']) {
@@ -1485,12 +1485,12 @@ class AnalyticsService extends Component
                 ->andWhere(['>=', 'timestamp', DateTimeHelper::currentTimeStamp() - (30 * 24 * 60 * 60)])
                 ->groupBy(['DATE(timestamp)'])
                 ->orderBy(['date' => SORT_ASC]);
-            
+
             foreach ($dailyQuery->all() as $row) {
                 $daily[$row['date']] = (int)$row['count'];
             }
         }
-        
+
         // Get language breakdown
         $languages = (clone $query)
             ->select(['language', 'COUNT(*) as count'])
@@ -1498,7 +1498,7 @@ class AnalyticsService extends Component
             ->groupBy(['language'])
             ->indexBy('language')
             ->column();
-        
+
         // Get country breakdown if enabled
         $countries = [];
         if (SmartLinks::$plugin->getSettings()->enableGeoDetection) {
@@ -1511,7 +1511,7 @@ class AnalyticsService extends Component
                 ->indexBy('country')
                 ->column();
         }
-        
+
         return [
             'total' => (int)$total,
             'devices' => $devices,
@@ -1533,13 +1533,13 @@ class AnalyticsService extends Component
         $query = (new Query())
             ->from(['{{%smartlinks_analytics}}'])
             ->where(['in', 'linkId', $linkIds]);
-        
+
         // Apply period filter
         $seconds = $this->_periodToSeconds($period);
         if ($seconds > 0) {
             $query->andWhere(['>=', 'timestamp', DateTimeHelper::currentTimeStamp() - $seconds]);
         }
-        
+
         // Get stats
         $stats = [];
         foreach ($linkIds as $linkId) {
@@ -1553,7 +1553,7 @@ class AnalyticsService extends Component
                     ->column(),
             ];
         }
-        
+
         return $stats;
     }
 
@@ -1579,7 +1579,7 @@ class AnalyticsService extends Component
     public function cleanOldAnalytics(int $days): int
     {
         $cutoffDate = DateTimeHelper::currentTimeStamp() - ($days * 24 * 60 * 60);
-        
+
         return Craft::$app->db->createCommand()
             ->delete('{{%smartlinks_analytics}}', ['<', 'timestamp', $cutoffDate])
             ->execute();
@@ -1596,10 +1596,10 @@ class AnalyticsService extends Component
         $metadata = $smartLink->metadata ?? [];
         $metadata['clicks'] = ($metadata['clicks'] ?? 0) + 1;
         $metadata['lastClick'] = DateTimeHelper::currentTimeStamp();
-        
+
         $smartLink->metadata = $metadata;
         $smartLink->clicks = $metadata['clicks'];
-        
+
         // Update directly in database to avoid triggering events
         Craft::$app->db->createCommand()
             ->update('{{%smartlinks}}', [
@@ -1621,10 +1621,10 @@ class AnalyticsService extends Component
         if (!preg_match('/^(\d+)([hdwmy])$/', $period, $matches)) {
             return 0;
         }
-        
+
         $value = (int)$matches[1];
         $unit = $matches[2];
-        
+
         return match ($unit) {
             'h' => $value * 3600,
             'd' => $value * 86400,
@@ -1649,7 +1649,7 @@ class AnalyticsService extends Component
                 // Check for environment variable to override default location
                 $defaultCountry = getenv('SMART_LINKS_DEFAULT_COUNTRY') ?: 'SA';
                 $defaultCity = getenv('SMART_LINKS_DEFAULT_CITY') ?: 'Riyadh';
-                
+
                 // Predefined locations for common defaults
                 $locations = [
                     'AE' => [
@@ -1697,30 +1697,30 @@ class AnalyticsService extends Component
                         ],
                     ],
                 ];
-                
+
                 // Return the configured location or default to Riyadh
                 if (isset($locations[$defaultCountry][$defaultCity])) {
                     return $locations[$defaultCountry][$defaultCity];
                 }
-                
+
                 // Fallback to Riyadh if configuration not found
                 return $locations['SA']['Riyadh'];
             }
-            
+
             // Use ip-api.com (free, no API key required, 45 requests per minute)
             // Request all available fields for comprehensive analytics
             $url = "http://ip-api.com/json/{$ip}?fields=status,countryCode,country,city,regionName,region,lat,lon,timezone,isp,org,as,mobile,proxy,hosting";
-            
+
             $ch = curl_init();
             curl_setopt($ch, CURLOPT_URL, $url);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($ch, CURLOPT_TIMEOUT, 2); // 2 second timeout
             curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-            
+
             $response = curl_exec($ch);
             $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
             curl_close($ch);
-            
+
             if ($httpCode === 200 && $response) {
                 $data = Json::decode($response);
                 if (isset($data['status']) && $data['status'] === 'success') {
@@ -1739,14 +1739,14 @@ class AnalyticsService extends Component
                     ];
                 }
             }
-            
+
             return null;
         } catch (\Exception $e) {
             Craft::warning('Failed to get location from IP: ' . $e->getMessage(), __METHOD__);
             return null;
         }
     }
-    
+
     /**
      * Get country from IP address (backward compatibility)
      *
@@ -1758,7 +1758,7 @@ class AnalyticsService extends Component
         $location = $this->getLocationFromIp($ip);
         return $location ? $location['countryCode'] : null;
     }
-    
+
     /**
      * Get country name from code
      *
@@ -1790,7 +1790,7 @@ class AnalyticsService extends Component
             'HU' => 'Hungary',
             'GB' => 'United Kingdom',
             'IE' => 'Ireland',
-            
+
             // Middle East & Africa
             'SA' => 'Saudi Arabia',
             'AE' => 'United Arab Emirates',
@@ -1815,7 +1815,7 @@ class AnalyticsService extends Component
             'ZA' => 'South Africa',
             'NG' => 'Nigeria',
             'KE' => 'Kenya',
-            
+
             // Americas
             'US' => 'United States',
             'CA' => 'Canada',
@@ -1826,7 +1826,7 @@ class AnalyticsService extends Component
             'CO' => 'Colombia',
             'PE' => 'Peru',
             'VE' => 'Venezuela',
-            
+
             // Asia Pacific
             'CN' => 'China',
             'JP' => 'Japan',
@@ -1842,14 +1842,14 @@ class AnalyticsService extends Component
             'VN' => 'Vietnam',
             'AU' => 'Australia',
             'NZ' => 'New Zealand',
-            
+
             // Russia & CIS
             'RU' => 'Russia',
             'UA' => 'Ukraine',
             'KZ' => 'Kazakhstan',
             'UZ' => 'Uzbekistan',
         ];
-        
+
         return $countries[$code] ?? $code;
     }
 }

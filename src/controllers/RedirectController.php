@@ -12,7 +12,6 @@ use Craft;
 use craft\web\Controller;
 use lindemannrock\smartlinks\elements\SmartLink;
 use lindemannrock\smartlinks\SmartLinks;
-use yii\web\NotFoundHttpException;
 use yii\web\Response;
 
 /**
@@ -34,9 +33,13 @@ class RedirectController extends Controller
      */
     public function actionIndex(string $slug): Response
     {
-        // Get the smart link
+        // Get current site for multi-site support
+        $currentSite = Craft::$app->getSites()->getCurrentSite();
+
+        // Get the smart link for the current site
         $smartLink = SmartLink::find()
             ->slug($slug)
+            ->siteId($currentSite->id)
             ->status(SmartLink::STATUS_ENABLED)
             ->one();
 
@@ -82,9 +85,19 @@ class RedirectController extends Controller
      */
     public function actionGo(string $slug, string $platform = 'auto'): Response
     {
-        // Get the smart link
+        // Get site from param or fall back to current site
+        $siteParam = Craft::$app->getRequest()->getParam('site');
+        if ($siteParam) {
+            $site = Craft::$app->getSites()->getSiteByHandle($siteParam);
+            $siteId = $site ? $site->id : Craft::$app->getSites()->getCurrentSite()->id;
+        } else {
+            $siteId = Craft::$app->getSites()->getCurrentSite()->id;
+        }
+
+        // Get the smart link for the site
         $smartLink = SmartLink::find()
             ->slug($slug)
+            ->siteId($siteId)
             ->status(SmartLink::STATUS_ENABLED)
             ->one();
 
@@ -139,6 +152,7 @@ class RedirectController extends Controller
                     'buttonUrl' => $destinationUrl,
                     'referrer' => Craft::$app->request->getReferrer(),
                     'source' => $source,
+                    'siteId' => $siteId, // Pass the detected site ID
                 ]
             );
         }
