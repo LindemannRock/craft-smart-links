@@ -128,7 +128,8 @@
                             {% if clickType == 'button' %}
                                 {% set url = metadata.buttonUrl ?? '' %}
                             {% else %}
-                                {% set url = metadata.redirectUrl ?? '' %}
+                                {# Check both redirectUrl (old format) and buttonUrl (new format) #}
+                                {% set url = metadata.redirectUrl ?? metadata.buttonUrl ?? '' %}
                             {% endif %}
                             {% if url %}
                                 {% set domain = url|replace({'https://': '', 'http://': ''})|split('/')[0] %}
