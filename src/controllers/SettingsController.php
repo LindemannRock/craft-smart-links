@@ -187,7 +187,7 @@ class SettingsController extends Controller
     public function actionAdvanced(): Response
     {
         $this->requirePermission('smartLinks:settings');
-        
+
         // Get settings from plugin (includes config overrides)
         $plugin = SmartLinks::getInstance();
         $settings = $plugin->getSettings();
@@ -195,6 +195,59 @@ class SettingsController extends Controller
         return $this->renderTemplate('smart-links/settings/advanced', [
             'settings' => $settings,
         ]);
+    }
+
+    /**
+     * Field Layout settings
+     *
+     * @return Response
+     */
+    public function actionFieldLayout(): Response
+    {
+        $this->requirePermission('smartLinks:settings');
+
+        // Get the current field layout, or create a new one if it doesn't exist
+        $fieldLayout = Craft::$app->fields->getLayoutByType(\lindemannrock\smartlinks\elements\SmartLink::class);
+
+        if (!$fieldLayout) {
+            $fieldLayout = new \craft\models\FieldLayout([
+                'type' => \lindemannrock\smartlinks\elements\SmartLink::class,
+            ]);
+        }
+
+        // Debug
+        error_log('Field Layout Type: ' . $fieldLayout->type);
+        error_log('Field Layout ID: ' . ($fieldLayout->id ?? 'NULL'));
+
+        $variables = [
+            'fieldLayout' => $fieldLayout,
+        ];
+
+        error_log('Variables being passed: ' . print_r(array_keys($variables), true));
+
+        return $this->renderTemplate('smart-links/settings/field-layout', $variables);
+    }
+
+    /**
+     * Save field layout
+     *
+     * @return Response|null
+     */
+    public function actionSaveFieldLayout(): ?Response
+    {
+        $this->requirePostRequest();
+        $this->requirePermission('smartLinks:settings');
+
+        $fieldLayout = Craft::$app->getFields()->assembleLayoutFromPost();
+        $fieldLayout->type = \lindemannrock\smartlinks\elements\SmartLink::class;
+
+        if (!Craft::$app->getFields()->saveLayout($fieldLayout)) {
+            Craft::$app->getSession()->setError(Craft::t('smart-links', 'Couldn\'t save field layout.'));
+            return null;
+        }
+
+        Craft::$app->getSession()->setNotice(Craft::t('smart-links', 'Field layout saved.'));
+        return $this->redirectToPostedUrl();
     }
 
     /**

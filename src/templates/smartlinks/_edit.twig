@@ -15,6 +15,20 @@
     },
 } %}
 
+{# Add tabs from field layout #}
+{% set fieldLayout = smartLink.getFieldLayout() %}
+{% if fieldLayout %}
+    {% for tab in fieldLayout.getTabs() %}
+        {% set tabId = 'tab-' ~ tab.id %}
+        {% set tabs = tabs|merge({
+            (tabId): {
+                label: tab.name,
+                url: '#' ~ tabId,
+            }
+        }) %}
+    {% endfor %}
+{% endif %}
+
 {# Only show analytics tab if globally enabled, smart link exists, AND tracking is enabled for this smart link #}
 {% if craft.smartLinks.settings.enableAnalytics and smartLink.id and (smartLink.trackAnalytics ?? true) %}
     {% set tabs = tabs|merge({
@@ -151,7 +165,20 @@
         <div id="fields">
         {% include "smart-links/smartlinks/_partials/fields" %}
     </div>
-    
+
+    {# Render field layout tabs #}
+    {% set fieldLayout = smartLink.getFieldLayout() %}
+    {% if fieldLayout %}
+        {% for tab in fieldLayout.getTabs() %}
+            {% set tabId = 'tab-' ~ tab.id %}
+            <div id="{{ tabId }}" class="hidden">
+                {% for element in tab.getElements() %}
+                    {{ element.formHtml(smartLink, smartLink.getIsRevision())|raw }}
+                {% endfor %}
+            </div>
+        {% endfor %}
+    {% endif %}
+
     {% if craft.smartLinks.settings.enableAnalytics and smartLink.id and (smartLink.trackAnalytics ?? true) %}
         <div id="analytics" class="hidden">
             {% include "smart-links/smartlinks/_partials/analytics" with {

@@ -42,6 +42,11 @@
                     {{ 'Advanced'|t('smart-links') }}
                 </a>
             </li>
+            <li>
+                <a href="{{ url('smart-links/settings/field-layout') }}" {% if selectedSettingsItem == 'field-layout' %}class="sel"{% endif %} data-nav-item="field-layout">
+                    {{ 'Field Layout'|t('smart-links') }}
+                </a>
+            </li>
         </ul>
     </nav>
 {% endblock %}

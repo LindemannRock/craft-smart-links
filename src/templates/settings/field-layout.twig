@@ -1,0 +1,22 @@
+{% extends "smart-links/_layouts/settings" %}
+{% import '_includes/forms.twig' as forms %}
+
+{% set title = 'Field Layout'|t('smart-links') %}
+{% set selectedSettingsItem = 'field-layout' %}
+{% set fullPageForm = true %}
+
+{% block content %}
+    {{ actionInput('smart-links/settings/save-field-layout') }}
+    {{ redirectInput('smart-links/settings/field-layout') }}
+
+    <div class="field">
+        <p class="readable">
+            {{ 'Add custom fields to Smart Link elements. Any fields you add here will appear in the Smart Link edit screen.'|t('smart-links') }}
+        </p>
+    </div>
+
+    {{ forms.fieldLayoutDesignerField({
+        fieldLayout: craft.app.fields.getLayoutByType('lindemannrock\\smartlinks\\elements\\SmartLink'),
+    }) }}
+
+{% endblock %}

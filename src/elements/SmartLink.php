@@ -683,6 +683,37 @@ class SmartLink extends Element
     /**
      * @inheritdoc
      */
+    public static function defineNativeFields(): array
+    {
+        return [
+            'slug',
+            'description',
+            'iosUrl',
+            'androidUrl',
+            'huaweiUrl',
+            'amazonUrl',
+            'windowsUrl',
+            'macUrl',
+            'fallbackUrl',
+            'icon',
+            'imageId',
+            'imageSize',
+            'qrCodeEnabled',
+            'qrLogoId',
+            'qrSize',
+            'qrColor',
+            'qrBgColor',
+            'qrEyeColor',
+            'qrLogoSize',
+            'qrMargin',
+            'hideTitle',
+            'trackAnalytics',
+        ];
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function getFieldLayout(): ?FieldLayout
     {
         return Craft::$app->fields->getLayoutByType(SmartLink::class);

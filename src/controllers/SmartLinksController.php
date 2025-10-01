@@ -236,7 +236,7 @@ class SmartLinksController extends Controller
 
         // Save it
         if (!SmartLinks::$plugin->smartLinks->saveSmartLink($smartLink)) {
-            Craft::info('Smart link save failed. Errors: ' . json_encode($smartLink->getErrors()), __METHOD__);
+            Craft::error('Smart link save failed. Errors: ' . json_encode($smartLink->getErrors()), __METHOD__);
             
             // If it's an AJAX request, return JSON response
             if ($this->request->getAcceptsJson()) {
