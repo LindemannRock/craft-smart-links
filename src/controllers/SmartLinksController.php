@@ -174,14 +174,6 @@ class SmartLinksController extends Controller
         $smartLink->trackAnalytics = (bool)$request->getBodyParam('trackAnalytics');
         $smartLink->hideTitle = (bool)$request->getBodyParam('hideTitle');
 
-        // Handle enabled status - this is per-site
-        $enabledParam = $request->getBodyParam('enabled');
-        $enabled = $enabledParam === '1' || $enabledParam === 1 || $enabledParam === true;
-
-        // Set enabled for the current site
-        $smartLink->setEnabledForSite($enabled);
-        
-        
         $smartLink->qrCodeEnabled = (bool)$request->getBodyParam('qrCodeEnabled');
         $smartLink->qrCodeSize = $request->getBodyParam('qrCodeSize') ?: 200;
         
@@ -210,9 +202,17 @@ class SmartLinksController extends Controller
         
         // Smart Link image size
         $smartLink->imageSize = $request->getBodyParam('imageSize', 'xl');
-        
+
         $smartLink->languageDetection = (bool)$request->getBodyParam('languageDetection');
-        
+
+        // Handle enabled status - set BEFORE setFieldValuesFromRequest
+        // This is per-site and managed by Craft's element system
+        $enabledParam = $request->getBodyParam('enabled');
+        $enabled = $enabledParam === '1' || $enabledParam === 1 || $enabledParam === true;
+
+        // Set enabled ONLY for the current site being edited
+        $smartLink->setEnabledForSite($enabled);
+
         // Set translatable attributes (content table) - these need to be set on the element
         $smartLink->iosUrl = $request->getBodyParam('iosUrl');
         $smartLink->androidUrl = $request->getBodyParam('androidUrl');
@@ -241,7 +241,6 @@ class SmartLinksController extends Controller
         // Save it
         if (!SmartLinks::$plugin->smartLinks->saveSmartLink($smartLink)) {
             Craft::error('Smart link save failed. Errors: ' . json_encode($smartLink->getErrors()), __METHOD__);
-            
             // If it's an AJAX request, return JSON response
             if ($this->request->getAcceptsJson()) {
                 return $this->asModelFailure(
@@ -250,19 +249,29 @@ class SmartLinksController extends Controller
                     'smartLink'
                 );
             }
-            
+
             // Otherwise, set error flash and re-render the template
             Craft::$app->getSession()->setError(Craft::t('smart-links', 'Couldn\'t save smart link.'));
-            
+
             // Set route params so Craft can re-render the template with errors
             Craft::$app->getUrlManager()->setRouteParams([
                 'smartLink' => $smartLink,
                 'title' => $smartLink->id ? $smartLink->title : Craft::t('smart-links', 'New smart link'),
             ]);
-            
+
             return null;
         }
-        
+
+        // Clear ALL caches for this element across all sites
+        Craft::$app->getElements()->invalidateCachesForElement($smartLink);
+
+        // Reload the element in the correct site context for the response
+        // This ensures the notification chip shows the correct enabled status
+        $smartLink = SmartLink::find()
+            ->id($smartLink->id)
+            ->siteId($smartLink->siteId)
+            ->status(null)
+            ->one();
 
         return $this->asModelSuccess(
             $smartLink,
@@ -276,10 +285,14 @@ class SmartLinksController extends Controller
             
             // Return error response
             Craft::$app->getSession()->setError('Error saving smart link: ' . $e->getMessage());
-            
+
+            $plugin = SmartLinks::getInstance();
+
             return $this->renderTemplate('smart-links/smartlinks/_edit', [
                 'smartLink' => $smartLink ?? new SmartLink(),
                 'title' => Craft::t('smart-links', 'New smart link'),
+                'enabledSites' => $plugin->getEnabledSites(),
+                'analyticsService' => $plugin->analytics,
             ]);
         }
     }

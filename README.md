@@ -509,16 +509,20 @@ smartLink.huaweiUrl
 smartLink.amazonUrl
 smartLink.windowsUrl
 smartLink.macUrl
-smartLink.enabled
+smartLink.enabled           {# Per-site status managed by Craft's element system #}
 smartLink.trackAnalytics
 smartLink.qrCodeEnabled
 smartLink.hideTitle
 smartLink.getImage()
 smartLink.imageSize
-smartLink.clicks
+smartLink.clicks            {# Dynamically calculated from analytics data #}
 smartLink.dateCreated
 smartLink.dateUpdated
 ```
+
+**Note:**
+- `enabled` is a per-site property managed by Craft CMS's element system (stored in `elements_sites` table)
+- `clicks` is dynamically calculated by counting records in the `smartlinks_analytics` table
 
 ### Device Detection Properties
 

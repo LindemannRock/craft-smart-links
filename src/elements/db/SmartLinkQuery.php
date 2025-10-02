@@ -22,17 +22,23 @@ use yii\db\Expression;
  */
 class SmartLinkQuery extends ElementQuery
 {
-    public mixed $slug = null;
+    // Store slug in custom property to prevent Craft from adding elements_sites.slug filter
+    private mixed $_smartLinkSlug = null;
     public mixed $trackAnalytics = null;
     public mixed $qrCodeEnabled = null;
 
 
     /**
      * Narrows the query results based on the smart links' slugs.
+     *
+     * NOTE: We store slug in a private property to prevent Craft from
+     * adding elements_sites.slug to the query. SmartLinks store slug in
+     * the smartlinks table, not elements_sites.
      */
     public function slug($value): static
     {
-        $this->slug = $value;
+        $this->_smartLinkSlug = $value;
+        // DON'T set $this->slug or call parent - prevents elements_sites.slug filter
         return $this;
     }
 
@@ -62,9 +68,18 @@ class SmartLinkQuery extends ElementQuery
     {
         // Store the requested status for use in beforePrepare
         $this->_requestedStatus = $value;
+
+        // For custom statuses (expired, pending), don't pass to parent yet
+        // We'll handle the enabled filtering in beforePrepare()
+        if ($value === SmartLink::STATUS_EXPIRED || $value === SmartLink::STATUS_PENDING) {
+            // Set to null so parent doesn't filter by status
+            // We'll add enabled check manually in beforePrepare
+            return parent::status(null);
+        }
+
         return parent::status($value);
     }
-    
+
     private $_requestedStatus = null;
 
     protected function beforePrepare(): bool
@@ -100,8 +115,8 @@ class SmartLinkQuery extends ElementQuery
             'elements_sites.enabled',
         ]);
 
-        if ($this->slug !== null) {
-            $this->subQuery->andWhere(Db::parseParam('smartlinks.slug', $this->slug));
+        if ($this->_smartLinkSlug !== null) {
+            $this->subQuery->andWhere(Db::parseParam('smartlinks.slug', $this->_smartLinkSlug));
         }
 
         // Note: The enabled/disabled status is handled by Craft's ElementQuery
@@ -117,21 +132,25 @@ class SmartLinkQuery extends ElementQuery
         
         // Handle custom statuses
         if ($this->_requestedStatus === SmartLink::STATUS_EXPIRED) {
+            // Show only expired items (must have dateExpired in the past)
             $this->subQuery->andWhere(['<', 'smartlinks.dateExpired', new Expression('NOW()')]);
-            // Set status to enabled so parent query doesn't filter by disabled
-            $this->status = SmartLink::STATUS_ENABLED;
+            // Also must be enabled in elements_sites
+            $this->subQuery->andWhere(['elements_sites.enabled' => true]);
         } elseif ($this->_requestedStatus === SmartLink::STATUS_PENDING) {
+            // Show only pending items (postDate in the future)
             $this->subQuery->andWhere(['>', 'smartlinks.postDate', new Expression('NOW()')]);
-            // Set status to enabled so parent query doesn't filter by disabled
-            $this->status = SmartLink::STATUS_ENABLED;
+            // Also must be enabled in elements_sites
+            $this->subQuery->andWhere(['elements_sites.enabled' => true]);
         } elseif ($this->_requestedStatus === SmartLink::STATUS_ENABLED) {
             // For enabled status, exclude expired and pending
-            $this->subQuery->andWhere([
+            // Parent already filtered by elements_sites.enabled = true
+            // Add date filters to the MAIN query, not subQuery
+            $this->query->andWhere([
                 'or',
                 ['smartlinks.dateExpired' => null],
                 ['>=', 'smartlinks.dateExpired', new Expression('NOW()')]
             ]);
-            $this->subQuery->andWhere([
+            $this->query->andWhere([
                 'or',
                 ['smartlinks.postDate' => null],
                 ['<=', 'smartlinks.postDate', new Expression('NOW()')]

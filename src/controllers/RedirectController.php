@@ -37,6 +37,7 @@ class RedirectController extends Controller
         $currentSite = Craft::$app->getSites()->getCurrentSite();
 
         // Get the smart link for the current site
+        // Only show enabled smart links (not disabled, expired, or pending)
         $smartLink = SmartLink::find()
             ->slug($slug)
             ->siteId($currentSite->id)

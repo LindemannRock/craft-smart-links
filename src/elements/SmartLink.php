@@ -818,17 +818,6 @@ class SmartLink extends Element
         // Generate URL for the element's site (respects CP site switcher)
         $url = UrlHelper::siteUrl("{$slugPrefix}/{$this->slug}", null, null, $this->siteId);
 
-        // Debug: Check for double URL issue
-        if (Craft::$app->config->general->devMode) {
-            $site = Craft::$app->sites->getSiteById($this->siteId);
-            if ($site) {
-                $baseUrl = $site->getBaseUrl();
-                if (!empty($baseUrl) && strpos($url, $baseUrl) !== false && substr_count($url, $baseUrl) > 1) {
-                    Craft::warning("Double URL detected in getRedirectUrl() for slug '{$this->slug}': {$url}", 'smart-links');
-                }
-            }
-        }
-
         return $url;
     }
     
@@ -1182,7 +1171,11 @@ class SmartLink extends Element
             $this->slug = self::$_generatedSlug;
         }
 
-        Craft::error("beforeSave - enabled: " . var_export($this->enabled, true), 'smart-links');
+        // CRITICAL: Always set elements.enabled = true for SmartLinks
+        // We use per-site enabling (elements_sites.enabled), not global enabling
+        // Craft's default behavior sets elements.enabled=false when ANY site is disabled,
+        // which breaks our queries that check "elements.enabled AND elements_sites.enabled"
+        $this->enabled = true;
 
         return parent::beforeSave($isNew);
     }

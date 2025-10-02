@@ -62,8 +62,9 @@ class AnalyticsService extends Component
             ->from('{{%smartlinks_analytics}} a')
             ->innerJoin('{{%smartlinks}} s', 'a.linkId = s.id')
             ->innerJoin('{{%elements}} e', 's.id = e.id')
+            ->innerJoin('{{%elements_sites}} es', 'e.id = es.elementId')
             ->select('COUNT(DISTINCT a.linkId)')
-            ->where(['e.enabled' => true]);
+            ->where(['es.enabled' => true]);
 
         // Apply date filter to analytics table
         $this->applyDateRangeFilter($linksQuery, $dateRange, 'a.dateCreated');
@@ -1293,13 +1294,14 @@ class AnalyticsService extends Component
             ->from(['a' => '{{%smartlinks_analytics}}'])
             ->innerJoin(['s' => '{{%smartlinks}}'], 'a.linkId = s.id')
             ->innerJoin(['e' => '{{%elements}}'], 's.id = e.id')
+            ->innerJoin(['es' => '{{%elements_sites}}'], 'e.id = es.elementId')
             ->leftJoin(['c' => '{{%smartlinks_content}}'], 'c.smartLinkId = s.id AND c.siteId = a.siteId')
             ->select([
                 'a.*',
                 'COALESCE(c.title, s.title) as smartLinkTitle',
                 's.slug as smartLinkSlug'
             ])
-            ->where(['e.enabled' => true])
+            ->where(['es.enabled' => true])
             ->orderBy('a.dateCreated DESC')
             ->limit($limit);
 

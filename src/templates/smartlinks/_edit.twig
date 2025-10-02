@@ -465,22 +465,8 @@
     
     // Remove custom unsaved changes detection - Craft handles this natively
     // The fullPageForm = true setting in the template enables Craft's built-in form change tracking
-    
-    // Initialize enabled toggle
-    const enabledSwitch = document.getElementById('enabled');
-    if (enabledSwitch && !enabledSwitch.classList.contains('initialized')) {
-        new Craft.LightSwitch(enabledSwitch, {
-            onChange: function() {
-                const hiddenInput = enabledSwitch.querySelector('input[type="hidden"]');
-                if (hiddenInput) {
-                    hiddenInput.value = this.on ? '1' : '0';
-                }
-            }
-        });
-        enabledSwitch.classList.add('initialized');
-    }
-    
-    // Date/time fields are now initialized automatically by Craft's forms.dateTimeField()
+
+    // Date/time fields and lightswitches are initialized automatically by Craft's form macros
     
     
     {% if smartLink.id %}
