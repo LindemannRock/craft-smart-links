@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.19.4](https://github.com/LindemannRock/craft-smart-links/compare/v1.19.3...v1.19.4) (2025-10-02)
+
+
+### Bug Fixes
+
+* remove random salt from IP hashing to accurately count unique visitors ([02f1c8b](https://github.com/LindemannRock/craft-smart-links/commit/02f1c8b80f8cf23eec3fe25200ee50b0d8a341ec))
+
 ## [1.19.3](https://github.com/LindemannRock/craft-smart-links/compare/v1.19.2...v1.19.3) (2025-10-02)
 
 
