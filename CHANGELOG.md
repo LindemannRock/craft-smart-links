@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.19.2](https://github.com/LindemannRock/craft-smart-links/compare/v1.19.1...v1.19.2) (2025-10-02)
+
+
+### Bug Fixes
+
+* handle NULL and incorrect platform values in analytics chart and cleanup ([4cf21be](https://github.com/LindemannRock/craft-smart-links/commit/4cf21be8971d5ba7f010fc96cd708cbb97729ad3))
+
 ## [1.19.1](https://github.com/LindemannRock/craft-smart-links/compare/v1.19.0...v1.19.1) (2025-10-02)
 
 
