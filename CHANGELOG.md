@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.19.3](https://github.com/LindemannRock/craft-smart-links/compare/v1.19.2...v1.19.3) (2025-10-02)
+
+
+### Bug Fixes
+
+* remove clicks column references and resolve duplicate analytics entries ([78b933a](https://github.com/LindemannRock/craft-smart-links/commit/78b933a2cae7c78bb30e1697e4e61d6823c09600))
+
 ## [1.19.2](https://github.com/LindemannRock/craft-smart-links/compare/v1.19.1...v1.19.2) (2025-10-02)
 
 
