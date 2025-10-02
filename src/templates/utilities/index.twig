@@ -259,7 +259,7 @@ function initSmartLinksCharts() {
     new Chart(document.getElementById('platform-chart'), {
         type: 'doughnut',
         data: {
-            labels: [{% for stat in platformStats %}platformNames['{{ stat.platform }}'] || '{{ stat.platform|title }}'{% if not loop.last %},{% endif %}{% endfor %}],
+            labels: [{% for stat in platformStats %}{% if stat.platform %}platformNames['{{ stat.platform }}'] || '{{ stat.platform|title }}'{% else %}'Unknown'{% endif %}{% if not loop.last %},{% endif %}{% endfor %}],
             datasets: [{
                 data: [{% for stat in platformStats %}{{ stat.count }}{% if not loop.last %},{% endif %}{% endfor %}],
                 backgroundColor: ['#3b82f6', '#8b5cf6', '#22c55e', '#f59e0b', '#ef4444', '#06b6d4'],

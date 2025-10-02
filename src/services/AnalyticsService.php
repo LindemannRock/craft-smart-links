@@ -1868,87 +1868,134 @@ class AnalyticsService extends Component
         // Get all analytics records
         $records = (new Query())
             ->from('{{%smartlinks_analytics}}')
-            ->select(['id', 'metadata'])
+            ->select(['id', 'metadata', 'osName'])
             ->all();
 
         foreach ($records as $record) {
             $metadata = Json::decodeIfJson($record['metadata']);
-            if (!$metadata || !isset($metadata['platform'])) {
+            if (!$metadata) {
                 continue;
             }
 
-            $oldPlatform = $metadata['platform'];
+            $oldPlatform = $metadata['platform'] ?? null;
+            $clickType = $metadata['clickType'] ?? null;
+            $buttonUrl = $metadata['buttonUrl'] ?? null;
             $newPlatform = null;
+            $shouldUpdate = false;
 
-            // Map invalid platform values to correct ones
-            $platformMap = [
-                // App store platforms -> correct platform
-                'app-store' => 'ios',
-                'google-play' => 'android',
-                'mac-app-store' => 'macos',
-                'amazon-appstore' => 'amazon',
+            // Case 1: Landing page views (clickType: "landing") - remove platform
+            if ($clickType === 'landing' && $oldPlatform !== null) {
+                unset($metadata['platform']);
+                $shouldUpdate = true;
+            }
+            // Case 2: Button clicks with wrong platform (translated labels, "continue-to-website", or old label formats)
+            elseif ($clickType === 'button' && $oldPlatform) {
+                // Direct label-to-platform mapping for known old values
+                $labelToPlatform = [
+                    'app-store' => 'ios',
+                    'google-play' => 'android',
+                    'appgallery' => 'huawei',
+                    'continue-to-website' => null, // Will derive from buttonUrl
+                    'fallback' => null, // Will derive from buttonUrl
+                ];
 
-                // Click types that were incorrectly stored as platform
-                'redirect' => null,  // Will be derived from osName
-                'auto-redirect' => null,  // Will be derived from osName
-                'button' => null,  // Will be derived from osName
+                // Check if it's a known old label or contains problematic text
+                if (isset($labelToPlatform[$oldPlatform]) ||
+                    str_contains($oldPlatform, 'متجر') ||
+                    str_contains($oldPlatform, 'AppGallery') ||
+                    str_contains($oldPlatform, 'App Store') ||
+                    str_contains($oldPlatform, 'Google Play') ||
+                    str_contains($oldPlatform, 'Windows Store') ||
+                    str_contains($oldPlatform, 'Mac App Store')) {
 
-                // Test data
-                'test' => null,  // Will be derived from osName
-
-                // Fix capitalization
-                'iOS' => 'ios',
-                'Ios' => 'ios',
-                'IOS' => 'ios',
-                'Android' => 'android',
-                'ANDROID' => 'android',
-                'Windows' => 'windows',
-                'WINDOWS' => 'windows',
-                'macOS' => 'macos',
-                'MacOS' => 'macos',
-                'Mac' => 'macos',
-                'MAC' => 'macos',
-                'Linux' => 'linux',
-                'LINUX' => 'linux',
-            ];
-
-            // If platform is in our map, update it
-            if (isset($platformMap[$oldPlatform])) {
-                $newPlatform = $platformMap[$oldPlatform];
-
-                // If mapped to null, derive from osName
-                if ($newPlatform === null) {
-                    $osName = (new Query())
-                        ->from('{{%smartlinks_analytics}}')
-                        ->select(['osName'])
-                        ->where(['id' => $record['id']])
-                        ->scalar();
-
-                    if ($osName) {
-                        $osNameLower = strtolower($osName);
-                        // Map OS name to platform
-                        if (str_contains($osNameLower, 'ios')) {
+                    // If we have a direct mapping, use it
+                    if (isset($labelToPlatform[$oldPlatform]) && $labelToPlatform[$oldPlatform] !== null) {
+                        $newPlatform = $labelToPlatform[$oldPlatform];
+                    }
+                    // Otherwise derive from buttonUrl
+                    elseif ($buttonUrl) {
+                        if (str_contains($buttonUrl, 'apps.apple.com')) {
                             $newPlatform = 'ios';
-                        } elseif (str_contains($osNameLower, 'android')) {
+                        } elseif (str_contains($buttonUrl, 'play.google.com')) {
                             $newPlatform = 'android';
-                        } elseif (str_contains($osNameLower, 'windows')) {
+                        } elseif (str_contains($buttonUrl, 'appgallery.huawei')) {
+                            $newPlatform = 'huawei';
+                        } elseif (str_contains($buttonUrl, 'amazon.com') || str_contains($buttonUrl, 'amzn')) {
+                            $newPlatform = 'amazon';
+                        } elseif (str_contains($buttonUrl, 'microsoft.com/store')) {
                             $newPlatform = 'windows';
-                        } elseif (str_contains($osNameLower, 'mac')) {
-                            $newPlatform = 'macos';
-                        } elseif (str_contains($osNameLower, 'linux')) {
-                            $newPlatform = 'linux';
                         } else {
                             $newPlatform = 'other';
                         }
                     } else {
                         $newPlatform = 'other';
                     }
+
+                    $metadata['platform'] = $newPlatform;
+                    $shouldUpdate = true;
+                }
+            }
+            // Case 3: Redirects with platform: "redirect" - derive from buttonUrl or osName
+            elseif ($clickType === 'redirect' && $oldPlatform === 'redirect') {
+                // Try to derive from buttonUrl first
+                if ($buttonUrl) {
+                    if (str_contains($buttonUrl, 'apps.apple.com')) {
+                        $newPlatform = 'ios';
+                    } elseif (str_contains($buttonUrl, 'play.google.com')) {
+                        $newPlatform = 'android';
+                    } elseif (str_contains($buttonUrl, 'appgallery.huawei')) {
+                        $newPlatform = 'huawei';
+                    } elseif (str_contains($buttonUrl, 'amazon.com') || str_contains($buttonUrl, 'amzn')) {
+                        $newPlatform = 'amazon';
+                    } else {
+                        $newPlatform = 'other';
+                    }
+                }
+                // Fallback to osName
+                elseif ($record['osName']) {
+                    $osNameLower = strtolower($record['osName']);
+                    if (str_contains($osNameLower, 'ios')) {
+                        $newPlatform = 'ios';
+                    } elseif (str_contains($osNameLower, 'android')) {
+                        $newPlatform = 'android';
+                    } elseif (str_contains($osNameLower, 'windows')) {
+                        $newPlatform = 'windows';
+                    } elseif (str_contains($osNameLower, 'mac')) {
+                        $newPlatform = 'macos';
+                    } else {
+                        $newPlatform = 'other';
+                    }
+                } else {
+                    $newPlatform = 'other';
                 }
 
-                // Update the metadata
                 $metadata['platform'] = $newPlatform;
+                $shouldUpdate = true;
+            }
+            // Case 4: Fix capitalization
+            elseif ($oldPlatform) {
+                $platformMap = [
+                    'iOS' => 'ios',
+                    'Ios' => 'ios',
+                    'IOS' => 'ios',
+                    'Android' => 'android',
+                    'ANDROID' => 'android',
+                    'Windows' => 'windows',
+                    'WINDOWS' => 'windows',
+                    'macOS' => 'macos',
+                    'MacOS' => 'macos',
+                    'Mac' => 'macos',
+                    'MAC' => 'macos',
+                ];
 
-                // Save back to database
+                if (isset($platformMap[$oldPlatform])) {
+                    $metadata['platform'] = $platformMap[$oldPlatform];
+                    $shouldUpdate = true;
+                }
+            }
+
+            // Update if needed
+            if ($shouldUpdate) {
                 $db->createCommand()
                     ->update(
                         '{{%smartlinks_analytics}}',
