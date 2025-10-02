@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.19.0](https://github.com/LindemannRock/craft-smart-links/compare/v1.18.0...v1.19.0) (2025-10-02)
+
+
+### Features
+
+* Add interaction type breakdown to Performance card ([9c47423](https://github.com/LindemannRock/craft-smart-links/commit/9c47423dc73360e24710ff79fcf001badf0d5de9))
+* remove redundant enabled and clicks columns from smartlinks table ([ec79d43](https://github.com/LindemannRock/craft-smart-links/commit/ec79d43e4a0b28e4415150a3d6297cdbbe4c069e))
+
+
+### Bug Fixes
+
+* enabled status requiring two saves to work ([1106a02](https://github.com/LindemannRock/craft-smart-links/commit/1106a028603c6c0886800ad78cc0822ba66f3b2f))
+
 ## [1.19.0](https://github.com/LindemannRock/craft-smart-links/compare/v1.18.0...v1.19.0) (2025-10-01)
 
 
