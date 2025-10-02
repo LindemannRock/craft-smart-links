@@ -1409,7 +1409,7 @@ class AnalyticsService extends Component
                 'country' => null,
                 'language' => $metadata['language'] ?? null,
                 'referrer' => $metadata['referrer'] ?? null,
-                'ip' => isset($metadata['ip']) ? hash('sha256', $metadata['ip'] . Craft::$app->security->generateRandomString(16)) : null,
+                'ip' => isset($metadata['ip']) ? hash('sha256', $metadata['ip']) : null,
                 'userAgent' => $deviceInfo['userAgent'] ?? null,
                 'metadata' => Json::encode($metadata),
                 'dateCreated' => Db::prepareDateForDb(new \DateTime()),
