@@ -9,7 +9,9 @@
 namespace lindemannrock\smartlinks\controllers;
 
 use Craft;
+use craft\helpers\Json;
 use craft\web\Controller;
+use lindemannrock\smartlinks\elements\SmartLink;
 use lindemannrock\smartlinks\models\Settings;
 use lindemannrock\smartlinks\SmartLinks;
 use lindemannrock\smartlinks\jobs\CleanupAnalyticsJob;
@@ -632,10 +634,18 @@ class SettingsController extends Controller
                 ->delete('{{%smartlinks_analytics}}')
                 ->execute();
 
-            // Reset click counts on all smart links
-            Craft::$app->db->createCommand()
-                ->update('{{%smartlinks}}', ['clicks' => 0])
-                ->execute();
+            // Reset click counts in metadata on all smart links
+            $smartLinks = SmartLink::find()->all();
+            foreach ($smartLinks as $smartLink) {
+                $metadata = $smartLink->metadata ?? [];
+                $metadata['clicks'] = 0;
+                $metadata['lastClick'] = null;
+                Craft::$app->db->createCommand()
+                    ->update('{{%smartlinks}}', [
+                        'metadata' => Json::encode($metadata)
+                    ], ['id' => $smartLink->id])
+                    ->execute();
+            }
 
             return $this->asJson([
                 'success' => true,

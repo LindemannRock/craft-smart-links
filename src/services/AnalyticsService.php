@@ -1294,7 +1294,7 @@ class AnalyticsService extends Component
             ->from(['a' => '{{%smartlinks_analytics}}'])
             ->innerJoin(['s' => '{{%smartlinks}}'], 'a.linkId = s.id')
             ->innerJoin(['e' => '{{%elements}}'], 's.id = e.id')
-            ->innerJoin(['es' => '{{%elements_sites}}'], 'e.id = es.elementId')
+            ->innerJoin(['es' => '{{%elements_sites}}'], 'e.id = es.elementId AND es.siteId = a.siteId')
             ->leftJoin(['c' => '{{%smartlinks_content}}'], 'c.smartLinkId = s.id AND c.siteId = a.siteId')
             ->select([
                 'a.*',
@@ -1605,8 +1605,7 @@ class AnalyticsService extends Component
         // Update directly in database to avoid triggering events
         Craft::$app->db->createCommand()
             ->update('{{%smartlinks}}', [
-                'metadata' => Json::encode($metadata),
-                'clicks' => $metadata['clicks']
+                'metadata' => Json::encode($metadata)
             ], ['id' => $smartLink->id])
             ->execute();
     }
