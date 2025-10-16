@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.22.1](https://github.com/LindemannRock/craft-smart-links/compare/v1.22.0...v1.22.1) (2025-10-16)
+
+
+### Bug Fixes
+
+* update installation instructions for Composer and DDEV ([e544109](https://github.com/LindemannRock/craft-smart-links/commit/e5441096ee51895df0d91dc19e2b194e73cac03f))
+
 ## [1.22.0](https://github.com/LindemannRock/craft-smart-links/compare/v1.21.0...v1.22.0) (2025-10-16)
 
 
