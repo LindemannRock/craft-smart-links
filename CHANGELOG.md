@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.20.0](https://github.com/LindemannRock/craft-smart-links/compare/v1.19.4...v1.20.0) (2025-10-16)
+
+
+### Features
+
+* integrate LindemannRock Logging Library with structured PSR-3 logging across all controllers and services ([3cd09c5](https://github.com/LindemannRock/craft-smart-links/commit/3cd09c59e752ddd052740c968c14a008d90117f5))
+
 ## [1.19.4](https://github.com/LindemannRock/craft-smart-links/compare/v1.19.3...v1.19.4) (2025-10-02)
 
 
