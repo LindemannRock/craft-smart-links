@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.21.0](https://github.com/LindemannRock/craft-smart-links/compare/v1.20.0...v1.21.0) (2025-10-16)
+
+
+### Features
+
+* **logging:** add detailed logging configuration and documentation ([be6f11a](https://github.com/LindemannRock/craft-smart-links/commit/be6f11a18ab8705578119abebef941158711a327))
+
 ## [1.20.0](https://github.com/LindemannRock/craft-smart-links/compare/v1.19.4...v1.20.0) (2025-10-16)
 
 
