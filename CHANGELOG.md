@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.22.0](https://github.com/LindemannRock/craft-smart-links/compare/v1.21.0...v1.22.0) (2025-10-16)
+
+
+### Features
+
+* **dependencies:** add lindemannrock/craft-logging-library as a requirement ([93338df](https://github.com/LindemannRock/craft-smart-links/commit/93338df51294a2ddd23a11b81ff01728e49a0183))
+
 ## [1.21.0](https://github.com/LindemannRock/craft-smart-links/compare/v1.20.0...v1.21.0) (2025-10-16)
 
 
