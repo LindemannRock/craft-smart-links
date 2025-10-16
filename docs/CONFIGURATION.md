@@ -16,17 +16,20 @@ You can override plugin settings by creating a `smart-links.php` file in your `c
 return [
     // Plugin settings
     'pluginName' => 'Smart Links',
-    
+
+    // Logging settings
+    'logLevel' => 'error', // error, warning, info, or debug
+
     // Analytics configuration
     'enableAnalytics' => true,
     'analyticsRetention' => 90, // days (0 = unlimited, max 3650)
     'includeDisabledInExport' => false,
     'includeExpiredInExport' => false,
-    
+
     // QR Code defaults
     'defaultQrSize' => 256, // pixels (100-1000)
     'defaultQrColor' => '#000000',
-    'defaultQrBgColor' => '#FFFFFF', 
+    'defaultQrBgColor' => '#FFFFFF',
     'defaultQrFormat' => 'png', // png or svg
     'defaultQrErrorCorrection' => 'M', // L, M, Q, H
     'defaultQrMargin' => 4, // quiet zone (0-10)
@@ -34,34 +37,34 @@ return [
     'qrEyeStyle' => 'square', // square, rounded, leaf
     'qrEyeColor' => null, // null = same as module color
     'qrCodeCacheDuration' => 86400, // 24 hours
-    
+
     // QR Code logo overlay
     'enableQrLogo' => false,
     'qrLogoVolumeUid' => null, // Asset volume UID for logos
     'defaultQrLogoId' => null, // Default logo asset ID
     'qrLogoSize' => 20, // Logo size percentage (10-30)
-    
+
     // QR Code downloads
     'enableQrDownload' => true,
     'qrDownloadFilename' => '{slug}-qr-{size}', // Filename pattern
-    
+
     // Image management
     'imageVolumeUid' => null, // Asset volume UID for smart link images
-    
+
     // Redirect settings
     'redirectTemplate' => null, // Custom redirect template path
     'notFoundRedirectUrl' => '/', // 404 redirect URL
-    
+
     // Geographic detection
     'enableGeoDetection' => false,
-    
+
     // Device detection caching
     'cacheDeviceDetection' => true,
     'deviceDetectionCacheDuration' => 3600, // 1 hour
-    
-    // Language detection  
+
+    // Language detection
     'languageDetectionMethod' => 'browser', // browser, ip, or both
-    
+
     // Interface settings
     'itemsPerPage' => 100, // Items per page in CP (10-500)
 ];
@@ -78,26 +81,30 @@ return [
     '*' => [
         'qrCodeSize' => 300,
         'qrCodeForegroundColor' => '#000000',
+        'logLevel' => 'error',
     ],
-    
+
     // Development environment
     'dev' => [
         'enableAnalytics' => false,
         'cacheEnabled' => false,
+        'logLevel' => 'debug', // Detailed logging in dev
     ],
-    
+
     // Staging environment
     'staging' => [
         'enableAnalytics' => true,
         'analyticsRetentionDays' => 30,
+        'logLevel' => 'info',
     ],
-    
+
     // Production environment
     'production' => [
         'enableAnalytics' => true,
         'analyticsRetentionDays' => 180,
         'cacheEnabled' => true,
         'cacheDuration' => 7200,
+        'logLevel' => 'warning', // Only warnings and errors in production
     ],
 ];
 ```
@@ -119,6 +126,14 @@ return [
 #### Plugin Settings
 
 - **pluginName**: Display name for the plugin in Craft CP navigation
+
+#### Logging Settings
+
+- **logLevel**: What types of messages to log ('debug', 'info', 'warning', 'error')
+  - **error**: Critical errors only (default, production recommended)
+  - **warning**: Errors and warnings
+  - **info**: General information and successful operations
+  - **debug**: Detailed debugging information (development only, requires devMode)
 
 #### Analytics Settings
 

@@ -613,7 +613,7 @@ Event::on(
 Smart Links uses the [LindemannRock Logging Library](https://github.com/LindemannRock/craft-logging-library) for centralized, structured logging across all LindemannRock plugins.
 
 ### Log Levels
-- **Error**: Critical errors only
+- **Error**: Critical errors only (default)
 - **Warning**: Errors and warnings
 - **Info**: General information
 - **Debug**: Detailed debugging (includes performance metrics, requires devMode)
@@ -622,7 +622,7 @@ Smart Links uses the [LindemannRock Logging Library](https://github.com/Lindeman
 ```php
 // config/smart-links.php
 return [
-    'logLevel' => 'info', // error, warning, info, or debug
+    'logLevel' => 'error', // error, warning, info, or debug
 ];
 ```
 
@@ -634,12 +634,6 @@ return [
 - **Format**: Structured JSON logs with context data
 - **Web Interface**: View and filter logs in CP at Smart Links → Logs
 
-### What's Logged
-- **Error**: Database errors, QR code generation failures, redirect errors, analytics tracking failures, settings validation errors
-- **Warning**: Missing redirect URLs, invalid device detections, cache errors, failed geo-location lookups, slow operations (>1s)
-- **Info**: Smart link creation/updates, analytics tracking events, QR code generation, device detection results, redirect operations, settings changes, cache operations
-- **Debug**: Detailed device detection data, request headers, analytics data processing, performance timing, field layout operations, cache hits/misses
-
 ### Log Management
 Access logs through the Control Panel:
 1. Navigate to Smart Links → Logs
@@ -649,6 +643,8 @@ Access logs through the Control Panel:
 5. Auto-cleanup after 30 days (configurable via Logging Library)
 
 **Requires:** `lindemannrock/logginglibrary` plugin (installed automatically as dependency)
+
+See [docs/LOGGING.md](docs/LOGGING.md) for detailed logging documentation.
 
 ## Troubleshooting
 
