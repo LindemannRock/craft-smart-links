@@ -31,32 +31,25 @@ Intelligent URL shortening and redirect management plugin for Craft CMS 5.x with
 
 ## Installation
 
-### Via Composer (Development)
-
-Until published on Packagist, install directly from the repository:
+### Via Composer
 
 ```bash
 cd /path/to/project
-composer config repositories.smart-links vcs https://github.com/LindemannRock/craft-smart-links
-composer require lindemannrock/smart-links:dev-main
+composer require lindemannrock/craft-smart-links
 ./craft plugin/install smart-links
 ```
 
-### Via Composer (Production - Coming Soon)
-
-Once published on Packagist:
+### Using DDEV
 
 ```bash
 cd /path/to/project
-composer require lindemannrock/smart-links
-./craft plugin/install smart-links
+ddev composer require lindemannrock/craft-smart-links
+ddev craft plugin/install smart-links
 ```
 
-### Via Plugin Store (Future)
+### Via Control Panel
 
-1. Go to the Plugin Store in your Craft control panel
-2. Search for "Smart Links"  
-3. Click "Install"
+In the Control Panel, go to Settings → Plugins and click "Install" for Smart Links.
 
 ## Configuration
 
