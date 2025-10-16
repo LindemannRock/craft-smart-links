@@ -10,6 +10,7 @@ namespace lindemannrock\smartlinks\controllers;
 
 use Craft;
 use craft\web\Controller;
+use lindemannrock\logginglibrary\traits\LoggingTrait;
 use lindemannrock\smartlinks\elements\SmartLink;
 use lindemannrock\smartlinks\SmartLinks;
 use yii\web\NotFoundHttpException;
@@ -21,10 +22,20 @@ use yii\web\Response;
  */
 class QrCodeController extends Controller
 {
+    use LoggingTrait;
     /**
      * @var array Allow anonymous access
      */
     protected array|int|bool $allowAnonymous = true;
+
+    /**
+     * @inheritdoc
+     */
+    public function init(): void
+    {
+        parent::init();
+        $this->setLoggingHandle('smart-links');
+    }
 
     /**
      * Display QR code page for smart link
@@ -73,10 +84,10 @@ class QrCodeController extends Controller
 
         // Generate full URL for the smart link with QR tracking parameter
         $url = $smartLink->getRedirectUrl();
-        
+
         // Debug logging
-        Craft::info('SmartLink redirect URL (display): ' . $url, 'smart-links');
-        
+        $this->logInfo('SmartLink redirect URL (display)', ['url' => $url]);
+
         // The redirect URL should already be a full URL from UrlHelper::siteUrl()
         // Add the QR source parameter to track QR code scans
         $separator = strpos($url, '?') !== false ? '&' : '?';
@@ -85,7 +96,7 @@ class QrCodeController extends Controller
         // Note: Tracking is handled client-side via JavaScript (redirect-tracking.js)
         // QR codes contain static URLs - no cache busting needed
 
-        Craft::info('Full URL for QR: ' . $fullUrl, 'smart-links');
+        $this->logInfo('Full URL for QR', ['fullUrl' => $fullUrl]);
 
         try {
             $qrCode = SmartLinks::$plugin->qrCode->generateQrCode($fullUrl, $options);
@@ -110,7 +121,7 @@ class QrCodeController extends Controller
             return $this->renderTemplate($template, $templateVars);
             
         } catch (\Exception $e) {
-            Craft::error('Failed to generate QR code: ' . $e->getMessage(), __METHOD__);
+            $this->logError('Failed to generate QR code', ['error' => $e->getMessage()]);
             throw new NotFoundHttpException('Failed to generate QR code.');
         }
     }
@@ -159,7 +170,7 @@ class QrCodeController extends Controller
             $url = $smartLink->getRedirectUrl();
 
             // Debug logging
-            Craft::info('SmartLink redirect URL (generate): ' . $url, 'smart-links');
+            $this->logInfo('SmartLink redirect URL (generate)', ['url' => $url]);
 
             // The redirect URL should already be a full URL from UrlHelper::siteUrl()
             // Add the QR source parameter to track QR code scans
@@ -169,7 +180,7 @@ class QrCodeController extends Controller
             // Note: Tracking is handled client-side via JavaScript (redirect-tracking.js)
             // QR codes contain static URLs - no cache busting needed
 
-            Craft::info('Full URL for QR: ' . $fullUrl, 'smart-links');
+            $this->logInfo('Full URL for QR', ['fullUrl' => $fullUrl]);
         }
 
         // Get parameters
@@ -219,7 +230,7 @@ class QrCodeController extends Controller
             
             return $response;
         } catch (\Exception $e) {
-            Craft::error('Failed to generate QR code: ' . $e->getMessage(), __METHOD__);
+            $this->logError('Failed to generate QR code', ['error' => $e->getMessage()]);
             throw new NotFoundHttpException('Failed to generate QR code.');
         }
     }

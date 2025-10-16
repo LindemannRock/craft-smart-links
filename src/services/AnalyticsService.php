@@ -16,6 +16,7 @@ use craft\helpers\Db;
 use craft\helpers\Json;
 use craft\helpers\StringHelper;
 use craft\helpers\UrlHelper;
+use lindemannrock\logginglibrary\traits\LoggingTrait;
 use lindemannrock\smartlinks\elements\SmartLink;
 use lindemannrock\smartlinks\models\DeviceInfo;
 use lindemannrock\smartlinks\records\AnalyticsRecord;
@@ -26,6 +27,17 @@ use lindemannrock\smartlinks\SmartLinks;
  */
 class AnalyticsService extends Component
 {
+    use LoggingTrait;
+
+    /**
+     * @inheritdoc
+     */
+    public function init(): void
+    {
+        parent::init();
+        $this->setLoggingHandle('smart-links');
+    }
+
     /**
      * Get analytics summary
      *
@@ -304,7 +316,7 @@ class AnalyticsService extends Component
 
         // Debug logging
         if ($dateRange === 'today') {
-            \Craft::info("Today filter - Start: {$startDate}, End: {$endDate}", 'smart-links');
+            $this->logInfo('Today filter', ['start' => $startDate, 'end' => $endDate]);
         }
 
         if ($startDate) {
@@ -1366,7 +1378,7 @@ class AnalyticsService extends Component
             );
         } catch (\Exception $e) {
             // Log but don't throw - analytics shouldn't break the redirect
-            Craft::error('Failed to save analytics: ' . $e->getMessage(), __METHOD__);
+            $this->logError('Failed to save analytics', ['error' => $e->getMessage()]);
         }
 
         // Update click count in metadata
@@ -1383,7 +1395,7 @@ class AnalyticsService extends Component
      */
     public function saveAnalytics(int $linkId, array $deviceInfo, array $metadata = []): bool
     {
-        Craft::info('saveAnalytics called with linkId: ' . $linkId, __METHOD__);
+        $this->logInfo('saveAnalytics called', ['linkId' => $linkId]);
 
         try {
             $db = Craft::$app->getDb();
@@ -1436,8 +1448,7 @@ class AnalyticsService extends Component
                 ->execute();
 
         } catch (\Exception $e) {
-            Craft::error('Failed to save analytics: ' . $e->getMessage() . ' | Data: ' . json_encode($data), __METHOD__);
-            Craft::error('Stack trace: ' . $e->getTraceAsString(), __METHOD__);
+            $this->logError('Failed to save analytics', ['error' => $e->getMessage(), 'data' => $data, 'trace' => $e->getTraceAsString()]);
             return false;
         }
     }
@@ -1743,7 +1754,7 @@ class AnalyticsService extends Component
 
             return null;
         } catch (\Exception $e) {
-            Craft::warning('Failed to get location from IP: ' . $e->getMessage(), __METHOD__);
+            $this->logWarning('Failed to get location from IP', ['error' => $e->getMessage()]);
             return null;
         }
     }

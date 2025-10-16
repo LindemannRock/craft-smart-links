@@ -90,7 +90,7 @@ class CleanupAnalyticsJob extends BaseJob
             ]));
         }
 
-        Craft::info("Cleaned up $deleted analytics records older than $retentionDays days", 'smart-links');
+        Craft::info('Cleaned up analytics records', 'smart-links', ['deleted' => $deleted, 'retentionDays' => $retentionDays]);
 
         // Re-queue itself to run again in 24 hours if retention is still enabled
         if ($settings->analyticsRetention > 0) {

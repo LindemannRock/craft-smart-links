@@ -191,6 +191,11 @@ class Settings extends Model
     public array $enabledSites = [];
 
     /**
+     * @var string Log level (error, warning, info, debug)
+     */
+    public string $logLevel = 'error';
+
+    /**
      * @inheritdoc
      */
     protected function defineBehaviors(): array
@@ -243,7 +248,36 @@ class Settings extends Model
             [['redirectTemplate', 'qrTemplate', 'notFoundRedirectUrl'], 'string'],
             [['languageDetectionMethod'], 'in', 'range' => ['browser', 'ip', 'both']],
             [['enabledSites'], 'each', 'rule' => ['integer']],
+            [['logLevel'], 'in', 'range' => ['debug', 'info', 'warning', 'error']],
+            [['logLevel'], 'validateLogLevel'],
         ];
+    }
+
+    /**
+     * Validate log level - debug requires devMode
+     */
+    public function validateLogLevel($attribute, $params, $validator)
+    {
+        $logLevel = $this->$attribute;
+
+        // Debug level is only allowed when devMode is enabled
+        if ($logLevel === 'debug' && !Craft::$app->getConfig()->getGeneral()->devMode) {
+            $this->$attribute = 'info';
+
+            if ($this->isOverriddenByConfig('logLevel')) {
+                if (!Craft::$app->getRequest()->getIsConsoleRequest()) {
+                    if (Craft::$app->getSession()->get('sl_debug_config_warning') === null) {
+                        Craft::warning('Log level "debug" from config file changed to "info" because devMode is disabled. Please update your config/smart-links.php file.', 'smart-links');
+                        Craft::$app->getSession()->set('sl_debug_config_warning', true);
+                    }
+                } else {
+                    Craft::warning('Log level "debug" from config file changed to "info" because devMode is disabled. Please update your config/smart-links.php file.', 'smart-links');
+                }
+            } else {
+                Craft::warning('Log level automatically changed from "debug" to "info" because devMode is disabled.', 'smart-links');
+                $this->saveToDatabase();
+            }
+        }
     }
 
     /**
@@ -265,7 +299,7 @@ class Settings extends Model
                 ->where(['id' => 1])
                 ->one();
         } catch (\Exception $e) {
-            Craft::error('Failed to load settings from database: ' . $e->getMessage(), 'smart-links');
+            Craft::error('Failed to load settings from database', 'smart-links', ['error' => $e->getMessage()]);
             return $settings;
         }
         
@@ -296,7 +330,9 @@ class Settings extends Model
                 'defaultQrSize',
                 'qrCodeCacheDuration',
                 'deviceDetectionCacheDuration',
-                'itemsPerPage'
+                'itemsPerPage',
+                'defaultQrMargin',
+                'qrLogoSize'
             ];
 
             foreach ($integerFields as $field) {
@@ -309,7 +345,7 @@ class Settings extends Model
             if (isset($row['enabledSites'])) {
                 $row['enabledSites'] = !empty($row['enabledSites']) ? json_decode($row['enabledSites'], true) : [];
             }
-            
+
             // Set attributes from database
             $settings->setAttributes($row, false);
         } else {
@@ -327,7 +363,7 @@ class Settings extends Model
     public function saveToDatabase(): bool
     {
         if (!$this->validate()) {
-            Craft::error('Settings validation failed: ' . json_encode($this->getErrors()), 'smart-links');
+            Craft::error('Settings validation failed', 'smart-links', ['errors' => $this->getErrors()]);
             return false;
         }
 
@@ -335,7 +371,7 @@ class Settings extends Model
         $attributes = $this->getAttributes();
 
         // Debug: Log what we're trying to save
-        Craft::info('Attempting to save settings: ' . json_encode($attributes), 'smart-links');
+        Craft::info('Attempting to save settings', 'smart-links', ['attributes' => $attributes]);
 
         // Handle array serialization
         if (isset($attributes['enabledSites'])) {
@@ -353,7 +389,7 @@ class Settings extends Model
                 ->execute();
 
             // Debug: Log the result
-            Craft::info('Database update result: ' . $result, 'smart-links');
+            Craft::info('Database update result', 'smart-links', ['result' => $result]);
 
             if ($result !== false) {
                 // Trigger event after successful save
@@ -365,7 +401,7 @@ class Settings extends Model
             Craft::error('Database update returned false', 'smart-links');
             return false;
         } catch (\Exception $e) {
-            Craft::error('Failed to save Smart Links settings: ' . $e->getMessage(), 'smart-links');
+            Craft::error('Failed to save Smart Links settings', 'smart-links', ['error' => $e->getMessage()]);
             return false;
         }
     }
@@ -481,6 +517,7 @@ class Settings extends Model
             'itemsPerPage' => Craft::t('smart-links', 'Items Per Page'),
             'notFoundRedirectUrl' => Craft::t('smart-links', '404 Redirect URL'),
             'enabledSites' => Craft::t('smart-links', 'Enabled Sites'),
+            'logLevel' => Craft::t('smart-links', 'Log Level'),
         ];
     }
 }

@@ -24,6 +24,7 @@ use BaconQrCode\Writer;
 use Craft;
 use craft\base\Component;
 use craft\elements\Asset;
+use lindemannrock\logginglibrary\traits\LoggingTrait;
 use lindemannrock\smartlinks\SmartLinks;
 
 /**
@@ -31,6 +32,17 @@ use lindemannrock\smartlinks\SmartLinks;
  */
 class QrCodeService extends Component
 {
+    use LoggingTrait;
+
+    /**
+     * @inheritdoc
+     */
+    public function init(): void
+    {
+        parent::init();
+        $this->setLoggingHandle('smart-links');
+    }
+
     /**
      * Generate QR code for a URL
      *
@@ -389,7 +401,7 @@ class QrCodeService extends Component
             return $result;
 
         } catch (\Exception $e) {
-            Craft::error('Failed to add logo to QR code: ' . $e->getMessage(), __METHOD__);
+            $this->logError('Failed to add logo to QR code', ['error' => $e->getMessage()]);
             return $qrCodeData; // Return original on any error
         }
     }

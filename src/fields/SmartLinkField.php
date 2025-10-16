@@ -15,6 +15,7 @@ use craft\base\PreviewableFieldInterface;
 use craft\elements\db\ElementQueryInterface;
 use lindemannrock\smartlinks\elements\SmartLink;
 use lindemannrock\smartlinks\elements\db\SmartLinkQuery;
+use lindemannrock\smartlinks\SmartLinks;
 use GraphQL\Type\Definition\Type;
 
 /**
@@ -47,7 +48,16 @@ class SmartLinkField extends Field implements PreviewableFieldInterface
      */
     public static function displayName(): string
     {
-        return Craft::t('smart-links', 'Smart Link');
+        $plugin = SmartLinks::getInstance();
+        return $plugin->getSettings()->pluginName ?? 'Smart Links';
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function icon(): string
+    {
+        return '@appicons/link.svg';
     }
 
     /**
@@ -219,7 +229,7 @@ class SmartLinkField extends Field implements PreviewableFieldInterface
     public function validateLimit(ElementInterface $element): void
     {
         $value = $element->getFieldValue($this->handle);
-        
+
         if (!($value instanceof ElementQueryInterface)) {
             return;
         }
@@ -228,6 +238,7 @@ class SmartLinkField extends Field implements PreviewableFieldInterface
 
         if ($count > $this->limit) {
             if (method_exists($element, 'addError')) {
+                /** @var \craft\base\Element $element */
                 $element->addError(
                     $this->handle,
                     Craft::t('smart-links', 'You can only select up to {limit} {limit, plural, =1{smart link} other{smart links}}.', [

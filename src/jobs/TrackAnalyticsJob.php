@@ -45,7 +45,7 @@ class TrackAnalyticsJob extends BaseJob
         );
         
         if (!$result) {
-            Craft::error('Failed to save analytics for link ' . $this->linkId, __METHOD__);
+            Craft::error('Failed to save analytics for link', __METHOD__, ['linkId' => $this->linkId]);
         }
     }
 

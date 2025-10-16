@@ -1251,7 +1251,7 @@ class SmartLink extends Element
             $contentRecord->imageSize = $this->imageSize;
 
             if (!$contentRecord->save(false)) {
-                Craft::error('Failed to save content record: ' . json_encode($contentRecord->getErrors()), __METHOD__);
+                Craft::error('Failed to save content record', __METHOD__, ['errors' => $contentRecord->getErrors()]);
             }
         }
 

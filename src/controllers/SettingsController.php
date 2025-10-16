@@ -276,10 +276,12 @@ class SettingsController extends Controller
         }
 
         // Debug field layout
-        Craft::info('Field Layout ID: ' . ($fieldLayout->id ?? 'null'), 'smart-links');
-        Craft::info('Field Layout UID: ' . ($fieldLayout->uid ?? 'null'), 'smart-links');
-        Craft::info('Field Layout Type: ' . ($fieldLayout->type ?? 'null'), 'smart-links');
-        Craft::info('Field Layout class: ' . get_class($fieldLayout), 'smart-links');
+        Craft::info('Field Layout debug info', 'smart-links', [
+            'id' => $fieldLayout->id ?? 'null',
+            'uid' => $fieldLayout->uid ?? 'null',
+            'type' => $fieldLayout->type ?? 'null',
+            'class' => get_class($fieldLayout)
+        ]);
 
         $variables = [
             'fieldLayout' => $fieldLayout,
@@ -287,11 +289,11 @@ class SettingsController extends Controller
         ];
 
         // Debug logging
-        Craft::info('actionFieldLayout called - Variables: ' . json_encode([
+        Craft::info('actionFieldLayout called', 'smart-links', [
             'fieldLayout_exists' => $fieldLayout !== null,
             'fieldLayout_id' => $fieldLayout ? $fieldLayout->id : null,
             'readOnly' => $this->readOnly,
-        ]), 'smart-links');
+        ]);
 
         return $this->renderTemplate('smart-links/settings/field-layout', $variables);
     }
@@ -360,16 +362,18 @@ class SettingsController extends Controller
         $settingsData = Craft::$app->getRequest()->getBodyParam('settings');
 
         // Debug: Log what we received
-        Craft::info('Settings data received: ' . json_encode($settingsData), 'smart-links');
+        Craft::info('Settings data received', 'smart-links', ['settingsData' => $settingsData]);
 
         // Debug: Specifically check imageVolumeUid
         if (isset($settingsData['imageVolumeUid'])) {
-            Craft::info('imageVolumeUid type: ' . gettype($settingsData['imageVolumeUid']), 'smart-links');
-            Craft::info('imageVolumeUid value: ' . json_encode($settingsData['imageVolumeUid']), 'smart-links');
+            Craft::info('imageVolumeUid debug', 'smart-links', [
+                'type' => gettype($settingsData['imageVolumeUid']),
+                'value' => $settingsData['imageVolumeUid']
+            ]);
         }
 
         // Debug: Log all POST data
-        Craft::info('All POST data: ' . json_encode(Craft::$app->getRequest()->getBodyParams()), 'smart-links');
+        Craft::info('All POST data', 'smart-links', ['bodyParams' => Craft::$app->getRequest()->getBodyParams()]);
 
         // Handle pluginName field
         if (isset($settingsData['pluginName'])) {
@@ -397,7 +401,7 @@ class SettingsController extends Controller
         // Auto-set qrLogoVolumeUid to same value as imageVolumeUid
         if (isset($settingsData['imageVolumeUid'])) {
             $settingsData['qrLogoVolumeUid'] = $settingsData['imageVolumeUid'];
-            Craft::info('Auto-setting qrLogoVolumeUid to match imageVolumeUid: ' . $settingsData['imageVolumeUid'], 'smart-links');
+            Craft::info('Auto-setting qrLogoVolumeUid to match imageVolumeUid', 'smart-links', ['uid' => $settingsData['imageVolumeUid']]);
         }
         
         // Fix color fields - add # if missing
@@ -420,11 +424,11 @@ class SettingsController extends Controller
         $settings->setAttributes($settingsData, false);
 
         // Debug: Log what's in settings after setAttributes
-        Craft::info('Settings after setAttributes - enabledSites: ' . json_encode($settings->enabledSites), 'smart-links');
+        Craft::info('Settings after setAttributes', 'smart-links', ['enabledSites' => $settings->enabledSites]);
 
         if (!$settings->validate()) {
             // Log validation errors for debugging
-            Craft::error('Settings validation failed: ' . json_encode($settings->getErrors()), 'smart-links');
+            Craft::error('Settings validation failed', 'smart-links', ['errors' => $settings->getErrors()]);
             
             // Standard Craft way: Pass errors back to template
             Craft::$app->getSession()->setError(Craft::t('smart-links', 'Couldn\'t save settings.'));

@@ -11,6 +11,7 @@ namespace lindemannrock\smartlinks\services;
 use Craft;
 use craft\base\Component;
 use craft\helpers\UrlHelper;
+use lindemannrock\logginglibrary\traits\LoggingTrait;
 use lindemannrock\smartlinks\elements\SmartLink;
 use lindemannrock\smartlinks\events\SmartLinkEvent;
 use lindemannrock\smartlinks\models\DeviceInfo;
@@ -19,11 +20,22 @@ use lindemannrock\smartlinks\SmartLinks;
 
 /**
  * Smart Links Service
- * 
+ *
  * @property-read SmartLinks $module
  */
 class SmartLinksService extends Component
 {
+    use LoggingTrait;
+
+    /**
+     * @inheritdoc
+     */
+    public function init(): void
+    {
+        parent::init();
+        $this->setLoggingHandle('smart-links');
+    }
+
     // Events
     // =========================================================================
 
@@ -70,7 +82,7 @@ class SmartLinksService extends Component
     public function saveSmartLink(SmartLink $smartLink, bool $runValidation = true): bool
     {
         if ($runValidation && !$smartLink->validate()) {
-            Craft::info('Smart link not saved due to validation errors.', __METHOD__);
+            $this->logInfo('Smart link not saved due to validation errors.');
             return false;
         }
 

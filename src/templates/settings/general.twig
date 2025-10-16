@@ -149,6 +149,36 @@
                 "This is being overridden by the <code>imageVolumeUid</code> setting in <code>config/smart-links.php</code>."|t('smart-links')|raw : null,
         }) }}
 
+        <hr>
+
+        <h2>{{ "Logging Settings"|t('smart-links') }}</h2>
+
+        {% set logOptions = [
+            {value: 'error', label: 'Error (Critical errors only)'|t('smart-links')},
+            {value: 'warning', label: 'Warning (Errors and warnings)'|t('smart-links')},
+            {value: 'info', label: 'Info (General information)'|t('smart-links')},
+        ] %}
+
+        {% if craft.app.config.general.devMode %}
+            {% set logOptions = logOptions|merge([
+                {value: 'debug', label: 'Debug (Detailed debugging)'|t('smart-links')}
+            ]) %}
+        {% endif %}
+
+        {{ forms.selectField({
+            label: "Log Level"|t('smart-links'),
+            instructions: craft.app.config.general.devMode ?
+                "Choose what types of messages to log. Debug level requires devMode to be enabled."|t('smart-links') :
+                "Choose what types of messages to log. Debug level requires devMode to be enabled."|t('smart-links'),
+            id: 'logLevel',
+            name: 'settings[logLevel]',
+            value: settings.logLevel,
+            options: logOptions,
+            disabled: settings.isOverriddenByConfig('logLevel'),
+            warning: settings.isOverriddenByConfig('logLevel') ?
+                "This is being overridden by the <code>logLevel</code> setting in <code>config/smart-links.php</code>."|t('smart-links')|raw : null,
+        }) }}
+
         <div class="buttons">
             <button type="submit" class="btn submit">{{ "Save Settings"|t('smart-links') }}</button>
         </div>

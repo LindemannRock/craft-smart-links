@@ -39,6 +39,8 @@ use lindemannrock\smartlinks\services\DeviceDetectionService;
 use lindemannrock\smartlinks\services\QrCodeService;
 use lindemannrock\smartlinks\services\SmartLinksService;
 use lindemannrock\smartlinks\variables\SmartLinksVariable;
+use lindemannrock\logginglibrary\traits\LoggingTrait;
+use lindemannrock\logginglibrary\LoggingLibrary;
 use yii\base\Event;
 
 /**
@@ -57,6 +59,8 @@ use yii\base\Event;
  */
 class SmartLinks extends Plugin
 {
+    use LoggingTrait;
+
     /**
      * @var SmartLinks|null
      */
@@ -84,6 +88,15 @@ class SmartLinks extends Plugin
     {
         parent::init();
         self::$plugin = $this;
+
+        // Configure logging
+        $settings = $this->getSettings();
+        LoggingLibrary::configure([
+            'pluginHandle' => $this->handle,
+            'pluginName' => $this->name,
+            'logLevel' => $settings->logLevel ?? 'error',
+            'permissions' => ['smartLinks:viewLogs'],
+        ]);
 
         // Set plugin name from config if available
         $configPath = \Craft::$app->getPath()->getConfigPath() . '/smart-links.php';
@@ -239,7 +252,7 @@ class SmartLinks extends Plugin
                             }
                         }
 
-                        Craft::info("Cleared {$cleared} Smart Links cache entries", __METHOD__);
+                        Craft::info('Cleared Smart Links cache entries', __METHOD__, ['count' => $cleared]);
                     },
                 ];
             }
@@ -252,17 +265,17 @@ class SmartLinks extends Plugin
             function(Event $event) {
                 /** @var Settings $settings */
                 $settings = $event->sender;
-                
+
                 // The cleanup job will check the current settings when it runs
                 // No need to clear existing jobs as they will adapt to new settings
-                
+
                 // If retention was just enabled (from 0), schedule a new cleanup
                 if ($settings->analyticsRetention > 0) {
                     // Check if we need to schedule a new cleanup
                     // The job will handle re-queuing itself after each run
                     $this->scheduleAnalyticsCleanup();
                 }
-                
+
                 Craft::info(
                     Craft::t('smart-links', 'Analytics cleanup settings updated'),
                     __METHOD__
@@ -293,10 +306,10 @@ class SmartLinks extends Plugin
 
         if ($item) {
             $item['label'] = $this->getSettings()->pluginName;
-            
+
             // Use Craft's built-in link icon
             $item['icon'] = '@appicons/link.svg';
-            
+
             $item['subnav'] = [
                 'links' => [
                     'label' => Craft::t('smart-links', 'Smart Links'),
@@ -309,6 +322,14 @@ class SmartLinks extends Plugin
                     'label' => Craft::t('smart-links', 'Analytics'),
                     'url' => 'smart-links/analytics',
                 ];
+            }
+
+            // Add logs section using the logging library
+            if (Craft::$app->getPlugins()->isPluginInstalled('logging-library') &&
+                Craft::$app->getPlugins()->isPluginEnabled('logging-library')) {
+                $item = LoggingLibrary::addLogsNav($item, $this->handle, [
+                    'smartLinks:viewLogs'
+                ]);
             }
 
             if (Craft::$app->getUser()->checkPermission('smartLinks:manageSettings')) {
@@ -329,12 +350,12 @@ class SmartLinks extends Plugin
     {
         // Always load fresh settings from database
         $settings = Settings::loadFromDatabase();
-        
+
         // If no settings found in database, return new instance with defaults
         if (!$settings) {
             $settings = new Settings();
         }
-        
+
         return $settings;
     }
 
@@ -344,27 +365,27 @@ class SmartLinks extends Plugin
     public function getSettings(): ?Model
     {
         $settings = parent::getSettings();
-        
+
         if ($settings) {
             // Load config file settings and merge with database values
             $configPath = \Craft::$app->getPath()->getConfigPath() . '/smart-links.php';
             if (file_exists($configPath)) {
                 $config = require $configPath;
-                
+
                 // Apply environment-specific overrides
                 $env = \Craft::$app->getConfig()->env;
                 if ($env && isset($config[$env])) {
                     $config = array_merge($config, $config[$env]);
                 }
-                
+
                 // Apply wildcard overrides
                 if (isset($config['*'])) {
                     $config = array_merge($config, $config['*']);
                 }
-                
+
                 // Remove environment-specific keys
                 unset($config['*'], $config['dev'], $config['staging'], $config['production']);
-                
+
                 // Set config values (these override database values)
                 foreach ($config as $key => $value) {
                     if (property_exists($settings, $key)) {
@@ -373,7 +394,7 @@ class SmartLinks extends Plugin
                 }
             }
         }
-        
+
         return $settings;
     }
 
@@ -431,6 +452,9 @@ class SmartLinks extends Plugin
             'smart-links/settings/cleanup-analytics' => 'smart-links/settings/cleanup-analytics',
             // QR Code generation for preview
             'smart-links/qr-code/generate' => 'smart-links/qr-code/generate',
+            // Logging routes
+            'smart-links/logs' => 'logging-library/logs/index',
+            'smart-links/logs/download' => 'logging-library/logs/download',
         ];
     }
 
@@ -472,6 +496,9 @@ class SmartLinks extends Plugin
             'smartLinks:viewAnalytics' => [
                 'label' => Craft::t('smart-links', 'View analytics'),
             ],
+            'smartLinks:viewLogs' => [
+                'label' => Craft::t('smart-links', 'View logs'),
+            ],
             'smartLinks:manageSettings' => [
                 'label' => Craft::t('smart-links', 'Manage settings'),
             ],
@@ -480,13 +507,13 @@ class SmartLinks extends Plugin
 
     /**
      * Schedule analytics cleanup job
-     * 
+     *
      * @return void
      */
     private function scheduleAnalyticsCleanup(): void
     {
         $settings = $this->getSettings();
-        
+
         // Only schedule cleanup if retention is enabled (> 0)
         if ($settings->analyticsRetention > 0) {
             // Check if a cleanup job is already in the queue
@@ -496,15 +523,15 @@ class SmartLinks extends Plugin
                 ->where(['like', 'job', 'CleanupAnalyticsJob'])
                 ->andWhere(['<=', 'timePushed', time() + 86400]) // Within next 24 hours
                 ->exists();
-            
+
             if (!$existingJob) {
                 // Create cleanup job
                 $job = new CleanupAnalyticsJob();
-                
+
                 // Add to queue with a small initial delay to avoid running immediately on plugin install
                 // The job will re-queue itself to run every 24 hours
                 Craft::$app->queue->delay(5 * 60)->push($job); // 5 minute initial delay
-                
+
                 Craft::info(
                     Craft::t('smart-links', 'Scheduled initial analytics cleanup job to run in 5 minutes'),
                     __METHOD__

@@ -10,6 +10,7 @@ namespace lindemannrock\smartlinks\controllers;
 
 use Craft;
 use craft\web\Controller;
+use lindemannrock\logginglibrary\traits\LoggingTrait;
 use lindemannrock\smartlinks\SmartLinks;
 use yii\web\Response;
 
@@ -18,10 +19,20 @@ use yii\web\Response;
  */
 class AnalyticsController extends Controller
 {
+    use LoggingTrait;
     /**
      * @var array
      */
     protected array|bool|int $allowAnonymous = false;
+
+    /**
+     * @inheritdoc
+     */
+    public function init(): void
+    {
+        parent::init();
+        $this->setLoggingHandle('smart-links');
+    }
 
     /**
      * Analytics dashboard
@@ -75,7 +86,7 @@ class AnalyticsController extends Controller
         $type = Craft::$app->getRequest()->getParam('type', 'summary');
 
         // Log the request for debugging
-        Craft::info("Analytics getData called - type: $type, dateRange: $dateRange, smartLinkId: " . ($smartLinkId ?? 'null'), 'smart-links');
+        $this->logInfo('Analytics getData called', ['type' => $type, 'dateRange' => $dateRange, 'smartLinkId' => $smartLinkId ?? null]);
 
         // If requesting data for a specific SmartLink, check if it has analytics enabled
         if ($smartLinkId) {
@@ -122,7 +133,7 @@ class AnalyticsController extends Controller
                 'data' => $data,
             ]);
         } catch (\Exception $e) {
-            Craft::error('Analytics getData error: ' . $e->getMessage() . ' - Trace: ' . $e->getTraceAsString(), 'smart-links');
+            $this->logError('Analytics getData error', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
             return $this->asJson([
                 'success' => false,
                 'error' => $e->getMessage()
@@ -199,7 +210,7 @@ class AnalyticsController extends Controller
                 'html' => $html
             ]);
         } catch (\Exception $e) {
-            Craft::error('Failed to get analytics data: ' . $e->getMessage(), 'smart-links');
+            $this->logError('Failed to get analytics data', ['error' => $e->getMessage()]);
             return $this->asJson([
                 'success' => false,
                 'error' => $e->getMessage()

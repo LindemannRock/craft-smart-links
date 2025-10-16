@@ -81,6 +81,9 @@ return [
     // Plugin Settings
     'pluginName' => 'Smart Links',
 
+    // Logging Settings
+    'logLevel' => 'error', // error, warning, info, or debug (debug requires devMode)
+
     // URL Settings
     'slugPrefix' => 'go',  // URL prefix for smart links (e.g., 'go' creates /go/your-link)
     'qrPrefix' => 'qr',    // URL prefix for QR code pages (e.g., 'qr' creates /qr/your-link)
@@ -129,10 +132,12 @@ return [
 
     // Multi-environment support
     'dev' => [
+        'logLevel' => 'debug', // More verbose in dev
         'enableAnalytics' => true,
         'analyticsRetention' => 30,
     ],
     'production' => [
+        'logLevel' => 'error', // Only errors in production
         'enableAnalytics' => true,
         'analyticsRetention' => 365,
         'cacheDeviceDetection' => true,
@@ -602,6 +607,48 @@ Event::on(
 # Update missing city data for analytics
 ./craft smart-links/analytics/update-cities
 ```
+
+## Logging
+
+Smart Links uses the [LindemannRock Logging Library](https://github.com/LindemannRock/craft-logging-library) for centralized, structured logging across all LindemannRock plugins.
+
+### Log Levels
+- **Error**: Critical errors only
+- **Warning**: Errors and warnings
+- **Info**: General information
+- **Debug**: Detailed debugging (includes performance metrics, requires devMode)
+
+### Configuration
+```php
+// config/smart-links.php
+return [
+    'logLevel' => 'info', // error, warning, info, or debug
+];
+```
+
+**Note:** Debug level requires Craft's `devMode` to be enabled. If set to debug with devMode disabled, it automatically falls back to info level.
+
+### Log Files
+- **Location**: `storage/logs/smart-links-YYYY-MM-DD.log`
+- **Retention**: 30 days (automatic cleanup via Logging Library)
+- **Format**: Structured JSON logs with context data
+- **Web Interface**: View and filter logs in CP at Smart Links → Logs
+
+### What's Logged
+- **Error**: Database errors, QR code generation failures, redirect errors, analytics tracking failures, settings validation errors
+- **Warning**: Missing redirect URLs, invalid device detections, cache errors, failed geo-location lookups, slow operations (>1s)
+- **Info**: Smart link creation/updates, analytics tracking events, QR code generation, device detection results, redirect operations, settings changes, cache operations
+- **Debug**: Detailed device detection data, request headers, analytics data processing, performance timing, field layout operations, cache hits/misses
+
+### Log Management
+Access logs through the Control Panel:
+1. Navigate to Smart Links → Logs
+2. Filter by date, level, or search terms
+3. Download log files for external analysis
+4. View file sizes and entry counts
+5. Auto-cleanup after 30 days (configurable via Logging Library)
+
+**Requires:** `lindemannrock/logginglibrary` plugin (installed automatically as dependency)
 
 ## Troubleshooting
 

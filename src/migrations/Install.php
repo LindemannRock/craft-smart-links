@@ -196,6 +196,8 @@ class Install extends Migration
                 // Interface settings
                 'itemsPerPage' => $this->integer()->notNull()->defaultValue(100),
                 'notFoundRedirectUrl' => $this->string()->notNull()->defaultValue('/'),
+                // Logging
+                'logLevel' => $this->string(20)->notNull()->defaultValue('error'),
                 // Timestamps
                 'dateCreated' => $this->dateTime()->notNull(),
                 'dateUpdated' => $this->dateTime()->notNull(),

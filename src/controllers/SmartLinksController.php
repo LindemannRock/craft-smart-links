@@ -12,6 +12,7 @@ use Craft;
 use craft\base\Element;
 use craft\helpers\DateTimeHelper;
 use craft\web\Controller;
+use lindemannrock\logginglibrary\traits\LoggingTrait;
 use lindemannrock\smartlinks\elements\SmartLink;
 use lindemannrock\smartlinks\SmartLinks;
 use yii\web\Response;
@@ -21,10 +22,20 @@ use yii\web\Response;
  */
 class SmartLinksController extends Controller
 {
+    use LoggingTrait;
     /**
      * @var array
      */
     protected array|bool|int $allowAnonymous = false;
+
+    /**
+     * @inheritdoc
+     */
+    public function init(): void
+    {
+        parent::init();
+        $this->setLoggingHandle('smart-links');
+    }
 
     /**
      * Edit a smart link
@@ -240,7 +251,7 @@ class SmartLinksController extends Controller
 
         // Save it
         if (!SmartLinks::$plugin->smartLinks->saveSmartLink($smartLink)) {
-            Craft::error('Smart link save failed. Errors: ' . json_encode($smartLink->getErrors()), __METHOD__);
+            $this->logError('Smart link save failed', ['errors' => $smartLink->getErrors()]);
             // If it's an AJAX request, return JSON response
             if ($this->request->getAcceptsJson()) {
                 return $this->asModelFailure(
@@ -280,9 +291,8 @@ class SmartLinksController extends Controller
         );
         
         } catch (\Exception $e) {
-            Craft::error('Smart link save error: ' . $e->getMessage(), __METHOD__);
-            Craft::error('Stack trace: ' . $e->getTraceAsString(), __METHOD__);
-            
+            $this->logError('Smart link save error', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+
             // Return error response
             Craft::$app->getSession()->setError('Error saving smart link: ' . $e->getMessage());
 

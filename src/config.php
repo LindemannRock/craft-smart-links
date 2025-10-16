@@ -26,6 +26,9 @@ return [
     // Plugin Settings
     'pluginName' => 'Smart Links',
 
+    // Logging Settings
+    'logLevel' => 'error', // Log level: 'error', 'warning', 'info', 'debug' (debug requires devMode)
+
     // Site Settings
     'enabledSites' => [], // Array of site IDs where Smart Links should be enabled (empty = all sites)
 
@@ -91,15 +94,18 @@ return [
         // Default settings for all environments
     ],
     'dev' => [
+        'logLevel' => 'debug',         // More verbose logging in dev
         'enableAnalytics' => true,
         'analyticsRetention' => 30,    // Keep less data in dev
         'cacheDeviceDetection' => false,
     ],
     'staging' => [
+        'logLevel' => 'info',          // Moderate logging in staging
         'enableAnalytics' => true,
         'analyticsRetention' => 90,
     ],
     'production' => [
+        'logLevel' => 'error',         // Only errors in production
         'enableAnalytics' => true,
         'analyticsRetention' => 365,   // Keep more data in production
         'cacheDeviceDetection' => true,
