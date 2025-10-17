@@ -1,0 +1,322 @@
+{% extends "smart-links/_layouts/settings" %}
+{% set title = "Integrations Settings"|t('smart-links') %}
+{% set fullPageForm = true %}
+{% set selectedSettingsItem = 'integrations' %}
+
+{% set plugin = craft.app.plugins.getPlugin('smart-links') %}
+{% set crumbs = [
+    {
+        label: plugin.settings.pluginName|t('smart-links'),
+        url: url('smart-links'),
+    },
+    {
+        label: 'Settings'|t('smart-links'),
+        url: url('smart-links/settings'),
+    },
+    {
+        label: 'Integrations'|t('smart-links'),
+        url: url('smart-links/settings/integrations'),
+    },
+] %}
+
+{% import "_includes/forms" as forms %}
+
+{% block content %}
+    <style>
+        /* Make status dot visible when not installed - darker gray */
+        .status:not(.on) {
+            background-color: #9ca3af;
+        }
+    </style>
+    <form method="post" accept-charset="UTF-8">
+        {{ actionInput('smart-links/settings/save') }}
+        {{ csrfInput() }}
+        {{ redirectInput('smart-links/settings/integrations') }}
+
+        <h2 style="margin-top: 0px;">{{ "Third-Party Integrations"|t('smart-links') }}</h2>
+
+        <div class="field">
+            <p class="light">{{ "Integrate Smart Links with third-party analytics and tracking services to push click events to Google Tag Manager, Google Analytics, and other platforms."|t('smart-links') }}</p>
+        </div>
+
+        {% set integrationStatuses = craft.app.plugins.getPlugin('smart-links').integration.getAllIntegrationStatuses() %}
+
+        {# SEOmatic Integration #}
+        {% set seomaticStatus = integrationStatuses.seomatic ?? null %}
+        {% set seomaticAvailable = seomaticStatus and seomaticStatus.available %}
+        {% set seomaticEnabled = 'seomatic' in (settings.enabledIntegrations ?? []) %}
+
+        {# SEOmatic Integration Card #}
+        <div class="integration-card" style="border: 1px solid #e3e5e8; border-radius: 4px; margin-bottom: 10px; background: white;">
+            <div class="integration-header" style="padding: 15px; display: flex; justify-content: space-between; align-items: center; gap: 15px; background: {{ seomaticAvailable ? '#f7f7f7' : '#f9f9f9' }};">
+                <div style="flex: 1; min-width: 0;">
+                    <strong style="font-size: 15px; {{ not seomaticAvailable ? 'color: #999;' : '' }}">{{ "SEOmatic Integration"|t('smart-links') }}</strong>
+                    <div style="display: flex; align-items: center; gap: 10px; margin-top: 5px;">
+                        {% if seomaticAvailable %}
+                            <span class="status on"></span>
+                            <span style="color: #28a745; font-size: 12px;">{{ "Installed & Available"|t('smart-links') }}</span>
+                        {% else %}
+                            <span class="status"></span>
+                            <span style="color: #6c757d; font-size: 12px;">{{ "Not Installed"|t('smart-links') }}</span>
+                        {% endif %}
+                    </div>
+                    <p class="light" style="margin: 8px 0 0 0; font-size: 12px;">{{ "Push Smart Links events to SEOmatic's Google Tag Manager data layer for tracking in GTM and Google Analytics."|t('smart-links') }}</p>
+                </div>
+                <div style="flex-shrink: 0;">
+                    {{ forms.lightswitchField({
+                        label: false,
+                        id: 'enableSeomaticIntegration',
+                        name: 'enableSeomaticIntegration',
+                        on: seomaticEnabled,
+                        disabled: not seomaticAvailable or settings.isOverriddenByConfig('enabledIntegrations'),
+                    }) }}
+                </div>
+            </div>
+
+            {% if seomaticAvailable %}
+                <div id="seomatic-settings" class="{{ not seomaticEnabled ? 'hidden' }}" style="padding: 20px; border-top: 1px solid #e3e5e8;">
+                    {% if settings.isOverriddenByConfig('enabledIntegrations') %}
+                        <p class="warning" style="margin-bottom: 20px;">
+                            {{ "This is being overridden by the <code>enabledIntegrations</code> setting in <code>config/smart-links.php</code>."|t('smart-links')|raw }}
+                        </p>
+                    {% endif %}
+
+                    {# Active Tracking Scripts - Only show GTM and GA4 (scripts that receive dataLayer events) #}
+                    {% set dataLayerScripts = ['googleTagManager', 'gtag'] %}
+                    {% set hasDataLayerScripts = false %}
+                    {% for handle in dataLayerScripts %}
+                        {% if seomaticStatus.status.scripts[handle] is defined %}
+                            {% set hasDataLayerScripts = true %}
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if hasDataLayerScripts %}
+                        <div style="margin-bottom: 20px;">
+                            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+                                <strong style="font-size: 13px;">{{ "Active Tracking Scripts"|t('smart-links') }}</strong>
+                                <span class="light" style="font-size: 11px;">{{ "Scripts receiving Smart Links events"|t('smart-links') }}</span>
+                            </div>
+                            {% for handle in dataLayerScripts %}
+                                {% if seomaticStatus.status.scripts[handle] is defined %}
+                                    {% set script = seomaticStatus.status.scripts[handle] %}
+                                    <div style="background: #f7f7f7; border: 1px solid #e3e5e8; padding: 10px 12px; border-radius: 3px; margin-bottom: 8px;">
+                                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+                                            <span class="status on" style="width: 8px; height: 8px;"></span>
+                                            <strong style="font-size: 13px;">{{ script.name }}</strong>
+                                        </div>
+                                        {% if script.sites is defined and script.sites is not empty %}
+                                            <div style="margin-left: 16px; display: flex; flex-wrap: wrap; gap: 8px;">
+                                                {% for site in script.sites %}
+                                                    <div style="background: #fff; border: 1px solid #e3e5e8; padding: 3px 8px; border-radius: 2px; font-size: 11px;">
+                                                        <strong>{{ site.name }}</strong>
+                                                        {% if site.id is defined and site.id %}
+                                                            <code style="margin-left: 4px; color: #666;">{{ site.id }}</code>
+                                                        {% endif %}
+                                                    </div>
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+
+                        {# Hidden for now - Other tracking scripts (Facebook, LinkedIn, HubSpot, Pinterest, Fathom, Matomo, Plausible)
+                           receive events via GTM, not directly from Smart Links, so we don't display them here #}
+                    {% else %}
+                        <div style="background: #fff9e6; border-left: 3px solid #f59e0b; padding: 12px 15px; margin-bottom: 20px; border-radius: 3px;">
+                            <p style="margin: 0; font-size: 13px;">
+                                <strong>{{ "Note"|t('smart-links') }}:</strong>
+                                {{ "No tracking scripts are currently configured in SEOmatic. Events will be queued but not sent until you configure GTM or Google Analytics in SEOmatic."|t('smart-links') }}
+                            </p>
+                        </div>
+                    {% endif %}
+
+                    {# Configuration Section #}
+                    <div style="background: #fafafa; border: 1px solid #e3e5e8; padding: 15px; border-radius: 4px; margin-bottom: 20px;">
+                        <h4 style="margin: 0 0 15px 0; font-size: 14px; font-weight: 600;">{{ "Configuration"|t('smart-links') }}</h4>
+
+                        {# Event Type Selection - Lightswitch Toggles #}
+                        {% set trackingEvents = settings.seomaticTrackingEvents ?? ['redirect', 'button_click', 'qr_scan'] %}
+                        {% set isOverridden = settings.isOverriddenByConfig('seomaticTrackingEvents') %}
+
+                        <div class="field">
+                            <div class="heading">
+                                <label>{{ "Tracking Events"|t('smart-links') }}</label>
+                                <div class="instructions">
+                                    <p>{{ "Select which Smart Links events to send to SEOmatic"|t('smart-links') }}</p>
+                                </div>
+                            </div>
+
+                            {% if isOverridden %}
+                                <p class="warning" style="margin-bottom: 15px;">
+                                    {{ "This is being overridden by the <code>seomaticTrackingEvents</code> setting in <code>config/smart-links.php</code>."|t('smart-links')|raw }}
+                                </p>
+                            {% endif %}
+
+                            <div style="display: flex; flex-direction: column; gap: 12px;">
+                                {# Auto-Redirects #}
+                                <div style="display: flex; justify-content: flex-start; align-items: flex-start; gap: 15px; padding: 10px; background: #fafafa; border-radius: 4px;">
+                                    <div style="flex-shrink: 0;">
+                                        {{ forms.lightswitchField({
+                                            label: false,
+                                            id: 'seomaticTrackingEvents-redirect',
+                                            name: 'settings[seomaticTrackingEvents][]',
+                                            value: 'redirect',
+                                            on: 'redirect' in trackingEvents,
+                                            disabled: isOverridden,
+                                        }) }}
+                                    </div>
+                                    <div>
+                                        <strong>{{ "Auto-Redirects"|t('smart-links') }}</strong>
+                                        <span class="light" style="display: block; font-size: 12px; margin-top: 2px;">{{ "Mobile users automatically redirected"|t('smart-links') }}</span>
+                                    </div>
+                                </div>
+
+                                {# Button Clicks #}
+                                <div style="display: flex; justify-content: flex-start; align-items: flex-start; gap: 15px; padding: 10px; background: #fafafa; border-radius: 4px;">
+                                    <div style="flex-shrink: 0;">
+                                        {{ forms.lightswitchField({
+                                            label: false,
+                                            id: 'seomaticTrackingEvents-button_click',
+                                            name: 'settings[seomaticTrackingEvents][]',
+                                            value: 'button_click',
+                                            on: 'button_click' in trackingEvents,
+                                            disabled: isOverridden,
+                                        }) }}
+                                    </div>
+                                    <div>
+                                        <strong>{{ "Button Clicks"|t('smart-links') }}</strong>
+                                        <span class="light" style="display: block; font-size: 12px; margin-top: 2px;">{{ "Manual platform selection on landing page"|t('smart-links') }}</span>
+                                    </div>
+                                </div>
+
+                                {# QR Code Scans #}
+                                <div style="display: flex; justify-content: flex-start; align-items: flex-start; gap: 15px; padding: 10px; background: #fafafa; border-radius: 4px;">
+                                    <div style="flex-shrink: 0;">
+                                        {{ forms.lightswitchField({
+                                            label: false,
+                                            id: 'seomaticTrackingEvents-qr_scan',
+                                            name: 'settings[seomaticTrackingEvents][]',
+                                            value: 'qr_scan',
+                                            on: 'qr_scan' in trackingEvents,
+                                            disabled: isOverridden,
+                                        }) }}
+                                    </div>
+                                    <div>
+                                        <strong>{{ "QR Code Scans"|t('smart-links') }}</strong>
+                                        <span class="light" style="display: block; font-size: 12px; margin-top: 2px;">{{ "QR code accessed via ?src=qr parameter"|t('smart-links') }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {# Event Prefix #}
+                        {{ forms.textField({
+                            label: "Event Prefix"|t('smart-links'),
+                            instructions: "Prefix for event names (e.g., 'smart_links_redirect')"|t('smart-links'),
+                            id: 'seomaticEventPrefix',
+                            name: 'settings[seomaticEventPrefix]',
+                            value: settings.seomaticEventPrefix ?? 'smart_links',
+                            placeholder: 'smart_links',
+                            disabled: settings.isOverriddenByConfig('seomaticEventPrefix'),
+                            warning: settings.isOverriddenByConfig('seomaticEventPrefix') ?
+                                "This is being overridden by the <code>seomaticEventPrefix</code> setting in <code>config/smart-links.php</code>."|t('smart-links')|raw : null,
+                            errors: (settings is defined and settings) ? settings.getErrors('seomaticEventPrefix') : []
+                        }) }}
+                    </div>
+
+                    {# Event Structure Documentation - Collapsible #}
+                    <details style="margin-bottom: 15px;">
+                        <summary style="cursor: pointer; font-weight: 600; font-size: 13px; padding: 10px 0; user-select: none;">
+                            {{ "Event Data Structure"|t('smart-links') }}
+                            <span class="light" style="font-weight: normal; font-size: 12px; margin-left: 8px;">{{ "Click to view the data layer event format"|t('smart-links') }}</span>
+                        </summary>
+                        <div style="background: #f7f7f7; padding: 15px; border-radius: 4px; font-family: monospace; font-size: 11px; overflow-x: auto; margin-top: 10px;">
+<pre style="margin: 0; line-height: 1.5;">{
+  event: "smart_links_redirect",
+  smart_link: {
+    slug: "promo-2024",
+    title: "Summer Promo",
+    destination_url: "https://app.example.com",
+    platform: "ios",
+    source: "qr",
+    device_type: "mobile",
+    os: "iOS 17",
+    browser: "Safari",
+    country: "United States",
+    city: "New York",
+    click_type: "button"
+  }
+}</pre>
+                        </div>
+                    </details>
+
+                    {# Help Text #}
+                    <div style="background: #f0fdf4; border: 1px solid #86efac; padding: 12px 15px; border-radius: 3px;">
+                        <p style="margin: 0 0 8px 0; font-size: 13px;">
+                            <strong>{{ "How Events Are Sent"|t('smart-links') }}:</strong>
+                        </p>
+                        <ul style="margin: 0 0 12px 0; padding-left: 20px; font-size: 12px; line-height: 1.6;">
+                            <li style="margin-bottom: 6px;">
+                                <strong>{{ "Smart Links pushes events to GTM or GA4 dataLayer only"|t('smart-links') }}</strong><br>
+                                <span class="light">{{ "Only Google Tag Manager and Google Analytics 4 support the dataLayer format in SEOmatic"|t('smart-links') }}</span>
+                            </li>
+                            <li style="margin-bottom: 6px;">
+                                <strong>{{ "Use GTM to forward to other platforms"|t('smart-links') }}</strong><br>
+                                <span class="light">{{ "Configure GTM triggers and tags to forward Smart Links events to Facebook Pixel, LinkedIn, HubSpot, etc."|t('smart-links') }}</span>
+                            </li>
+                            <li style="margin-bottom: 6px;">
+                                <strong>{{ "Other scripts are detected for reference only"|t('smart-links') }}</strong><br>
+                                <span class="light">{{ "Fathom, Matomo, and Plausible are shown above but do not receive events directly from Smart Links"|t('smart-links') }}</span>
+                            </li>
+                            <li>
+                                <span class="light">{{ "Events are only sent when analytics tracking is enabled both globally and per-link"|t('smart-links') }}</span>
+                            </li>
+                        </ul>
+                        <p style="margin: 0; font-size: 11px; color: #666;">
+                            <strong>{{ "Architecture"|t('smart-links') }}:</strong>
+                            Smart Links → GTM/GA4 dataLayer → GTM Triggers → Facebook/LinkedIn/HubSpot/etc.
+                        </p>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+        {# End SEOmatic Integration Card #}
+
+        {# Hidden field to track enabled integrations #}
+        {% if seomaticAvailable %}
+            <input type="hidden"
+                   name="settings[enabledIntegrations]"
+                   value="{{ seomaticEnabled ? 'seomatic' : '' }}"
+                   id="enabledIntegrationsField">
+
+            {% js %}
+                // Auto-expand/collapse settings when lightswitch changes
+                $('#enableSeomaticIntegration').on('change', function() {
+                    var isEnabled = $(this).find('input[type="hidden"]').val() === '1';
+
+                    // Update hidden field
+                    $('#enabledIntegrationsField').val(isEnabled ? 'seomatic' : '');
+
+                    // Auto-expand or collapse settings
+                    if (isEnabled) {
+                        $('#seomatic-settings').removeClass('hidden').slideDown(200);
+                    } else {
+                        $('#seomatic-settings').slideUp(200, function() {
+                            $(this).addClass('hidden');
+                        });
+                    }
+                });
+            {% endjs %}
+        {% else %}
+            <input type="hidden" name="settings[enabledIntegrations]" value="">
+        {% endif %}
+
+        <div class="buttons">
+            <button type="submit" class="btn submit">{{ "Save Settings"|t('smart-links') }}</button>
+        </div>
+    </form>
+
+    {% include 'smart-links/_components/plugin-credit.twig' %}
+{% endblock %}

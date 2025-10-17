@@ -196,6 +196,21 @@ class Settings extends Model
     public string $logLevel = 'error';
 
     /**
+     * @var array Enabled integration handles (e.g., ['seomatic'])
+     */
+    public array $enabledIntegrations = [];
+
+    /**
+     * @var array Event types to track in integrations
+     */
+    public array $seomaticTrackingEvents = ['redirect', 'button_click', 'qr_scan'];
+
+    /**
+     * @var string Event prefix for GTM/GA events
+     */
+    public string $seomaticEventPrefix = 'smart_links';
+
+    /**
      * @inheritdoc
      */
     protected function defineBehaviors(): array
@@ -250,6 +265,9 @@ class Settings extends Model
             [['enabledSites'], 'each', 'rule' => ['integer']],
             [['logLevel'], 'in', 'range' => ['debug', 'info', 'warning', 'error']],
             [['logLevel'], 'validateLogLevel'],
+            [['enabledIntegrations', 'seomaticTrackingEvents'], 'each', 'rule' => ['string']],
+            [['seomaticEventPrefix'], 'string', 'max' => 50],
+            [['seomaticEventPrefix'], 'match', 'pattern' => '/^[a-z0-9\_]+$/', 'message' => Craft::t('smart-links', 'Only lowercase letters, numbers, and underscores are allowed.')],
         ];
     }
 
@@ -345,6 +363,12 @@ class Settings extends Model
             if (isset($row['enabledSites'])) {
                 $row['enabledSites'] = !empty($row['enabledSites']) ? json_decode($row['enabledSites'], true) : [];
             }
+            if (isset($row['enabledIntegrations'])) {
+                $row['enabledIntegrations'] = !empty($row['enabledIntegrations']) ? json_decode($row['enabledIntegrations'], true) : [];
+            }
+            if (isset($row['seomaticTrackingEvents'])) {
+                $row['seomaticTrackingEvents'] = !empty($row['seomaticTrackingEvents']) ? json_decode($row['seomaticTrackingEvents'], true) : [];
+            }
 
             // Set attributes from database
             $settings->setAttributes($row, false);
@@ -376,6 +400,12 @@ class Settings extends Model
         // Handle array serialization
         if (isset($attributes['enabledSites'])) {
             $attributes['enabledSites'] = json_encode($attributes['enabledSites']);
+        }
+        if (isset($attributes['enabledIntegrations'])) {
+            $attributes['enabledIntegrations'] = json_encode($attributes['enabledIntegrations']);
+        }
+        if (isset($attributes['seomaticTrackingEvents'])) {
+            $attributes['seomaticTrackingEvents'] = json_encode($attributes['seomaticTrackingEvents']);
         }
 
         // Add/update timestamps
@@ -518,6 +548,9 @@ class Settings extends Model
             'notFoundRedirectUrl' => Craft::t('smart-links', '404 Redirect URL'),
             'enabledSites' => Craft::t('smart-links', 'Enabled Sites'),
             'logLevel' => Craft::t('smart-links', 'Log Level'),
+            'enabledIntegrations' => Craft::t('smart-links', 'Enabled Integrations'),
+            'seomaticTrackingEvents' => Craft::t('smart-links', 'Tracking Events'),
+            'seomaticEventPrefix' => Craft::t('smart-links', 'Event Prefix'),
         ];
     }
 }

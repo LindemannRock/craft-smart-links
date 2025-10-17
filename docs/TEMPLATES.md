@@ -67,6 +67,10 @@ To enable mobile auto-redirect and analytics tracking, add this JavaScript to yo
 ```twig
 {% block head %}
     {{ parent() }}
+
+    {# SEOmatic tracking integration (if enabled) #}
+    {{ smartLink.renderSeomaticTracking('redirect') }}
+
     <script>
         // Client-side mobile detection for auto-redirect (works with cached pages)
         (function() {
@@ -99,18 +103,20 @@ This approach:
 All buttons should use the redirect controller action to enable tracking:
 
 ```twig
-<a href="{{ actionUrl('smart-links/redirect/go', {slug: smartLink.slug, platform: 'ios'}) }}">
+<a href="{{ actionUrl('smart-links/redirect/go', {slug: smartLink.slug, platform: 'ios', site: smartLink.site.handle}) }}">
     Download on App Store
 </a>
 
-<a href="{{ actionUrl('smart-links/redirect/go', {slug: smartLink.slug, platform: 'android'}) }}">
+<a href="{{ actionUrl('smart-links/redirect/go', {slug: smartLink.slug, platform: 'android', site: smartLink.site.handle}) }}">
     Get it on Google Play
 </a>
 
-<a href="{{ actionUrl('smart-links/redirect/go', {slug: smartLink.slug, platform: 'fallback'}) }}">
+<a href="{{ actionUrl('smart-links/redirect/go', {slug: smartLink.slug, platform: 'fallback', site: smartLink.site.handle}) }}">
     Continue to Website
 </a>
 ```
+
+**Note:** Include `site: smartLink.site.handle` parameter for proper multi-site support.
 
 The redirect controller tracks each click before redirecting to the appropriate URL.
 
@@ -135,6 +141,10 @@ The tracking system records these interaction types:
 
 {% block head %}
     {{ parent() }}
+
+    {# SEOmatic tracking integration (if enabled) #}
+    {{ smartLink.renderSeomaticTracking('redirect') }}
+
     <script>
         // Client-side mobile detection for auto-redirect
         (function() {
@@ -165,19 +175,19 @@ The tracking system records these interaction types:
 
         <div class="app-buttons">
             {% if smartLink.iosUrl %}
-                <a href="{{ actionUrl('smart-links/redirect/go', {slug: smartLink.slug, platform: 'ios'}) }}">
+                <a href="{{ actionUrl('smart-links/redirect/go', {slug: smartLink.slug, platform: 'ios', site: smartLink.site.handle}) }}">
                     Download on App Store
                 </a>
             {% endif %}
 
             {% if smartLink.androidUrl %}
-                <a href="{{ actionUrl('smart-links/redirect/go', {slug: smartLink.slug, platform: 'android'}) }}">
+                <a href="{{ actionUrl('smart-links/redirect/go', {slug: smartLink.slug, platform: 'android', site: smartLink.site.handle}) }}">
                     Get it on Google Play
                 </a>
             {% endif %}
 
             {% if smartLink.fallbackUrl %}
-                <a href="{{ actionUrl('smart-links/redirect/go', {slug: smartLink.slug, platform: 'fallback'}) }}">
+                <a href="{{ actionUrl('smart-links/redirect/go', {slug: smartLink.slug, platform: 'fallback', site: smartLink.site.handle}) }}">
                     Visit Website
                 </a>
             {% endif %}
@@ -214,6 +224,9 @@ Here's a basic example (`templates/smart-links/qr.twig`):
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ smartLink.title }} - QR Code</title>
+
+    {# SEOmatic tracking integration (if enabled) #}
+    {{ smartLink.renderSeomaticTracking('qr_scan') }}
 </head>
 <body>
     <div class="qr-display">
@@ -265,17 +278,51 @@ You can also fetch and display smart links directly in any template:
 {% set link = craft.smartLinks.getById(123) %}
 ```
 
-## SEOmatic Integration Example
+## SEOmatic Integration
 
-Smart Links supports custom fields through field layouts. Here's an example using SEOmatic fields:
+Smart Links includes built-in SEOmatic integration for analytics tracking and custom SEO fields.
 
-### Adding SEOmatic Field to Smart Links
+### Analytics Tracking Integration
+
+When SEOmatic is installed and enabled in Settings → Analytics → Third-Party Integrations, Smart Links can push click events to Google Tag Manager's dataLayer.
+
+**Template Method:**
+
+Add the tracking method to your templates:
+
+```twig
+{# For redirect landing pages #}
+{{ smartLink.renderSeomaticTracking('redirect') }}
+
+{# For QR code display pages #}
+{{ smartLink.renderSeomaticTracking('qr_scan') }}
+```
+
+**How It Works:**
+- Returns client-side JavaScript when SEOmatic integration is enabled
+- Returns `null` (no output) when disabled or not installed
+- No need for `|raw` filter (returns `\Twig\Markup` automatically)
+- Pushes events to `window.dataLayer` for GTM/GA4 tracking
+- Button clicks intercepted with 300ms delay to ensure tracking completes
+- Supports debug mode: add `?debug=1` to test without redirects
+
+**Event Types:**
+- `'redirect'` - Landing pages with buttons and auto-redirects
+- `'qr_scan'` - QR code display pages
+
+See the main README for full configuration options and GTM setup instructions.
+
+### SEOmatic Field Integration
+
+Smart Links also supports custom SEOmatic fields through field layouts for per-link SEO customization:
+
+**Adding SEOmatic Field to Smart Links:**
 
 1. Go to **Settings → Smart Links → Field Layout**
 2. Drag an SEOmatic field into the layout
 3. Save the field layout
 
-### Template Usage
+**Template Usage:**
 
 If you have SEOmatic fields in your Smart Links field layout, you can access them in templates:
 
@@ -284,6 +331,9 @@ If you have SEOmatic fields in your Smart Links field layout, you can access the
 
 {% block head %}
     {{ parent() }}
+
+    {# SEOmatic tracking integration (if enabled) #}
+    {{ smartLink.renderSeomaticTracking('redirect') }}
 
     {# Mobile detection for auto-redirect #}
     <script>
@@ -316,13 +366,13 @@ If you have SEOmatic fields in your Smart Links field layout, you can access the
         {# Platform buttons #}
         <div class="app-buttons">
             {% if smartLink.iosUrl %}
-                <a href="{{ actionUrl('smart-links/redirect/go', {slug: smartLink.slug, platform: 'ios'}) }}">
+                <a href="{{ actionUrl('smart-links/redirect/go', {slug: smartLink.slug, platform: 'ios', site: smartLink.site.handle}) }}">
                     Download on App Store
                 </a>
             {% endif %}
 
             {% if smartLink.androidUrl %}
-                <a href="{{ actionUrl('smart-links/redirect/go', {slug: smartLink.slug, platform: 'android'}) }}">
+                <a href="{{ actionUrl('smart-links/redirect/go', {slug: smartLink.slug, platform: 'android', site: smartLink.site.handle}) }}">
                     Get it on Google Play
                 </a>
             {% endif %}

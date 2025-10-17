@@ -36,6 +36,7 @@ use lindemannrock\smartlinks\models\Settings;
 use lindemannrock\smartlinks\utilities\SmartLinksUtility;
 use lindemannrock\smartlinks\services\AnalyticsService;
 use lindemannrock\smartlinks\services\DeviceDetectionService;
+use lindemannrock\smartlinks\services\IntegrationService;
 use lindemannrock\smartlinks\services\QrCodeService;
 use lindemannrock\smartlinks\services\SmartLinksService;
 use lindemannrock\smartlinks\variables\SmartLinksVariable;
@@ -54,6 +55,7 @@ use yii\base\Event;
  * @property-read DeviceDetectionService $deviceDetection
  * @property-read QrCodeService $qrCode
  * @property-read AnalyticsService $analytics
+ * @property-read IntegrationService $integration
  * @property-read Settings $settings
  * @method Settings getSettings()
  */
@@ -113,6 +115,7 @@ class SmartLinks extends Plugin
             'deviceDetection' => DeviceDetectionService::class,
             'qrCode' => QrCodeService::class,
             'analytics' => AnalyticsService::class,
+            'integration' => IntegrationService::class,
         ]);
 
         // Schedule analytics cleanup if retention is enabled
@@ -441,6 +444,7 @@ class SmartLinks extends Plugin
             'smart-links/settings' => 'smart-links/settings/index',
             'smart-links/settings/general' => 'smart-links/settings/general',
             'smart-links/settings/analytics' => 'smart-links/settings/analytics',
+            'smart-links/settings/integrations' => 'smart-links/settings/integrations',
             'smart-links/settings/export' => 'smart-links/settings/export',
             'smart-links/settings/qr-code' => 'smart-links/settings/qr-code',
             'smart-links/settings/redirect' => 'smart-links/settings/redirect',

@@ -39,7 +39,7 @@ class SettingsController extends Controller
     public function beforeAction($action): bool
     {
         // View actions allowed without allowAdminChanges
-        $viewActions = ['index', 'general', 'analytics', 'export', 'qr-code', 'redirect', 'interface', 'advanced', 'field-layout', 'debug'];
+        $viewActions = ['index', 'general', 'analytics', 'integrations', 'export', 'qr-code', 'redirect', 'interface', 'advanced', 'field-layout', 'debug'];
 
         // Cache clearing actions don't require allowAdminChanges (cache is runtime data, not config)
         $cacheActions = ['clear-qr-cache', 'clear-device-cache', 'clear-all-caches', 'clear-all-analytics', 'cleanup-platform-values'];
@@ -67,7 +67,7 @@ class SettingsController extends Controller
     {
         return $this->redirect('smart-links/settings/general');
     }
-    
+
     /**
      * Debug settings loading
      *
@@ -76,15 +76,15 @@ class SettingsController extends Controller
     public function actionDebug(): Response
     {
         $this->requirePermission('smartLinks:settings');
-        
+
         // Test database query directly
         $row = (new \craft\db\Query())
             ->from('{{%smartlinks_settings}}')
             ->where(['id' => 1])
             ->one();
-            
+
         $settings = Settings::loadFromDatabase();
-        
+
         return $this->asJson([
             'database_row' => $row,
             'loaded_settings' => $settings ? $settings->getAttributes() : null,
@@ -132,6 +132,23 @@ class SettingsController extends Controller
         $settings = $plugin->getSettings();
 
         return $this->renderTemplate('smart-links/settings/analytics', [
+            'settings' => $settings,
+            'readOnly' => $this->readOnly,
+        ]);
+    }
+
+    /**
+     * Integrations settings
+     *
+     * @return Response
+     */
+    public function actionIntegrations(): Response
+    {
+        // Get settings from plugin (includes config overrides)
+        $plugin = SmartLinks::getInstance();
+        $settings = $plugin->getSettings();
+
+        return $this->renderTemplate('smart-links/settings/integrations', [
             'settings' => $settings,
             'readOnly' => $this->readOnly,
         ]);
@@ -346,10 +363,10 @@ class SettingsController extends Controller
         file_put_contents('/tmp/smart-links-debug.log', date('Y-m-d H:i:s') . " - Save action called\n", FILE_APPEND);
 
         $this->requirePostRequest();
-        
+
         // Check permission first
         $this->requirePermission('smartLinks:settings');
-        
+
         // No need to check allowAdminChanges since settings are stored in database
         // not in project config
 
@@ -358,7 +375,7 @@ class SettingsController extends Controller
         if (!$settings) {
             $settings = new Settings();
         }
-        
+
         $settingsData = Craft::$app->getRequest()->getBodyParam('settings');
 
         // Debug: Log what we received
@@ -379,7 +396,7 @@ class SettingsController extends Controller
         if (isset($settingsData['pluginName'])) {
             $settings->pluginName = $settingsData['pluginName'];
         }
-        
+
         // Handle enabledSites checkbox group
         if (isset($settingsData['enabledSites'])) {
             if (is_array($settingsData['enabledSites'])) {
@@ -403,7 +420,7 @@ class SettingsController extends Controller
             $settingsData['qrLogoVolumeUid'] = $settingsData['imageVolumeUid'];
             Craft::info('Auto-setting qrLogoVolumeUid to match imageVolumeUid', 'smart-links', ['uid' => $settingsData['imageVolumeUid']]);
         }
-        
+
         // Fix color fields - add # if missing
         if (isset($settingsData['defaultQrColor']) && !str_starts_with($settingsData['defaultQrColor'], '#')) {
             $settingsData['defaultQrColor'] = '#' . $settingsData['defaultQrColor'];
@@ -420,7 +437,7 @@ class SettingsController extends Controller
                 $settingsData['qrEyeColor'] = '#' . $settingsData['qrEyeColor'];
             }
         }
-        
+
         $settings->setAttributes($settingsData, false);
 
         // Debug: Log what's in settings after setAttributes
@@ -429,15 +446,15 @@ class SettingsController extends Controller
         if (!$settings->validate()) {
             // Log validation errors for debugging
             Craft::error('Settings validation failed', 'smart-links', ['errors' => $settings->getErrors()]);
-            
+
             // Standard Craft way: Pass errors back to template
             Craft::$app->getSession()->setError(Craft::t('smart-links', 'Couldn\'t save settings.'));
-            
+
             // Re-render the template with errors
             // Get the section from the request to render the correct template
             $section = Craft::$app->getRequest()->getBodyParam('section', 'general');
             $template = "smart-links/settings/{$section}";
-            
+
             return $this->renderTemplate($template, [
                 'settings' => $settings,
             ]);
@@ -451,7 +468,7 @@ class SettingsController extends Controller
                 // setSettings expects an array, not an object
                 $plugin->setSettings($settings->getAttributes());
             }
-            
+
             Craft::$app->getSession()->setNotice(Craft::t('smart-links', 'Settings saved.'));
         } else {
             Craft::$app->getSession()->setError(Craft::t('smart-links', 'Couldn\'t save settings.'));

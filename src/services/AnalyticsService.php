@@ -1395,7 +1395,7 @@ class AnalyticsService extends Component
      */
     public function saveAnalytics(int $linkId, array $deviceInfo, array $metadata = []): bool
     {
-        $this->logInfo('saveAnalytics called', ['linkId' => $linkId]);
+        $this->logInfo('Saving Smart Link analytics', ['linkId' => $linkId]);
 
         try {
             $db = Craft::$app->getDb();

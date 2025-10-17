@@ -300,6 +300,127 @@ Navigate to **Smart Links → Analytics** to see:
 - Global analytics toggle to disable all tracking
 - Per-link analytics control with confirmation prompts
 
+### Third-Party Integrations
+
+Smart Links can integrate with third-party analytics and tracking services to push click events beyond its built-in analytics.
+
+#### SEOmatic Integration
+
+When [SEOmatic](https://plugins.craftcms.com/seomatic) is installed, Smart Links can push click events to Google Tag Manager's data layer for tracking in GTM and Google Analytics.
+
+**Setup:**
+1. Install and configure SEOmatic plugin with GTM or Google Analytics
+2. Navigate to **Settings → Smart Links → Analytics**
+3. Scroll to **Third-Party Integrations** section
+4. Enable **SEOmatic Integration**
+5. Select which events to track (redirects, button clicks, QR scans)
+6. Customize the event prefix if needed (default: `smart_links`)
+7. Save settings
+
+**GTM Event Structure:**
+
+Events are pushed to `window.dataLayer` with the following structure:
+
+```javascript
+{
+  event: "smart_links_redirect",
+  smart_link: {
+    slug: "promo-2024",
+    title: "Summer Promo",
+    destination_url: "https://app.example.com/promo",
+    platform: "ios",              // ios, android, windows, macos, other
+    source: "qr",                 // qr, landing, direct
+    device_type: "mobile",        // mobile, tablet, desktop
+    os: "iOS 17",
+    browser: "Safari",
+    country: "United States",
+    city: "New York",
+    click_type: "button"          // button or redirect
+  }
+}
+```
+
+**Event Types:**
+- `smart_links_redirect` - Auto-redirects (mobile users automatically redirected)
+- `smart_links_button_click` - Button clicks (manual platform selection)
+- `smart_links_qr_scan` - QR code scans (accessed via `?src=qr` parameter)
+
+**GTM Trigger Setup:**
+
+Create triggers in Google Tag Manager to listen for these events:
+
+1. **Trigger Type**: Custom Event
+2. **Event Name**: `smart_links_redirect` (or your custom prefix)
+3. **Use regex matching** to catch all Smart Links events: `smart_links_.*`
+
+**GA4 Event Example:**
+
+Forward Smart Links events to Google Analytics 4:
+
+```
+Event Name: smart_link_click
+Parameters:
+  - link_slug: {{smart_link.slug}}
+  - link_platform: {{smart_link.platform}}
+  - link_source: {{smart_link.source}}
+  - device_type: {{smart_link.device_type}}
+```
+
+**Configuration via Config File:**
+
+```php
+// config/smart-links.php
+return [
+    'enabledIntegrations' => ['seomatic'],
+    'seomaticTrackingEvents' => ['redirect', 'button_click', 'qr_scan'],
+    'seomaticEventPrefix' => 'smart_links',
+];
+```
+
+**Important Notes:**
+- Events are only sent when analytics tracking is enabled (globally and per-link)
+- Requires SEOmatic plugin to be installed and enabled
+- GTM or Google Analytics must be configured in SEOmatic
+- Events include all analytics data Smart Links already tracks
+- No additional external API calls or performance impact
+
+**Template Usage:**
+
+Add the tracking method to your templates to enable client-side event tracking:
+
+```twig
+{# templates/smart-links/redirect.twig #}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ smartLink.title }}</title>
+
+    {# Render SEOmatic tracking script (outputs JavaScript if enabled, null if disabled) #}
+    {{ smartLink.renderSeomaticTracking('redirect') }}
+</head>
+<body>
+    {# Your template content #}
+</body>
+</html>
+```
+
+For QR code templates:
+```twig
+{# templates/smart-links/qr.twig #}
+{{ smartLink.renderSeomaticTracking('qr_scan') }}
+```
+
+**Event Types:**
+- `'redirect'` - Use for landing pages with buttons and auto-redirects
+- `'qr_scan'` - Use for QR code display pages
+
+**How It Works:**
+- The method returns client-side JavaScript that pushes events to `window.dataLayer`
+- Returns `null` if SEOmatic is not installed or disabled (no output)
+- No need for `|raw` filter (returns `\Twig\Markup` automatically)
+- Button clicks are intercepted with 300ms delay to ensure tracking completes
+- Works with debug mode: add `?debug=1` to test tracking without redirects
+
 ### QR Codes
 
 Each smart link automatically generates a QR code:
@@ -390,6 +511,9 @@ Settings → QR Code → Custom QR Code Template
 <head>
     <title>{{ smartLink.title }}</title>
 
+    {# SEOmatic tracking integration (if enabled) #}
+    {{ smartLink.renderSeomaticTracking('redirect') }}
+
     <script>
         // Client-side mobile detection for auto-redirect (works with cached pages)
         (function() {
@@ -414,15 +538,15 @@ Settings → QR Code → Custom QR Code Template
 
     {# Platform-specific buttons that track clicks via redirect controller #}
     {% if smartLink.iosUrl %}
-        <a href="{{ actionUrl('smart-links/redirect/go', {slug: smartLink.slug, platform: 'ios'}) }}">Download on App Store</a>
+        <a href="{{ actionUrl('smart-links/redirect/go', {slug: smartLink.slug, platform: 'ios', site: smartLink.site.handle}) }}">Download on App Store</a>
     {% endif %}
 
     {% if smartLink.androidUrl %}
-        <a href="{{ actionUrl('smart-links/redirect/go', {slug: smartLink.slug, platform: 'android'}) }}">Get it on Google Play</a>
+        <a href="{{ actionUrl('smart-links/redirect/go', {slug: smartLink.slug, platform: 'android', site: smartLink.site.handle}) }}">Get it on Google Play</a>
     {% endif %}
 
     {# Fallback button #}
-    <a href="{{ actionUrl('smart-links/redirect/go', {slug: smartLink.slug, platform: 'fallback'}) }}">Continue to Website</a>
+    <a href="{{ actionUrl('smart-links/redirect/go', {slug: smartLink.slug, platform: 'fallback', site: smartLink.site.handle}) }}">Continue to Website</a>
 
     {# QR Code #}
     {% if smartLink.qrCodeEnabled %}
@@ -554,6 +678,10 @@ smartLink.getUrl()
 
 {# Get image asset #}
 smartLink.getImage()
+
+{# Render SEOmatic tracking script (returns Twig\Markup or null) #}
+smartLink.renderSeomaticTracking(eventType = 'qr_scan')
+{# Event types: 'redirect' for landing pages, 'qr_scan' for QR code pages #}
 ```
 
 ### GraphQL Support

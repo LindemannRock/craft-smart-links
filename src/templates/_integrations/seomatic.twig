@@ -1,0 +1,97 @@
+{% macro tracking(smartLink, eventType = 'qr_scan') %}
+    {% set seomaticEnabled = craft.app.plugins.isPluginEnabled('seomatic') and 'seomatic' in (craft.app.plugins.getPlugin('smart-links').settings.enabledIntegrations ?? []) %}
+
+    {% if seomaticEnabled %}
+    <script>
+        window.dataLayer = window.dataLayer || [];
+
+        {% if eventType == 'qr_scan' %}
+        (function() {
+            var eventData = {
+                event: '{{ craft.app.plugins.getPlugin('smart-links').settings.seomaticEventPrefix ?? 'smart_links' }}_qr_scan',
+                smart_link: {
+                    slug: '{{ smartLink.slug }}',
+                    title: '{{ smartLink.title }}',
+                    source: 'qr',
+                    click_type: 'qr_scan'
+                }
+            };
+            window.dataLayer.push(eventData);
+            console.log('Smart Links QR scan event pushed:', eventData);
+        })();
+        {% else %}
+        function pushSmartLinkEvent(eventType, platform, source) {
+            var eventData = {
+                event: '{{ craft.app.plugins.getPlugin('smart-links').settings.seomaticEventPrefix ?? 'smart_links' }}_' + eventType,
+                smart_link: {
+                    slug: '{{ smartLink.slug }}',
+                    title: '{{ smartLink.title }}',
+                    platform: platform,
+                    source: source || 'direct',
+                    click_type: eventType
+                }
+            };
+            window.dataLayer.push(eventData);
+            console.log('✅ Smart Links event pushed to dataLayer:', eventData);
+            console.log('📊 Current dataLayer length:', window.dataLayer.length);
+            console.log('🔍 Last 3 dataLayer events:', window.dataLayer.slice(-3));
+        }
+
+        (function() {
+            fetch('{{ actionUrl('smart-links/redirect/refresh-csrf')|raw }}', {
+                credentials: 'same-origin',
+                cache: 'no-store'
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.isMobile) {
+                    var urlParams = new URLSearchParams(window.location.search);
+                    var source = urlParams.get('src') || 'direct';
+                    pushSmartLinkEvent('redirect', data.platform || 'mobile', source);
+                    setTimeout(function() {
+                        var redirectUrl = '{{ actionUrl('smart-links/redirect/go', {slug: smartLink.slug, platform: 'auto', site: smartLink.site.handle})|raw }}';
+                        if (source !== 'direct') {
+                            redirectUrl += '&src=' + encodeURIComponent(source);
+                        }
+                        window.location.replace(redirectUrl);
+                    }, 100);
+                }
+            })
+            .catch(err => {
+                console.error('Device detection failed:', err);
+            });
+        })();
+
+        document.addEventListener('DOMContentLoaded', function() {
+            var urlParams = new URLSearchParams(window.location.search);
+            var debugMode = urlParams.get('debug') === '1';
+
+            if (debugMode) {
+                console.log('🐛 DEBUG MODE ENABLED - Redirects are disabled for testing');
+            }
+
+            var appLinks = document.querySelectorAll('a[href*="smart-links/redirect/go"]');
+
+            appLinks.forEach(function(link) {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    var url = new URL(link.href);
+                    var platform = url.searchParams.get('platform') || 'unknown';
+                    var urlParams = new URLSearchParams(window.location.search);
+                    var source = urlParams.get('src') || 'direct';
+                    pushSmartLinkEvent('button_click', platform, source);
+
+                    if (!debugMode) {
+                        setTimeout(function() {
+                            window.location.href = link.href;
+                        }, 300);
+                    } else {
+                        console.log('🐛 DEBUG: Redirect prevented. Event was pushed to dataLayer.');
+                    }
+                });
+            });
+        });
+        {% endif %}
+    </script>
+    {% endif %}
+{% endmacro %}

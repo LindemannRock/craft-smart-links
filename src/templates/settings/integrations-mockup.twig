@@ -1,0 +1,251 @@
+{% extends "smart-links/_layouts/settings" %}
+{% set title = "Integrations Settings - MOCKUP"|t('smart-links') %}
+{% set fullPageForm = true %}
+{% set selectedSettingsItem = 'integrations' %}
+
+{% import "_includes/forms" as forms %}
+
+{% block content %}
+    <form method="post" accept-charset="UTF-8">
+        <h2 style="margin-top: 0px;">{{ "Third-Party Integrations"|t('smart-links') }}</h2>
+
+        <div class="field">
+            <p class="light">{{ "Integrate Smart Links with third-party analytics and tracking services to push click events to Google Tag Manager, Google Analytics, and other platforms."|t('smart-links') }}</p>
+        </div>
+
+        <hr style="margin: 30px 0;">
+
+        {# OPTION 1: Each integration as H2 with full settings (current approach) #}
+        <div style="margin-bottom: 50px;">
+            <p style="background: #e8f4f8; padding: 10px; border-left: 3px solid #0d78a5;"><strong>OPTION 1:</strong> Each integration as H2 heading (current)</p>
+
+            <h2>{{ "SEOmatic Integration"|t('smart-links') }}</h2>
+            <div class="field">
+                <p class="light">Push Smart Links events to SEOmatic's Google Tag Manager data layer for tracking in GTM and Google Analytics.</p>
+            </div>
+            {{ forms.lightswitchField({
+                label: "Enable SEOmatic Integration"|t('smart-links'),
+                instructions: "Send click events to SEOmatic's tracking scripts"|t('smart-links'),
+            }) }}
+            <div style="margin-left: 20px; padding: 15px; background: #f7f7f7; border-radius: 4px;">
+                <p class="light">[Additional settings would appear here when enabled...]</p>
+            </div>
+
+            <h2 style="margin-top: 40px;">{{ "Matomo Integration"|t('smart-links') }}</h2>
+            <div class="field">
+                <p class="light">Track Smart Links clicks in Matomo (formerly Piwik) for privacy-focused, self-hosted analytics.</p>
+            </div>
+            {{ forms.lightswitchField({
+                label: "Enable Matomo Integration"|t('smart-links'),
+                instructions: "Send click events to Matomo"|t('smart-links'),
+                disabled: true,
+            }) }}
+
+            <h2 style="margin-top: 40px;">{{ "Plausible Integration"|t('smart-links') }}</h2>
+            <div class="field">
+                <p class="light">Send Smart Links events to Plausible Analytics for simple, privacy-friendly web analytics.</p>
+            </div>
+            {{ forms.lightswitchField({
+                label: "Enable Plausible Integration"|t('smart-links'),
+                instructions: "Send click events to Plausible"|t('smart-links'),
+                disabled: true,
+            }) }}
+
+            <h2 style="margin-top: 40px;">{{ "Fathom Analytics"|t('smart-links') }}</h2>
+            <div class="field">
+                <p class="light">Track Smart Links clicks with Fathom Analytics for GDPR-compliant website analytics.</p>
+            </div>
+            {{ forms.lightswitchField({
+                label: "Enable Fathom Integration"|t('smart-links'),
+                instructions: "Send click events to Fathom"|t('smart-links'),
+                disabled: true,
+            }) }}
+
+            <h2 style="margin-top: 40px;">{{ "Segment Integration"|t('smart-links') }}</h2>
+            <div class="field">
+                <p class="light">Send Smart Links events to Segment to route data to multiple analytics tools and destinations.</p>
+            </div>
+            {{ forms.lightswitchField({
+                label: "Enable Segment Integration"|t('smart-links'),
+                instructions: "Send click events to Segment"|t('smart-links'),
+                disabled: true,
+            }) }}
+        </div>
+
+        <hr style="margin: 50px 0; border: 3px solid #0d78a5;">
+
+        {# OPTION 2: Card-based layout #}
+        <div style="margin-bottom: 50px;">
+            <p style="background: #e8f4f8; padding: 10px; border-left: 3px solid #0d78a5;"><strong>OPTION 2:</strong> Card-based grid layout</p>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; margin-top: 20px;">
+                {# SEOmatic Card #}
+                <div style="border: 1px solid #e3e5e8; border-radius: 4px; padding: 20px; background: white;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
+                        <h3 style="margin: 0;">SEOmatic</h3>
+                        <span class="status on"></span>
+                    </div>
+                    <p class="light" style="font-size: 13px; margin-bottom: 15px;">Push events to GTM and Google Analytics via SEOmatic.</p>
+                    {{ forms.lightswitchField({
+                        label: "Enable"|t('smart-links'),
+                    }) }}
+                </div>
+
+                {# Matomo Card #}
+                <div style="border: 1px solid #e3e5e8; border-radius: 4px; padding: 20px; background: #f9f9f9;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
+                        <h3 style="margin: 0; color: #999;">Matomo</h3>
+                        <span class="status"></span>
+                    </div>
+                    <p class="light" style="font-size: 13px; margin-bottom: 15px;">Self-hosted analytics platform.</p>
+                    {{ forms.lightswitchField({
+                        label: "Enable"|t('smart-links'),
+                        disabled: true,
+                    }) }}
+                </div>
+
+                {# Plausible Card #}
+                <div style="border: 1px solid #e3e5e8; border-radius: 4px; padding: 20px; background: #f9f9f9;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
+                        <h3 style="margin: 0; color: #999;">Plausible</h3>
+                        <span class="status"></span>
+                    </div>
+                    <p class="light" style="font-size: 13px; margin-bottom: 15px;">Privacy-friendly web analytics.</p>
+                    {{ forms.lightswitchField({
+                        label: "Enable"|t('smart-links'),
+                        disabled: true,
+                    }) }}
+                </div>
+
+                {# Fathom Card #}
+                <div style="border: 1px solid #e3e5e8; border-radius: 4px; padding: 20px; background: #f9f9f9;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
+                        <h3 style="margin: 0; color: #999;">Fathom</h3>
+                        <span class="status"></span>
+                    </div>
+                    <p class="light" style="font-size: 13px; margin-bottom: 15px;">GDPR-compliant analytics.</p>
+                    {{ forms.lightswitchField({
+                        label: "Enable"|t('smart-links'),
+                        disabled: true,
+                    }) }}
+                </div>
+
+                {# Segment Card #}
+                <div style="border: 1px solid #e3e5e8; border-radius: 4px; padding: 20px; background: #f9f9f9;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
+                        <h3 style="margin: 0; color: #999;">Segment</h3>
+                        <span class="status"></span>
+                    </div>
+                    <p class="light" style="font-size: 13px; margin-bottom: 15px;">Route data to multiple tools.</p>
+                    {{ forms.lightswitchField({
+                        label: "Enable"|t('smart-links'),
+                        disabled: true,
+                    }) }}
+                </div>
+            </div>
+        </div>
+
+        <hr style="margin: 50px 0; border: 3px solid #0d78a5;">
+
+        {# OPTION 3: Collapsible sections #}
+        <div style="margin-bottom: 50px;">
+            <p style="background: #e8f4f8; padding: 10px; border-left: 3px solid #0d78a5;"><strong>OPTION 3:</strong> Collapsible accordion style</p>
+
+            {# SEOmatic - Expanded #}
+            <div style="border: 1px solid #e3e5e8; border-radius: 4px; margin-bottom: 10px; background: white;">
+                <div style="padding: 15px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; background: #f7f7f7;">
+                    <div style="flex: 1;">
+                        <strong style="font-size: 15px;">SEOmatic Integration</strong>
+                        <div style="display: flex; align-items: center; gap: 10px; margin-top: 5px;">
+                            <span class="status on"></span>
+                            <span style="color: #28a745; font-size: 12px;">Installed & Available</span>
+                        </div>
+                    </div>
+                    {{ forms.lightswitchField({
+                        label: false,
+                    }) }}
+                </div>
+                <div style="padding: 20px; border-top: 1px solid #e3e5e8;">
+                    <p class="light">Push Smart Links events to SEOmatic's Google Tag Manager data layer for tracking in GTM and Google Analytics.</p>
+                    <div style="margin-top: 15px; padding: 15px; background: #f7f7f7; border-radius: 4px;">
+                        <p class="light">[Additional settings: event types, prefix, etc.]</p>
+                    </div>
+                </div>
+            </div>
+
+            {# Matomo - Collapsed #}
+            <div style="border: 1px solid #e3e5e8; border-radius: 4px; margin-bottom: 10px; background: white;">
+                <div style="padding: 15px; display: flex; justify-content: space-between; align-items: center; cursor: pointer;">
+                    <div style="flex: 1;">
+                        <strong style="font-size: 15px; color: #999;">Matomo Integration</strong>
+                        <div style="display: flex; align-items: center; gap: 10px; margin-top: 5px;">
+                            <span class="status"></span>
+                            <span style="color: #6c757d; font-size: 12px;">Not Installed</span>
+                        </div>
+                    </div>
+                    {{ forms.lightswitchField({
+                        label: false,
+                        disabled: true,
+                    }) }}
+                </div>
+            </div>
+
+            {# Plausible - Collapsed #}
+            <div style="border: 1px solid #e3e5e8; border-radius: 4px; margin-bottom: 10px; background: white;">
+                <div style="padding: 15px; display: flex; justify-content: space-between; align-items: center; cursor: pointer;">
+                    <div style="flex: 1;">
+                        <strong style="font-size: 15px; color: #999;">Plausible Integration</strong>
+                        <div style="display: flex; align-items: center; gap: 10px; margin-top: 5px;">
+                            <span class="status"></span>
+                            <span style="color: #6c757d; font-size: 12px;">Not Installed</span>
+                        </div>
+                    </div>
+                    {{ forms.lightswitchField({
+                        label: false,
+                        disabled: true,
+                    }) }}
+                </div>
+            </div>
+
+            {# Fathom - Collapsed #}
+            <div style="border: 1px solid #e3e5e8; border-radius: 4px; margin-bottom: 10px; background: white;">
+                <div style="padding: 15px; display: flex; justify-content: space-between; align-items: center; cursor: pointer;">
+                    <div style="flex: 1;">
+                        <strong style="font-size: 15px; color: #999;">Fathom Integration</strong>
+                        <div style="display: flex; align-items: center; gap: 10px; margin-top: 5px;">
+                            <span class="status"></span>
+                            <span style="color: #6c757d; font-size: 12px;">Not Installed</span>
+                        </div>
+                    </div>
+                    {{ forms.lightswitchField({
+                        label: false,
+                        disabled: true,
+                    }) }}
+                </div>
+            </div>
+
+            {# Segment - Collapsed #}
+            <div style="border: 1px solid #e3e5e8; border-radius: 4px; margin-bottom: 10px; background: white;">
+                <div style="padding: 15px; display: flex; justify-content: space-between; align-items: center; cursor: pointer;">
+                    <div style="flex: 1;">
+                        <strong style="font-size: 15px; color: #999;">Segment Integration</strong>
+                        <div style="display: flex; align-items: center; gap: 10px; margin-top: 5px;">
+                            <span class="status"></span>
+                            <span style="color: #6c757d; font-size: 12px;">Not Installed</span>
+                        </div>
+                    </div>
+                    {{ forms.lightswitchField({
+                        label: false,
+                        disabled: true,
+                    }) }}
+                </div>
+            </div>
+        </div>
+
+        <div class="buttons">
+            <button type="submit" class="btn submit">{{ "Save Settings"|t('smart-links') }}</button>
+        </div>
+    </form>
+
+    {% include 'smart-links/_components/plugin-credit.twig' %}
+{% endblock %}

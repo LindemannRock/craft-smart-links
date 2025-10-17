@@ -5,31 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ smartLink.title }} - {{ siteName }}</title>
 
-    <script>
-        // Client-side mobile detection for auto-redirect (works with cached pages)
-        (function() {
-            fetch('{{ actionUrl('smart-links/redirect/refresh-csrf')|raw }}', {
-                credentials: 'same-origin',
-                cache: 'no-store'
-            })
-            .then(r => r.json())
-            .then(data => {
-                if (data.isMobile) {
-                    // Preserve src parameter from QR codes
-                    var redirectUrl = '{{ actionUrl('smart-links/redirect/go', {slug: smartLink.slug, platform: 'auto'})|raw }}';
-                    var urlParams = new URLSearchParams(window.location.search);
-                    var source = urlParams.get('src');
-                    if (source) {
-                        redirectUrl += '&src=' + encodeURIComponent(source);
-                    }
-                    window.location.replace(redirectUrl);
-                }
-            })
-            .catch(err => {
-                console.error('Device detection failed:', err);
-            });
-        })();
-    </script>
+    {{ smartLink.renderSeomaticTracking('redirect') }}
 
     <style>
         * {
@@ -214,42 +190,42 @@
         <div class="platforms">
             <div class="platform-links">
                 {% if smartLink.iosUrl %}
-                    <a href="{{ actionUrl('smart-links/redirect/go', {slug: smartLink.slug, platform: 'ios'}) }}" class="platform-link primary">
+                    <a href="{{ actionUrl('smart-links/redirect/go', {slug: smartLink.slug, platform: 'ios', site: smartLink.site.handle}) }}" class="platform-link primary">
                         {{ 'Download on the App Store'|t('smart-links') }}
                     </a>
                 {% endif %}
 
                 {% if smartLink.androidUrl %}
-                    <a href="{{ actionUrl('smart-links/redirect/go', {slug: smartLink.slug, platform: 'android'}) }}" class="platform-link primary">
+                    <a href="{{ actionUrl('smart-links/redirect/go', {slug: smartLink.slug, platform: 'android', site: smartLink.site.handle}) }}" class="platform-link primary">
                         {{ 'Get it on Google Play'|t('smart-links') }}
                     </a>
                 {% endif %}
 
                 {% if smartLink.huaweiUrl %}
-                    <a href="{{ actionUrl('smart-links/redirect/go', {slug: smartLink.slug, platform: 'huawei'}) }}" class="platform-link secondary">
+                    <a href="{{ actionUrl('smart-links/redirect/go', {slug: smartLink.slug, platform: 'huawei', site: smartLink.site.handle}) }}" class="platform-link secondary">
                         {{ 'Explore it on AppGallery'|t('smart-links') }}
                     </a>
                 {% endif %}
 
                 {% if smartLink.amazonUrl %}
-                    <a href="{{ actionUrl('smart-links/redirect/go', {slug: smartLink.slug, platform: 'amazon'}) }}" class="platform-link secondary">
+                    <a href="{{ actionUrl('smart-links/redirect/go', {slug: smartLink.slug, platform: 'amazon', site: smartLink.site.handle}) }}" class="platform-link secondary">
                         {{ 'Get it from Amazon'|t('smart-links') }}
                     </a>
                 {% endif %}
 
                 {% if smartLink.windowsUrl %}
-                    <a href="{{ actionUrl('smart-links/redirect/go', {slug: smartLink.slug, platform: 'windows'}) }}" class="platform-link secondary">
+                    <a href="{{ actionUrl('smart-links/redirect/go', {slug: smartLink.slug, platform: 'windows', site: smartLink.site.handle}) }}" class="platform-link secondary">
                         {{ 'Download from Microsoft Store'|t('smart-links') }}
                     </a>
                 {% endif %}
 
                 {% if smartLink.macUrl %}
-                    <a href="{{ actionUrl('smart-links/redirect/go', {slug: smartLink.slug, platform: 'mac'}) }}" class="platform-link secondary">
+                    <a href="{{ actionUrl('smart-links/redirect/go', {slug: smartLink.slug, platform: 'mac', site: smartLink.site.handle}) }}" class="platform-link secondary">
                         {{ 'Download for Mac'|t('smart-links') }}
                     </a>
                 {% endif %}
 
-                <a href="{{ actionUrl('smart-links/redirect/go', {slug: smartLink.slug, platform: 'fallback'}) }}" class="platform-link secondary">
+                <a href="{{ actionUrl('smart-links/redirect/go', {slug: smartLink.slug, platform: 'fallback', site: smartLink.site.handle}) }}" class="platform-link secondary">
                     {{ 'Visit Website'|t('smart-links') }}
                 </a>
             </div>

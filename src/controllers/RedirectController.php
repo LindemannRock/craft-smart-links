@@ -10,6 +10,7 @@ namespace lindemannrock\smartlinks\controllers;
 
 use Craft;
 use craft\web\Controller;
+use lindemannrock\logginglibrary\traits\LoggingTrait;
 use lindemannrock\smartlinks\elements\SmartLink;
 use lindemannrock\smartlinks\SmartLinks;
 use yii\web\Response;
@@ -20,10 +21,21 @@ use yii\web\Response;
  */
 class RedirectController extends Controller
 {
+    use LoggingTrait;
+
     /**
      * @var array Allow anonymous access
      */
     protected array|int|bool $allowAnonymous = true;
+
+    /**
+     * @inheritdoc
+     */
+    public function init(): void
+    {
+        parent::init();
+        $this->setLoggingHandle('smart-links');
+    }
 
     /**
      * Handle smart link landing page display
@@ -178,6 +190,20 @@ class RedirectController extends Controller
                     'siteId' => $siteId, // Pass the detected site ID
                 ]
             );
+
+            // Log SEOmatic event tracking for monitoring (actual tracking happens client-side in templates)
+            // Client-side JavaScript in redirect.twig/qr.twig pushes events to GTM dataLayer BEFORE redirects
+            // Only log if SEOmatic integration is enabled
+            $seomatic = SmartLinks::$plugin->integration->getIntegration('seomatic');
+            if ($seomatic && $seomatic->isAvailable() && $seomatic->isEnabled()) {
+                $this->logInfo("SEOmatic client-side tracking: {$clickType} event for '{$smartLink->slug}'", [
+                    'event_type' => $clickType === 'redirect' ? 'redirect' : 'button_click',
+                    'slug' => $smartLink->slug,
+                    'platform' => $normalizedPlatform,
+                    'source' => $source,
+                    'destination' => $destinationUrl,
+                ]);
+            }
         }
 
         // Redirect to destination
@@ -209,4 +235,5 @@ class RedirectController extends Controller
             'platform' => $deviceInfo->platform ?? 'unknown',
         ]);
     }
+
 }

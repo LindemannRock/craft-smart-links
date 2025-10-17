@@ -903,6 +903,17 @@ class SmartLink extends Element
     }
 
     /**
+     * Render SEOmatic tracking script for this smart link
+     *
+     * @param string $eventType Event type: 'qr_scan' or 'redirect'
+     * @return \Twig\Markup|null HTML script tag or null if SEOmatic is not enabled
+     */
+    public function renderSeomaticTracking(string $eventType = 'qr_scan'): ?\Twig\Markup
+    {
+        return SmartLinks::$plugin->integration->renderSeomaticTracking($this, $eventType);
+    }
+
+    /**
      * @inheritdoc
      */
     public function getStatus(): ?string

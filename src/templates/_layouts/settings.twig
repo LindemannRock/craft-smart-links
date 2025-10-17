@@ -18,6 +18,11 @@
                 </a>
             </li>
             <li>
+                <a href="{{ url('smart-links/settings/integrations') }}" {% if selectedSettingsItem == 'integrations' %}class="sel"{% endif %} data-nav-item="integrations">
+                    {{ 'Integrations'|t('smart-links') }}
+                </a>
+            </li>
+            <li>
                 <a href="{{ url('smart-links/settings/export') }}" {% if selectedSettingsItem == 'export' %}class="sel"{% endif %} data-nav-item="export">
                     {{ 'Export'|t('smart-links') }}
                 </a>

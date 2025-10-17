@@ -1,5 +1,20 @@
 # Changelog
 
+## [Unreleased]
+
+### Features
+
+* **integrations:** add SEOmatic integration for pushing events to Google Tag Manager data layer
+  - New modular integration architecture at `/src/integrations/`
+  - SEOmatic plugin detection and status checking
+  - Push Smart Links click events to GTM/Google Analytics via SEOmatic
+  - Configurable event types (redirect, button_click, qr_scan)
+  - Customizable event prefix for GTM event names
+  - Comprehensive event data including device, platform, geographic, and source tracking
+  - Settings UI in Analytics page for easy configuration
+  - Zero performance impact when disabled or SEOmatic not installed
+  - Fully documented with README section and GTM trigger examples
+
 ## [1.22.1](https://github.com/LindemannRock/craft-smart-links/compare/v1.22.0...v1.22.1) (2025-10-16)
 
 
