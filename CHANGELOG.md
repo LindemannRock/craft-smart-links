@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.23.0](https://github.com/LindemannRock/craft-smart-links/compare/v1.22.1...v1.23.0) (2025-10-17)
+
+
+### Features
+
+* Add dynamic plugin name support for complete rebranding ([fbbadd1](https://github.com/LindemannRock/craft-smart-links/commit/fbbadd111d102613d72a37ac5e6063e93785bcd3))
+* add SEOmatic integration for client-side analytics tracking ([56d9b17](https://github.com/LindemannRock/craft-smart-links/commit/56d9b1709eb8e443bab1cefa2f69fdd73bc99922))
+
 ## [Unreleased]
 
 ### Features
