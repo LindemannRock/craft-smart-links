@@ -43,8 +43,9 @@
 
 {% block actionButton %}
     {% if currentUser.can('smartLinks:createLinks') %}
+        {% set singularName = plugin.settings.pluginName matches '/s$/' ? plugin.settings.pluginName|slice(0, -1) : plugin.settings.pluginName %}
         <div class="btngroup">
-            <a href="{{ url('smart-links/new') }}" class="btn submit add icon">{{ 'New smart link'|t('smart-links') }}</a>
+            <a href="{{ url('smart-links/new') }}" class="btn submit add icon">{{ 'New {name}'|t('smart-links', {name: singularName|lower}) }}</a>
         </div>
     {% endif %}
 {% endblock %}

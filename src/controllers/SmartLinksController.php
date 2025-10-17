@@ -121,7 +121,7 @@ class SmartLinksController extends Controller
         // Breadcrumbs
         $variables['crumbs'] = [
             [
-                'label' => Craft::t('smart-links', 'Smart Links'),
+                'label' => SmartLinks::$plugin->getSettings()->pluginName,
                 'url' => 'smart-links',
             ],
         ];

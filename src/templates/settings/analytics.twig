@@ -21,6 +21,8 @@
 {% import "_includes/forms" as forms %}
 
 {% block content %}
+    {% set pluginName = plugin.settings.pluginName %}
+
     <form method="post" accept-charset="UTF-8">
         {{ actionInput('smart-links/settings/save') }}
         {{ csrfInput() }}
@@ -30,7 +32,7 @@
 
         {{ forms.lightswitchField({
             label: "Enable Analytics"|t('smart-links'),
-            instructions: "Track clicks and visitor data for smart links"|t('smart-links'),
+            instructions: "Track clicks and visitor data for {pluginName}"|t('smart-links', {pluginName: pluginName|lower}),
             id: 'enableAnalytics',
             name: 'settings[enableAnalytics]',
             on: settings.enableAnalytics ?? true,
@@ -42,7 +44,7 @@
 
         <div id="analytics-settings" class="{{ not (settings.enableAnalytics ?? true) ? 'hidden' }}">
             <div class="field">
-                <p class="light">{{ "When enabled, Smart Links will track visitor interactions, device types, geographic data, and other analytics information."|t('smart-links') }}</p>
+                <p class="light">{{ "When enabled, {pluginName} will track visitor interactions, device types, geographic data, and other analytics information."|t('smart-links', {pluginName: pluginName}) }}</p>
             </div>
 
             <hr>

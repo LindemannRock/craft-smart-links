@@ -21,6 +21,9 @@
 {% import "_includes/forms" as forms %}
 
 {% block content %}
+    {% set pluginName = plugin.settings.pluginName %}
+    {% set singularName = pluginName|replace({'/s$/': ''}) %}
+
     <form method="post" accept-charset="UTF-8">
         {{ actionInput('smart-links/settings/save') }}
         {{ csrfInput() }}
@@ -46,7 +49,7 @@
 
         {{ forms.textField({
             label: "404 Redirect URL"|t('smart-links'),
-            instructions: "Where to redirect when a smart link is not found or disabled"|t('smart-links'),
+            instructions: "Where to redirect when a {singularName} is not found or disabled"|t('smart-links', {singularName: singularName|lower}),
             id: 'notFoundRedirectUrl',
             name: 'settings[notFoundRedirectUrl]',
             value: settings.notFoundRedirectUrl ?? '/',

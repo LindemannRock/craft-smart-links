@@ -1,8 +1,8 @@
 {% import "_includes/forms" as forms %}
 
 <div style="margin-bottom: 32px;">
-    <h2>{{ "Smart Links Overview"|t('smart-links') }}</h2>
-    <p class="light">{{ "Monitor link performance, track analytics, and manage cache for your smart link redirects and QR codes."|t('smart-links') }}</p>
+    <h2>{{ pluginName }} {{ "Overview"|t('smart-links') }}</h2>
+    <p class="light">{{ "Monitor link performance, track analytics, and manage cache for your {singularName} redirects and QR codes."|t('smart-links', {singularName: singularName|lower}) }}</p>
 </div>
 
 <div style="margin-bottom: 40px;">
@@ -29,7 +29,7 @@
                     </div>
                 </div>
                 <div style="font-size: 14px; color: #4b5563; margin-bottom: 12px;">
-                    {{ "Active smart links"|t('smart-links') }}
+                    {{ "Active {pluginName}"|t('smart-links', {pluginName: pluginName|lower}) }}
                 </div>
 
                 <!-- Bottom Boxes -->
@@ -176,7 +176,7 @@
             <p class="light" style="margin-bottom: 16px;">{{ "Access main plugin sections"|t('smart-links') }}</p>
             <div style="display: flex; gap: 10px; flex-wrap: wrap;">
                 <a href="{{ url('smart-links') }}" class="btn">
-                    {{ "Manage Smart Links"|t('smart-links') }}
+                    {{ "Manage"|t('smart-links') }} {{ pluginName }}
                 </a>
                 <a href="{{ url('smart-links/analytics') }}" class="btn">
                     {{ "View Detailed Analytics"|t('smart-links') }}
@@ -419,7 +419,7 @@ $('#clear-device-cache').on('click', function() {
 {% endif %}
 
 $('#clear-all-caches').on('click', function() {
-    if (!confirm('{{ "Are you sure you want to clear all Smart Links caches?"|t('smart-links')|e('js') }}')) {
+    if (!confirm('{{ "Are you sure you want to clear all {pluginName} caches?"|t('smart-links', { pluginName: pluginName })|e('js') }}')) {
         return;
     }
 

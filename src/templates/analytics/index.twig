@@ -82,15 +82,16 @@
 			</div>
 		</div>
 
-		<h2 style="margin: 30px 0 20px;">{{ "Top Smart Links"|t('smart-links') }}</h2>
-		
+		<h2 style="margin: 30px 0 20px;">{{ "Top {pluginName}"|t('smart-links', {pluginName: plugin.settings.pluginName}) }}</h2>
+
 		<div class="analytics-charts">
 			<div class="chart-container full-width">
 				<div id="top-links-table" class="table-scroll-container">
 					<table class="data fullwidth">
 						<thead>
 							<tr>
-								<th>{{ "Smart Link"|t('smart-links') }}</th>
+								{% set singularName = plugin.settings.pluginName matches '/s$/' ? plugin.settings.pluginName|slice(0, -1) : plugin.settings.pluginName %}
+								<th>{{ singularName }}</th>
 								<th>{{ "Total Interactions"|t('smart-links') }}</th>
 								<th>{{ "Last Interaction"|t('smart-links') }}</th>
 								<th>{{ "Last Interaction Type"|t('smart-links') }}</th>
@@ -138,7 +139,7 @@
 						<thead>
 							<tr>
 								<th>{{ "Date"|t('smart-links') }}</th>
-								<th>{{ "Smart Link"|t('smart-links') }}</th>
+								<th>{{ singularName }}</th>
 								<th>{{ "Type"|t('smart-links') }}</th>
 								<th>{{ "Button"|t('smart-links') }}</th>
 								<th>{{ "Source"|t('smart-links') }}</th>

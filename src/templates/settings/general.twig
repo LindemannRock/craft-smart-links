@@ -22,6 +22,9 @@
 {% import "_includes/forms" as forms %}
 
 {% block content %}
+    {% set pluginName = plugin.settings.pluginName %}
+    {% set singularName = pluginName|replace({'/s$/': ''}) %}
+
     <form method="post" accept-charset="UTF-8">
         {{ actionInput('smart-links/settings/save') }}
         {{ csrfInput() }}
@@ -46,8 +49,8 @@
         <h2>{{ "URL Settings"|t('smart-links') }}</h2>
 
         {{ forms.textField({
-            label: "Smart Link URL Prefix"|t('smart-links'),
-            instructions: "The URL prefix for smart links (e.g., 'go' creates /go/your-link). Clear routes cache after changing (php craft clear-caches/compiled-templates)."|t('smart-links'),
+            label: "{singularName} URL Prefix"|t('smart-links', {singularName: singularName}),
+            instructions: "The URL prefix for {pluginName} (e.g., 'go' creates /go/your-link). Clear routes cache after changing (php craft clear-caches/compiled-templates)."|t('smart-links', {pluginName: pluginName|lower}),
             id: 'slugPrefix',
             name: 'settings[slugPrefix]',
             value: settings.slugPrefix ?? 'go',
@@ -114,7 +117,7 @@
 
         {{ forms.checkboxGroupField({
             label: "Enabled Sites"|t('smart-links'),
-            instructions: "Select which sites Smart Links should be enabled for. Leave empty to enable for all sites."|t('smart-links'),
+            instructions: "Select which sites {pluginName} should be enabled for. Leave empty to enable for all sites."|t('smart-links', {pluginName: pluginName}),
             id: 'enabledSites',
             name: 'settings[enabledSites]',
             options: siteOptions,
@@ -138,8 +141,8 @@
         {% endfor %}
 
         {{ forms.selectField({
-            label: "Smart Link Image Volume"|t('smart-links'),
-            instructions: "Which asset volume should be used for Smart Link images"|t('smart-links'),
+            label: "{singularName} Image Volume"|t('smart-links', {singularName: singularName}),
+            instructions: "Which asset volume should be used for {singularName} images"|t('smart-links', {singularName: singularName}),
             id: 'imageVolumeUid',
             name: 'settings[imageVolumeUid]',
             options: volumeOptions,

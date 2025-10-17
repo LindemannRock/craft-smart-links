@@ -315,7 +315,7 @@ class SmartLinks extends Plugin
 
             $item['subnav'] = [
                 'links' => [
-                    'label' => Craft::t('smart-links', 'Smart Links'),
+                    'label' => $this->getSettings()->pluginName,
                     'url' => 'smart-links',
                 ],
             ];

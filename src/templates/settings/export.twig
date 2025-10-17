@@ -21,6 +21,8 @@
 {% import "_includes/forms" as forms %}
 
 {% block content %}
+    {% set pluginName = plugin.settings.pluginName %}
+
     <form method="post" accept-charset="UTF-8">
         {{ actionInput('smart-links/settings/save') }}
         {{ csrfInput() }}
@@ -29,8 +31,8 @@
         <h2 style="margin-top: 0px;">{{ "Analytics Export Options"|t('smart-links') }}</h2>
 
         {{ forms.lightswitchField({
-            label: "Include Disabled Smart Links in Export"|t('smart-links'),
-            instructions: "When enabled, analytics exports will include data from disabled smart links"|t('smart-links'),
+            label: "Include Disabled {pluginName} in Export"|t('smart-links', {pluginName: pluginName}),
+            instructions: "When enabled, analytics exports will include data from disabled {pluginName}"|t('smart-links', {pluginName: pluginName|lower}),
             id: 'includeDisabledInExport',
             name: 'settings[includeDisabledInExport]',
             on: settings.includeDisabledInExport ?? false,
@@ -40,8 +42,8 @@
         }) }}
 
         {{ forms.lightswitchField({
-            label: "Include Expired Smart Links in Export"|t('smart-links'),
-            instructions: "When enabled, analytics exports will include data from expired smart links"|t('smart-links'),
+            label: "Include Expired {pluginName} in Export"|t('smart-links', {pluginName: pluginName}),
+            instructions: "When enabled, analytics exports will include data from expired {pluginName}"|t('smart-links', {pluginName: pluginName|lower}),
             id: 'includeExpiredInExport',
             name: 'settings[includeExpiredInExport]',
             on: settings.includeExpiredInExport ?? false,

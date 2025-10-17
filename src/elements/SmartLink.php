@@ -224,7 +224,10 @@ class SmartLink extends Element
      */
     public static function displayName(): string
     {
-        return Craft::t('smart-links', 'Smart Link');
+        $pluginName = SmartLinks::$plugin->getSettings()->pluginName ?? 'Smart Links';
+        // Singularize by removing trailing 's' if present
+        $singular = preg_replace('/s$/', '', $pluginName) ?: $pluginName;
+        return $singular;
     }
 
     /**
@@ -232,7 +235,7 @@ class SmartLink extends Element
      */
     public static function lowerDisplayName(): string
     {
-        return Craft::t('smart-links', 'smart link');
+        return strtolower(static::displayName());
     }
 
     /**
@@ -240,7 +243,8 @@ class SmartLink extends Element
      */
     public static function pluralDisplayName(): string
     {
-        return Craft::t('smart-links', 'Smart Links');
+        $pluginName = SmartLinks::$plugin->getSettings()->pluginName ?? 'Smart Links';
+        return $pluginName;
     }
 
     /**
@@ -248,7 +252,7 @@ class SmartLink extends Element
      */
     public static function pluralLowerDisplayName(): string
     {
-        return Craft::t('smart-links', 'smart links');
+        return strtolower(static::pluralDisplayName());
     }
 
     /**
@@ -371,10 +375,12 @@ class SmartLink extends Element
      */
     protected static function defineSources(string $context = null): array
     {
+        $pluginName = SmartLinks::$plugin->getSettings()->pluginName ?? 'Smart Links';
+
         return [
             [
                 'key' => '*',
-                'label' => Craft::t('smart-links', 'All Smart Links'),
+                'label' => Craft::t('smart-links', 'All {pluginName}', ['pluginName' => $pluginName]),
                 'criteria' => [],
                 'defaultSort' => ['dateCreated', 'desc'],
             ],

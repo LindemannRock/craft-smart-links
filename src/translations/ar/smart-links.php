@@ -347,6 +347,56 @@ return [
     'Name' => 'الاسم',
     'Percentage' => 'النسبة المئوية',
 
+    // Dynamic Plugin Name Strings (with parameters) - Arabic translations
+    'Integrate {pluginName} with third-party analytics and tracking services to push click events to Google Tag Manager, Google Analytics, and other platforms.' => 'دمج {pluginName} مع خدمات التحليلات والتتبع من طرف ثالث لإرسال أحداث النقرات إلى Google Tag Manager و Google Analytics ومنصات أخرى.',
+    'Push {pluginName} events to SEOmatic\'s Google Tag Manager data layer for tracking in GTM and Google Analytics.' => 'إرسال أحداث {pluginName} إلى طبقة بيانات Google Tag Manager في SEOmatic للتتبع في GTM و Google Analytics.',
+    'Scripts receiving {pluginName} events' => 'السكريبتات التي تستقبل أحداث {pluginName}',
+    'Select which {pluginName} events to send to SEOmatic' => 'اختر أحداث {pluginName} التي سيتم إرسالها إلى SEOmatic',
+    'Are you sure you want to clear all {pluginName} caches?' => 'هل أنت متأكد من مسح جميع ذاكرة التخزين المؤقت لـ {pluginName}؟',
+
+    // Utilities
+    'Monitor link performance, track analytics, and manage cache for your {singularName} redirects and QR codes.' => 'راقب أداء الروابط وتتبع التحليلات وإدارة ذاكرة التخزين المؤقت لإعادة توجيه {singularName} ورموز QR.',
+    'Active {pluginName}' => '{pluginName} النشطة',
+
+    // Smart Link Fields
+    'The title of this {singularName}' => 'عنوان {singularName}',
+    'A brief description of this {singularName}' => 'وصف موجز لـ {singularName}',
+    'Select an image for this {singularName}' => 'اختر صورة لـ {singularName}',
+    'Select the size for the {singularName} image' => 'اختر حجم صورة {singularName}',
+    'Hide the {singularName} title on both redirect and QR code landing pages' => 'إخفاء عنوان {singularName} في صفحات إعادة التوجيه ورمز QR',
+    'Icon identifier or URL for this {singularName}' => 'معرف الأيقونة أو رابطها لـ {singularName}',
+
+    // Field Layout
+    'Add custom fields to {singularName} elements. Any fields you add here will appear in the {singularName} edit screen.' => 'إضافة حقول مخصصة إلى عناصر {singularName}. أي حقول تضيفها هنا ستظهر في شاشة تحرير {singularName}.',
+
+    // Analytics Settings
+    'Track clicks and visitor data for {pluginName}' => 'تتبع النقرات وبيانات الزوار لـ {pluginName}',
+    'When enabled, {pluginName} will track visitor interactions, device types, geographic data, and other analytics information.' => 'عند التفعيل، ستتتبع {pluginName} تفاعلات الزوار وأنواع الأجهزة والبيانات الجغرافية ومعلومات تحليلية أخرى.',
+
+    // Export Settings
+    'Include Disabled {pluginName} in Export' => 'تضمين {pluginName} المعطلة في التصدير',
+    'When enabled, analytics exports will include data from disabled {pluginName}' => 'عند التفعيل، ستتضمن صادرات التحليلات بيانات من {pluginName} المعطلة',
+    'Include Expired {pluginName} in Export' => 'تضمين {pluginName} المنتهية في التصدير',
+    'When enabled, analytics exports will include data from expired {pluginName}' => 'عند التفعيل، ستتضمن صادرات التحليلات بيانات من {pluginName} المنتهية',
+
+    // Redirect Settings
+    'Where to redirect when a {singularName} is not found or disabled' => 'إلى أين يتم التوجيه عندما لا يُعثر على {singularName} أو يكون معطلاً',
+
+    // General Settings
+    '{singularName} URL Prefix' => 'بادئة عنوان URL لـ {singularName}',
+    'The URL prefix for {pluginName} (e.g., \'go\' creates /go/your-link). Clear routes cache after changing (php craft clear-caches/compiled-templates).' => 'بادئة عنوان URL لـ {pluginName} (مثلاً، \'go\' تنشئ /go/your-link). امسح ذاكرة التخزين المؤقت للمسارات بعد التغيير (php craft clear-caches/compiled-templates).',
+    'Select which sites {pluginName} should be enabled for. Leave empty to enable for all sites.' => 'اختر المواقع التي يجب تفعيل {pluginName} فيها. اتركها فارغة للتفعيل في جميع المواقع.',
+    '{singularName} Image Volume' => 'مجلد صور {singularName}',
+    'Which asset volume should be used for {singularName} images' => 'أي مجلد ملفات يجب استخدامه لصور {singularName}',
+
+    // Interface Settings
+    'Number of {pluginName} to show per page' => 'عدد {pluginName} المعروضة في كل صفحة',
+
+    // Integration Settings
+    '{pluginName} pushes events to GTM or GA4 dataLayer only' => '{pluginName} ترسل الأحداث فقط إلى طبقة بيانات GTM أو GA4',
+    'Configure GTM triggers and tags to forward {pluginName} events to Facebook Pixel, LinkedIn, HubSpot, etc.' => 'قم بتكوين مشغلات وعلامات GTM لإعادة توجيه أحداث {pluginName} إلى Facebook Pixel و LinkedIn و HubSpot وما إلى ذلك.',
+    'Fathom, Matomo, and Plausible are shown above but do not receive events directly from {pluginName}' => 'يتم عرض Fathom و Matomo و Plausible أعلاه ولكنها لا تستقبل الأحداث مباشرة من {pluginName}',
+
     // Config Override Warnings
     'This is being overridden by the <code>pluginName</code> setting in <code>config/smart-links.php</code>.' => 'يتم تجاوز هذا بواسطة إعداد <code>pluginName</code> في <code>config/smart-links.php</code>.',
     'This is being overridden by the <code>enableAnalytics</code> setting in <code>config/smart-links.php</code>.' => 'يتم تجاوز هذا بواسطة إعداد <code>enableAnalytics</code> في <code>config/smart-links.php</code>.',

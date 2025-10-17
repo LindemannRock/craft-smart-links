@@ -1091,8 +1091,12 @@ class AnalyticsService extends Component
 
         $results = $query->all();
 
+        // Get plugin name and singularize for CSV headers
+        $pluginName = SmartLinks::$plugin->getSettings()->pluginName ?? 'Smart Links';
+        $singularName = preg_replace('/s$/', '', $pluginName) ?: $pluginName;
+
         // CSV format only
-            $csv = "Date,Time,Smart Link Title,Smart Link Status,Smart Link URL,Site,Type,Button,Source,Destination URL,Referrer,User Device Type,User Device Brand,User Device Model,User OS,User OS Version,User Browser,User Browser Version,User Country,User City,User Language,User Agent\n";
+            $csv = "Date,Time,{$singularName} Title,{$singularName} Status,{$singularName} URL,Site,Type,Button,Source,Destination URL,Referrer,User Device Type,User Device Brand,User Device Model,User OS,User OS Version,User Browser,User Browser Version,User Country,User City,User Language,User Agent\n";
 
             foreach ($results as $row) {
                 // Check settings to determine if we should include disabled/expired links

@@ -1,6 +1,7 @@
 {% extends "_layouts/cp" %}
 
-{% set title = title ?? 'Smart Links'|t('smart-links') %}
+{% set pluginName = craft.smartLinks.settings.pluginName %}
+{% set title = title ?? pluginName %}
 
 {# Define the plugin's CP section #}
 {% set pluginCpUrl = url('smart-links') %}
@@ -18,7 +19,7 @@
 {# Prepend the plugin root to breadcrumbs if not already there #}
 {% if not hasSiteSwitcher and (crumbs|length == 0 or crumbs[0].url != pluginCpUrl) %}
     {% set crumbs = [{
-        label: 'Smart Links'|t('smart-links'),
+        label: pluginName,
         url: pluginCpUrl
     }]|merge(crumbs) %}
 {% endif %}

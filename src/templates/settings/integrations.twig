@@ -35,8 +35,9 @@
 
         <h2 style="margin-top: 0px;">{{ "Third-Party Integrations"|t('smart-links') }}</h2>
 
+        {% set pluginName = plugin.settings.pluginName %}
         <div class="field">
-            <p class="light">{{ "Integrate Smart Links with third-party analytics and tracking services to push click events to Google Tag Manager, Google Analytics, and other platforms."|t('smart-links') }}</p>
+            <p class="light">{{ "Integrate {pluginName} with third-party analytics and tracking services to push click events to Google Tag Manager, Google Analytics, and other platforms."|t('smart-links', { pluginName: pluginName }) }}</p>
         </div>
 
         {% set integrationStatuses = craft.app.plugins.getPlugin('smart-links').integration.getAllIntegrationStatuses() %}
@@ -60,7 +61,7 @@
                             <span style="color: #6c757d; font-size: 12px;">{{ "Not Installed"|t('smart-links') }}</span>
                         {% endif %}
                     </div>
-                    <p class="light" style="margin: 8px 0 0 0; font-size: 12px;">{{ "Push Smart Links events to SEOmatic's Google Tag Manager data layer for tracking in GTM and Google Analytics."|t('smart-links') }}</p>
+                    <p class="light" style="margin: 8px 0 0 0; font-size: 12px;">{{ "Push {pluginName} events to SEOmatic's Google Tag Manager data layer for tracking in GTM and Google Analytics."|t('smart-links', { pluginName: pluginName }) }}</p>
                 </div>
                 <div style="flex-shrink: 0;">
                     {{ forms.lightswitchField({
@@ -94,7 +95,7 @@
                         <div style="margin-bottom: 20px;">
                             <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
                                 <strong style="font-size: 13px;">{{ "Active Tracking Scripts"|t('smart-links') }}</strong>
-                                <span class="light" style="font-size: 11px;">{{ "Scripts receiving Smart Links events"|t('smart-links') }}</span>
+                                <span class="light" style="font-size: 11px;">{{ "Scripts receiving {pluginName} events"|t('smart-links', { pluginName: pluginName }) }}</span>
                             </div>
                             {% for handle in dataLayerScripts %}
                                 {% if seomaticStatus.status.scripts[handle] is defined %}
@@ -144,7 +145,7 @@
                             <div class="heading">
                                 <label>{{ "Tracking Events"|t('smart-links') }}</label>
                                 <div class="instructions">
-                                    <p>{{ "Select which Smart Links events to send to SEOmatic"|t('smart-links') }}</p>
+                                    <p>{{ "Select which {pluginName} events to send to SEOmatic"|t('smart-links', { pluginName: pluginName }) }}</p>
                                 </div>
                             </div>
 
@@ -259,16 +260,16 @@
                         </p>
                         <ul style="margin: 0 0 12px 0; padding-left: 20px; font-size: 12px; line-height: 1.6;">
                             <li style="margin-bottom: 6px;">
-                                <strong>{{ "Smart Links pushes events to GTM or GA4 dataLayer only"|t('smart-links') }}</strong><br>
+                                <strong>{{ "{pluginName} pushes events to GTM or GA4 dataLayer only"|t('smart-links', {pluginName: pluginName}) }}</strong><br>
                                 <span class="light">{{ "Only Google Tag Manager and Google Analytics 4 support the dataLayer format in SEOmatic"|t('smart-links') }}</span>
                             </li>
                             <li style="margin-bottom: 6px;">
                                 <strong>{{ "Use GTM to forward to other platforms"|t('smart-links') }}</strong><br>
-                                <span class="light">{{ "Configure GTM triggers and tags to forward Smart Links events to Facebook Pixel, LinkedIn, HubSpot, etc."|t('smart-links') }}</span>
+                                <span class="light">{{ "Configure GTM triggers and tags to forward {pluginName} events to Facebook Pixel, LinkedIn, HubSpot, etc."|t('smart-links', {pluginName: pluginName}) }}</span>
                             </li>
                             <li style="margin-bottom: 6px;">
                                 <strong>{{ "Other scripts are detected for reference only"|t('smart-links') }}</strong><br>
-                                <span class="light">{{ "Fathom, Matomo, and Plausible are shown above but do not receive events directly from Smart Links"|t('smart-links') }}</span>
+                                <span class="light">{{ "Fathom, Matomo, and Plausible are shown above but do not receive events directly from {pluginName}"|t('smart-links', {pluginName: pluginName}) }}</span>
                             </li>
                             <li>
                                 <span class="light">{{ "Events are only sent when analytics tracking is enabled both globally and per-link"|t('smart-links') }}</span>
@@ -276,7 +277,7 @@
                         </ul>
                         <p style="margin: 0; font-size: 11px; color: #666;">
                             <strong>{{ "Architecture"|t('smart-links') }}:</strong>
-                            Smart Links → GTM/GA4 dataLayer → GTM Triggers → Facebook/LinkedIn/HubSpot/etc.
+                            {{ pluginName }} → GTM/GA4 dataLayer → GTM Triggers → Facebook/LinkedIn/HubSpot/etc.
                         </p>
                     </div>
                 </div>

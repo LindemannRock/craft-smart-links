@@ -347,6 +347,56 @@ return [
     'Name' => 'Name',
     'Percentage' => 'Percentage',
 
+    // Dynamic Plugin Name Strings (with parameters)
+    'Integrate {pluginName} with third-party analytics and tracking services to push click events to Google Tag Manager, Google Analytics, and other platforms.' => 'Integrate {pluginName} with third-party analytics and tracking services to push click events to Google Tag Manager, Google Analytics, and other platforms.',
+    'Push {pluginName} events to SEOmatic\'s Google Tag Manager data layer for tracking in GTM and Google Analytics.' => 'Push {pluginName} events to SEOmatic\'s Google Tag Manager data layer for tracking in GTM and Google Analytics.',
+    'Scripts receiving {pluginName} events' => 'Scripts receiving {pluginName} events',
+    'Select which {pluginName} events to send to SEOmatic' => 'Select which {pluginName} events to send to SEOmatic',
+    'Are you sure you want to clear all {pluginName} caches?' => 'Are you sure you want to clear all {pluginName} caches?',
+
+    // Utilities
+    'Monitor link performance, track analytics, and manage cache for your {singularName} redirects and QR codes.' => 'Monitor link performance, track analytics, and manage cache for your {singularName} redirects and QR codes.',
+    'Active {pluginName}' => 'Active {pluginName}',
+
+    // Smart Link Fields
+    'The title of this {singularName}' => 'The title of this {singularName}',
+    'A brief description of this {singularName}' => 'A brief description of this {singularName}',
+    'Select an image for this {singularName}' => 'Select an image for this {singularName}',
+    'Select the size for the {singularName} image' => 'Select the size for the {singularName} image',
+    'Hide the {singularName} title on both redirect and QR code landing pages' => 'Hide the {singularName} title on both redirect and QR code landing pages',
+    'Icon identifier or URL for this {singularName}' => 'Icon identifier or URL for this {singularName}',
+
+    // Field Layout
+    'Add custom fields to {singularName} elements. Any fields you add here will appear in the {singularName} edit screen.' => 'Add custom fields to {singularName} elements. Any fields you add here will appear in the {singularName} edit screen.',
+
+    // Analytics Settings
+    'Track clicks and visitor data for {pluginName}' => 'Track clicks and visitor data for {pluginName}',
+    'When enabled, {pluginName} will track visitor interactions, device types, geographic data, and other analytics information.' => 'When enabled, {pluginName} will track visitor interactions, device types, geographic data, and other analytics information.',
+
+    // Export Settings
+    'Include Disabled {pluginName} in Export' => 'Include Disabled {pluginName} in Export',
+    'When enabled, analytics exports will include data from disabled {pluginName}' => 'When enabled, analytics exports will include data from disabled {pluginName}',
+    'Include Expired {pluginName} in Export' => 'Include Expired {pluginName} in Export',
+    'When enabled, analytics exports will include data from expired {pluginName}' => 'When enabled, analytics exports will include data from expired {pluginName}',
+
+    // Redirect Settings
+    'Where to redirect when a {singularName} is not found or disabled' => 'Where to redirect when a {singularName} is not found or disabled',
+
+    // General Settings
+    '{singularName} URL Prefix' => '{singularName} URL Prefix',
+    'The URL prefix for {pluginName} (e.g., \'go\' creates /go/your-link). Clear routes cache after changing (php craft clear-caches/compiled-templates).' => 'The URL prefix for {pluginName} (e.g., \'go\' creates /go/your-link). Clear routes cache after changing (php craft clear-caches/compiled-templates).',
+    'Select which sites {pluginName} should be enabled for. Leave empty to enable for all sites.' => 'Select which sites {pluginName} should be enabled for. Leave empty to enable for all sites.',
+    '{singularName} Image Volume' => '{singularName} Image Volume',
+    'Which asset volume should be used for {singularName} images' => 'Which asset volume should be used for {singularName} images',
+
+    // Interface Settings
+    'Number of {pluginName} to show per page' => 'Number of {pluginName} to show per page',
+
+    // Integration Settings
+    '{pluginName} pushes events to GTM or GA4 dataLayer only' => '{pluginName} pushes events to GTM or GA4 dataLayer only',
+    'Configure GTM triggers and tags to forward {pluginName} events to Facebook Pixel, LinkedIn, HubSpot, etc.' => 'Configure GTM triggers and tags to forward {pluginName} events to Facebook Pixel, LinkedIn, HubSpot, etc.',
+    'Fathom, Matomo, and Plausible are shown above but do not receive events directly from {pluginName}' => 'Fathom, Matomo, and Plausible are shown above but do not receive events directly from {pluginName}',
+
     // Config Override Warnings
     'This is being overridden by the <code>pluginName</code> setting in <code>config/smart-links.php</code>.' => 'This is being overridden by the <code>pluginName</code> setting in <code>config/smart-links.php</code>.',
     'This is being overridden by the <code>enableAnalytics</code> setting in <code>config/smart-links.php</code>.' => 'This is being overridden by the <code>enableAnalytics</code> setting in <code>config/smart-links.php</code>.',
