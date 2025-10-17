@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.24.0](https://github.com/LindemannRock/craft-smart-links/compare/v1.23.0...v1.24.0) (2025-10-17)
+
+
+### Features
+
+* Use dynamic plugin name from settings for logging configuration ([081a9a0](https://github.com/LindemannRock/craft-smart-links/commit/081a9a0185b90ffe967028a4e55499b461ea3bf2))
+
 ## [1.23.0](https://github.com/LindemannRock/craft-smart-links/compare/v1.22.1...v1.23.0) (2025-10-17)
 
 
