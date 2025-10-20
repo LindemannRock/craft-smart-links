@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.0.1](https://github.com/LindemannRock/craft-smart-links/compare/v5.0.0...v5.0.1) (2025-10-20)
+
+
+### Miscellaneous Chores
+
+* update logging library dependency to version 5.0 and enhance README with additional badges ([ca3e21d](https://github.com/LindemannRock/craft-smart-links/commit/ca3e21db208577b6789164b56eeb2c2b72b53368))
+
 ## [5.0.0](https://github.com/LindemannRock/craft-smart-links/compare/v1.24.0...v5.0.0) (2025-10-20)
 
 
