@@ -1,5 +1,10 @@
 # Smart Links Plugin for Craft CMS
 
+[![Latest Version](https://img.shields.io/packagist/v/lindemannrock/craft-smart-links.svg)](https://packagist.org/packages/lindemannrock/craft-smart-links)
+[![Craft CMS](https://img.shields.io/badge/Craft%20CMS-5.0+-orange.svg)](https://craftcms.com/)
+[![PHP](https://img.shields.io/badge/PHP-8.2+-blue.svg)](https://php.net/)
+[![License](https://img.shields.io/packagist/l/lindemannrock/craft-smart-links.svg)](LICENSE)
+
 Intelligent URL shortening and redirect management plugin for Craft CMS 5.x with device detection, QR codes, and analytics.
 
 ## Features
@@ -28,6 +33,7 @@ Intelligent URL shortening and redirect management plugin for Craft CMS 5.x with
 
 - Craft CMS 5.0 or greater
 - PHP 8.2 or greater
+- [Logging Library](https://github.com/LindemannRock/craft-logging-library) 5.0 or greater (installed automatically as dependency)
 
 ## Installation
 
