@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.0.0](https://github.com/LindemannRock/craft-smart-links/compare/v1.24.0...v5.0.0) (2025-10-20)
+
+
+### Miscellaneous Chores
+
+* bump version scheme to match Craft 5 ([447ef00](https://github.com/LindemannRock/craft-smart-links/commit/447ef00dc7bdbeb1fdb757e7cdba1d4434600307))
+
 ## [1.24.0](https://github.com/LindemannRock/craft-smart-links/compare/v1.23.0...v1.24.0) (2025-10-17)
 
 
