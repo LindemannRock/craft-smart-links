@@ -1,5 +1,17 @@
 # Changelog
 
+## [5.1.0](https://github.com/LindemannRock/craft-smart-links/compare/v5.0.1...v5.1.0) (2025-10-22)
+
+
+### Features
+
+* Add IP privacy protection with salted hashing and optional anonymization ([e81774c](https://github.com/LindemannRock/craft-smart-links/commit/e81774cd42d27c642fee37866dd798dfe9ec8092))
+
+
+### Bug Fixes
+
+* Improve IP salt validation and update to App::env() pattern ([70d3858](https://github.com/LindemannRock/craft-smart-links/commit/70d3858ef318dfc0edadf0cf57eea407bb55cbf9))
+
 ## [5.0.1](https://github.com/LindemannRock/craft-smart-links/compare/v5.0.0...v5.0.1) (2025-10-20)
 
 
