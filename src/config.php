@@ -22,6 +22,8 @@
  * you do for 'general.php'
  */
 
+use craft\helpers\App;
+
 return [
     // Plugin Settings
     'pluginName' => 'Smart Links',
@@ -35,8 +37,7 @@ return [
     // IP Privacy Protection
     // Generate salt with: php craft smart-links/security/generate-salt
     // Store in .env as: SMART_LINKS_IP_SALT="your-64-char-salt"
-    // EnvAttributeParserBehavior automatically parses $VAR syntax
-    'ipHashSalt' => '$SMART_LINKS_IP_SALT',
+    'ipHashSalt' => App::env('SMART_LINKS_IP_SALT'),
 
     // Analytics Settings
     'enableAnalytics' => true,

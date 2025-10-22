@@ -1467,7 +1467,11 @@ class AnalyticsService extends Component
                 ->execute();
 
         } catch (\Exception $e) {
-            $this->logError('Failed to save analytics', ['error' => $e->getMessage(), 'data' => $data, 'trace' => $e->getTraceAsString()]);
+            $context = ['error' => $e->getMessage(), 'linkId' => $linkId];
+            if (isset($data)) {
+                $context['data'] = $data;
+            }
+            $this->logError('Failed to save analytics', $context);
             return false;
         }
     }
@@ -1484,7 +1488,11 @@ class AnalyticsService extends Component
         $settings = SmartLinks::$plugin->getSettings();
         $salt = $settings->ipHashSalt;
 
-        if (!$salt) {
+        if (!$salt || $salt === '$SMART_LINKS_IP_SALT' || trim($salt) === '') {
+            $this->logError('IP hash salt not configured - analytics tracking disabled', [
+                'ip' => 'hidden',
+                'saltValue' => $salt ?? 'NULL'
+            ]);
             throw new \Exception('IP hash salt not configured. Run: php craft smart-links/security/generate-salt');
         }
 

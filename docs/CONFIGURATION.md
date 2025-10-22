@@ -13,6 +13,8 @@ You can override plugin settings by creating a `smart-links.php` file in your `c
 
 ```php
 <?php
+use craft\helpers\App;
+
 return [
     // Plugin settings
     'pluginName' => 'Smart Links',
@@ -22,7 +24,7 @@ return [
 
     // IP Privacy Protection
     // Generate salt with: php craft smart-links/security/generate-salt
-    'ipHashSalt' => \Craft::parseEnv('$SMART_LINKS_IP_SALT'),
+    'ipHashSalt' => App::env('SMART_LINKS_IP_SALT'),
 
     // Analytics configuration
     'enableAnalytics' => true,
@@ -116,23 +118,23 @@ return [
 
 ### Using Environment Variables
 
-All settings support environment variables using `\Craft::parseEnv()`:
+Use `App::env()` to read environment variables in config files:
 
 ```php
+use craft\helpers\App;
+
 return [
-    // Correct way: Just use $VAR syntax
-    // EnvAttributeParserBehavior in Settings model automatically parses these
-    'ipHashSalt' => '$SMART_LINKS_IP_SALT',
-    'redirectTemplate' => '$REDIRECT_TEMPLATE',
-    'notFoundRedirectUrl' => '$NOT_FOUND_URL',
+    // Correct Craft 5 way
+    'ipHashSalt' => App::env('SMART_LINKS_IP_SALT'),
+    'redirectTemplate' => App::env('REDIRECT_TEMPLATE'),
+    'notFoundRedirectUrl' => App::env('NOT_FOUND_URL'),
 ];
 ```
 
 **Important:**
-- ✅ Use `'$VAR_NAME'` string syntax - EnvAttributeParserBehavior handles parsing
+- ✅ Use `App::env('VAR_NAME')` - Craft 5 recommended approach
 - ❌ Don't use `getenv('VAR_NAME')` - Not thread-safe
-- ❌ Don't use `\Craft::parseEnv()` - Not needed in config files (deprecated pattern)
-- ✅ Settings model must include property in `EnvAttributeParserBehavior` attributes array
+- ✅ Always import: `use craft\helpers\App;`
 
 ### Setting Descriptions
 
@@ -150,10 +152,10 @@ return [
 
 #### IP Privacy Settings
 
-- **ipHashSalt**: Secure salt for IP address hashing (stored in `.env`, not config file)
+- **ipHashSalt**: Secure salt for IP address hashing (stored in `.env`)
   - **Required** when analytics is enabled
   - Generate with: `php craft smart-links/security/generate-salt`
-  - Use `\Craft::parseEnv('$SMART_LINKS_IP_SALT')` to read from `.env`
+  - Config usage: `App::env('SMART_LINKS_IP_SALT')`
   - Never commit to version control
   - Use the SAME salt across all environments
 
@@ -321,13 +323,15 @@ For production environments:
 ### Security Recommendations
 
 ```php
+use craft\helpers\App;
+
 // IP Privacy (Required)
-'ipHashSalt' => '$SMART_LINKS_IP_SALT', // Required for analytics
+'ipHashSalt' => App::env('SMART_LINKS_IP_SALT'), // Required for analytics
 'anonymizeIpAddress' => true, // Extra privacy for EU/GDPR compliance
 
 // Restrict QR code generation
-'qrCodeSize' => min((int)('$QR_CODE_SIZE' ?: 300), 1000), // Max 1000px
-'qrCodeFormat' => 'png', // PNG is safer than SVG for user input
+'defaultQrSize' => 300, // Max size controlled in settings
+'defaultQrFormat' => 'png', // PNG is safer than SVG for user input
 ```
 
 ### IP Privacy Configuration
@@ -352,7 +356,9 @@ For production environments:
 
 **Default (Salted Hash Only):**
 ```php
-'ipHashSalt' => '$SMART_LINKS_IP_SALT',
+use craft\helpers\App;
+
+'ipHashSalt' => App::env('SMART_LINKS_IP_SALT'),
 'anonymizeIpAddress' => false,
 ```
 - Full IP hashed with salt
@@ -362,7 +368,9 @@ For production environments:
 
 **Maximum Privacy (Anonymization + Salt):**
 ```php
-'ipHashSalt' => '$SMART_LINKS_IP_SALT',
+use craft\helpers\App;
+
+'ipHashSalt' => App::env('SMART_LINKS_IP_SALT'),
 'anonymizeIpAddress' => true,
 ```
 - IP masked before hashing

@@ -89,10 +89,13 @@ The plugin logs meaningful events using context arrays for structured data. All 
   - Context: `start` (start date), `end` (end date)
 
 #### Save Operations
-- **[INFO]** `saveAnalytics called` - Analytics save initiated
+- **[INFO]** `Saving Smart Link analytics` - Analytics save initiated
   - Context: `linkId`
+- **[ERROR]** `IP hash salt not configured - analytics tracking disabled` - Missing IP salt
+  - Context: `ip` (always 'hidden'), `saltValue` (NULL or unparsed string)
+  - **Solution**: Run `php craft smart-links/security/generate-salt`
 - **[ERROR]** `Failed to save analytics` - Analytics save failure
-  - Context: `error` (exception message), `data` (analytics data), `trace` (stack trace)
+  - Context: `error` (exception message), `linkId`, `data` (if available)
 
 #### Geolocation
 - **[WARNING]** `Failed to get location from IP` - IP geolocation lookup failed
@@ -293,7 +296,8 @@ grep "analytics" storage/logs/smart-links-*.log
 ```
 
 Common issues:
-- `Failed to save analytics` - Check database connectivity
+- `IP hash salt not configured` - Salt missing from `.env` (run `php craft smart-links/security/generate-salt`)
+- `Failed to save analytics` - Check database connectivity or salt configuration
 - `Failed to get location from IP` - IP geolocation service issues
 - `Analytics getData error` - Query or date range problems
 
