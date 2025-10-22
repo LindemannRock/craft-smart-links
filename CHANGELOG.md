@@ -1,5 +1,17 @@
 # Changelog
 
+## [5.2.0](https://github.com/LindemannRock/craft-smart-links/compare/v5.1.0...v5.2.0) (2025-10-22)
+
+
+### Features
+
+* Add itemsPerPage setting to plugin configuration ([94f0549](https://github.com/LindemannRock/craft-smart-links/commit/94f0549190da9f5664fb1196504fedb861c7944b))
+
+
+### Miscellaneous Chores
+
+* Remove backup template for smart links index ([68a5f57](https://github.com/LindemannRock/craft-smart-links/commit/68a5f5757796c5d6e9a2c70f45971adb61e02f46))
+
 ## [5.1.0](https://github.com/LindemannRock/craft-smart-links/compare/v5.0.1...v5.1.0) (2025-10-22)
 
 
