@@ -21,6 +21,8 @@
 {% import "_includes/forms" as forms %}
 
 {% block content %}
+    {% include 'smart-links/_components/ip-salt-error' %}
+
     {% if settings is defined and settings.hasErrors() %}
         {% set errors = settings.getErrors() %}
         {% set errorCount = 0 %}
@@ -653,10 +655,8 @@ document.querySelector('form').addEventListener('submit', function(e) {
 
         // Show loading state with smooth transition
         previewImg.style.opacity = '0.5';
-        loadingDiv.style.display = 'block';
         errorDiv.style.display = 'none';
         warningDiv.style.display = 'none';
-        loadingDiv.textContent = 'Updating preview...';
 
         // Gather current settings
         const params = new URLSearchParams({

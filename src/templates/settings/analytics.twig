@@ -23,6 +23,8 @@
 {% block content %}
     {% set pluginName = plugin.settings.pluginName %}
 
+    {% include 'smart-links/_components/ip-salt-error' %}
+
     <form method="post" accept-charset="UTF-8">
         {{ actionInput('smart-links/settings/save') }}
         {{ csrfInput() }}
@@ -61,6 +63,29 @@
                 warning: settings.isOverriddenByConfig('enableGeoDetection') ?
                     "This is being overridden by the <code>enableGeoDetection</code> setting in <code>config/smart-links.php</code>."|t('smart-links')|raw : null,
             }) }}
+
+            <hr>
+
+            <h2>{{ "IP Address Privacy"|t('smart-links') }}</h2>
+
+            {{ forms.lightswitchField({
+                label: "Anonymize IP Addresses"|t('smart-links'),
+                instructions: "Mask IP addresses before storage for maximum privacy. <strong>IPv4</strong>: masks last octet (192.168.1.123 → 192.168.1.0). <strong>IPv6</strong>: masks last 80 bits. <strong>Trade-off</strong>: Reduces unique visitor accuracy (users on same subnet counted as one visitor). Geo-location still works normally."|t('smart-links')|raw,
+                id: 'anonymizeIpAddress',
+                name: 'settings[anonymizeIpAddress]',
+                on: settings.anonymizeIpAddress ?? false,
+                disabled: settings.isOverriddenByConfig('anonymizeIpAddress'),
+                warning: settings.isOverriddenByConfig('anonymizeIpAddress') ?
+                    "This is being overridden by the <code>anonymizeIpAddress</code> setting in <code>config/smart-links.php</code>."|t('smart-links')|raw : null,
+            }) }}
+
+            <div class="field">
+                <p class="light">
+                    <strong>Privacy Levels:</strong><br>
+                    • <strong>Disabled</strong> (default): Full IP hashed with salt (accurate unique visitors)<br>
+                    • <strong>Enabled</strong>: Subnet masked + hashed with salt (maximum privacy, less accurate)
+                </p>
+            </div>
 
             <hr>
 

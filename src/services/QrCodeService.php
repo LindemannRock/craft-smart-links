@@ -414,7 +414,7 @@ class QrCodeService extends Component
      */
     private function _getCachedQrCode(string $cacheKey): ?string
     {
-        $cachePath = Craft::$app->path->getRuntimePath() . '/smart-links/qr/';
+        $cachePath = Craft::$app->path->getRuntimePath() . '/smart-links/cache/qr/';
         $cacheFile = $cachePath . md5($cacheKey) . '.cache';
 
         if (!file_exists($cacheFile)) {
@@ -442,7 +442,7 @@ class QrCodeService extends Component
      */
     private function _cacheQrCode(string $cacheKey, string $data, int $duration): void
     {
-        $cachePath = Craft::$app->path->getRuntimePath() . '/smart-links/qr/';
+        $cachePath = Craft::$app->path->getRuntimePath() . '/smart-links/cache/qr/';
 
         // Create directory if it doesn't exist
         if (!is_dir($cachePath)) {

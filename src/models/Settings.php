@@ -50,6 +50,11 @@ class Settings extends Model
     public bool $includeExpiredInExport = false;
 
     /**
+     * @var bool Anonymize IP addresses before storing (masks last octet for IPv4, last 80 bits for IPv6)
+     */
+    public bool $anonymizeIpAddress = false;
+
+    /**
      * @var int Default QR code size
      */
     public int $defaultQrSize = 256;
@@ -211,6 +216,11 @@ class Settings extends Model
     public string $seomaticEventPrefix = 'smart_links';
 
     /**
+     * @var string|null IP hash salt for privacy protection
+     */
+    public ?string $ipHashSalt = null;
+
+    /**
      * @inheritdoc
      */
     protected function defineBehaviors(): array
@@ -223,6 +233,7 @@ class Settings extends Model
                     'qrTemplate',
                     'imageVolumeUid',
                     'qrLogoVolumeUid',
+                    'ipHashSalt',
                 ],
             ],
         ];
@@ -238,7 +249,7 @@ class Settings extends Model
             [['pluginName'], 'string', 'max' => 255],
             [['slugPrefix', 'qrPrefix'], 'string', 'max' => 50],
             [['slugPrefix', 'qrPrefix'], 'match', 'pattern' => '/^[a-zA-Z0-9\-\_]+$/', 'message' => Craft::t('smart-links', 'Only letters, numbers, hyphens, and underscores are allowed.')],
-            [['enableAnalytics', 'enableGeoDetection', 'cacheDeviceDetection', 'includeDisabledInExport', 'includeExpiredInExport'], 'boolean'],
+            [['enableAnalytics', 'enableGeoDetection', 'cacheDeviceDetection', 'includeDisabledInExport', 'includeExpiredInExport', 'anonymizeIpAddress'], 'boolean'],
             [['analyticsRetention', 'defaultQrSize', 'qrCodeCacheDuration', 'deviceDetectionCacheDuration', 'itemsPerPage'], 'integer'],
             [['analyticsRetention'], 'integer', 'min' => 0, 'max' => 3650], // 0 for unlimited, up to 10 years
             [['defaultQrSize'], 'integer', 'min' => 100, 'max' => 1000],
@@ -393,6 +404,9 @@ class Settings extends Model
 
         $db = Craft::$app->getDb();
         $attributes = $this->getAttributes();
+
+        // Exclude config-only attributes that shouldn't be saved to database
+        unset($attributes['ipHashSalt']); // This comes from .env, not database
 
         // Debug: Log what we're trying to save
         Craft::info('Attempting to save settings', 'smart-links', ['attributes' => $attributes]);

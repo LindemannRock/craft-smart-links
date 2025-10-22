@@ -13,6 +13,8 @@
     {% set pluginName = plugin.settings.pluginName %}
     {% set singularName = pluginName|replace({'/s$/': ''}) %}
 
+    {% include 'smart-links/_components/ip-salt-error' %}
+
     {% if not (readOnly ?? false) %}
         {{ actionInput('smart-links/settings/save-field-layout') }}
         {{ redirectInput('smart-links/settings/field-layout') }}

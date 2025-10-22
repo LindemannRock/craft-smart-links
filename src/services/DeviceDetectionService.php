@@ -399,7 +399,7 @@ class DeviceDetectionService extends Component
      */
     private function _getCachedDeviceInfo(string $userAgent): ?array
     {
-        $cachePath = Craft::$app->path->getRuntimePath() . '/smart-links/device/';
+        $cachePath = Craft::$app->path->getRuntimePath() . '/smart-links/cache/device/';
         $cacheFile = $cachePath . md5($userAgent) . '.cache';
 
         if (!file_exists($cacheFile)) {
@@ -428,7 +428,7 @@ class DeviceDetectionService extends Component
      */
     private function _cacheDeviceInfo(string $userAgent, array $data, int $duration): void
     {
-        $cachePath = Craft::$app->path->getRuntimePath() . '/smart-links/device/';
+        $cachePath = Craft::$app->path->getRuntimePath() . '/smart-links/cache/device/';
 
         // Create directory if it doesn't exist
         if (!is_dir($cachePath)) {

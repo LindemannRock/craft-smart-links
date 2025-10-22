@@ -23,6 +23,8 @@
 {% block content %}
     {% set pluginName = plugin.settings.pluginName %}
 
+    {% include 'smart-links/_components/ip-salt-error' %}
+
     <form method="post" accept-charset="UTF-8">
         {{ actionInput('smart-links/settings/save') }}
         {{ csrfInput() }}

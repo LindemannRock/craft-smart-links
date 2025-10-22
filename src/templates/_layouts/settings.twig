@@ -4,6 +4,8 @@
 {% set selectedSettingsItem = selectedSettingsItem ?? 'general' %}
 {% set selectedSubnavItem = 'settings' %}
 
+{% set plugin = craft.app.plugins.getPlugin('smart-links') %}
+
 {% block sidebar %}
     <nav id="settings-nav">
         <ul>
@@ -61,7 +63,7 @@
     #settings-nav a {
         transition: none;
     }
-    
+
     /* Ensure only the current page link is highlighted */
     #settings-nav a.sel {
         cursor: default;

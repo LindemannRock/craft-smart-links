@@ -11,6 +11,7 @@ namespace lindemannrock\smartlinks\controllers;
 use Craft;
 use craft\web\Controller;
 use lindemannrock\logginglibrary\traits\LoggingTrait;
+use lindemannrock\redirectmanager\traits\RedirectHandlingTrait;
 use lindemannrock\smartlinks\elements\SmartLink;
 use lindemannrock\smartlinks\SmartLinks;
 use yii\web\Response;
@@ -22,6 +23,7 @@ use yii\web\Response;
 class RedirectController extends Controller
 {
     use LoggingTrait;
+    use RedirectHandlingTrait;
 
     /**
      * @var array Allow anonymous access
@@ -57,7 +59,25 @@ class RedirectController extends Controller
             ->one();
 
         if (!$smartLink) {
-            // Get the 404 redirect URL from settings
+            $url = Craft::$app->getRequest()->getUrl();
+
+            // Check Redirect Manager for matching redirect (if installed)
+            $redirect = $this->handleRedirect404($url, 'smart-links', [
+                'type' => 'smart-link-not-found',
+                'slug' => $slug
+            ]);
+
+            if ($redirect) {
+                $this->logInfo('Smart link 404 handled by Redirect Manager', [
+                    'url' => $url,
+                    'slug' => $slug,
+                    'destination' => $redirect['destinationUrl']
+                ]);
+
+                return $this->redirect($redirect['destinationUrl'], $redirect['statusCode']);
+            }
+
+            // Fallback to configured URL
             $settings = SmartLinks::$plugin->getSettings();
             $redirectUrl = $settings->notFoundRedirectUrl ?: '/';
 

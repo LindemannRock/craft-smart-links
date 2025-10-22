@@ -21,6 +21,8 @@
 {% import "_includes/forms" as forms %}
 
 {% block content %}
+    {% include 'smart-links/_components/ip-salt-error' %}
+
     <form method="post" accept-charset="UTF-8">
         {{ actionInput('smart-links/settings/save') }}
         {{ csrfInput() }}

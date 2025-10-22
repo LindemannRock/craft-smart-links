@@ -20,9 +20,14 @@ return [
     // Logging settings
     'logLevel' => 'error', // error, warning, info, or debug
 
+    // IP Privacy Protection
+    // Generate salt with: php craft smart-links/security/generate-salt
+    'ipHashSalt' => \Craft::parseEnv('$SMART_LINKS_IP_SALT'),
+
     // Analytics configuration
     'enableAnalytics' => true,
     'analyticsRetention' => 90, // days (0 = unlimited, max 3650)
+    'anonymizeIpAddress' => false, // Mask IPs for maximum privacy
     'includeDisabledInExport' => false,
     'includeExpiredInExport' => false,
 
@@ -111,15 +116,23 @@ return [
 
 ### Using Environment Variables
 
-All settings support environment variables:
+All settings support environment variables using `\Craft::parseEnv()`:
 
 ```php
 return [
-    'enableAnalytics' => getenv('SMART_LINKS_ANALYTICS') === 'true',
-    'analyticsRetentionDays' => (int)getenv('SMART_LINKS_RETENTION') ?: 90,
-    'qrCodeSize' => (int)getenv('QR_CODE_SIZE') ?: 300,
+    // Correct way: Just use $VAR syntax
+    // EnvAttributeParserBehavior in Settings model automatically parses these
+    'ipHashSalt' => '$SMART_LINKS_IP_SALT',
+    'redirectTemplate' => '$REDIRECT_TEMPLATE',
+    'notFoundRedirectUrl' => '$NOT_FOUND_URL',
 ];
 ```
+
+**Important:**
+- ✅ Use `'$VAR_NAME'` string syntax - EnvAttributeParserBehavior handles parsing
+- ❌ Don't use `getenv('VAR_NAME')` - Not thread-safe
+- ❌ Don't use `\Craft::parseEnv()` - Not needed in config files (deprecated pattern)
+- ✅ Settings model must include property in `EnvAttributeParserBehavior` attributes array
 
 ### Setting Descriptions
 
@@ -135,10 +148,23 @@ return [
   - **info**: General information and successful operations
   - **debug**: Detailed debugging information (development only, requires devMode)
 
+#### IP Privacy Settings
+
+- **ipHashSalt**: Secure salt for IP address hashing (stored in `.env`, not config file)
+  - **Required** when analytics is enabled
+  - Generate with: `php craft smart-links/security/generate-salt`
+  - Use `\Craft::parseEnv('$SMART_LINKS_IP_SALT')` to read from `.env`
+  - Never commit to version control
+  - Use the SAME salt across all environments
+
 #### Analytics Settings
 
 - **enableAnalytics**: Enable/disable click tracking and analytics
 - **analyticsRetention**: How many days to keep analytics data (0-3650, 0 = unlimited)
+- **anonymizeIpAddress**: Mask IP addresses before storage for maximum privacy
+  - `false` (default): Full IP hashed with salt (accurate unique visitors)
+  - `true`: Subnet masked then hashed (IPv4: last octet, IPv6: last 80 bits)
+  - Trade-off: Reduces unique visitor accuracy but provides extra privacy
 - **includeDisabledInExport**: Include disabled smart links in CSV exports
 - **includeExpiredInExport**: Include expired smart links in CSV exports
 
@@ -295,7 +321,54 @@ For production environments:
 ### Security Recommendations
 
 ```php
+// IP Privacy (Required)
+'ipHashSalt' => '$SMART_LINKS_IP_SALT', // Required for analytics
+'anonymizeIpAddress' => true, // Extra privacy for EU/GDPR compliance
+
 // Restrict QR code generation
-'qrCodeSize' => min((int)getenv('QR_CODE_SIZE') ?: 300, 1000), // Max 1000px
+'qrCodeSize' => min((int)('$QR_CODE_SIZE' ?: 300), 1000), // Max 1000px
 'qrCodeFormat' => 'png', // PNG is safer than SVG for user input
 ```
+
+### IP Privacy Configuration
+
+#### Required Setup
+
+1. **Generate Salt (Local/Dev Only):**
+   ```bash
+   php craft smart-links/security/generate-salt
+   ```
+
+2. **Add to `.env`:**
+   ```bash
+   SMART_LINKS_IP_SALT="generated-64-character-salt"
+   ```
+
+3. **Copy to Other Environments:**
+   - Manually add the SAME salt to `staging/.env` and `production/.env`
+   - Never regenerate in staging/production
+
+#### IP Anonymization Options
+
+**Default (Salted Hash Only):**
+```php
+'ipHashSalt' => '$SMART_LINKS_IP_SALT',
+'anonymizeIpAddress' => false,
+```
+- Full IP hashed with salt
+- Accurate unique visitor tracking
+- Rainbow-table proof
+- Geo-location works normally
+
+**Maximum Privacy (Anonymization + Salt):**
+```php
+'ipHashSalt' => '$SMART_LINKS_IP_SALT',
+'anonymizeIpAddress' => true,
+```
+- IP masked before hashing
+  - IPv4: `192.168.1.123` → `192.168.1.0`
+  - IPv6: Masks last 80 bits
+- Less accurate unique visitors (subnet-level)
+- Extra privacy layer (even salt leak reveals only subnet)
+- Geo-location still works
+- Recommended for: EU, healthcare, government, high-privacy requirements

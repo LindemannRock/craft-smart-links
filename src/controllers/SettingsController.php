@@ -520,7 +520,7 @@ class SettingsController extends Controller
         $this->requireAcceptsJson();
 
         try {
-            $cachePath = Craft::$app->path->getRuntimePath() . '/smart-links/qr/';
+            $cachePath = Craft::$app->path->getRuntimePath() . '/smart-links/cache/qr/';
             $cleared = 0;
 
             if (is_dir($cachePath)) {
@@ -555,7 +555,7 @@ class SettingsController extends Controller
         $this->requireAcceptsJson();
 
         try {
-            $cachePath = Craft::$app->path->getRuntimePath() . '/smart-links/device/';
+            $cachePath = Craft::$app->path->getRuntimePath() . '/smart-links/cache/device/';
             $cleared = 0;
 
             if (is_dir($cachePath)) {
@@ -593,7 +593,7 @@ class SettingsController extends Controller
             $totalCleared = 0;
 
             // Clear QR code caches
-            $qrPath = Craft::$app->path->getRuntimePath() . '/smart-links/qr/';
+            $qrPath = Craft::$app->path->getRuntimePath() . '/smart-links/cache/qr/';
             if (is_dir($qrPath)) {
                 $files = glob($qrPath . '*.cache');
                 foreach ($files as $file) {
@@ -604,7 +604,7 @@ class SettingsController extends Controller
             }
 
             // Clear device detection caches
-            $devicePath = Craft::$app->path->getRuntimePath() . '/smart-links/device/';
+            $devicePath = Craft::$app->path->getRuntimePath() . '/smart-links/cache/device/';
             if (is_dir($devicePath)) {
                 $files = glob($devicePath . '*.cache');
                 foreach ($files as $file) {

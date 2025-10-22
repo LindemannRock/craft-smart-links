@@ -139,7 +139,7 @@ class SmartLinksController extends Controller
         // Pass enabled sites for site switcher
         $variables['enabledSites'] = $plugin->getEnabledSites();
 
-        return $this->renderTemplate('smart-links/smartlinks/_edit', $variables);
+        return $this->renderTemplate('smart-links/smartlinks/edit', $variables);
     }
 
     /**
@@ -298,7 +298,7 @@ class SmartLinksController extends Controller
 
             $plugin = SmartLinks::getInstance();
 
-            return $this->renderTemplate('smart-links/smartlinks/_edit', [
+            return $this->renderTemplate('smart-links/smartlinks/edit', [
                 'smartLink' => $smartLink ?? new SmartLink(),
                 'title' => Craft::t('smart-links', 'New smart link'),
                 'enabledSites' => $plugin->getEnabledSites(),

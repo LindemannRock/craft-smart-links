@@ -22,6 +22,8 @@
 {% import "_includes/forms" as forms %}
 
 {% block content %}
+    {% include 'smart-links/_components/ip-salt-error' %}
+
     <style>
         /* Make status dot visible when not installed - darker gray */
         .status:not(.on) {

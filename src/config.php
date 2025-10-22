@@ -32,9 +32,16 @@ return [
     // Site Settings
     'enabledSites' => [], // Array of site IDs where Smart Links should be enabled (empty = all sites)
 
+    // IP Privacy Protection
+    // Generate salt with: php craft smart-links/security/generate-salt
+    // Store in .env as: SMART_LINKS_IP_SALT="your-64-char-salt"
+    // EnvAttributeParserBehavior automatically parses $VAR syntax
+    'ipHashSalt' => '$SMART_LINKS_IP_SALT',
+
     // Analytics Settings
     'enableAnalytics' => true,
     'analyticsRetention' => 90, // Days to keep analytics data (0 = unlimited, max 3650)
+    'anonymizeIpAddress' => false, // Mask IP addresses for maximum privacy (IPv4: last octet, IPv6: last 80 bits)
 
     // Analytics Export Options
     'includeDisabledInExport' => false, // Include disabled smart links in analytics exports

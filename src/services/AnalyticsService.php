@@ -1404,6 +1404,13 @@ class AnalyticsService extends Component
         try {
             $db = Craft::$app->getDb();
 
+            // Anonymize IP address if setting is enabled
+            // This must happen BEFORE geo-lookup and hashing
+            $settings = SmartLinks::$plugin->getSettings();
+            if ($settings->anonymizeIpAddress && isset($metadata['ip'])) {
+                $metadata['ip'] = $this->_anonymizeIp($metadata['ip']);
+            }
+
             // Prepare the data according to actual database columns
             $data = [
                 'linkId' => $linkId,
@@ -1425,7 +1432,7 @@ class AnalyticsService extends Component
                 'country' => null,
                 'language' => $metadata['language'] ?? null,
                 'referrer' => $metadata['referrer'] ?? null,
-                'ip' => isset($metadata['ip']) ? hash('sha256', $metadata['ip']) : null,
+                'ip' => isset($metadata['ip']) ? $this->_hashIpWithSalt($metadata['ip']) : null,
                 'userAgent' => $deviceInfo['userAgent'] ?? null,
                 'metadata' => Json::encode($metadata),
                 'dateCreated' => Db::prepareDateForDb(new \DateTime()),
@@ -1434,6 +1441,7 @@ class AnalyticsService extends Component
             ];
 
             // Get location data from IP if geo detection is enabled
+            // IMPORTANT: This must happen BEFORE we remove IP from metadata
             if (SmartLinks::$plugin->getSettings()->enableGeoDetection && isset($metadata['ip'])) {
                 $location = $this->getLocationFromIp($metadata['ip']);
                 if ($location) {
@@ -1447,6 +1455,13 @@ class AnalyticsService extends Component
                 }
             }
 
+            // Remove raw IP from metadata before storage (privacy protection)
+            // The hashed IP is already stored in $data['ip']
+            unset($metadata['ip']);
+
+            // Re-encode metadata without raw IP
+            $data['metadata'] = Json::encode($metadata);
+
             return (bool)$db->createCommand()
                 ->insert('{{%smartlinks_analytics}}', $data)
                 ->execute();
@@ -1455,6 +1470,64 @@ class AnalyticsService extends Component
             $this->logError('Failed to save analytics', ['error' => $e->getMessage(), 'data' => $data, 'trace' => $e->getTraceAsString()]);
             return false;
         }
+    }
+
+    /**
+     * Hash IP address with salt for privacy
+     *
+     * @param string $ip
+     * @return string
+     * @throws \Exception
+     */
+    private function _hashIpWithSalt(string $ip): string
+    {
+        $settings = SmartLinks::$plugin->getSettings();
+        $salt = $settings->ipHashSalt;
+
+        if (!$salt) {
+            throw new \Exception('IP hash salt not configured. Run: php craft smart-links/security/generate-salt');
+        }
+
+        return hash('sha256', $ip . $salt);
+    }
+
+    /**
+     * Anonymize IP address for privacy
+     * IPv4: Masks last octet (192.168.1.123 → 192.168.1.0)
+     * IPv6: Masks last 80 bits (keeps first 48 bits)
+     *
+     * @param string $ip
+     * @return string
+     */
+    private function _anonymizeIp(string $ip): string
+    {
+        // Detect if IPv4 or IPv6
+        if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
+            // IPv4: Mask last octet
+            // 192.168.1.123 → 192.168.1.0
+            return preg_replace('/\.\d+$/', '.0', $ip);
+        } elseif (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)) {
+            // IPv6: Mask last 80 bits (keep first 48 bits = /48 prefix)
+            // Standard practice for IPv6 anonymization
+
+            // Convert IPv6 to binary
+            $binary = inet_pton($ip);
+            if ($binary === false) {
+                return $ip; // Return original if conversion fails
+            }
+
+            // For IPv6 (128 bits total):
+            // - Keep first 48 bits (6 bytes) - ISP/network prefix
+            // - Zero out last 80 bits (10 bytes) - host identifier
+            $anonymized = substr($binary, 0, 6) . str_repeat("\0", 10);
+
+            // Convert back to IPv6 notation
+            $result = inet_ntop($anonymized);
+            return $result !== false ? $result : $ip;
+        }
+
+        // If neither IPv4 nor IPv6, return as-is
+        return $ip;
     }
 
     /**

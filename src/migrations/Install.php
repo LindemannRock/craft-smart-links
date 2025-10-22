@@ -161,6 +161,7 @@ class Install extends Migration
                 // Analytics settings
                 'enableAnalytics' => $this->boolean()->notNull()->defaultValue(true),
                 'analyticsRetention' => $this->integer()->notNull()->defaultValue(90),
+                'anonymizeIpAddress' => $this->boolean()->notNull()->defaultValue(false),
                 // Export settings
                 'includeDisabledInExport' => $this->boolean()->defaultValue(false),
                 'includeExpiredInExport' => $this->boolean()->notNull()->defaultValue(false),

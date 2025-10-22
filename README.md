@@ -57,6 +57,28 @@ ddev craft plugin/install smart-links
 
 In the Control Panel, go to Settings → Plugins and click "Install" for Smart Links.
 
+### ⚠️ Required Post-Install Step
+
+**IMPORTANT:** After installation, you MUST generate the IP hash salt for analytics to work:
+
+```bash
+php craft smart-links/security/generate-salt
+```
+
+**What happens if you skip this:**
+- ❌ Analytics tracking will fail with error: `IP hash salt not configured`
+- ❌ Smart links will still redirect, but won't track clicks
+- ✅ You can generate the salt later, but no analytics will be collected until you do
+
+**Quick Start:**
+```bash
+# After plugin installation:
+php craft smart-links/security/generate-salt
+
+# The command will automatically add SMART_LINKS_IP_SALT to your .env file
+# Copy this value to staging/production .env files manually
+```
+
 ## Configuration
 
 ### Settings
@@ -301,10 +323,99 @@ Navigate to **Smart Links → Analytics** to see:
 - Date range filtering with AJAX updates (Last 7 days, 30 days, 90 days, All time)
 - Export analytics data to CSV with configurable options
 - Real-time interaction tracking (auto-redirects and button clicks only)
-- Privacy-focused IP hashing
+- Privacy-focused IP hashing with secure salt (rainbow-table proof)
 - Automatic geographic detection using ip-api.com
 - Global analytics toggle to disable all tracking
 - Per-link analytics control with confirmation prompts
+
+#### IP Privacy Protection
+
+Smart Links uses salted SHA256 hashing for IP addresses to prevent rainbow table attacks and protect visitor privacy:
+
+**Setup (Local/Dev Environment Only):**
+1. Generate a salt in your local/dev environment:
+   ```bash
+   php craft smart-links/security/generate-salt
+   ```
+   This automatically adds `SMART_LINKS_IP_SALT` to your `.env` file.
+
+2. **Copy the salt to staging/production:**
+   - Open your local `.env` file
+   - Copy the `SMART_LINKS_IP_SALT` value
+   - Manually add it to staging and production `.env` files
+   - **DO NOT** regenerate the salt in staging/production
+
+   Example:
+   ```bash
+   # Local .env
+   SMART_LINKS_IP_SALT="0dffabe583a420819eba489d4c54f81aca4d6d8260f8188833a619127fab2646"
+
+   # Copy this EXACT value to:
+   # - staging/.env
+   # - production/.env
+   ```
+
+**Critical Requirements:**
+- ⚠️ **Generate ONCE in local/dev environment only**
+- ⚠️ **Use the SAME salt across all environments** (dev, staging, production)
+- ❌ **Never regenerate in staging/production** - this will break analytics
+- ❌ **Never commit the salt to version control** (add `.env` to `.gitignore`)
+- ✅ **Store the salt securely** (password manager recommended)
+- ⚠️ Changing the salt will reset unique visitor tracking
+- ✅ Salt is required for analytics tracking to work
+- ✅ Raw IP addresses are NEVER stored (only salted hash + geo-location data)
+
+**Privacy Features:**
+- ✅ Rainbow table proof - Salted SHA256 hashing
+- ✅ No raw IP storage - IP removed from metadata after geo-lookup
+- ✅ Geo-location preserved - Country, city, region stored separately
+- ✅ GDPR compliant - No personally identifiable IP data retained
+- ✅ Unique visitor tracking - Maintained via salted hashes
+- ✅ Optional IP anonymization - Extra privacy layer (see below)
+
+#### Optional: IP Address Anonymization
+
+For **maximum privacy**, you can enable IP address anonymization. This masks IPs before hashing and geo-location:
+
+**How it works:**
+- **IPv4**: Masks last octet (`192.168.1.123` → `192.168.1.0`)
+- **IPv6**: Masks last 80 bits (keeps first 48 bits for ISP/network)
+- IP is anonymized BEFORE hashing and geo-lookup
+- Even if salt leaks, attackers only get subnet information
+
+**Enable via Settings:**
+1. Go to **Settings → Smart Links → Analytics**
+2. Enable **Anonymize IP Addresses**
+
+**Or via Config:**
+```php
+// config/smart-links.php
+return [
+    'anonymizeIpAddress' => true,
+];
+```
+
+**Trade-offs:**
+- ✅ **Extra Privacy**: Subnet-level anonymization + salt
+- ✅ **Geo-location**: Still works (city/country detection unaffected)
+- ⚠️ **Accuracy**: Multiple users on same subnet = counted as one visitor
+- ⚠️ **Corporate/Office Networks**: All users appear as single visitor
+
+**When to use:**
+- High-privacy requirements (government, healthcare, EU)
+- GDPR/privacy law compliance requirements
+- Don't need precise unique visitor counts
+- Prefer privacy over analytics accuracy
+
+**Privacy Levels Comparison:**
+
+| Feature | Default (Salt Only) | With Anonymization |
+|---------|-------------------|-------------------|
+| **Privacy** | Rainbow-table proof | Maximum (subnet-level) |
+| **Unique Visitors** | Very accurate (per IP) | Less accurate (per subnet) |
+| **Geo-location** | ✅ Works | ✅ Works |
+| **Corporate Networks** | Each user = unique | All users = one visitor |
+| **Salt Leak Risk** | Reveals full IP | Only reveals subnet |
 
 ### Third-Party Integrations
 
@@ -728,12 +839,11 @@ Event::on(
 ## Console Commands
 
 ```bash
-# Update missing country data for analytics
-./craft smart-links/analytics/update-countries
-
-# Update missing city data for analytics
-./craft smart-links/analytics/update-cities
+# Generate secure salt for IP hashing (required for analytics)
+./craft smart-links/security/generate-salt
 ```
+
+**Note:** Analytics backfill commands (`update-countries`, `update-cities`) were removed in v5.0.2+. Geo-location now happens at tracking time only.
 
 ## Logging
 

@@ -234,7 +234,7 @@ class SmartLinks extends Plugin
                         $cleared = 0;
 
                         // Clear QR code caches
-                        $qrPath = Craft::$app->path->getRuntimePath() . '/smart-links/qr/';
+                        $qrPath = Craft::$app->path->getRuntimePath() . '/smart-links/cache/qr/';
                         if (is_dir($qrPath)) {
                             $files = glob($qrPath . '*.cache');
                             foreach ($files as $file) {
@@ -245,7 +245,7 @@ class SmartLinks extends Plugin
                         }
 
                         // Clear device detection caches
-                        $devicePath = Craft::$app->path->getRuntimePath() . '/smart-links/device/';
+                        $devicePath = Craft::$app->path->getRuntimePath() . '/smart-links/cache/device/';
                         if (is_dir($devicePath)) {
                             $files = glob($devicePath . '*.cache');
                             foreach ($files as $file) {
@@ -433,8 +433,8 @@ class SmartLinks extends Plugin
     {
         return [
             // Smart Links routes
-            'smart-links' => ['template' => 'smart-links/smartlinks/_index'],
-            'smart-links/smartlinks' => ['template' => 'smart-links/smartlinks/_index'],
+            'smart-links' => ['template' => 'smart-links/smartlinks/index'],
+            'smart-links/smartlinks' => ['template' => 'smart-links/smartlinks/index'],
             'smart-links/new' => 'smart-links/smart-links/edit',
             'smart-links/smartlinks/new' => 'smart-links/smart-links/edit',
             'smart-links/<smartLinkId:\d+>' => 'smart-links/smart-links/edit',
