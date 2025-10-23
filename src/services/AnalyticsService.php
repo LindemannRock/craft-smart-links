@@ -1411,6 +1411,17 @@ class AnalyticsService extends Component
                 $metadata['ip'] = $this->_anonymizeIp($metadata['ip']);
             }
 
+            // Hash IP with salt for storage (with error handling)
+            $ipHash = null;
+            if (isset($metadata['ip'])) {
+                try {
+                    $ipHash = $this->_hashIpWithSalt($metadata['ip']);
+                } catch (\Exception $e) {
+                    $this->logError('Failed to hash IP address', ['error' => $e->getMessage()]);
+                    $ipHash = null;  // Continue without IP
+                }
+            }
+
             // Prepare the data according to actual database columns
             $data = [
                 'linkId' => $linkId,
@@ -1432,7 +1443,7 @@ class AnalyticsService extends Component
                 'country' => null,
                 'language' => $metadata['language'] ?? null,
                 'referrer' => $metadata['referrer'] ?? null,
-                'ip' => isset($metadata['ip']) ? $this->_hashIpWithSalt($metadata['ip']) : null,
+                'ip' => $ipHash,
                 'userAgent' => $deviceInfo['userAgent'] ?? null,
                 'metadata' => Json::encode($metadata),
                 'dateCreated' => Db::prepareDateForDb(new \DateTime()),
