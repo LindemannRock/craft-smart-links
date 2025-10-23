@@ -355,6 +355,11 @@ Smart Links uses salted SHA256 hashing for IP addresses to prevent rainbow table
    # - production/.env
    ```
 
+**How It Works:**
+- Plugin automatically reads salt from `.env` (no config file needed!)
+- Config file can override if needed: `'ipHashSalt' => App::env('SMART_LINKS_IP_SALT')`
+- If no salt found, error banner shown in settings
+
 **Critical Requirements:**
 - ⚠️ **Generate ONCE in local/dev environment only**
 - ⚠️ **Use the SAME salt across all environments** (dev, staging, production)
@@ -919,17 +924,28 @@ This client-side approach ensures tracking works correctly even when pages are c
 - Desktop page loads without `?src=qr` parameter are intentionally NOT tracked
 
 ### Wrong Location in Local Development
-When running locally (DDEV, localhost), analytics will default to Saudi Arabia because local IPs can't be geolocated. To set your actual location for testing:
+When running locally (DDEV, localhost), analytics will **default to Dubai, UAE** because local IPs can't be geolocated. To set your actual location for testing:
 
 ```bash
 # Add to your .env file:
-SMART_LINKS_DEFAULT_COUNTRY=AE
-SMART_LINKS_DEFAULT_CITY=Dubai
+SMART_LINKS_DEFAULT_COUNTRY=US
+SMART_LINKS_DEFAULT_CITY=New York
 ```
 
-Supported locations:
-- UAE: Dubai, Abu Dhabi
-- Saudi Arabia: Riyadh, Jeddah
+**Supported locations:**
+- **US**: New York, Los Angeles, Chicago, San Francisco
+- **GB**: London, Manchester
+- **AE**: Dubai, Abu Dhabi (default: Dubai)
+- **SA**: Riyadh, Jeddah
+- **DE**: Berlin, Munich
+- **FR**: Paris
+- **CA**: Toronto, Vancouver
+- **AU**: Sydney, Melbourne
+- **JP**: Tokyo
+- **SG**: Singapore
+- **IN**: Mumbai, Delhi
+
+**Note:** This only affects local/private IPs (127.0.0.1, localhost, etc.). Production analytics will use real IP geolocation via ip-api.com.
 
 ## Multi-Site Considerations
 

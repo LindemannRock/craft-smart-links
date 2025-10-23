@@ -1,0 +1,136 @@
+<div class="smart-links-widget">
+    <div class="widget-stats">
+        <div class="stat-item">
+            <div class="stat-value">{{ data.totalClicks|number }}</div>
+            <div class="stat-label">{{ "Total Interactions"|t('smart-links') }}</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-value">{{ data.uniqueVisitors|number }}</div>
+            <div class="stat-label">{{ "Unique Visitors"|t('smart-links') }}</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-value">{{ data.activeLinks|number }}</div>
+            <div class="stat-label">{{ "Active Links"|t('smart-links') }}</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-value">{{ data.linksUsedPercentage ?? 0 }}%</div>
+            <div class="stat-label">{{ "Engagement Rate"|t('smart-links') }}</div>
+        </div>
+    </div>
+
+    {% if data.topLinks|length > 0 %}
+        {% set topLink = data.topLinks|first %}
+        <div class="top-link">
+            <div class="top-link-header">
+                <span class="label">{{ "Top Performer"|t('smart-links') }}</span>
+            </div>
+            <div class="top-link-content">
+                <div class="link-info">
+                    <a href="{{ cpUrl('smart-links/smartlinks/' ~ topLink.id) }}" class="link-title">
+                        {{ topLink.name }}
+                    </a>
+                    <div class="link-meta">
+                        <code>/{{ topLink.slug }}</code>
+                        <span class="separator">•</span>
+                        <span>{{ topLink.clicks|number }} {{ "clicks"|t('smart-links') }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    <div class="widget-footer">
+        <a href="{{ cpUrl('smart-links/analytics') }}" class="go">{{ "View full analytics"|t('smart-links') }}</a>
+    </div>
+</div>
+
+<style>
+.smart-links-widget {
+    padding: 0;
+}
+
+.widget-stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.stat-item {
+    text-align: center;
+    padding: 16px;
+    background: #f9fafb;
+    border-radius: 4px;
+}
+
+.stat-value {
+    font-size: 24px;
+    font-weight: 600;
+    color: #0d78f2;
+    margin-bottom: 4px;
+}
+
+.stat-label {
+    font-size: 12px;
+    color: #596673;
+}
+
+.top-link {
+    background: #fff;
+    border: 1px solid #e3e5e8;
+    border-radius: 4px;
+    padding: 16px;
+    margin-bottom: 16px;
+}
+
+.top-link-header {
+    margin-bottom: 12px;
+}
+
+.top-link-header .label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: #596673;
+    letter-spacing: 0.5px;
+}
+
+.link-title {
+    font-weight: 600;
+    font-size: 14px;
+    color: #0d78f2;
+    text-decoration: none;
+    display: block;
+    margin-bottom: 4px;
+}
+
+.link-title:hover {
+    text-decoration: underline;
+}
+
+.link-meta {
+    font-size: 12px;
+    color: #8b95a1;
+}
+
+.link-meta code {
+    background: #f3f4f6;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 11px;
+}
+
+.link-meta .separator {
+    margin: 0 6px;
+}
+
+.widget-footer {
+    text-align: center;
+    padding-top: 12px;
+    border-top: 1px solid #e3e5e8;
+}
+
+.widget-footer .go {
+    font-size: 13px;
+}
+</style>

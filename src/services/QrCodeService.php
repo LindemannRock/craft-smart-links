@@ -69,17 +69,21 @@ class QrCodeService extends Component
         // Create cache key including new style parameters and logo
         $cacheKey = $this->_getCacheKey($url, $size, $color, $bgColor, $format, $margin, $moduleStyle, $eyeStyle, $eyeColor, $logoId, $logoSize);
 
-        // Check cache using custom file storage
-        $cached = $this->_getCachedQrCode($cacheKey);
-        if ($cached !== null) {
-            return $cached;
+        // Check cache using custom file storage (if caching enabled)
+        if ($settings->enableQrCodeCache) {
+            $cached = $this->_getCachedQrCode($cacheKey);
+            if ($cached !== null) {
+                return $cached;
+            }
         }
 
         // Generate QR code
         $qrCode = $this->_generateQrCode($url, $size, $color, $bgColor, $format, $margin, $moduleStyle, $eyeStyle, $eyeColor, $logoId, $logoSize);
 
-        // Cache the result using custom file storage
-        $this->_cacheQrCode($cacheKey, $qrCode, $settings->qrCodeCacheDuration);
+        // Cache the result using custom file storage (if caching enabled)
+        if ($settings->enableQrCodeCache) {
+            $this->_cacheQrCode($cacheKey, $qrCode, $settings->qrCodeCacheDuration);
+        }
 
         return $qrCode;
     }

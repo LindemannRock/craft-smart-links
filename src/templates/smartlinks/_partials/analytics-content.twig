@@ -166,43 +166,6 @@
     </div>
 {% endif %}
 
-{# Chart Styles #}
-<style>
-.analytics-charts {
-    display: flex;
-    gap: 24px;
-    margin: 20px 0;
-}
-
-.analytics-charts.two-columns {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 24px;
-}
-
-.chart-container {
-    background: #fff;
-    border: 1px solid #e0e0e0;
-    border-radius: 4px;
-    padding: 20px;
-}
-
-.chart-container h3 {
-    margin: 0 0 20px 0;
-    font-size: 16px;
-    font-weight: 600;
-}
-
-.chart-container canvas {
-    max-height: 300px;
-}
-
-@media (max-width: 768px) {
-    .analytics-charts.two-columns {
-        grid-template-columns: 1fr;
-    }
-}
-</style>
 
 {# Chart JavaScript #}
 {% if analytics.totalClicks > 0 %}
@@ -254,8 +217,7 @@ function initializeCharts() {
                         '#10B981', // Emerald
                         '#EF4444', // Red
                         '#6B7280'  // Gray
-                    ],
-                    borderWidth: 0
+                    ]
                 }]
             },
             options: {
@@ -263,22 +225,7 @@ function initializeCharts() {
                 maintainAspectRatio: true,
                 plugins: {
                     legend: {
-                        position: 'bottom',
-                        labels: {
-                            padding: 15,
-                            font: {
-                                size: 12
-                            }
-                        }
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                const percentage = ((context.parsed / total) * 100).toFixed(1);
-                                return context.label + ': ' + context.parsed + ' (' + percentage + '%)';
-                            }
-                        }
+                        position: 'bottom'
                     }
                 }
             }
@@ -303,8 +250,7 @@ function initializeCharts() {
                         '#EF4444', // Red
                         '#8B5CF6', // Purple
                         '#6B7280'  // Gray
-                    ],
-                    borderWidth: 0
+                    ]
                 }]
             },
             options: {
@@ -312,22 +258,7 @@ function initializeCharts() {
                 maintainAspectRatio: true,
                 plugins: {
                     legend: {
-                        position: 'bottom',
-                        labels: {
-                            padding: 15,
-                            font: {
-                                size: 12
-                            }
-                        }
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                const percentage = ((context.parsed / total) * 100).toFixed(1);
-                                return context.label + ': ' + context.parsed + ' (' + percentage + '%)';
-                            }
-                        }
+                        position: 'bottom'
                     }
                 }
             }

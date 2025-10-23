@@ -1,0 +1,28 @@
+{% import "_includes/forms" as forms %}
+
+{{ forms.selectField({
+    label: 'Date Range'|t('smart-links'),
+    id: 'dateRange',
+    name: 'dateRange',
+    value: widget.dateRange,
+    options: {
+        'today': 'Today'|t('smart-links'),
+        'yesterday': 'Yesterday'|t('smart-links'),
+        'last7days': 'Last 7 days'|t('smart-links'),
+        'last30days': 'Last 30 days'|t('smart-links'),
+        'last90days': 'Last 90 days'|t('smart-links'),
+        'all': 'All time'|t('smart-links'),
+    }
+}) }}
+
+{{ forms.textField({
+    label: 'Number of Links'|t('smart-links'),
+    instructions: 'How many top links to display (1-20)'|t('smart-links'),
+    id: 'limit',
+    name: 'limit',
+    value: widget.limit,
+    type: 'number',
+    min: 1,
+    max: 20,
+    size: 3
+}) }}

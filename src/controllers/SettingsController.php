@@ -223,17 +223,17 @@ class SettingsController extends Controller
     }
 
     /**
-     * Advanced settings
+     * Cache settings
      *
      * @return Response
      */
-    public function actionAdvanced(): Response
+    public function actionCache(): Response
     {
         // Get settings from plugin (includes config overrides)
         $plugin = SmartLinks::getInstance();
         $settings = $plugin->getSettings();
 
-        return $this->renderTemplate('smart-links/settings/advanced', [
+        return $this->renderTemplate('smart-links/settings/cache', [
             'settings' => $settings,
             'readOnly' => $this->readOnly,
         ]);
@@ -472,6 +472,15 @@ class SettingsController extends Controller
             Craft::$app->getSession()->setNotice(Craft::t('smart-links', 'Settings saved.'));
         } else {
             Craft::$app->getSession()->setError(Craft::t('smart-links', 'Couldn\'t save settings.'));
+
+            // Get the section to re-render the correct template with errors
+            $section = $this->request->getBodyParam('section', 'general');
+            $template = "smart-links/settings/{$section}";
+
+            return $this->renderTemplate($template, [
+                'settings' => $settings,
+                'readOnly' => $this->readOnly,
+            ]);
         }
 
         return $this->redirectToPostedUrl();

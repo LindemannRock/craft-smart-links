@@ -20,6 +20,7 @@ use craft\events\RegisterUrlRulesEvent;
 use craft\events\RegisterUserPermissionsEvent;
 use craft\fields\Link as LinkField;
 use craft\helpers\FileHelper;
+use craft\services\Dashboard;
 use craft\services\Elements;
 use craft\services\Fields;
 use craft\services\UserPermissions;
@@ -40,6 +41,8 @@ use lindemannrock\smartlinks\services\IntegrationService;
 use lindemannrock\smartlinks\services\QrCodeService;
 use lindemannrock\smartlinks\services\SmartLinksService;
 use lindemannrock\smartlinks\variables\SmartLinksVariable;
+use lindemannrock\smartlinks\widgets\AnalyticsSummaryWidget;
+use lindemannrock\smartlinks\widgets\TopLinksWidget;
 use lindemannrock\logginglibrary\traits\LoggingTrait;
 use lindemannrock\logginglibrary\LoggingLibrary;
 use yii\base\Event;
@@ -217,6 +220,16 @@ class SmartLinks extends Plugin
             Utilities::EVENT_REGISTER_UTILITIES,
             function(RegisterComponentTypesEvent $event) {
                 $event->types[] = SmartLinksUtility::class;
+            }
+        );
+
+        // Register dashboard widgets
+        Event::on(
+            Dashboard::class,
+            Dashboard::EVENT_REGISTER_WIDGET_TYPES,
+            function(RegisterComponentTypesEvent $event) {
+                $event->types[] = AnalyticsSummaryWidget::class;
+                $event->types[] = TopLinksWidget::class;
             }
         );
 
@@ -450,7 +463,7 @@ class SmartLinks extends Plugin
             'smart-links/settings/qr-code' => 'smart-links/settings/qr-code',
             'smart-links/settings/redirect' => 'smart-links/settings/redirect',
             'smart-links/settings/interface' => 'smart-links/settings/interface',
-            'smart-links/settings/advanced' => 'smart-links/settings/advanced',
+            'smart-links/settings/cache' => 'smart-links/settings/cache',
             'smart-links/settings/field-layout' => 'smart-links/settings/field-layout',
             'smart-links/settings/save' => 'smart-links/settings/save',
             'smart-links/settings/save-field-layout' => 'smart-links/settings/save-field-layout',

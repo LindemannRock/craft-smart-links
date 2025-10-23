@@ -29,6 +29,7 @@
         {{ actionInput('smart-links/settings/save') }}
         {{ csrfInput() }}
         {{ redirectInput('smart-links/settings/interface') }}
+        {{ hiddenInput('section', 'interface') }}
 
         <h2 style="margin-top: 0px;">{{ "Interface Settings"|t('smart-links') }}</h2>
 
@@ -41,10 +42,11 @@
             type: 'number',
             min: 10,
             max: 500,
+            required: true,
             disabled: settings.isOverriddenByConfig('itemsPerPage'),
             warning: settings.isOverriddenByConfig('itemsPerPage') ?
                 "This is being overridden by the <code>itemsPerPage</code> setting in <code>config/smart-links.php</code>."|t('smart-links')|raw : null,
-            errors: (settings is defined and settings) ? settings.getErrors('itemsPerPage') : []
+            errors: settings.getErrors('itemsPerPage')
         }) }}
 
         <div class="buttons">

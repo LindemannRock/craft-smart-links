@@ -15,21 +15,6 @@
                 </a>
             </li>
             <li>
-                <a href="{{ url('smart-links/settings/analytics') }}" {% if selectedSettingsItem == 'analytics' %}class="sel"{% endif %} data-nav-item="analytics">
-                    {{ 'Analytics'|t('smart-links') }}
-                </a>
-            </li>
-            <li>
-                <a href="{{ url('smart-links/settings/integrations') }}" {% if selectedSettingsItem == 'integrations' %}class="sel"{% endif %} data-nav-item="integrations">
-                    {{ 'Integrations'|t('smart-links') }}
-                </a>
-            </li>
-            <li>
-                <a href="{{ url('smart-links/settings/export') }}" {% if selectedSettingsItem == 'export' %}class="sel"{% endif %} data-nav-item="export">
-                    {{ 'Export'|t('smart-links') }}
-                </a>
-            </li>
-            <li>
                 <a href="{{ url('smart-links/settings/qr-code') }}" {% if selectedSettingsItem == 'qr-code' %}class="sel"{% endif %} data-nav-item="qr-code">
                     {{ 'QR Code'|t('smart-links') }}
                 </a>
@@ -40,13 +25,28 @@
                 </a>
             </li>
             <li>
+                <a href="{{ url('smart-links/settings/analytics') }}" {% if selectedSettingsItem == 'analytics' %}class="sel"{% endif %} data-nav-item="analytics">
+                    {{ 'Analytics'|t('smart-links') }}
+                </a>
+            </li>
+            <li>
                 <a href="{{ url('smart-links/settings/interface') }}" {% if selectedSettingsItem == 'interface' %}class="sel"{% endif %} data-nav-item="interface">
                     {{ 'Interface'|t('smart-links') }}
                 </a>
             </li>
             <li>
-                <a href="{{ url('smart-links/settings/advanced') }}" {% if selectedSettingsItem == 'advanced' %}class="sel"{% endif %} data-nav-item="advanced">
-                    {{ 'Advanced'|t('smart-links') }}
+                <a href="{{ url('smart-links/settings/export') }}" {% if selectedSettingsItem == 'export' %}class="sel"{% endif %} data-nav-item="export">
+                    {{ 'Export'|t('smart-links') }}
+                </a>
+            </li>
+            <li>
+                <a href="{{ url('smart-links/settings/cache') }}" {% if selectedSettingsItem == 'cache' %}class="sel"{% endif %} data-nav-item="cache">
+                    {{ 'Cache'|t('smart-links') }}
+                </a>
+            </li>
+            <li>
+                <a href="{{ url('smart-links/settings/integrations') }}" {% if selectedSettingsItem == 'integrations' %}class="sel"{% endif %} data-nav-item="integrations">
+                    {{ 'Integrations'|t('smart-links') }}
                 </a>
             </li>
             <li>

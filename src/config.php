@@ -53,6 +53,8 @@ return [
     'defaultQrColor' => '#000000',     // Foreground color
     'defaultQrBgColor' => '#FFFFFF',   // Background color
     'defaultQrFormat' => 'png',        // Format: 'png' or 'svg'
+    'enableQrCodeCache' => true,       // Cache generated QR codes
+    'qrCodeCacheDuration' => 86400,    // QR cache duration in seconds (24 hours)
     'defaultQrMargin' => 4,            // White space around QR code (0-10 modules)
 
     // QR Code Technical Options

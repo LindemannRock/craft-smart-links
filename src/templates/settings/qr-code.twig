@@ -323,20 +323,14 @@
 
         <hr>
 
-        <h2>{{ "Caching"|t('smart-links') }}</h2>
+        <h2>{{ "Performance & Caching"|t('smart-links') }}</h2>
 
-        {{ forms.textField({
-            label: "QR Code Cache Duration"|t('smart-links'),
-            instructions: "How long to cache generated QR codes (in seconds)"|t('smart-links'),
-            id: 'qrCodeCacheDuration',
-            name: 'settings[qrCodeCacheDuration]',
-            value: settings.qrCodeCacheDuration ?? 86400,
-            type: 'number',
-            min: 0,
-            disabled: settings.isOverriddenByConfig('qrCodeCacheDuration'),
-            warning: settings.isOverriddenByConfig('qrCodeCacheDuration') ?
-                "This is being overridden by the <code>qrCodeCacheDuration</code> setting in <code>config/smart-links.php</code>."|t('smart-links')|raw : null,
-        }) }}
+        <div class="field">
+            <p class="light">
+                {{ "Configure QR code caching to improve performance and reduce server load."|t('smart-links') }}
+                <a href="{{ url('smart-links/settings/cache') }}">{{ "Go to Cache Settings"|t('smart-links') }}</a>
+            </p>
+        </div>
 
         <div class="buttons">
             <button type="submit" class="btn submit">{{ "Save Settings"|t('smart-links') }}</button>

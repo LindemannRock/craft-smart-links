@@ -1752,14 +1752,79 @@ class AnalyticsService extends Component
     public function getLocationFromIp(string $ip): ?array
     {
         try {
-            // Skip local/private IPs - return default location data
+            // Skip local/private IPs - return default location data for local development
             if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) === false) {
                 // Check for environment variable to override default location
-                $defaultCountry = getenv('SMART_LINKS_DEFAULT_COUNTRY') ?: 'SA';
-                $defaultCity = getenv('SMART_LINKS_DEFAULT_CITY') ?: 'Riyadh';
+                // Defaults to Dubai, UAE if not set
+                $defaultCountry = getenv('SMART_LINKS_DEFAULT_COUNTRY') ?: 'AE';
+                $defaultCity = getenv('SMART_LINKS_DEFAULT_CITY') ?: 'Dubai';
 
-                // Predefined locations for common defaults
+                // Predefined locations for common cities worldwide
                 $locations = [
+                    'US' => [
+                        'New York' => [
+                            'countryCode' => 'US',
+                            'country' => 'United States',
+                            'city' => 'New York',
+                            'region' => 'New York',
+                            'timezone' => 'America/New_York',
+                            'lat' => 40.7128,
+                            'lon' => -74.0060,
+                            'isp' => 'Local Network',
+                        ],
+                        'Los Angeles' => [
+                            'countryCode' => 'US',
+                            'country' => 'United States',
+                            'city' => 'Los Angeles',
+                            'region' => 'California',
+                            'timezone' => 'America/Los_Angeles',
+                            'lat' => 34.0522,
+                            'lon' => -118.2437,
+                            'isp' => 'Local Network',
+                        ],
+                        'Chicago' => [
+                            'countryCode' => 'US',
+                            'country' => 'United States',
+                            'city' => 'Chicago',
+                            'region' => 'Illinois',
+                            'timezone' => 'America/Chicago',
+                            'lat' => 41.8781,
+                            'lon' => -87.6298,
+                            'isp' => 'Local Network',
+                        ],
+                        'San Francisco' => [
+                            'countryCode' => 'US',
+                            'country' => 'United States',
+                            'city' => 'San Francisco',
+                            'region' => 'California',
+                            'timezone' => 'America/Los_Angeles',
+                            'lat' => 37.7749,
+                            'lon' => -122.4194,
+                            'isp' => 'Local Network',
+                        ],
+                    ],
+                    'GB' => [
+                        'London' => [
+                            'countryCode' => 'GB',
+                            'country' => 'United Kingdom',
+                            'city' => 'London',
+                            'region' => 'England',
+                            'timezone' => 'Europe/London',
+                            'lat' => 51.5074,
+                            'lon' => -0.1278,
+                            'isp' => 'Local Network',
+                        ],
+                        'Manchester' => [
+                            'countryCode' => 'GB',
+                            'country' => 'United Kingdom',
+                            'city' => 'Manchester',
+                            'region' => 'England',
+                            'timezone' => 'Europe/London',
+                            'lat' => 53.4808,
+                            'lon' => -2.2426,
+                            'isp' => 'Local Network',
+                        ],
+                    ],
                     'AE' => [
                         'Dubai' => [
                             'countryCode' => 'AE',
@@ -1804,15 +1869,139 @@ class AnalyticsService extends Component
                             'isp' => 'Local Network',
                         ],
                     ],
+                    'DE' => [
+                        'Berlin' => [
+                            'countryCode' => 'DE',
+                            'country' => 'Germany',
+                            'city' => 'Berlin',
+                            'region' => 'Berlin',
+                            'timezone' => 'Europe/Berlin',
+                            'lat' => 52.5200,
+                            'lon' => 13.4050,
+                            'isp' => 'Local Network',
+                        ],
+                        'Munich' => [
+                            'countryCode' => 'DE',
+                            'country' => 'Germany',
+                            'city' => 'Munich',
+                            'region' => 'Bavaria',
+                            'timezone' => 'Europe/Berlin',
+                            'lat' => 48.1351,
+                            'lon' => 11.5820,
+                            'isp' => 'Local Network',
+                        ],
+                    ],
+                    'FR' => [
+                        'Paris' => [
+                            'countryCode' => 'FR',
+                            'country' => 'France',
+                            'city' => 'Paris',
+                            'region' => 'Île-de-France',
+                            'timezone' => 'Europe/Paris',
+                            'lat' => 48.8566,
+                            'lon' => 2.3522,
+                            'isp' => 'Local Network',
+                        ],
+                    ],
+                    'CA' => [
+                        'Toronto' => [
+                            'countryCode' => 'CA',
+                            'country' => 'Canada',
+                            'city' => 'Toronto',
+                            'region' => 'Ontario',
+                            'timezone' => 'America/Toronto',
+                            'lat' => 43.6532,
+                            'lon' => -79.3832,
+                            'isp' => 'Local Network',
+                        ],
+                        'Vancouver' => [
+                            'countryCode' => 'CA',
+                            'country' => 'Canada',
+                            'city' => 'Vancouver',
+                            'region' => 'British Columbia',
+                            'timezone' => 'America/Vancouver',
+                            'lat' => 49.2827,
+                            'lon' => -123.1207,
+                            'isp' => 'Local Network',
+                        ],
+                    ],
+                    'AU' => [
+                        'Sydney' => [
+                            'countryCode' => 'AU',
+                            'country' => 'Australia',
+                            'city' => 'Sydney',
+                            'region' => 'New South Wales',
+                            'timezone' => 'Australia/Sydney',
+                            'lat' => -33.8688,
+                            'lon' => 151.2093,
+                            'isp' => 'Local Network',
+                        ],
+                        'Melbourne' => [
+                            'countryCode' => 'AU',
+                            'country' => 'Australia',
+                            'city' => 'Melbourne',
+                            'region' => 'Victoria',
+                            'timezone' => 'Australia/Melbourne',
+                            'lat' => -37.8136,
+                            'lon' => 144.9631,
+                            'isp' => 'Local Network',
+                        ],
+                    ],
+                    'JP' => [
+                        'Tokyo' => [
+                            'countryCode' => 'JP',
+                            'country' => 'Japan',
+                            'city' => 'Tokyo',
+                            'region' => 'Tokyo',
+                            'timezone' => 'Asia/Tokyo',
+                            'lat' => 35.6762,
+                            'lon' => 139.6503,
+                            'isp' => 'Local Network',
+                        ],
+                    ],
+                    'SG' => [
+                        'Singapore' => [
+                            'countryCode' => 'SG',
+                            'country' => 'Singapore',
+                            'city' => 'Singapore',
+                            'region' => 'Singapore',
+                            'timezone' => 'Asia/Singapore',
+                            'lat' => 1.3521,
+                            'lon' => 103.8198,
+                            'isp' => 'Local Network',
+                        ],
+                    ],
+                    'IN' => [
+                        'Mumbai' => [
+                            'countryCode' => 'IN',
+                            'country' => 'India',
+                            'city' => 'Mumbai',
+                            'region' => 'Maharashtra',
+                            'timezone' => 'Asia/Kolkata',
+                            'lat' => 19.0760,
+                            'lon' => 72.8777,
+                            'isp' => 'Local Network',
+                        ],
+                        'Delhi' => [
+                            'countryCode' => 'IN',
+                            'country' => 'India',
+                            'city' => 'Delhi',
+                            'region' => 'Delhi',
+                            'timezone' => 'Asia/Kolkata',
+                            'lat' => 28.7041,
+                            'lon' => 77.1025,
+                            'isp' => 'Local Network',
+                        ],
+                    ],
                 ];
 
-                // Return the configured location or default to Riyadh
+                // Return the configured location if it exists
                 if (isset($locations[$defaultCountry][$defaultCity])) {
                     return $locations[$defaultCountry][$defaultCity];
                 }
 
-                // Fallback to Riyadh if configuration not found
-                return $locations['SA']['Riyadh'];
+                // Fallback to Dubai if configuration not found
+                return $locations['AE']['Dubai'];
             }
 
             // Use ip-api.com (free, no API key required, 45 requests per minute)

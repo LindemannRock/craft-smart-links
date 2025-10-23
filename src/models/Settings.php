@@ -13,6 +13,7 @@ use craft\base\Model;
 use craft\behaviors\EnvAttributeParserBehavior;
 use craft\db\Query;
 use craft\helpers\Db;
+use craft\helpers\App;
 
 /**
  * Smart Links Settings Model
@@ -75,10 +76,15 @@ class Settings extends Model
     public string $defaultQrFormat = 'png';
 
     /**
+     * @var bool Enable QR code caching
+     */
+    public bool $enableQrCodeCache = true;
+
+    /**
      * @var int QR code cache duration in seconds
      */
     public int $qrCodeCacheDuration = 86400; // 24 hours
-    
+
     /**
      * @var string Default QR code error correction level (L, M, Q, H)
      */
@@ -219,6 +225,19 @@ class Settings extends Model
      * @var string|null IP hash salt for privacy protection
      */
     public ?string $ipHashSalt = null;
+
+    /**
+     * @inheritdoc
+     */
+    public function init(): void
+    {
+        parent::init();
+
+        // Fallback to .env if ipHashSalt not set by config file
+        if ($this->ipHashSalt === null) {
+            $this->ipHashSalt = App::env('SMART_LINKS_IP_SALT');
+        }
+    }
 
     /**
      * @inheritdoc

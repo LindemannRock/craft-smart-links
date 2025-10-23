@@ -170,6 +170,7 @@ class Install extends Migration
                 'defaultQrColor' => $this->string(7)->notNull()->defaultValue('#000000'),
                 'defaultQrBgColor' => $this->string(7)->notNull()->defaultValue('#FFFFFF'),
                 'defaultQrFormat' => $this->string(3)->notNull()->defaultValue('png'),
+                'enableQrCodeCache' => $this->boolean()->notNull()->defaultValue(true),
                 'qrCodeCacheDuration' => $this->integer()->notNull()->defaultValue(86400),
                 'defaultQrErrorCorrection' => $this->string(1)->notNull()->defaultValue('M'),
                 'enableQrLogo' => $this->boolean()->notNull()->defaultValue(false),
