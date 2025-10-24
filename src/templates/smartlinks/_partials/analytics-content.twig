@@ -95,7 +95,7 @@
                         <td>
                             {% if click.siteId %}
                                 {% set site = craft.app.sites.getSiteById(click.siteId) %}
-                                {{ site ? site.handle|upper : '—' }}
+                                {{ site ? site.name : '—' }}
                             {% else %}
                                 —
                             {% endif %}

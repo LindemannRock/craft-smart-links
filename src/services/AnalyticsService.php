@@ -1133,11 +1133,11 @@ class AnalyticsService extends Component
                 };
                 $linkUrl = '';
 
-                // Get site handle and build the smart link URL
-                $siteHandle = '';
+                // Get site name and build the smart link URL
+                $siteName = '';
                 if (!empty($row['siteId'])) {
                     $site = Craft::$app->getSites()->getSiteById($row['siteId']);
-                    $siteHandle = $site ? $site->handle : '';
+                    $siteName = $site ? $site->name : '';
                     if ($smartLink) {
                         // Generate the URL for the specific site
                         $linkUrl = UrlHelper::siteUrl("go/{$smartLink->slug}", null, null, $row['siteId']);
@@ -1184,7 +1184,7 @@ class AnalyticsService extends Component
                     $linkName,
                     $linkStatus,
                     $linkUrl,
-                    $siteHandle,
+                    $siteName,
                     ucfirst($clickType),
                     $buttonPlatform,
                     $sourceDisplay,
@@ -1282,6 +1282,7 @@ class AnalyticsService extends Component
                     'name' => $smartLink->title,
                     'slug' => $smartLink->slug,
                     'enabled' => $smartLink->enabled,
+                    'siteName' => $smartLink->getSite()->name ?? '-',
                     'clicks' => (int)$row['clicks'],
                     'lastClick' => $row['lastClick'] ? DateTimeHelper::toIso8601(DateTimeHelper::toDateTime($row['lastClick'])) : null,
                     'lastInteractionType' => $lastInteractionType,
@@ -1312,10 +1313,12 @@ class AnalyticsService extends Component
             ->innerJoin(['e' => '{{%elements}}'], 's.id = e.id')
             ->innerJoin(['es' => '{{%elements_sites}}'], 'e.id = es.elementId AND es.siteId = a.siteId')
             ->leftJoin(['c' => '{{%smartlinks_content}}'], 'c.smartLinkId = s.id AND c.siteId = a.siteId')
+            ->leftJoin(['sites' => '{{%sites}}'], 'sites.id = a.siteId')
             ->select([
                 'a.*',
                 'COALESCE(c.title, s.title) as smartLinkTitle',
-                's.slug as smartLinkSlug'
+                's.slug as smartLinkSlug',
+                'sites.name as siteName'
             ])
             ->where(['es.enabled' => true])
             ->orderBy('a.dateCreated DESC')
@@ -1344,9 +1347,11 @@ class AnalyticsService extends Component
                 'linkId' => $row['linkId'],
                 'smartLinkTitle' => $row['smartLinkTitle'],
                 'smartLinkSlug' => $row['smartLinkSlug'],
+                'siteName' => $row['siteName'] ?? '-',
                 'dateCreated' => DateTimeHelper::toIso8601(DateTimeHelper::toDateTime($row['dateCreated'])),
                 'siteId' => $row['siteId'],
                 'deviceType' => $row['deviceType'],
+                'browser' => $row['browser'],
                 'osName' => $row['osName'],
                 'country' => $row['country'],
                 'city' => $row['city'],

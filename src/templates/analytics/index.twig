@@ -92,6 +92,7 @@
 							<tr>
 								{% set singularName = plugin.settings.pluginName matches '/s$/' ? plugin.settings.pluginName|slice(0, -1) : plugin.settings.pluginName %}
 								<th>{{ singularName }}</th>
+								<th>{{ "Site"|t('smart-links') }}</th>
 								<th>{{ "Total Interactions"|t('smart-links') }}</th>
 								<th>{{ "Last Interaction"|t('smart-links') }}</th>
 								<th>{{ "Last Interaction Type"|t('smart-links') }}</th>
@@ -109,6 +110,7 @@
 												{{ link.name }}
 											</a>
 										</td>
+										<td>{{ link.siteName ?? '-' }}</td>
 										<td>{{ link.clicks }}</td>
 										<td>{{ link.lastClick ? link.lastClick|datetime('short') : '-' }}</td>
 										<td>{{ link.lastInteractionType ?? '-' }}</td>
@@ -140,11 +142,13 @@
 							<tr>
 								<th>{{ "Date"|t('smart-links') }}</th>
 								<th>{{ singularName }}</th>
+								<th>{{ "Site"|t('smart-links') }}</th>
 								<th>{{ "Type"|t('smart-links') }}</th>
 								<th>{{ "Button"|t('smart-links') }}</th>
 								<th>{{ "Source"|t('smart-links') }}</th>
 								<th>{{ "Destination URL"|t('smart-links') }}</th>
 								<th>{{ "Device"|t('smart-links') }}</th>
+								<th>{{ "Browser"|t('smart-links') }}</th>
 								<th>{{ "OS"|t('smart-links') }}</th>
 								<th>{{ "Location"|t('smart-links') }}</th>
 							</tr>
@@ -156,6 +160,7 @@
 									<td>
 										<a href="{{ cpUrl('smart-links/' ~ click.linkId) }}">{{ click.smartLinkTitle }}</a>
 									</td>
+									<td>{{ click.siteName ?? '-' }}</td>
 									<td>
 										{% if click.clickType == 'button' %}
 											{{ "Button"|t('smart-links') }}
@@ -199,6 +204,7 @@
 										{% endif %}
 									</td>
 									<td>{{ click.deviceType ? click.deviceType|capitalize : '—' }}</td>
+									<td>{{ click.browser ?? '—' }}</td>
 									<td>{{ click.osName ? click.osName : '—' }}</td>
 									<td>
 										{% if click.city and click.country %}
@@ -212,7 +218,7 @@
 								</tr>
 							{% else %}
 								<tr>
-									<td colspan="9" class="thin light">{{ "No interactions recorded yet"|t('smart-links') }}</td>
+									<td colspan="11" class="thin light">{{ "No interactions recorded yet"|t('smart-links') }}</td>
 								</tr>
 							{% endfor %}
 						</tbody>
@@ -656,13 +662,14 @@ const translations = {
         function updateTopLinksTable(links) {
             let html = '';
             if (links.length === 0) {
-                html = '<tr><td colspan="7" class="thin light">{{ "No data for selected period"|t('smart-links')|e('js') }}</td></tr>';
+                html = '<tr><td colspan="8" class="thin light">{{ "No data for selected period"|t('smart-links')|e('js') }}</td></tr>';
             } else {
                 links.forEach(function(link) {
                     // Check for enabled status (defaults to true if not set)
                     if (link.enabled !== false) {
                         html += '<tr>';
                         html += '<td><a href="' + Craft.getUrl('smart-links/smartlinks/' + link.id) + '">' + Craft.escapeHtml(link.name) + '</a></td>';
+                        html += '<td>' + (link.siteName || '-') + '</td>';
                         html += '<td>' + link.clicks + '</td>';
                         html += '<td>';
                         if (link.lastClick) {
@@ -703,7 +710,7 @@ const translations = {
         function updateRecentClicksTable(clicks) {
             let html = '';
             if (clicks.length === 0) {
-                html = '<tr><td colspan="9" class="thin light">{{ "No interactions recorded yet"|t('smart-links')|e('js') }}</td></tr>';
+                html = '<tr><td colspan="11" class="thin light">{{ "No interactions recorded yet"|t('smart-links')|e('js') }}</td></tr>';
             } else {
                 clicks.forEach(function(click) {
                     html += '<tr>';
@@ -725,6 +732,7 @@ const translations = {
                     }
                     html += '</td>';
                     html += '<td><a href="' + Craft.getUrl('smart-links/' + click.linkId) + '">' + Craft.escapeHtml(click.smartLinkTitle) + '</a></td>';
+                    html += '<td>' + (click.siteName || '-') + '</td>';
                     html += '<td>' + (click.clickType === 'button' ? '{{ "Button"|t('smart-links')|e('js') }}' : '{{ "Redirect"|t('smart-links')|e('js') }}') + '</td>';
                     html += '<td>';
                     if (click.clickType === 'button' && click.platform) {
@@ -752,6 +760,7 @@ const translations = {
                     }
                     html += '</td>';
                     html += '<td>' + (click.deviceType ? Craft.escapeHtml(click.deviceType.charAt(0).toUpperCase() + click.deviceType.slice(1)) : '—') + '</td>';
+                    html += '<td>' + (click.browser || '—') + '</td>';
                     html += '<td>' + (click.osName || '—') + '</td>';
                     html += '<td>';
                     if (click.city && click.country) {
