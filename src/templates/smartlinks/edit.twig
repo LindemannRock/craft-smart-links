@@ -1,8 +1,10 @@
 {% extends "smart-links/_layouts/cp" %}
 {% import "_includes/forms" as forms %}
 {% set plugin = craft.app.plugins.getPlugin('smart-links') %}
+{% set pluginName = plugin.settings.pluginName %}
+{% set singularName = pluginName matches '/s$/' ? pluginName|slice(0, -1) : pluginName %}
 
-{% set title = smartLink.id ? smartLink.title : "New smart link"|t('smart-links') %}
+{% set title = smartLink.id ? smartLink.title : "New {singularName}"|t('smart-links', {singularName: singularName}) %}
 {% set fullPageForm = true %}
 {% set selectedSubnavItem = 'links' %}
 {% set saveShortcutRedirect = 'smart-links/smartlinks/{id}' %}
@@ -828,7 +830,7 @@
             
             // If turning OFF analytics tracking, show confirmation
             if (!isEnabled) {
-                if (!confirm('{{ "Are you sure you want to disable analytics tracking for this smart link? This smart link will no longer collect visitor data and interactions."|t('smart-links')|e('js') }}')) {
+                if (!confirm('{{ "Are you sure you want to disable analytics tracking for this {singularName}? This {singularName} will no longer collect visitor data and interactions."|t('smart-links', {singularName: singularName|lower})|e('js') }}')) {
                     // User cancelled, turn the toggle back on
                     $toggle.addClass('on');
                     $toggle.find('input[type="hidden"]').val('1');
