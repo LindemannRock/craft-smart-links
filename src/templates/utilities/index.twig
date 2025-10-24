@@ -25,11 +25,11 @@
                         {{ coverage }}%
                     </div>
                     <div style="padding: 3px 10px; border-radius: 16px; font-size: 11px; font-weight: 700; text-transform: uppercase; color: white; background: {% if coverage == 100 %}#059669{% elseif coverage >= 90 %}#d97706{% else %}#dc2626{% endif %};">
-                        {% if coverage == 100 %}{{ 'Active'|t('smart-links') }}{% elseif coverage >= 90 %}{{ 'Good'|t('smart-links') }}{% else %}{{ 'Check Links'|t('smart-links') }}{% endif %}
+                        {% if coverage == 100 %}{{ 'All Active'|t('smart-links') }}{% elseif coverage >= 90 %}{{ 'Good'|t('smart-links') }}{% else %}{{ 'Check Links'|t('smart-links') }}{% endif %}
                     </div>
                 </div>
                 <div style="font-size: 14px; color: #4b5563; margin-bottom: 12px;">
-                    {{ "Active {pluginName}"|t('smart-links', {pluginName: pluginName|lower}) }}
+                    {{ "Active smart links"|t('smart-links') }}
                 </div>
 
                 <!-- Bottom Boxes -->
@@ -122,48 +122,6 @@
             </div>
         </div>
     </div>
-
-    <!-- Charts Section -->
-    <div style="margin-top: 32px;">
-        <h3 style="margin-bottom: 16px; color: #374151;">{{ 'Analytics'|t('smart-links') }}</h3>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px;">
-            <!-- Platform Distribution Chart -->
-            {% if platformStats|length %}
-            <div class="pane" style="padding: 20px; margin-block: 0; background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%); border: 1px solid #e2e8f0;">
-                <div style="margin-bottom: 16px;">
-                    <h4 style="margin: 0; color: #374151; font-size: 15px; font-weight: 600;">{{ 'Interactions by Platform'|t('smart-links') }}</h4>
-                </div>
-                <div style="height: 220px; position: relative;">
-                    <canvas id="platform-chart"></canvas>
-                </div>
-            </div>
-            {% endif %}
-
-            <!-- Click Types Chart -->
-            {% if clickTypes|length %}
-            <div class="pane" style="padding: 20px; margin-block: 0; background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%); border: 1px solid #e2e8f0;">
-                <div style="margin-bottom: 16px;">
-                    <h4 style="margin: 0; color: #374151; font-size: 15px; font-weight: 600;">{{ 'Interaction Types'|t('smart-links') }}</h4>
-                </div>
-                <div style="height: 220px; position: relative;">
-                    <canvas id="click-types-chart"></canvas>
-                </div>
-            </div>
-            {% endif %}
-
-            <!-- Recent Activity Chart -->
-            {% if dailyClicks|length %}
-            <div class="pane" style="padding: 20px; margin-block: 0; background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%); border: 1px solid #e2e8f0;">
-                <div style="margin-bottom: 16px;">
-                    <h4 style="margin: 0; color: #374151; font-size: 15px; font-weight: 600;">{{ 'Daily Activity (14 Days)'|t('smart-links') }}</h4>
-                </div>
-                <div style="height: 220px; position: relative;">
-                    <canvas id="activity-chart"></canvas>
-                </div>
-            </div>
-            {% endif %}
-        </div>
-    </div>
 </div>
 
 <!-- Quick Actions -->
@@ -176,7 +134,7 @@
             <p class="light" style="margin-bottom: 16px;">{{ "Access main plugin sections"|t('smart-links') }}</p>
             <div style="display: flex; gap: 10px; flex-wrap: wrap;">
                 <a href="{{ url('smart-links') }}" class="btn">
-                    {{ "Manage"|t('smart-links') }} {{ pluginName }}
+                    {{ "Manage"|t('smart-links') }} {{ pluginName|replace({' Manager': '', ' manager': ''}) }}
                 </a>
                 <a href="{{ url('smart-links/analytics') }}" class="btn">
                     {{ "View Detailed Analytics"|t('smart-links') }}
@@ -229,134 +187,6 @@
 </div>
 
 {% js %}
-// Load Chart.js and initialize charts
-if (typeof Chart === 'undefined') {
-    var script = document.createElement('script');
-    script.src = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js';
-    script.onload = function() {
-        initSmartLinksCharts();
-    };
-    document.head.appendChild(script);
-} else {
-    initSmartLinksCharts();
-}
-
-function initSmartLinksCharts() {
-    {% if platformStats|length %}
-    // Platform name mapping for proper brand display
-    const platformNames = {
-        'ios': 'iOS',
-        'android': 'Android',
-        'macos': 'macOS',
-        'windows': 'Windows',
-        'linux': 'Linux',
-        'huawei': 'Huawei',
-        'amazon': 'Amazon',
-        'other': 'Other'
-    };
-
-    // Platform Distribution Chart
-    new Chart(document.getElementById('platform-chart'), {
-        type: 'doughnut',
-        data: {
-            labels: [{% for stat in platformStats %}{% if stat.platform %}platformNames['{{ stat.platform }}'] || '{{ stat.platform|title }}'{% else %}'Unknown'{% endif %}{% if not loop.last %},{% endif %}{% endfor %}],
-            datasets: [{
-                data: [{% for stat in platformStats %}{{ stat.count }}{% if not loop.last %},{% endif %}{% endfor %}],
-                backgroundColor: ['#3b82f6', '#8b5cf6', '#22c55e', '#f59e0b', '#ef4444', '#06b6d4'],
-                borderWidth: 2,
-                borderColor: '#fff'
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    position: 'bottom',
-                    labels: {
-                        padding: 16,
-                        usePointStyle: true,
-                        font: { size: 12 }
-                    }
-                },
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            const total = {{ totalClicks }};
-                            const value = context.parsed;
-                            const percentage = total > 0 ? Math.round((value / total) * 100) : 0;
-                            return context.label + ': ' + value + ' (' + percentage + '%)';
-                        }
-                    }
-                }
-            }
-        }
-    });
-    {% endif %}
-
-    {% if clickTypes|length %}
-    // Click Types Chart
-    new Chart(document.getElementById('click-types-chart'), {
-        type: 'doughnut',
-        data: {
-            labels: [{% for type in clickTypes %}'{{ type.clickType|title }}'{% if not loop.last %},{% endif %}{% endfor %}],
-            datasets: [{
-                data: [{% for type in clickTypes %}{{ type.count }}{% if not loop.last %},{% endif %}{% endfor %}],
-                backgroundColor: ['#10b981', '#f59e0b', '#8b5cf6'],
-                borderWidth: 2,
-                borderColor: '#fff'
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    position: 'bottom',
-                    labels: {
-                        padding: 16,
-                        usePointStyle: true,
-                        font: { size: 12 }
-                    }
-                }
-            }
-        }
-    });
-    {% endif %}
-
-    {% if dailyClicks|length %}
-    // Daily Activity Chart
-    new Chart(document.getElementById('activity-chart'), {
-        type: 'line',
-        data: {
-            labels: [{% for day in dailyClicks %}'{{ day.date|date('M j') }}'{% if not loop.last %},{% endif %}{% endfor %}],
-            datasets: [{
-                label: '{{ "Clicks"|t('smart-links') }}',
-                data: [{% for day in dailyClicks %}{{ day.clicks }}{% if not loop.last %},{% endif %}{% endfor %}],
-                borderColor: '#3b82f6',
-                backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                borderWidth: 2,
-                fill: true,
-                tension: 0.4
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: { display: false }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: { stepSize: 1 }
-                }
-            }
-        }
-    });
-    {% endif %}
-}
-
 // Cache clearing handlers
 {% if settings.qrCodeCacheDuration > 0 %}
 $('#clear-qr-cache').on('click', function() {
