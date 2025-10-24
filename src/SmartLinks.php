@@ -329,7 +329,7 @@ class SmartLinks extends Plugin
 
             $item['subnav'] = [
                 'links' => [
-                    'label' => $this->getSettings()->pluginName,
+                    'label' => 'Links',
                     'url' => 'smart-links',
                 ],
             ];
