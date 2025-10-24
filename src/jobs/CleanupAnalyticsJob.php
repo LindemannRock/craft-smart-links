@@ -21,12 +21,17 @@ use lindemannrock\smartlinks\SmartLinks;
 class CleanupAnalyticsJob extends BaseJob
 {
     /**
+     * @var bool Whether to reschedule after completion
+     */
+    public bool $reschedule = false;
+
+    /**
      * @inheritdoc
      */
     public function getDescription(): ?string
     {
         $pluginName = SmartLinks::$plugin->getSettings()->pluginName;
-        return Craft::t('smart-links', '{pluginName}: Cleaning up old analytics data', ['pluginName' => $pluginName]);
+        return Craft::t('smart-links', '{pluginName}: Cleaning up old analytics', ['pluginName' => $pluginName]);
     }
 
     /**
@@ -39,6 +44,7 @@ class CleanupAnalyticsJob extends BaseJob
 
         // If retention is 0, keep forever
         if ($retentionDays === 0) {
+            // Don't reschedule if retention is disabled
             return;
         }
 
@@ -53,6 +59,10 @@ class CleanupAnalyticsJob extends BaseJob
             ->count();
 
         if ($totalRecords === 0) {
+            // No records to delete, but still reschedule for next run
+            if ($this->reschedule) {
+                $this->scheduleNextCleanup();
+            }
             return;
         }
 
@@ -92,29 +102,31 @@ class CleanupAnalyticsJob extends BaseJob
 
         Craft::info('Cleaned up analytics records', 'smart-links', ['deleted' => $deleted, 'retentionDays' => $retentionDays]);
 
-        // Re-queue itself to run again in 24 hours if retention is still enabled
-        if ($settings->analyticsRetention > 0) {
-            // Check if another cleanup job is already scheduled
-            $existingJob = (new Query())
-                ->from('{{%queue}}')
-                ->where(['like', 'job', 'CleanupAnalyticsJob'])
-                ->andWhere(['>', 'timePushed', time()]) // Scheduled for future
-                ->exists();
-
-            if (!$existingJob) {
-                $newJob = new self();
-                Craft::$app->queue->delay(24 * 60 * 60)->push($newJob);
-
-                Craft::info(
-                    Craft::t('smart-links', 'Re-queued analytics cleanup to run in 24 hours'),
-                    'smart-links'
-                );
-            } else {
-                Craft::info(
-                    Craft::t('smart-links', 'Analytics cleanup job already scheduled for future, skipping re-queue'),
-                    'smart-links'
-                );
-            }
+        // Reschedule if needed
+        if ($this->reschedule) {
+            $this->scheduleNextCleanup();
         }
+    }
+
+    /**
+     * Schedule the next cleanup (runs every 24 hours)
+     */
+    private function scheduleNextCleanup(): void
+    {
+        $settings = SmartLinks::$plugin->getSettings();
+
+        // Only reschedule if analytics is enabled and retention is set
+        if (!$settings->enableAnalytics || $settings->analyticsRetention <= 0) {
+            return;
+        }
+
+        // Schedule for 24 hours from now
+        $delay = 86400; // 24 hours
+
+        $job = new self([
+            'reschedule' => true,
+        ]);
+
+        Craft::$app->getQueue()->delay($delay)->push($job);
     }
 }

@@ -532,31 +532,28 @@ class SmartLinks extends Plugin
     {
         $settings = $this->getSettings();
 
-        // Only schedule cleanup if retention is enabled (> 0)
-        if ($settings->analyticsRetention > 0) {
-            // Check if a cleanup job is already in the queue
-            // Look for the job class name in the serialized job data
+        // Only schedule cleanup if analytics is enabled and retention is set
+        if ($settings->enableAnalytics && $settings->analyticsRetention > 0) {
+            // Check if a cleanup job is already scheduled (within next 24 hours)
             $existingJob = (new \craft\db\Query())
                 ->from('{{%queue}}')
-                ->where(['like', 'job', 'CleanupAnalyticsJob'])
+                ->where(['like', 'job', 'smartlinks'])
+                ->andWhere(['like', 'job', 'CleanupAnalyticsJob'])
                 ->andWhere(['<=', 'timePushed', time() + 86400]) // Within next 24 hours
                 ->exists();
 
             if (!$existingJob) {
                 // Create cleanup job
-                $job = new CleanupAnalyticsJob();
+                $job = new CleanupAnalyticsJob([
+                    'reschedule' => true,
+                ]);
 
-                // Add to queue with a small initial delay to avoid running immediately on plugin install
+                // Add to queue with a small initial delay
                 // The job will re-queue itself to run every 24 hours
-                Craft::$app->queue->delay(5 * 60)->push($job); // 5 minute initial delay
+                Craft::$app->queue->delay(5 * 60)->push($job);
 
                 Craft::info(
-                    Craft::t('smart-links', 'Scheduled initial analytics cleanup job to run in 5 minutes'),
-                    __METHOD__
-                );
-            } else {
-                Craft::info(
-                    Craft::t('smart-links', 'Analytics cleanup job already scheduled, skipping'),
+                    Craft::t('smart-links', 'Scheduled initial analytics cleanup job (will run every 24 hours)'),
                     __METHOD__
                 );
             }

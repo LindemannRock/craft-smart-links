@@ -48,6 +48,7 @@
             </div>
         </div>
 
+        {% if settings.enableAnalytics %}
         <!-- Performance Card -->
         <div class="pane" style="padding: 24px; margin-block: 0; background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); display: flex; flex-direction: column; height: 100%;">
             <!-- Header -->
@@ -86,6 +87,7 @@
                 </div>
             </div>
         </div>
+        {% endif %}
 
         <!-- Cache Status Card -->
         <div class="pane" style="padding: 24px; margin-block: 0; background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); display: flex; flex-direction: column; height: 100%;">
@@ -136,9 +138,11 @@
                 <a href="{{ url('smart-links') }}" class="btn">
                     {{ "Manage"|t('smart-links') }} {{ pluginName|replace({' Manager': '', ' manager': ''}) }}
                 </a>
-                <a href="{{ url('smart-links/analytics') }}" class="btn">
-                    {{ "View Detailed Analytics"|t('smart-links') }}
-                </a>
+                {% if settings.enableAnalytics %}
+                    <a href="{{ url('smart-links/analytics') }}" class="btn">
+                        {{ "View Detailed Analytics"|t('smart-links') }}
+                    </a>
+                {% endif %}
             </div>
         </div>
 
@@ -167,22 +171,24 @@
             </div>
         </div>
 
-        <hr style="margin: 24px 0; border: none; border-top: 1px solid #e5e7eb;">
+        {% if settings.enableAnalytics %}
+            <hr style="margin: 24px 0; border: none; border-top: 1px solid #e5e7eb;">
 
-        <div>
-            <h3 style="margin-bottom: 8px;">{{ "Analytics Data Management"|t('smart-links') }}</h3>
-            <p class="light" style="margin-bottom: 16px;">{{ "Clean up or reset analytics data. Use 'Fix Platform Data' to correct invalid platform values in existing analytics (e.g., fixing test data or incorrect classifications). Use 'Clear All Analytics' to permanently delete all tracking data."|t('smart-links') }}</p>
+            <div>
+                <h3 style="margin-bottom: 8px;">{{ "Analytics Data Management"|t('smart-links') }}</h3>
+                <p class="light" style="margin-bottom: 16px;">{{ "Clean up or reset analytics data. Use 'Fix Platform Data' to correct invalid platform values in existing analytics (e.g., fixing test data or incorrect classifications). Use 'Clear All Analytics' to permanently delete all tracking data."|t('smart-links') }}</p>
 
-            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                <button type="button" class="btn submit {% if invalidPlatformCount == 0 %}disabled{% endif %}" id="cleanup-platform-values" {% if invalidPlatformCount == 0 %}disabled style="cursor: not-allowed; opacity: 0.5;"{% endif %}>
-                    {{ "Fix Platform Data"|t('smart-links') }}{% if invalidPlatformCount > 0 %} ({{ invalidPlatformCount }}){% endif %}
-                </button>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <button type="button" class="btn submit {% if invalidPlatformCount == 0 %}disabled{% endif %}" id="cleanup-platform-values" {% if invalidPlatformCount == 0 %}disabled style="cursor: not-allowed; opacity: 0.5;"{% endif %}>
+                        {{ "Fix Platform Data"|t('smart-links') }}{% if invalidPlatformCount > 0 %} ({{ invalidPlatformCount }}){% endif %}
+                    </button>
 
-                <button type="button" class="btn submit" id="clear-all-analytics" style="background: #dc2626; border-color: #dc2626; color: white;">
-                    {{ "Clear All Analytics"|t('smart-links') }}
-                </button>
+                    <button type="button" class="btn submit" id="clear-all-analytics" style="background: #dc2626; border-color: #dc2626; color: white;">
+                        {{ "Clear All Analytics"|t('smart-links') }}
+                    </button>
+                </div>
             </div>
-        </div>
+        {% endif %}
     </div>
 </div>
 
@@ -280,6 +286,7 @@ $('#clear-all-caches').on('click', function() {
     });
 });
 
+{% if settings.enableAnalytics %}
 $('#cleanup-platform-values').on('click', function() {
     if (!confirm('{{ "This will fix invalid platform values in your analytics data. Continue?"|t('smart-links')|e('js') }}')) {
         return;
@@ -348,6 +355,7 @@ $('#clear-all-analytics').on('click', function() {
         }
     });
 });
+{% endif %}
 {% endjs %}
 
 {% include 'smart-links/_components/plugin-credit.twig' %}
