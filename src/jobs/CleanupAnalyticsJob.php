@@ -13,6 +13,7 @@ use craft\db\Query;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Db;
 use craft\queue\BaseJob;
+use lindemannrock\logginglibrary\traits\LoggingTrait;
 use lindemannrock\smartlinks\SmartLinks;
 
 /**
@@ -20,10 +21,21 @@ use lindemannrock\smartlinks\SmartLinks;
  */
 class CleanupAnalyticsJob extends BaseJob
 {
+    use LoggingTrait;
+
     /**
      * @var bool Whether to reschedule after completion
      */
     public bool $reschedule = false;
+
+    /**
+     * @inheritdoc
+     */
+    public function init(): void
+    {
+        parent::init();
+        $this->setLoggingHandle('smart-links');
+    }
 
     /**
      * @inheritdoc
@@ -100,7 +112,7 @@ class CleanupAnalyticsJob extends BaseJob
             ]));
         }
 
-        Craft::info('Cleaned up analytics records', 'smart-links', ['deleted' => $deleted, 'retentionDays' => $retentionDays]);
+        $this->logInfo('Cleaned up analytics records', ['deleted' => $deleted, 'retentionDays' => $retentionDays]);
 
         // Reschedule if needed
         if ($this->reschedule) {

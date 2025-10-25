@@ -82,7 +82,9 @@ class SmartLinksService extends Component
     public function saveSmartLink(SmartLink $smartLink, bool $runValidation = true): bool
     {
         if ($runValidation && !$smartLink->validate()) {
-            $this->logInfo('Smart link not saved due to validation errors.');
+            $this->logInfo('Smart link not saved due to validation errors', [
+                'errors' => $smartLink->getErrors()
+            ]);
             return false;
         }
 

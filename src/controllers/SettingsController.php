@@ -11,6 +11,7 @@ namespace lindemannrock\smartlinks\controllers;
 use Craft;
 use craft\helpers\Json;
 use craft\web\Controller;
+use lindemannrock\logginglibrary\traits\LoggingTrait;
 use lindemannrock\smartlinks\elements\SmartLink;
 use lindemannrock\smartlinks\models\Settings;
 use lindemannrock\smartlinks\SmartLinks;
@@ -23,6 +24,8 @@ use yii\web\ForbiddenHttpException;
  */
 class SettingsController extends Controller
 {
+    use LoggingTrait;
+
     /**
      * @var array
      */
@@ -32,6 +35,15 @@ class SettingsController extends Controller
      * @var bool
      */
     private bool $readOnly;
+
+    /**
+     * @inheritdoc
+     */
+    public function init(): void
+    {
+        parent::init();
+        $this->setLoggingHandle('smart-links');
+    }
 
     /**
      * @inheritdoc
@@ -287,7 +299,7 @@ class SettingsController extends Controller
         }
 
         // Debug field layout
-        Craft::info('Field Layout debug info', 'smart-links', [
+        $this->logDebug('Field Layout debug info', [
             'id' => $fieldLayout->id ?? 'null',
             'uid' => $fieldLayout->uid ?? 'null',
             'type' => $fieldLayout->type ?? 'null',
@@ -300,7 +312,7 @@ class SettingsController extends Controller
         ];
 
         // Debug logging
-        Craft::info('actionFieldLayout called', 'smart-links', [
+        $this->logDebug('actionFieldLayout called', [
             'fieldLayout_exists' => $fieldLayout !== null,
             'fieldLayout_id' => $fieldLayout ? $fieldLayout->id : null,
             'readOnly' => $this->readOnly,
@@ -373,18 +385,18 @@ class SettingsController extends Controller
         $settingsData = Craft::$app->getRequest()->getBodyParam('settings');
 
         // Debug: Log what we received
-        Craft::info('Settings data received', 'smart-links', ['settingsData' => $settingsData]);
+        $this->logDebug('Settings data received', ['settingsData' => $settingsData]);
 
         // Debug: Specifically check imageVolumeUid
         if (isset($settingsData['imageVolumeUid'])) {
-            Craft::info('imageVolumeUid debug', 'smart-links', [
+            $this->logDebug('imageVolumeUid debug', [
                 'type' => gettype($settingsData['imageVolumeUid']),
                 'value' => $settingsData['imageVolumeUid']
             ]);
         }
 
         // Debug: Log all POST data
-        Craft::info('All POST data', 'smart-links', ['bodyParams' => Craft::$app->getRequest()->getBodyParams()]);
+        $this->logDebug('All POST data', ['bodyParams' => Craft::$app->getRequest()->getBodyParams()]);
 
         // Handle pluginName field
         if (isset($settingsData['pluginName'])) {
@@ -412,7 +424,7 @@ class SettingsController extends Controller
         // Auto-set qrLogoVolumeUid to same value as imageVolumeUid
         if (isset($settingsData['imageVolumeUid'])) {
             $settingsData['qrLogoVolumeUid'] = $settingsData['imageVolumeUid'];
-            Craft::info('Auto-setting qrLogoVolumeUid to match imageVolumeUid', 'smart-links', ['uid' => $settingsData['imageVolumeUid']]);
+            $this->logDebug('Auto-setting qrLogoVolumeUid to match imageVolumeUid', ['uid' => $settingsData['imageVolumeUid']]);
         }
 
         // Fix color fields - add # if missing
@@ -435,7 +447,7 @@ class SettingsController extends Controller
         $settings->setAttributes($settingsData, false);
 
         // Debug: Log what's in settings after setAttributes
-        Craft::info('Settings after setAttributes', 'smart-links', ['enabledSites' => $settings->enabledSites]);
+        $this->logDebug('Settings after setAttributes', ['enabledSites' => $settings->enabledSites]);
 
         // Check for Shortlink Manager URL conflict
         if (!empty($settings->slugPrefix) || !empty($settings->qrPrefix)) {
@@ -484,7 +496,7 @@ class SettingsController extends Controller
 
         if (!$settings->validate()) {
             // Log validation errors for debugging
-            Craft::error('Settings validation failed', 'smart-links', ['errors' => $settings->getErrors()]);
+            $this->logError('Settings validation failed', ['errors' => $settings->getErrors()]);
 
             // Standard Craft way: Pass errors back to template
             Craft::$app->getSession()->setError(Craft::t('smart-links', 'Couldn\'t save settings.'));

@@ -300,10 +300,7 @@ class SmartLinks extends Plugin
             }
         );
 
-        Craft::info(
-            Craft::t('smart-links', '{name} plugin loaded', ['name' => $this->name]),
-            __METHOD__
-        );
+        // DO NOT log in init() - it's called on every request
     }
 
     /**
@@ -552,10 +549,7 @@ class SmartLinks extends Plugin
                 // The job will re-queue itself to run every 24 hours
                 Craft::$app->queue->delay(5 * 60)->push($job);
 
-                Craft::info(
-                    Craft::t('smart-links', 'Scheduled initial analytics cleanup job (will run every 24 hours)'),
-                    __METHOD__
-                );
+                $this->logInfo('Scheduled initial analytics cleanup job', ['interval' => '24 hours']);
             }
         }
     }
@@ -592,10 +586,7 @@ class SmartLinks extends Plugin
 
         Craft::$app->getFields()->saveLayout($fieldLayout, false);
 
-        Craft::info(
-            Craft::t('smart-links', 'Applied Smart Links field layout from project config'),
-            __METHOD__
-        );
+        $this->logInfo('Applied Smart Links field layout from project config', ['uid' => $uid]);
     }
 
     /**

@@ -10,6 +10,7 @@ namespace lindemannrock\smartlinks\jobs;
 
 use Craft;
 use craft\queue\BaseJob;
+use lindemannrock\logginglibrary\traits\LoggingTrait;
 use lindemannrock\smartlinks\SmartLinks;
 
 /**
@@ -17,6 +18,8 @@ use lindemannrock\smartlinks\SmartLinks;
  */
 class TrackAnalyticsJob extends BaseJob
 {
+    use LoggingTrait;
+
     /**
      * @var int Smart link ID
      */
@@ -35,6 +38,15 @@ class TrackAnalyticsJob extends BaseJob
     /**
      * @inheritdoc
      */
+    public function init(): void
+    {
+        parent::init();
+        $this->setLoggingHandle('smart-links');
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function execute($queue): void
     {
         // Save analytics (IP is already in metadata from the service)
@@ -43,9 +55,9 @@ class TrackAnalyticsJob extends BaseJob
             $this->deviceInfo,
             $this->metadata
         );
-        
+
         if (!$result) {
-            Craft::error('Failed to save analytics for link', __METHOD__, ['linkId' => $this->linkId]);
+            $this->logError('Failed to save analytics for link', ['linkId' => $this->linkId]);
         }
     }
 

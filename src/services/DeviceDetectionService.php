@@ -14,6 +14,7 @@ use DeviceDetector\DeviceDetector;
 use DeviceDetector\Parser\Client\Browser;
 use DeviceDetector\Parser\OperatingSystem;
 use DeviceDetector\Parser\Device\AbstractDeviceParser;
+use lindemannrock\logginglibrary\traits\LoggingTrait;
 use lindemannrock\smartlinks\elements\SmartLink;
 use lindemannrock\smartlinks\models\DeviceInfo;
 use lindemannrock\smartlinks\SmartLinks;
@@ -23,10 +24,21 @@ use lindemannrock\smartlinks\SmartLinks;
  */
 class DeviceDetectionService extends Component
 {
+    use LoggingTrait;
+
     /**
      * @var DeviceDetector|null
      */
     private ?DeviceDetector $_detector = null;
+
+    /**
+     * @inheritdoc
+     */
+    public function init(): void
+    {
+        parent::init();
+        $this->setLoggingHandle('smart-links');
+    }
 
     /**
      * Detect device information from user agent

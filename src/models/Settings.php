@@ -14,17 +14,20 @@ use craft\behaviors\EnvAttributeParserBehavior;
 use craft\db\Query;
 use craft\helpers\Db;
 use craft\helpers\App;
+use lindemannrock\logginglibrary\traits\LoggingTrait;
 
 /**
  * Smart Links Settings Model
  */
 class Settings extends Model
 {
+    use LoggingTrait;
+
     /**
      * @event Event The event that is triggered after settings are saved
      */
     const EVENT_AFTER_SAVE_SETTINGS = 'afterSaveSettings';
-    
+
     /**
      * @var string Plugin display name
      */
@@ -232,6 +235,7 @@ class Settings extends Model
     public function init(): void
     {
         parent::init();
+        $this->setLoggingHandle('smart-links');
 
         // Fallback to .env if ipHashSalt not set by config file
         if ($this->ipHashSalt === null) {
@@ -315,14 +319,18 @@ class Settings extends Model
             if ($this->isOverriddenByConfig('logLevel')) {
                 if (!Craft::$app->getRequest()->getIsConsoleRequest()) {
                     if (Craft::$app->getSession()->get('sl_debug_config_warning') === null) {
-                        Craft::warning('Log level "debug" from config file changed to "info" because devMode is disabled. Please update your config/smart-links.php file.', 'smart-links');
+                        $this->logWarning('Log level "debug" from config file changed to "info" because devMode is disabled', [
+                            'configFile' => 'config/smart-links.php'
+                        ]);
                         Craft::$app->getSession()->set('sl_debug_config_warning', true);
                     }
                 } else {
-                    Craft::warning('Log level "debug" from config file changed to "info" because devMode is disabled. Please update your config/smart-links.php file.', 'smart-links');
+                    $this->logWarning('Log level "debug" from config file changed to "info" because devMode is disabled', [
+                        'configFile' => 'config/smart-links.php'
+                    ]);
                 }
             } else {
-                Craft::warning('Log level automatically changed from "debug" to "info" because devMode is disabled.', 'smart-links');
+                $this->logWarning('Log level automatically changed from "debug" to "info" because devMode is disabled');
                 $this->saveToDatabase();
             }
         }
@@ -347,7 +355,7 @@ class Settings extends Model
                 ->where(['id' => 1])
                 ->one();
         } catch (\Exception $e) {
-            Craft::error('Failed to load settings from database', 'smart-links', ['error' => $e->getMessage()]);
+            $settings->logError('Failed to load settings from database', ['error' => $e->getMessage()]);
             return $settings;
         }
         
@@ -403,7 +411,7 @@ class Settings extends Model
             // Set attributes from database
             $settings->setAttributes($row, false);
         } else {
-            Craft::warning('No settings found in database', 'smart-links');
+            $settings->logWarning('No settings found in database');
         }
         
         return $settings;
@@ -417,7 +425,7 @@ class Settings extends Model
     public function saveToDatabase(): bool
     {
         if (!$this->validate()) {
-            Craft::error('Settings validation failed', 'smart-links', ['errors' => $this->getErrors()]);
+            $this->logError('Settings validation failed', ['errors' => $this->getErrors()]);
             return false;
         }
 
@@ -428,7 +436,7 @@ class Settings extends Model
         unset($attributes['ipHashSalt']); // This comes from .env, not database
 
         // Debug: Log what we're trying to save
-        Craft::info('Attempting to save settings', 'smart-links', ['attributes' => $attributes]);
+        $this->logDebug('Attempting to save settings', ['attributes' => $attributes]);
 
         // Handle array serialization
         if (isset($attributes['enabledSites'])) {
@@ -452,19 +460,19 @@ class Settings extends Model
                 ->execute();
 
             // Debug: Log the result
-            Craft::info('Database update result', 'smart-links', ['result' => $result]);
+            $this->logDebug('Database update result', ['result' => $result]);
 
             if ($result !== false) {
                 // Trigger event after successful save
                 $this->trigger(self::EVENT_AFTER_SAVE_SETTINGS);
-                Craft::info('Settings saved successfully to database', 'smart-links');
+                $this->logInfo('Settings saved successfully to database');
                 return true;
             }
 
-            Craft::error('Database update returned false', 'smart-links');
+            $this->logError('Database update returned false');
             return false;
         } catch (\Exception $e) {
-            Craft::error('Failed to save Smart Links settings', 'smart-links', ['error' => $e->getMessage()]);
+            $this->logError('Failed to save Smart Links settings', ['error' => $e->getMessage()]);
             return false;
         }
     }
