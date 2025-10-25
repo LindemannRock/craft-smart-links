@@ -104,15 +104,6 @@
         <div id="action-menu" class="menu menu--disclosure">
             <ul>
                 <li>
-                    <button type="button" class="menu-item" id="action-duplicate">
-                        <span class="icon fuchsia">{{ svg('@app/icons/clone.svg') }}</span>
-                        <span class="menu-item-label">{{ "Duplicate"|t('app') }}</span>
-                    </button>
-                </li>
-            </ul>
-            <hr class="padded">
-            <ul>
-                <li>
                     <button class="menu-item error formsubmit" data-destructive data-action="smart-links/smart-links/delete" data-params='{"id":{{ smartLink.id }}}' data-confirm="{{ 'Are you sure you want to delete this entry?'|t('app') }}" data-redirect="{{ 'smart-links'|hash }}" data-headers='{"Accept":"application/json"}'>
                         <span class="icon">{{ svg('@app/icons/trash.svg') }}</span>
                         <span class="menu-item-label">{{ "Delete"|t('app') }}</span>
@@ -842,39 +833,4 @@
         });
     {% endif %}
 
-    // Handle duplicate action
-    $('#action-duplicate').on('click', function(e) {
-        e.preventDefault();
-
-        // Create form and submit
-        const form = $('<form/>', {
-            method: 'post',
-            action: '',
-            style: 'display: none;'
-        }).appendTo('body');
-
-        form.append(Craft.getCsrfInput());
-        form.append($('<input/>', {
-            type: 'hidden',
-            name: 'action',
-            value: 'elements/duplicate'
-        }));
-        form.append($('<input/>', {
-            type: 'hidden',
-            name: 'elementType',
-            value: '{{ className(smartLink)|e('js') }}'
-        }));
-        form.append($('<input/>', {
-            type: 'hidden',
-            name: 'elementId',
-            value: '{{ smartLink.id }}'
-        }));
-        form.append($('<input/>', {
-            type: 'hidden',
-            name: 'siteId',
-            value: '{{ smartLink.siteId }}'
-        }));
-
-        form.submit();
-    });
 {% endjs %}

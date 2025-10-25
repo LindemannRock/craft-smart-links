@@ -38,23 +38,17 @@ class SettingsController extends Controller
      */
     public function beforeAction($action): bool
     {
-        // View actions allowed without allowAdminChanges
-        $viewActions = ['index', 'general', 'analytics', 'integrations', 'export', 'qr-code', 'redirect', 'interface', 'advanced', 'field-layout', 'debug'];
+        $this->requirePermission('smartLinks:settings');
 
-        // Cache clearing actions don't require allowAdminChanges (cache is runtime data, not config)
-        $cacheActions = ['clear-qr-cache', 'clear-device-cache', 'clear-all-caches', 'clear-all-analytics', 'cleanup-platform-values'];
-
-        if (in_array($action->id, $viewActions) || in_array($action->id, $cacheActions)) {
-            $this->requirePermission('smartLinks:settings');
-        } else {
-            // Save actions require allowAdminChanges
-            $this->requirePermission('smartLinks:settings');
+        // Only field layouts respect allowAdminChanges (system config)
+        // All other settings are operational and should always be editable
+        if ($action->id === 'save-field-layout') {
             if (!Craft::$app->getConfig()->getGeneral()->allowAdminChanges) {
                 throw new ForbiddenHttpException('Administrative changes are disallowed in this environment.');
             }
         }
 
-        $this->readOnly = !Craft::$app->getConfig()->getGeneral()->allowAdminChanges;
+        $this->readOnly = ($action->id === 'field-layout' || $action->id === 'save-field-layout') && !Craft::$app->getConfig()->getGeneral()->allowAdminChanges;
         return parent::beforeAction($action);
     }
 

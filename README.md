@@ -174,25 +174,19 @@ php craft clear-caches/compiled-templates
 
 See [Configuration Documentation](docs/CONFIGURATION.md) for all available options.
 
-### Read-Only Mode
+### Production Environments
 
-Smart Links respects Craft's `allowAdminChanges` setting for production environments. When `allowAdminChanges` is disabled:
+Smart Links treats content and operational settings differently from system configuration:
 
-- All settings pages display in read-only mode with a notice banner
-- Field layout designer is disabled
-- Save actions return 403 Forbidden errors
-- Config file settings override database settings
+**Always Editable (regardless of `allowAdminChanges`):**
+- ✅ Creating and editing smart links
+- ✅ Plugin settings (QR codes, analytics, integrations, colors, etc.)
+- ✅ Changing global defaults
 
-**Enable read-only mode in your `.env`:**
-```bash
-CRAFT_ALLOW_ADMIN_CHANGES=false
-```
+**Respects `allowAdminChanges=false`:**
+- ❌ Field layout designer only
 
-This ensures settings and field layouts can only be modified through:
-1. Project config (synced across environments)
-2. Configuration files (`config/smart-links.php`)
-
-**Best Practice:** Use `allowAdminChanges=false` in staging/production to prevent direct CP modifications and ensure consistency across environments.
+This design allows you to manage your smart links and operational settings in production while preventing system-level changes.
 
 ## Multi-Site Management
 
@@ -789,22 +783,49 @@ device.language
 {# Get the appropriate redirect URL for current device #}
 smartLink.getRedirectUrl()
 
-{# Get QR code URL #}
-smartLink.getQrCodeUrl(size = 200)
-
-{# Get QR code display page URL #}
-smartLink.getQrCodeDisplayUrl()
-
 {# Get full URL #}
 smartLink.getUrl()
 
 {# Get image asset #}
 smartLink.getImage()
 
+{# QR Code Methods #}
+
+{# 1. Get QR code URL - Returns URL string (most efficient for templates) #}
+smartLink.getQrCodeUrl()
+smartLink.getQrCodeUrl({size: 500, color: 'FF0000', bg: '00FF00'})
+
+{# 2. Get QR code as data URI - Returns base64 data URI (for inline/email) #}
+smartLink.getQrCodeDataUri()
+smartLink.getQrCodeDataUri({size: 300})
+
+{# 3. Get QR code binary data - Returns PNG/SVG bytes (for downloads/API) #}
+smartLink.getQrCode()
+smartLink.getQrCode({format: 'svg'})
+
+{# Get QR code display page URL #}
+smartLink.getQrCodeDisplayUrl()
+
 {# Render SEOmatic tracking script (returns Twig\Markup or null) #}
 smartLink.renderSeomaticTracking(eventType = 'qr_scan')
 {# Event types: 'redirect' for landing pages, 'qr_scan' for QR code pages #}
 ```
+
+**QR Code Method Usage:**
+- Use **getQrCodeUrl()** for regular templates (browser fetches image via URL)
+- Use **getQrCodeDataUri()** for emails or when you need inline base64 data
+- Use **getQrCode()** when you need raw binary data (downloads, API responses, file saving)
+
+**QR Code Options:**
+- `size`: Image size in pixels (100-4096)
+- `color`: Foreground hex color (without #)
+- `bg`: Background hex color (without #)
+- `format`: 'png' or 'svg'
+- `margin`: Quiet zone around QR code (0-10)
+- `eyeColor`: Custom color for position markers
+- `logo`: Asset ID for logo overlay
+
+All options are optional - they fall back to the smart link's settings or global defaults.
 
 ### GraphQL Support
 

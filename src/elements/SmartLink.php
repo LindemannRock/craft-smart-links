@@ -852,8 +852,8 @@ class SmartLink extends Element
         
         $params = array_merge([
             'size' => $this->qrCodeSize,
-            'color' => str_replace('#', '', $this->qrCodeColor),
-            'bg' => str_replace('#', '', $this->qrCodeBgColor),
+            'color' => str_replace('#', '', $this->qrCodeColor ?: $settings->defaultQrColor),
+            'bg' => str_replace('#', '', $this->qrCodeBgColor ?: $settings->defaultQrBgColor),
             'format' => $this->qrCodeFormat ?: ($settings->defaultQrFormat ?? 'png'),
             'margin' => $settings->defaultQrMargin,
             'moduleStyle' => $settings->qrModuleStyle,
@@ -885,8 +885,8 @@ class SmartLink extends Element
         
         $params = array_merge([
             'size' => $this->qrCodeSize,
-            'color' => str_replace('#', '', $this->qrCodeColor),
-            'bg' => str_replace('#', '', $this->qrCodeBgColor),
+            'color' => str_replace('#', '', $this->qrCodeColor ?: $settings->defaultQrColor),
+            'bg' => str_replace('#', '', $this->qrCodeBgColor ?: $settings->defaultQrBgColor),
             'format' => $this->qrCodeFormat ?: ($settings->defaultQrFormat ?? 'png'),
             'eyeColor' => $this->qrCodeEyeColor ? str_replace('#', '', $this->qrCodeEyeColor) : ($settings->qrEyeColor ? str_replace('#', '', $settings->qrEyeColor) : null),
         ], $options);
@@ -898,6 +898,68 @@ class SmartLink extends Element
         $qrPrefix = $settings->qrPrefix ?? 'qr';
 
         return UrlHelper::siteUrl("{$qrPrefix}/{$this->slug}/view", $params);
+    }
+
+    /**
+     * Get QR code as data URI (base64 encoded inline image)
+     *
+     * @param array $options Optional parameters to override defaults
+     * @return string Data URI string
+     */
+    public function getQrCodeDataUri(array $options = []): string
+    {
+        // Get settings for fallback values
+        $settings = SmartLinks::$plugin->getSettings();
+
+        if (!$this->qrCodeEnabled) {
+            return '';
+        }
+
+        // Get logo ID - use per-link logo or fall back to default
+        $logoId = $this->qrLogoId ?: $settings->defaultQrLogoId;
+
+        // Merge per-link settings with options
+        $qrOptions = array_merge([
+            'size' => $this->qrCodeSize,
+            'color' => str_replace('#', '', $this->qrCodeColor ?: $settings->defaultQrColor),
+            'bg' => str_replace('#', '', $this->qrCodeBgColor ?: $settings->defaultQrBgColor),
+            'eyeColor' => $this->qrCodeEyeColor ? str_replace('#', '', $this->qrCodeEyeColor) : null,
+            'format' => $this->qrCodeFormat,
+            'logo' => $logoId,
+        ], $options);
+
+        return SmartLinks::$plugin->qrCode->generateQrCodeDataUrl($this->getRedirectUrl(), $qrOptions);
+    }
+
+    /**
+     * Get QR code binary data
+     *
+     * @param array $options Optional parameters to override defaults
+     * @return string Binary image data (PNG or SVG)
+     */
+    public function getQrCode(array $options = []): string
+    {
+        // Get settings for fallback values
+        $settings = SmartLinks::$plugin->getSettings();
+
+        if (!$this->qrCodeEnabled) {
+            return '';
+        }
+
+        // Get logo ID - use per-link logo or fall back to default
+        $logoId = $this->qrLogoId ?: $settings->defaultQrLogoId;
+
+        // Merge per-link settings with options
+        $qrOptions = array_merge([
+            'size' => $this->qrCodeSize,
+            'color' => str_replace('#', '', $this->qrCodeColor ?: $settings->defaultQrColor),
+            'bg' => str_replace('#', '', $this->qrCodeBgColor ?: $settings->defaultQrBgColor),
+            'eyeColor' => $this->qrCodeEyeColor ? str_replace('#', '', $this->qrCodeEyeColor) : null,
+            'format' => $this->qrCodeFormat,
+            'logo' => $logoId,
+        ], $options);
+
+        return SmartLinks::$plugin->qrCode->generateQrCode($this->getRedirectUrl(), $qrOptions);
     }
 
     /**
