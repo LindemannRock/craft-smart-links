@@ -188,12 +188,12 @@ class SmartLinksController extends Controller
         $smartLink->qrCodeEnabled = (bool)$request->getBodyParam('qrCodeEnabled');
         $smartLink->qrCodeSize = $request->getBodyParam('qrCodeSize') ?: 200;
         
-        // Fix color values - ensure they have # prefix
-        $qrCodeColor = $request->getBodyParam('qrCodeColor') ?: '000000';
-        $smartLink->qrCodeColor = strpos($qrCodeColor, '#') === 0 ? $qrCodeColor : '#' . $qrCodeColor;
-        
-        $qrCodeBgColor = $request->getBodyParam('qrCodeBgColor') ?: 'FFFFFF';
-        $smartLink->qrCodeBgColor = strpos($qrCodeBgColor, '#') === 0 ? $qrCodeBgColor : '#' . $qrCodeBgColor;
+        // Fix color values - ensure they have # prefix, or set to null if empty
+        $qrCodeColor = $request->getBodyParam('qrCodeColor');
+        $smartLink->qrCodeColor = $qrCodeColor ? (strpos($qrCodeColor, '#') === 0 ? $qrCodeColor : '#' . $qrCodeColor) : null;
+
+        $qrCodeBgColor = $request->getBodyParam('qrCodeBgColor');
+        $smartLink->qrCodeBgColor = $qrCodeBgColor ? (strpos($qrCodeBgColor, '#') === 0 ? $qrCodeBgColor : '#' . $qrCodeBgColor) : null;
         
         // QR code eye color (can be empty)
         $qrCodeEyeColor = $request->getBodyParam('qrCodeEyeColor');

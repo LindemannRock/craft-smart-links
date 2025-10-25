@@ -173,8 +173,12 @@ return [
 #### QR Code Settings
 
 - **defaultQrSize**: Default size in pixels for generated QR codes (100-1000)
-- **defaultQrColor**: Hex color for QR code foreground
-- **defaultQrBgColor**: Hex color for QR code background
+- **defaultQrColor**: Hex color for QR code foreground (default: #000000)
+  - Individual smart links inherit this value
+  - Colors matching the global default are stored as NULL
+  - Changing this global setting automatically updates all smart links without custom colors
+- **defaultQrBgColor**: Hex color for QR code background (default: #FFFFFF)
+  - Same inheritance behavior as defaultQrColor
 - **defaultQrFormat**: Output format (png or svg)
 - **defaultQrErrorCorrection**: Error correction level
   - `L` - ~7% correction
@@ -191,7 +195,10 @@ return [
 
 - **enableQrLogo**: Enable logo overlay on QR codes
 - **qrLogoVolumeUid**: Asset volume UID for logo selection (null = all volumes)
-- **defaultQrLogoId**: Default logo asset ID (required when enableQrLogo is true)
+- **defaultQrLogoId**: Default logo asset ID
+  - Individual smart links inherit this default logo
+  - Only explicitly set logos are saved; otherwise uses this global default
+  - Changing this global default updates all smart links without custom logos
 - **qrLogoSize**: Logo size as percentage of QR code (10-30)
 
 #### QR Code Download Settings

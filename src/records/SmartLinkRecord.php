@@ -30,8 +30,8 @@ use yii\db\ActiveQueryInterface;
  * @property bool $trackAnalytics
  * @property bool $qrCodeEnabled
  * @property int $qrCodeSize
- * @property string $qrCodeColor
- * @property string $qrCodeBgColor
+ * @property string|null $qrCodeColor
+ * @property string|null $qrCodeBgColor
  * @property array|null $languageDetection
  * @property array|null $localizedUrls
  * @property array|null $metadata

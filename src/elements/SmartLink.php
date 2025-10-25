@@ -138,14 +138,14 @@ class SmartLink extends Element
     public int $qrCodeSize = 256;
 
     /**
-     * @var string QR code color
+     * @var string|null QR code color
      */
-    public string $qrCodeColor = '#000000';
+    public ?string $qrCodeColor = null;
 
     /**
-     * @var string QR code background color
+     * @var string|null QR code background color
      */
-    public string $qrCodeBgColor = '#FFFFFF';
+    public ?string $qrCodeBgColor = null;
 
     /**
      * @var string|null QR code format override
@@ -586,8 +586,8 @@ class SmartLink extends Element
             'hideTitle' => false,
             'qrCodeEnabled' => true,
             'qrCodeSize' => 256,
-            'qrCodeColor' => '#000000',
-            'qrCodeBgColor' => '#FFFFFF',
+            'qrCodeColor' => null,
+            'qrCodeBgColor' => null,
             'qrCodeFormat' => null,
             'qrCodeEyeColor' => null,
             'qrLogoId' => null,
@@ -1193,6 +1193,35 @@ class SmartLink extends Element
         // Craft's default behavior sets elements.enabled=false when ANY site is disabled,
         // which breaks our queries that check "elements.enabled AND elements_sites.enabled"
         $this->enabled = true;
+
+        // Don't save QR settings that match global defaults - only save custom values
+        $settings = SmartLinks::$plugin->getSettings();
+
+        // Normalize and compare colors (strip # and check if empty or matches default)
+        $normalizeColor = fn($color) => $color ? strtolower(ltrim($color, '#')) : '';
+
+        $thisColor = $normalizeColor($this->qrCodeColor);
+        $defaultColor = $normalizeColor($settings->defaultQrColor);
+
+        if (empty($thisColor) || $thisColor === $defaultColor) {
+            $this->qrCodeColor = null;
+        }
+
+        $thisBgColor = $normalizeColor($this->qrCodeBgColor);
+        $defaultBgColor = $normalizeColor($settings->defaultQrBgColor);
+        if (empty($thisBgColor) || $thisBgColor === $defaultBgColor) {
+            $this->qrCodeBgColor = null;
+        }
+
+        $thisEyeColor = $normalizeColor($this->qrCodeEyeColor);
+        $defaultEyeColor = $normalizeColor($settings->qrEyeColor);
+        if (empty($thisEyeColor) || $thisEyeColor === $defaultEyeColor) {
+            $this->qrCodeEyeColor = null;
+        }
+
+        if (empty($this->qrLogoId) || $this->qrLogoId === $settings->defaultQrLogoId) {
+            $this->qrLogoId = null;
+        }
 
         return parent::beforeSave($isNew);
     }

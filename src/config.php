@@ -49,9 +49,12 @@ return [
     'includeExpiredInExport' => false,  // Include expired smart links in analytics exports
 
     // QR Code Appearance Settings
+    // Note: Individual smart links inherit these defaults. Only custom-set values are saved.
+    // If a smart link's color matches the global default, it's stored as NULL and will
+    // automatically update when you change the global default.
     'defaultQrSize' => 256,            // Size in pixels (100-1000)
-    'defaultQrColor' => '#000000',     // Foreground color
-    'defaultQrBgColor' => '#FFFFFF',   // Background color
+    'defaultQrColor' => '#000000',     // Foreground color (default: black)
+    'defaultQrBgColor' => '#FFFFFF',   // Background color (default: white)
     'defaultQrFormat' => 'png',        // Format: 'png' or 'svg'
     'enableQrCodeCache' => true,       // Cache generated QR codes
     'qrCodeCacheDuration' => 86400,    // QR cache duration in seconds (24 hours)

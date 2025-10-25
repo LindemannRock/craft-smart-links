@@ -300,7 +300,7 @@
                             <img id="qr-preview"
                                  src="{{ smartLink.getQrCodeUrl({ size: 150 }) }}"
                                  alt="QR Code Preview"
-                                 style="max-width: 150px; height: auto; border: 1px solid #e3e5e8; padding: 8px; background: {{ smartLink.qrCodeBgColor ?? '#FFFFFF' }}; cursor: pointer;">
+                                 style="max-width: 150px; height: auto; border: 1px solid #e3e5e8; background: {{ smartLink.qrCodeBgColor ?? '#FFFFFF' }}; cursor: pointer;">
                         </a>
                     </div>
                 </div>
@@ -322,7 +322,7 @@
                 label: "Color"|t('smart-links'),
                 id: 'qrCodeColor',
                 name: 'qrCodeColor',
-                value: smartLink.qrCodeColor ?? '#000000',
+                value: smartLink.qrCodeColor ?: craft.smartLinks.settings.defaultQrColor,
                 fieldClass: 'nested'
             }) }}
 
@@ -330,7 +330,7 @@
                 label: "Background"|t('smart-links'),
                 id: 'qrCodeBgColor',
                 name: 'qrCodeBgColor',
-                value: smartLink.qrCodeBgColor ?? '#FFFFFF',
+                value: smartLink.qrCodeBgColor ?: craft.smartLinks.settings.defaultQrBgColor,
                 fieldClass: 'nested'
             }) }}
 
@@ -339,7 +339,7 @@
                 instructions: "Color for position markers (leave empty to use main color)"|t('smart-links'),
                 id: 'qrCodeEyeColor',
                 name: 'qrCodeEyeColor',
-                value: smartLink.qrCodeEyeColor ?? (craft.smartLinks.settings.qrEyeColor ?? ''),
+                value: smartLink.qrCodeEyeColor ?: (craft.smartLinks.settings.qrEyeColor ?? ''),
                 fieldClass: 'nested'
             }) }}
 
@@ -520,8 +520,8 @@
                     const format = formatValue || '{{ craft.smartLinks.settings.defaultQrFormat ?? 'png' }}';
 
                     // Build parameters
-                    let params = `size=150&color=${color}&bg=${bgColor}&format=${format}`;
-                    let fullSizeParams = `size=${size}&color=${color}&bg=${bgColor}&format=${format}`;
+                    let params = `size=150&color=${color}&bg=${bgColor}&format=${format}&margin={{ craft.smartLinks.settings.defaultQrMargin }}`;
+                    let fullSizeParams = `size=${size}&color=${color}&bg=${bgColor}&format=${format}&margin={{ craft.smartLinks.settings.defaultQrMargin }}`;
 
                     // Add eye color if set
                     if (eyeColor) {
@@ -785,9 +785,9 @@
 
         // Get plugin default values
         const defaults = {
-            size: {{ craft.smartLinks.settings.defaultQrSize ?? 256 }},
-            color: '{{ craft.smartLinks.settings.defaultQrColor ?? '#000000' }}',
-            bgColor: '{{ craft.smartLinks.settings.defaultQrBgColor ?? '#FFFFFF' }}',
+            size: {{ craft.smartLinks.settings.defaultQrSize }},
+            color: '{{ craft.smartLinks.settings.defaultQrColor }}',
+            bgColor: '{{ craft.smartLinks.settings.defaultQrBgColor }}',
             eyeColor: '{{ craft.smartLinks.settings.qrEyeColor ?? '' }}'
         };
 
