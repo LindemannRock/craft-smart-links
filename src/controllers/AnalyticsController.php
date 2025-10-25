@@ -59,6 +59,9 @@ class AnalyticsController extends Controller
         // Get analytics data
         $variables['analyticsData'] = SmartLinks::$plugin->analytics->getAnalyticsSummary($dateRange);
 
+        // Pass settings to template
+        $variables['settings'] = SmartLinks::$plugin->getSettings();
+
         return $this->renderTemplate('smart-links/analytics/index', $variables);
     }
 
@@ -203,6 +206,7 @@ class AnalyticsController extends Controller
                 'smartLink' => $smartLink,
                 'analyticsService' => $analyticsService,
                 'dateRange' => $range,  // Pass the range directly
+                'settings' => SmartLinks::$plugin->getSettings(),
             ]);
 
             return $this->asJson([

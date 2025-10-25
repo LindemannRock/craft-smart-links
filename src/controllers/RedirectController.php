@@ -208,6 +208,7 @@ class RedirectController extends Controller
                     'referrer' => Craft::$app->request->getReferrer(),
                     'source' => $source,
                     'siteId' => $siteId, // Pass the detected site ID
+                    'language' => $language,
                 ]
             );
 

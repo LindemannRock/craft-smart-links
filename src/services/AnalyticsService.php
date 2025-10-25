@@ -1095,8 +1095,15 @@ class AnalyticsService extends Component
         $pluginName = SmartLinks::$plugin->getSettings()->pluginName ?? 'Smart Links';
         $singularName = preg_replace('/s$/', '', $pluginName) ?: $pluginName;
 
-        // CSV format only
+        // Check if geo detection is enabled
+        $geoEnabled = SmartLinks::$plugin->getSettings()->enableGeoDetection ?? true;
+
+        // CSV format only - conditionally include geo columns
+        if ($geoEnabled) {
             $csv = "Date,Time,{$singularName} Title,{$singularName} Status,{$singularName} URL,Site,Type,Button,Source,Destination URL,Referrer,User Device Type,User Device Brand,User Device Model,User OS,User OS Version,User Browser,User Browser Version,User Country,User City,User Language,User Agent\n";
+        } else {
+            $csv = "Date,Time,{$singularName} Title,{$singularName} Status,{$singularName} URL,Site,Type,Button,Source,Destination URL,Referrer,User Device Type,User Device Brand,User Device Model,User OS,User OS Version,User Browser,User Browser Version,User Language,User Agent\n";
+        }
 
             foreach ($results as $row) {
                 // Check settings to determine if we should include disabled/expired links
@@ -1105,7 +1112,11 @@ class AnalyticsService extends Component
                 $includeExpired = $settings->includeExpiredInExport ?? false;
 
                 // Always get the link with all statuses to check if it exists and its status
-                $smartLink = SmartLink::find()->id($row['linkId'])->status(null)->one();
+                $smartLink = SmartLink::find()
+                    ->id($row['linkId'])
+                    ->siteId($row['siteId'])
+                    ->status(null)
+                    ->one();
 
                 if (!$smartLink) {
                     continue;
@@ -1177,31 +1188,57 @@ class AnalyticsService extends Component
                     default => 'Direct'
                 };
 
-                $csv .= sprintf(
-                    '"%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s"' . "\n",
-                    $dateStr,
-                    $timeStr,
-                    $linkName,
-                    $linkStatus,
-                    $linkUrl,
-                    $siteName,
-                    ucfirst($clickType),
-                    $buttonPlatform,
-                    $sourceDisplay,
-                    $targetUrl,
-                    $referrerDisplay,
-                    $row['deviceType'] ?? '',
-                    $row['deviceBrand'] ?? '',
-                    $row['deviceModel'] ?? '',
-                    $row['osName'] ?? '',
-                    $row['osVersion'] ?? '',
-                    $row['browser'] ?? '',
-                    $row['browserVersion'] ?? '',
-                    $this->_getCountryName($row['country'] ?? ''),
-                    $row['city'] ?? '',
-                    $row['language'] ?? '',
-                    $row['userAgent'] ?? ''
-                );
+                if ($geoEnabled) {
+                    $csv .= sprintf(
+                        '"%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s"' . "\n",
+                        $dateStr,
+                        $timeStr,
+                        $linkName,
+                        $linkStatus,
+                        $linkUrl,
+                        $siteName,
+                        ucfirst($clickType),
+                        $buttonPlatform,
+                        $sourceDisplay,
+                        $targetUrl,
+                        $referrerDisplay,
+                        $row['deviceType'] ?? '',
+                        $row['deviceBrand'] ?? '',
+                        $row['deviceModel'] ?? '',
+                        $row['osName'] ?? '',
+                        $row['osVersion'] ?? '',
+                        $row['browser'] ?? '',
+                        $row['browserVersion'] ?? '',
+                        $this->_getCountryName($row['country'] ?? ''),
+                        $row['city'] ?? '',
+                        $row['language'] ?? '',
+                        $row['userAgent'] ?? ''
+                    );
+                } else {
+                    $csv .= sprintf(
+                        '"%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s"' . "\n",
+                        $dateStr,
+                        $timeStr,
+                        $linkName,
+                        $linkStatus,
+                        $linkUrl,
+                        $siteName,
+                        ucfirst($clickType),
+                        $buttonPlatform,
+                        $sourceDisplay,
+                        $targetUrl,
+                        $referrerDisplay,
+                        $row['deviceType'] ?? '',
+                        $row['deviceBrand'] ?? '',
+                        $row['deviceModel'] ?? '',
+                        $row['osName'] ?? '',
+                        $row['osVersion'] ?? '',
+                        $row['browser'] ?? '',
+                        $row['browserVersion'] ?? '',
+                        $row['language'] ?? '',
+                        $row['userAgent'] ?? ''
+                    );
+                }
             }
 
             return $csv;
@@ -1219,12 +1256,13 @@ class AnalyticsService extends Component
             ->from(['a' => '{{%smartlinks_analytics}}'])
             ->select([
                 'a.linkId',
+                'a.siteId',
                 'COUNT(*) as clicks',
                 'MAX(a.dateCreated) as lastClick',
                 'SUM(CASE WHEN JSON_EXTRACT(a.metadata, \'$.source\') = \'qr\' THEN 1 ELSE 0 END) as qrScans',
                 'SUM(CASE WHEN JSON_EXTRACT(a.metadata, \'$.source\') != \'qr\' OR JSON_EXTRACT(a.metadata, \'$.source\') IS NULL THEN 1 ELSE 0 END) as directVisits'
             ])
-            ->groupBy(['a.linkId'])
+            ->groupBy(['a.linkId', 'a.siteId'])
             ->orderBy(['clicks' => SORT_DESC])
             ->limit($limit);
 
@@ -1235,8 +1273,13 @@ class AnalyticsService extends Component
         $topLinks = [];
 
         foreach ($results as $row) {
-            $smartLink = SmartLink::find()->id($row['linkId'])->one();
-            if ($smartLink && $smartLink->enabled) { // Only include active links
+            $smartLink = SmartLink::find()
+                ->id($row['linkId'])
+                ->siteId($row['siteId'])
+                ->status(null)
+                ->one();
+
+            if ($smartLink && $smartLink->getStatus() === SmartLink::STATUS_ENABLED) { // Only include active links
                 // Get the last interaction details
                 $lastInteractionQuery = (new Query())
                     ->from('{{%smartlinks_analytics}}')

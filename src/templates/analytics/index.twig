@@ -57,7 +57,7 @@
 		<div class="analytics-stats">
 			<div class="stat-box">
 				<div class="stat-value" id="total-clicks">{{ analyticsData.totalClicks ?? 0 }}</div>
-				<div class="stat-label">{{ "Total Clicks"|t('smart-links') }}</div>
+				<div class="stat-label">{{ "Total Interactions"|t('smart-links') }}</div>
 			</div>
 			<div class="stat-box">
 				<div class="stat-value" id="unique-visitors">{{ analyticsData.uniqueVisitors ?? 0 }}</div>
@@ -150,7 +150,9 @@
 								<th>{{ "Device"|t('smart-links') }}</th>
 								<th>{{ "Browser"|t('smart-links') }}</th>
 								<th>{{ "OS"|t('smart-links') }}</th>
-								<th>{{ "Location"|t('smart-links') }}</th>
+								{% if settings.enableGeoDetection %}
+									<th>{{ "Location"|t('smart-links') }}</th>
+								{% endif %}
 							</tr>
 						</thead>
 						<tbody>
@@ -206,19 +208,21 @@
 									<td>{{ click.deviceType ? click.deviceType|capitalize : '—' }}</td>
 									<td>{{ click.browser ?? '—' }}</td>
 									<td>{{ click.osName ? click.osName : '—' }}</td>
-									<td>
-										{% if click.city and click.country %}
-											{{ click.city }}, {{ click.country }}
-										{% elseif click.country %}
-											{{ click.country }}
-										{% else %}
-											—
-										{% endif %}
-									</td>
+									{% if settings.enableGeoDetection %}
+										<td>
+											{% if click.city and click.country %}
+												{{ click.city }}, {{ click.country }}
+											{% elseif click.country %}
+												{{ click.country }}
+											{% else %}
+												—
+											{% endif %}
+										</td>
+									{% endif %}
 								</tr>
 							{% else %}
 								<tr>
-									<td colspan="11" class="thin light">{{ "No interactions recorded yet"|t('smart-links') }}</td>
+									<td colspan="{{ settings.enableGeoDetection ? 11 : 10 }}" class="thin light">{{ "No interactions recorded yet"|t('smart-links') }}</td>
 								</tr>
 							{% endfor %}
 						</tbody>
@@ -253,77 +257,79 @@
 			</div>
 		</div>
 
-		<h2 style="margin: 30px 0 20px;">{{ "Geographic Distribution"|t('smart-links') }}</h2>
+		{% if settings.enableGeoDetection %}
+			<h2 style="margin: 30px 0 20px;">{{ "Geographic Distribution"|t('smart-links') }}</h2>
 
-		<div class="analytics-charts two-columns">
-			<div class="chart-container">
-				<h3>{{ "Top Countries"|t('smart-links') }}</h3>
-				<div id="countries-table">
-					<table class="data fullwidth">
-						<thead>
-							<tr>
-								<th>{{ "Country"|t('smart-links') }}</th>
-								<th>{{ "Clicks"|t('smart-links') }}</th>
-								<th>{{ "Percentage"|t('smart-links') }}</th>
-							</tr>
-						</thead>
-						<tbody>
-							{% set topCountries = analyticsData.topCountries ?? [] %}
-							{% if topCountries|length > 0 %}
-								{% for country in topCountries %}
-									<tr>
-										<td>{{ country.name }}</td>
-										<td>{{ country.clicks }}</td>
-										<td>{{ country.percentage }}%</td>
-									</tr>
-								{% endfor %}
-							{% else %}
+			<div class="analytics-charts two-columns">
+				<div class="chart-container">
+					<h3>{{ "Top Countries"|t('smart-links') }}</h3>
+					<div id="countries-table">
+						<table class="data fullwidth">
+							<thead>
 								<tr>
-									<td colspan="3" style="text-align: center; color: #999;">
-										{{ "No country data available"|t('smart-links') }}
-									</td>
+									<th>{{ "Country"|t('smart-links') }}</th>
+									<th>{{ "Clicks"|t('smart-links') }}</th>
+									<th>{{ "Percentage"|t('smart-links') }}</th>
 								</tr>
-							{% endif %}
-						</tbody>
-					</table>
+							</thead>
+							<tbody>
+								{% set topCountries = analyticsData.topCountries ?? [] %}
+								{% if topCountries|length > 0 %}
+									{% for country in topCountries %}
+										<tr>
+											<td>{{ country.name }}</td>
+											<td>{{ country.clicks }}</td>
+											<td>{{ country.percentage }}%</td>
+										</tr>
+									{% endfor %}
+								{% else %}
+									<tr>
+										<td colspan="3" style="text-align: center; color: #999;">
+											{{ "No country data available"|t('smart-links') }}
+										</td>
+									</tr>
+								{% endif %}
+							</tbody>
+						</table>
+					</div>
+				</div>
+
+				<div class="chart-container">
+					<h3>{{ "Top Cities"|t('smart-links') }}</h3>
+					<div id="cities-table">
+						<table class="data fullwidth">
+							<thead>
+								<tr>
+									<th>{{ "City"|t('smart-links') }}</th>
+									<th>{{ "Country"|t('smart-links') }}</th>
+									<th>{{ "Clicks"|t('smart-links') }}</th>
+									<th>{{ "Percentage"|t('smart-links') }}</th>
+								</tr>
+							</thead>
+							<tbody>
+								{% set topCities = analyticsData.topCities ?? [] %}
+								{% if topCities|length > 0 %}
+									{% for city in topCities %}
+										<tr>
+											<td>{{ city.city }}</td>
+											<td>{{ city.countryName }}</td>
+											<td>{{ city.clicks }}</td>
+											<td>{{ city.percentage }}%</td>
+										</tr>
+									{% endfor %}
+								{% else %}
+									<tr>
+										<td colspan="4" style="text-align: center; color: #999;">
+											{{ "No city data available"|t('smart-links') }}
+										</td>
+									</tr>
+								{% endif %}
+							</tbody>
+						</table>
+					</div>
 				</div>
 			</div>
-
-			<div class="chart-container">
-				<h3>{{ "Top Cities"|t('smart-links') }}</h3>
-				<div id="cities-table">
-					<table class="data fullwidth">
-						<thead>
-							<tr>
-								<th>{{ "City"|t('smart-links') }}</th>
-								<th>{{ "Country"|t('smart-links') }}</th>
-								<th>{{ "Clicks"|t('smart-links') }}</th>
-								<th>{{ "Percentage"|t('smart-links') }}</th>
-							</tr>
-						</thead>
-						<tbody>
-							{% set topCities = analyticsData.topCities ?? [] %}
-							{% if topCities|length > 0 %}
-								{% for city in topCities %}
-									<tr>
-										<td>{{ city.city }}</td>
-										<td>{{ city.countryName }}</td>
-										<td>{{ city.clicks }}</td>
-										<td>{{ city.percentage }}%</td>
-									</tr>
-								{% endfor %}
-							{% else %}
-								<tr>
-									<td colspan="4" style="text-align: center; color: #999;">
-										{{ "No city data available"|t('smart-links') }}
-									</td>
-								</tr>
-							{% endif %}
-						</tbody>
-					</table>
-				</div>
-			</div>
-		</div>
+		{% endif %}
 
 
 		<h2 style="margin: 30px 0 20px;">{{ "Usage Patterns"|t('smart-links') }}</h2>
@@ -708,9 +714,11 @@ const translations = {
         }
 
         function updateRecentClicksTable(clicks) {
+            const geoEnabled = {{ settings.enableGeoDetection ? 'true' : 'false' }};
+            const colspan = geoEnabled ? 11 : 10;
             let html = '';
             if (clicks.length === 0) {
-                html = '<tr><td colspan="11" class="thin light">{{ "No interactions recorded yet"|t('smart-links')|e('js') }}</td></tr>';
+                html = '<tr><td colspan="' + colspan + '" class="thin light">{{ "No interactions recorded yet"|t('smart-links')|e('js') }}</td></tr>';
             } else {
                 clicks.forEach(function(click) {
                     html += '<tr>';
@@ -762,21 +770,23 @@ const translations = {
                     html += '<td>' + (click.deviceType ? Craft.escapeHtml(click.deviceType.charAt(0).toUpperCase() + click.deviceType.slice(1)) : '—') + '</td>';
                     html += '<td>' + (click.browser || '—') + '</td>';
                     html += '<td>' + (click.osName || '—') + '</td>';
-                    html += '<td>';
-                    if (click.city && click.country) {
-                        html += Craft.escapeHtml(click.city + ', ' + click.country);
-                    } else if (click.country) {
-                        html += Craft.escapeHtml(click.country);
-                    } else {
-                        html += '—';
+                    if (geoEnabled) {
+                        html += '<td>';
+                        if (click.city && click.country) {
+                            html += Craft.escapeHtml(click.city + ', ' + click.country);
+                        } else if (click.country) {
+                            html += Craft.escapeHtml(click.country);
+                        } else {
+                            html += '—';
+                        }
+                        html += '</td>';
                     }
-                    html += '</td>';
                     html += '</tr>';
                 });
             }
             $('#recent-clicks-table tbody').html(html);
         }
-		
+
 				        function updateTopCitiesTable(cities) {
 				            let html = '';
 				            if (cities.length > 0) {
@@ -808,7 +818,7 @@ const translations = {
             });
             window.analyticsCharts = {};
         }
-        
+
         // Get current date range from URL or default
         const urlParams = new URLSearchParams(window.location.search);
         const currentRange = urlParams.get('dateRange') || '{{ dateRange }}';
@@ -1166,7 +1176,7 @@ const translations = {
                 success: function(response) {
                     if (response.success && response.data) {
                         let html = '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">';
-	
+
 		                        // Left side - Countries table
 		                        html += '<div>';
 		                        html += '<h3>' + translations.countries + '</h3>';
@@ -1176,7 +1186,7 @@ const translations = {
 										                        html += '<th>' + translations.clicks + '</th>';
 										                        html += '<th>' + translations.percentage + '</th>';
 										                        html += '</tr></thead><tbody>';
-				
+
 								                        response.data.forEach(function(country) {
 								                            html += '<tr>';
 								                            html += '<td>' + country.name + '</td>';
@@ -1184,14 +1194,14 @@ const translations = {
 								                            html += '<td>' + country.percentage + '%</td>';
 								                            html += '</tr>';
 								                        });
-				
+
 								                        html += '</tbody></table>';
 				                        html += '</div>';
-		
+
 				                        // Right side - Cities and additional data
 				                        html += '<div>';
 						                        html += '<h3>' + translations.topCitiesWorldwide + '</h3>';
-			
+
 						                        // Load cities data
 						                        $.ajax({
 						                            url: '{{ actionUrl('smart-links/analytics/get-data')|raw }}',
@@ -1210,7 +1220,7 @@ const translations = {
 										                                    cityHtml += '<th>' + translations.country + '</th>';
 										                                    cityHtml += '<th>' + translations.clicks + '</th>';
 										                                    cityHtml += '</tr></thead><tbody>';
-				
+
 								                                    cityResponse.data.forEach(function(city) {
 								                                        cityHtml += '<tr>';
 								                                        cityHtml += '<td>' + city.city + '</td>';
@@ -1218,7 +1228,7 @@ const translations = {
 								                                        cityHtml += '<td>' + city.clicks + '</td>';
 								                                        cityHtml += '</tr>';
 								                                    });
-				
+
 								                                    cityHtml += '</tbody></table>';
 				                                    modal.find('.body > div > div:last-child').html(
 				                                        '<h3>' + translations.topCitiesWorldwide + '</h3>' + cityHtml
@@ -1226,21 +1236,21 @@ const translations = {
 						                                }
 						                            }
 						                        });
-			
+
 						                        html += '<div class="loading"><div class="spinner"></div></div>';
 				                        html += '</div>';
 				                        html += '</div>';
-		
+
 				                        // Add summary stats at bottom
 				                        const totalCountries = response.data.length;
 				                        const totalClicks = response.data.reduce((sum, country) => sum + country.clicks, 0);
-		
+
 				                        html += '<hr style="margin: 30px 0;">';
 				                        html += '<div style="text-align: center; color: #666;">';
 						                        html += '<strong>' + totalCountries + '</strong> ' + translations.countries.toLowerCase() + ' • ';
 		                        html += '<strong>' + totalClicks + '</strong> ' + translations.totalClicks;
 		                        html += '</div>';
-	
+
 		                        modal.find('.body').html(html);
 		                    }
 		                },
@@ -1249,7 +1259,7 @@ const translations = {
 				                }
 				            });
 				        });
-		
+
 				        // Load hourly analytics
 				        $.ajax({
 				            url: '{{ actionUrl('smart-links/analytics/get-data')|raw }}',
@@ -1302,6 +1312,6 @@ const translations = {
 		                }
 		            }
 		        });
-	
+
 		    }
 {% endjs %}

@@ -185,7 +185,8 @@
         <div id="analytics" class="hidden">
             {% include "smart-links/smartlinks/_partials/analytics" with {
                 smartLink: smartLink,
-                analyticsService: analyticsService ?? null
+                analyticsService: analyticsService ?? null,
+                settings: craft.smartLinks.settings
             } %}
         </div>
     {% endif %}

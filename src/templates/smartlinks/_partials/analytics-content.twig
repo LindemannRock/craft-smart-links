@@ -83,7 +83,9 @@
                     <th>{{ "Destination URL"|t('smart-links') }}</th>
                     <th>{{ "Device"|t('smart-links') }}</th>
                     <th>{{ "OS"|t('smart-links') }}</th>
-                    <th>{{ "Location"|t('smart-links') }}</th>
+                    {% if settings.enableGeoDetection %}
+                        <th>{{ "Location"|t('smart-links') }}</th>
+                    {% endif %}
                 </tr>
             </thead>
             <tbody>
@@ -154,15 +156,17 @@
                         </td>
                         <td>{{ click.deviceType ? click.deviceType|capitalize : '—' }}</td>
                         <td>{{ click.osName ?? '—' }}</td>
-                        <td>
-                            {% if click.city and click.country %}
-                                {{ click.city }}, {{ click.country }}
-                            {% elseif click.country %}
-                                {{ click.country }}
-                            {% else %}
-                                —
-                            {% endif %}
-                        </td>
+                        {% if settings.enableGeoDetection %}
+                            <td>
+                                {% if click.city and click.country %}
+                                    {{ click.city }}, {{ click.country }}
+                                {% elseif click.country %}
+                                    {{ click.country }}
+                                {% else %}
+                                    —
+                                {% endif %}
+                            </td>
+                        {% endif %}
                     </tr>
                 {% endfor %}
             </tbody>
