@@ -1,5 +1,13 @@
 # Changelog
 
+## [5.3.2](https://github.com/LindemannRock/craft-smart-links/compare/v5.3.1...v5.3.2) (2025-10-26)
+
+
+### Bug Fixes
+
+* improve configuration file structure for better readability and organization ([d1deaa2](https://github.com/LindemannRock/craft-smart-links/commit/d1deaa2c1555c8b556ea7a70f0ea23795661737c))
+* reorganize configuration settings for clarity and maintainability ([f98f534](https://github.com/LindemannRock/craft-smart-links/commit/f98f534a64f212630f0306fa0f3d8aa055382751))
+
 ## [5.3.1](https://github.com/LindemannRock/craft-smart-links/compare/v5.3.0...v5.3.1) (2025-10-26)
 
 
