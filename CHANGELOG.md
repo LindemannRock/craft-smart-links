@@ -1,5 +1,27 @@
 # Changelog
 
+## [5.3.0](https://github.com/LindemannRock/craft-smart-links/compare/v5.2.0...v5.3.0) (2025-10-26)
+
+
+### Features
+
+* add dashboard widgets, per-link analytics toggle, and worldwide location support ([9447bb5](https://github.com/LindemannRock/craft-smart-links/commit/9447bb5ad04e68aa764c5f97887835819d65cbc7))
+* enhance analytics cleanup scheduling and UI integration ([08ac107](https://github.com/LindemannRock/craft-smart-links/commit/08ac107a79b04e578108b350c59c9d4cd08526d7))
+* enhance analytics templates and services with geo detection settings and improved data handling ([7d2485d](https://github.com/LindemannRock/craft-smart-links/commit/7d2485d9723f41ddd418613e3f6c5d77e2025597))
+* enhance QR code functionality with new methods and improved color handling ([51e25b4](https://github.com/LindemannRock/craft-smart-links/commit/51e25b4a0a4ade16d26205bf89ab5bbd307893b9))
+* enhance templates with dynamic plugin name usage for better localization ([e347d59](https://github.com/LindemannRock/craft-smart-links/commit/e347d59e7ac4a19d11202e7f07b02ee44ca3bc4a))
+* implement logging improvements across various components using LoggingTrait ([bde1785](https://github.com/LindemannRock/craft-smart-links/commit/bde17852dab9bdb76262761d270b7cb980f3eaf9))
+* update analytics templates to display site names and improve data presentation ([25e631d](https://github.com/LindemannRock/craft-smart-links/commit/25e631d4117cf440727c3f6aec275bca5a51639e))
+* update QR code settings to support inheritance and null values for colors ([137b5c1](https://github.com/LindemannRock/craft-smart-links/commit/137b5c12c438fcedd1272e156573c699accb38fb))
+
+
+### Bug Fixes
+
+* Handle missing IP hash salt gracefully in analytics tracking ([7170942](https://github.com/LindemannRock/craft-smart-links/commit/71709424411a3c5ca8d3c1aae91e62ba6b2f2969))
+* simplify utility page and improve settings ([262d595](https://github.com/LindemannRock/craft-smart-links/commit/262d5959de4d339d87365b1dbd05083fcb6dc757))
+* update QR code preview dimensions and adjust padding for improved layout ([1e41165](https://github.com/LindemannRock/craft-smart-links/commit/1e411652bca56c5fa5bf1ad60cde1db297aebf70))
+* update subnav label to a static value for clarity ([7ee4682](https://github.com/LindemannRock/craft-smart-links/commit/7ee468264c4f986e3427ca6222cb6efba81a4913))
+
 ## [5.2.0](https://github.com/LindemannRock/craft-smart-links/compare/v5.1.0...v5.2.0) (2025-10-22)
 
 
