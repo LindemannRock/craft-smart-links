@@ -312,6 +312,11 @@ class Settings extends Model
     {
         $logLevel = $this->$attribute;
 
+        // Reset session warning when devMode is true - allows warning to show again if devMode changes
+        if (Craft::$app->getConfig()->getGeneral()->devMode && !Craft::$app->getRequest()->getIsConsoleRequest()) {
+            Craft::$app->getSession()->remove('sl_debug_config_warning');
+        }
+
         // Debug level is only allowed when devMode is enabled
         if ($logLevel === 'debug' && !Craft::$app->getConfig()->getGeneral()->devMode) {
             $this->$attribute = 'info';

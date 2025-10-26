@@ -139,6 +139,16 @@ return [
         // Device Detection Caching
         'cacheDeviceDetection' => true,    // Cache device detection results
         'deviceDetectionCacheDuration' => 3600, // Device detection cache in seconds (1 hour)
+
+
+        // ========================================
+        // INTEGRATION SETTINGS
+        // ========================================
+        // Third-party integrations for enhanced functionality
+
+        'enabledIntegrations' => [],       // Enabled integration handles (e.g., ['seomatic'])
+        'seomaticTrackingEvents' => ['redirect', 'button_click', 'qr_scan'], // Event types to track
+        'seomaticEventPrefix' => 'smart_links', // Event prefix for GTM/GA events (lowercase, numbers, underscores only)
     ],
 
     // Dev environment settings
