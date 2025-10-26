@@ -29,6 +29,7 @@
         {{ actionInput('smart-links/settings/save') }}
         {{ csrfInput() }}
         {{ redirectInput('smart-links/settings/analytics') }}
+        {{ hiddenInput('section', 'analytics') }}
 
         <h2 style="margin-top: 0px;">{{ "Analytics"|t('smart-links') }}</h2>
 

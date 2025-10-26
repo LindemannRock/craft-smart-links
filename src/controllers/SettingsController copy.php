@@ -361,9 +361,9 @@ class SettingsController extends Controller
     /**
      * Save settings
      *
-     * @return Response|null
+     * @return Response
      */
-    public function actionSave(): ?Response
+    public function actionSave(): Response
     {
         // Basic debug - write to file
         file_put_contents('/tmp/smart-links-debug.log', date('Y-m-d H:i:s') . " - Save action called\n", FILE_APPEND);
@@ -397,6 +397,11 @@ class SettingsController extends Controller
 
         // Debug: Log all POST data
         $this->logDebug('All POST data', ['bodyParams' => Craft::$app->getRequest()->getBodyParams()]);
+
+        // Handle pluginName field
+        if (isset($settingsData['pluginName'])) {
+            $settings->pluginName = $settingsData['pluginName'];
+        }
 
         // Handle enabledSites checkbox group
         if (isset($settingsData['enabledSites'])) {
@@ -439,21 +444,10 @@ class SettingsController extends Controller
             }
         }
 
-        // Only update fields that were posted and are not overridden by config
-        foreach ($settingsData as $key => $value) {
-            if (!$settings->isOverriddenByConfig($key) && property_exists($settings, $key)) {
-                // Check for setter method first (handles array conversions, etc.)
-                $setterMethod = 'set' . ucfirst($key);
-                if (method_exists($settings, $setterMethod)) {
-                    $settings->$setterMethod($value);
-                } else {
-                    $settings->$key = $value;
-                }
-            }
-        }
+        $settings->setAttributes($settingsData, false);
 
-        // Debug: Log what's in settings after updates
-        $this->logDebug('Settings after updates', ['enabledSites' => $settings->enabledSites]);
+        // Debug: Log what's in settings after setAttributes
+        $this->logDebug('Settings after setAttributes', ['enabledSites' => $settings->enabledSites]);
 
         // Check for Shortlink Manager URL conflict
         if (!empty($settings->slugPrefix) || !empty($settings->qrPrefix)) {

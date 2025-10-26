@@ -306,6 +306,26 @@ class Settings extends Model
     }
 
     /**
+     * Set enabled integrations from string (for form submission)
+     *
+     * @param string|array $value
+     */
+    public function setEnabledIntegrations($value): void
+    {
+        if (is_string($value)) {
+            // If empty string, set to empty array
+            if (trim($value) === '') {
+                $this->enabledIntegrations = [];
+            } else {
+                // Single integration handle as string, convert to array
+                $this->enabledIntegrations = [$value];
+            }
+        } else {
+            $this->enabledIntegrations = is_array($value) ? $value : [];
+        }
+    }
+
+    /**
      * Validate log level - debug requires devMode
      */
     public function validateLogLevel($attribute, $params, $validator)
@@ -484,21 +504,37 @@ class Settings extends Model
 
     /**
      * Check if a setting is overridden by config file
+     * Supports dot notation for nested settings like: enabledIntegrations.0
      *
-     * @param string $attribute
+     * @param string $attribute The setting attribute name or dot-notation path
      * @return bool
      */
     public function isOverriddenByConfig(string $attribute): bool
     {
         $configPath = \Craft::$app->getPath()->getConfigPath() . '/smart-links.php';
-        
+
         if (!file_exists($configPath)) {
             return false;
         }
-        
+
         // Load the raw config file instead of using Craft's config which merges with database
         $rawConfig = require $configPath;
-        
+
+        // Handle dot notation for nested config
+        if (str_contains($attribute, '.')) {
+            $parts = explode('.', $attribute);
+            $current = $rawConfig;
+
+            foreach ($parts as $part) {
+                if (!is_array($current) || !array_key_exists($part, $current)) {
+                    return false;
+                }
+                $current = $current[$part];
+            }
+
+            return true;
+        }
+
         // Check for the attribute in the config
         // Use array_key_exists instead of isset to detect null values
         if (array_key_exists($attribute, $rawConfig)) {
@@ -515,7 +551,7 @@ class Settings extends Model
         if (is_array($rawConfig['*'] ?? null) && array_key_exists($attribute, $rawConfig['*'])) {
             return true;
         }
-        
+
         return false;
     }
 

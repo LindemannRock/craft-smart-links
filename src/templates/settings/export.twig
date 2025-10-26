@@ -29,6 +29,7 @@
         {{ actionInput('smart-links/settings/save') }}
         {{ csrfInput() }}
         {{ redirectInput('smart-links/settings/export') }}
+        {{ hiddenInput('section', 'export') }}
 
         <h2 style="margin-top: 0px;">{{ "Analytics Export Options"|t('smart-links') }}</h2>
 

@@ -30,6 +30,7 @@
         {{ actionInput('smart-links/settings/save') }}
         {{ csrfInput() }}
         {{ redirectInput('smart-links/settings/redirect') }}
+        {{ hiddenInput('section', 'redirect') }}
 
         <h2 style="margin-top: 0px;">{{ "Redirect Behavior"|t('smart-links') }}</h2>
 

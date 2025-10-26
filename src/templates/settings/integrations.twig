@@ -34,6 +34,7 @@
         {{ actionInput('smart-links/settings/save') }}
         {{ csrfInput() }}
         {{ redirectInput('smart-links/settings/integrations') }}
+        {{ hiddenInput('section', 'integrations') }}
 
         <h2 style="margin-top: 0px;">{{ "Third-Party Integrations"|t('smart-links') }}</h2>
 

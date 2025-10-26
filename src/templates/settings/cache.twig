@@ -27,6 +27,7 @@
         {{ actionInput('smart-links/settings/save') }}
         {{ csrfInput() }}
         {{ redirectInput('smart-links/settings/cache') }}
+        {{ hiddenInput('section', 'cache') }}
 
         <h2 style="margin-top: 0px;">{{ "Performance & Caching"|t('smart-links') }}</h2>
 
