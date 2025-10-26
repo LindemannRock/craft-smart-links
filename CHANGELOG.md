@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.3.1](https://github.com/LindemannRock/craft-smart-links/compare/v5.3.0...v5.3.1) (2025-10-26)
+
+
+### Bug Fixes
+
+* update QR code preview width to max-width for better responsiveness ([56140ac](https://github.com/LindemannRock/craft-smart-links/commit/56140ac846407e3638b36f9ea4c2aff6889fda4e))
+
 ## [5.3.0](https://github.com/LindemannRock/craft-smart-links/compare/v5.2.0...v5.3.0) (2025-10-26)
 
 
