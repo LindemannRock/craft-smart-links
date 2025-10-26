@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.3.3](https://github.com/LindemannRock/craft-smart-links/compare/v5.3.2...v5.3.3) (2025-10-26)
+
+
+### Bug Fixes
+
+* reset session warning when devMode is enabled to allow re-display of warnings ([3c11269](https://github.com/LindemannRock/craft-smart-links/commit/3c11269e321e298296b81b88c39287351b67e46c))
+
 ## [5.3.2](https://github.com/LindemannRock/craft-smart-links/compare/v5.3.1...v5.3.2) (2025-10-26)
 
 
