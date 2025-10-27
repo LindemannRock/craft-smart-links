@@ -1,3 +1,16 @@
+---
+title: Configuration Reference
+category: configuration
+order: 2
+description: Complete configuration file options, analytics settings, and QR code customization
+keywords: config, settings, analytics, qr codes, device detection
+relatedPages:
+  - slug: config-overview
+    title: Configuration Overview
+  - slug: analytics-dashboard
+    title: Analytics Dashboard
+---
+
 # Smart Links Configuration
 
 ## Configuration File
@@ -26,12 +39,31 @@ return [
     // Generate salt with: php craft smart-links/security/generate-salt
     'ipHashSalt' => App::env('SMART_LINKS_IP_SALT'),
 
+    // URL Settings
+    'slugPrefix' => 'go', // URL prefix for smart links (e.g., 'go' creates /go/your-link)
+    'qrPrefix' => 'qr', // URL prefix for QR code pages (e.g., 'qr' creates /qr/your-link)
+
+    // Template Settings
+    'redirectTemplate' => null, // Custom redirect landing page template path
+    'qrTemplate' => null, // Custom QR code display page template path
+
+    // Site Settings
+    'enabledSites' => [], // Array of site IDs where Smart Links should be enabled (empty = all sites)
+
+    // Asset Settings
+    'imageVolumeUid' => null, // Asset volume UID for smart link images
+
+    // Redirect Settings
+    'notFoundRedirectUrl' => '/', // 404 redirect URL
+    'languageDetectionMethod' => 'browser', // browser, ip, or both
+
     // Analytics configuration
     'enableAnalytics' => true,
     'analyticsRetention' => 90, // days (0 = unlimited, max 3650)
     'anonymizeIpAddress' => false, // Mask IPs for maximum privacy
     'includeDisabledInExport' => false,
     'includeExpiredInExport' => false,
+    'enableGeoDetection' => false,
 
     // QR Code defaults
     'defaultQrSize' => 256, // pixels (100-1000)
@@ -43,7 +75,6 @@ return [
     'qrModuleStyle' => 'square', // square, rounded, dots
     'qrEyeStyle' => 'square', // square, rounded, leaf
     'qrEyeColor' => null, // null = same as module color
-    'qrCodeCacheDuration' => 86400, // 24 hours
 
     // QR Code logo overlay
     'enableQrLogo' => false,
@@ -55,25 +86,19 @@ return [
     'enableQrDownload' => true,
     'qrDownloadFilename' => '{slug}-qr-{size}', // Filename pattern
 
-    // Image management
-    'imageVolumeUid' => null, // Asset volume UID for smart link images
-
-    // Redirect settings
-    'redirectTemplate' => null, // Custom redirect template path
-    'notFoundRedirectUrl' => '/', // 404 redirect URL
-
-    // Geographic detection
-    'enableGeoDetection' => false,
-
-    // Device detection caching
+    // Cache Settings
+    'enableQrCodeCache' => true, // Cache generated QR codes
+    'qrCodeCacheDuration' => 86400, // 24 hours
     'cacheDeviceDetection' => true,
     'deviceDetectionCacheDuration' => 3600, // 1 hour
 
-    // Language detection
-    'languageDetectionMethod' => 'browser', // browser, ip, or both
-
     // Interface settings
     'itemsPerPage' => 100, // Items per page in CP (10-500)
+
+    // Integration Settings
+    'enabledIntegrations' => [], // Enabled integration handles (e.g., ['seomatic'])
+    'seomaticTrackingEvents' => ['redirect', 'button_click', 'qr_scan'], // Event types to track
+    'seomaticEventPrefix' => 'smart_links', // Event prefix for GTM/GA events (lowercase, numbers, underscores only)
 ];
 ```
 
@@ -86,32 +111,31 @@ You can have different settings per environment:
 return [
     // Global settings
     '*' => [
-        'qrCodeSize' => 300,
-        'qrCodeForegroundColor' => '#000000',
+        'pluginName' => 'Smart Links',
+        'enableAnalytics' => true,
         'logLevel' => 'error',
     ],
 
     // Development environment
     'dev' => [
-        'enableAnalytics' => false,
-        'cacheEnabled' => false,
-        'logLevel' => 'debug', // Detailed logging in dev
+        'logLevel' => 'debug',
+        'analyticsRetention' => 30,
+        'cacheDeviceDetection' => false,
+        'enableQrCodeCache' => false,
     ],
 
     // Staging environment
     'staging' => [
-        'enableAnalytics' => true,
-        'analyticsRetentionDays' => 30,
         'logLevel' => 'info',
+        'analyticsRetention' => 90,
+        'qrCodeCacheDuration' => 3600,
     ],
 
     // Production environment
     'production' => [
-        'enableAnalytics' => true,
-        'analyticsRetentionDays' => 180,
-        'cacheEnabled' => true,
-        'cacheDuration' => 7200,
-        'logLevel' => 'warning', // Only warnings and errors in production
+        'logLevel' => 'error',
+        'analyticsRetention' => 365,
+        'qrCodeCacheDuration' => 604800,
     ],
 ];
 ```
@@ -124,10 +148,11 @@ Use `App::env()` to read environment variables in config files:
 use craft\helpers\App;
 
 return [
-    // Correct Craft 5 way
     'ipHashSalt' => App::env('SMART_LINKS_IP_SALT'),
-    'redirectTemplate' => App::env('REDIRECT_TEMPLATE'),
-    'notFoundRedirectUrl' => App::env('NOT_FOUND_URL'),
+    'enableAnalytics' => (bool)App::env('SMART_LINKS_ANALYTICS') ?: true,
+    'analyticsRetention' => (int)App::env('SMART_LINKS_RETENTION') ?: 90,
+    'slugPrefix' => App::env('SMART_LINKS_PREFIX') ?: 'go',
+    'notFoundRedirectUrl' => App::env('NOT_FOUND_URL') ?: '/',
 ];
 ```
 
@@ -150,6 +175,39 @@ return [
   - **info**: General information and successful operations
   - **debug**: Detailed debugging information (development only, requires devMode)
 
+#### URL Settings
+
+- **slugPrefix**: URL prefix for smart links (e.g., 'go' creates /go/your-link)
+  - **Type:** `string`
+  - **Default:** `'go'`
+- **qrPrefix**: URL prefix for QR code pages (e.g., 'qr' creates /qr/your-link)
+  - **Type:** `string`
+  - **Default:** `'qr'`
+
+#### Template Settings
+
+- **redirectTemplate**: Custom redirect landing page template path
+  - **Type:** `string|null`
+  - **Default:** `null`
+  - **Example:** `'smart-links/redirect'`
+- **qrTemplate**: Custom QR code display page template path
+  - **Type:** `string|null`
+  - **Default:** `null`
+  - **Example:** `'smart-links/qr'`
+
+#### Site Settings
+
+- **enabledSites**: Array of site IDs where Smart Links should be enabled
+  - **Type:** `array`
+  - **Default:** `[]` (empty = all sites enabled)
+  - **Example:** `[1, 3, 5]` (only enable for specific sites)
+
+#### Asset Settings
+
+- **imageVolumeUid**: Asset volume UID for smart link images
+  - **Type:** `string|null`
+  - **Default:** `null` (all volumes)
+
 #### IP Privacy Settings
 
 - **ipHashSalt**: Secure salt for IP address hashing (stored in `.env`)
@@ -169,6 +227,16 @@ return [
   - Trade-off: Reduces unique visitor accuracy but provides extra privacy
 - **includeDisabledInExport**: Include disabled smart links in CSV exports
 - **includeExpiredInExport**: Include expired smart links in CSV exports
+
+#### Redirect Settings
+
+- **notFoundRedirectUrl**: URL to redirect when smart link not found
+  - **Type:** `string`
+  - **Default:** `'/'`
+- **languageDetectionMethod**: Method for detecting user language
+  - **Type:** `string`
+  - **Options:** `'browser'` (Accept-Language header), `'ip'` (IP-based), `'both'` (combine both)
+  - **Default:** `'browser'`
 
 #### QR Code Settings
 
@@ -206,34 +274,49 @@ return [
 - **enableQrDownload**: Enable QR code download functionality
 - **qrDownloadFilename**: Filename pattern for downloads (supports {slug} and {size})
 
-#### Asset Management Settings
-
-- **imageVolumeUid**: Asset volume UID for smart link images (null = all volumes)
-
-#### Redirect Settings
-
-- **redirectTemplate**: Path to custom redirect template (null = use default)
-- **notFoundRedirectUrl**: URL to redirect when smart link not found
-
 #### Geographic Settings
 
 - **enableGeoDetection**: Enable geographic detection for analytics
+  - **Type:** `bool`
+  - **Default:** `false`
 
 #### Caching Settings
 
+- **enableQrCodeCache**: Cache generated QR codes for better performance
+  - **Type:** `bool`
+  - **Default:** `true`
+- **qrCodeCacheDuration**: QR code cache duration in seconds
+  - **Type:** `int`
+  - **Default:** `86400` (24 hours)
 - **cacheDeviceDetection**: Enable/disable caching of device detection results
+  - **Type:** `bool`
+  - **Default:** `true`
 - **deviceDetectionCacheDuration**: Device detection cache duration in seconds
-
-#### Language Detection Settings
-
-- **languageDetectionMethod**: Method for detecting user language
-  - `browser` - Use Accept-Language header (default)
-  - `ip` - Use IP-based detection
-  - `both` - Combine browser and IP detection
+  - **Type:** `int`
+  - **Default:** `3600` (1 hour)
 
 #### Interface Settings
 
 - **itemsPerPage**: Number of items per page in CP element index (10-500)
+  - **Type:** `int`
+  - **Range:** `10-500`
+  - **Default:** `100`
+
+#### Integration Settings
+
+- **enabledIntegrations**: Enabled integration handles
+  - **Type:** `array`
+  - **Default:** `[]` (no integrations enabled)
+  - **Example:** `['seomatic']` (enable SEOmatic tracking)
+- **seomaticTrackingEvents**: Event types to track in SEOmatic/Google Analytics
+  - **Type:** `array`
+  - **Default:** `['redirect', 'button_click', 'qr_scan']`
+  - **Options:** `'redirect'` (link clicks), `'button_click'` (CTA button clicks), `'qr_scan'` (QR code views)
+- **seomaticEventPrefix**: Event prefix for GTM/GA events
+  - **Type:** `string`
+  - **Default:** `'smart_links'`
+  - **Format:** Lowercase, numbers, underscores only
+  - **Example:** Events sent as `smart_links_redirect`, `smart_links_button_click`, etc.
 
 ### Precedence
 
@@ -291,10 +374,12 @@ Use `config/smart-links.php` to manage settings:
 return [
     'production' => [
         'enableAnalytics' => true,
-        'analyticsRetention' => 90,
-        'defaultQrSize' => 256,
+        'analyticsRetention' => 365,
         'slugPrefix' => 'go',
-        // ... other production settings
+        'qrPrefix' => 'qr',
+        'enableQrCodeCache' => true,
+        'qrCodeCacheDuration' => 604800,
+        'logLevel' => 'error',
     ],
 ];
 ```
@@ -319,11 +404,12 @@ For production environments:
 
 ```php
 'production' => [
-    'enableAnalytics' => true,
-    'analyticsRetentionDays' => 90, // Balance data vs storage
-    'cacheEnabled' => true,
-    'cacheDuration' => 7200, // 2 hours
-    'trackBotClicks' => false, // Reduce noise in analytics
+    'logLevel' => 'error',
+    'analyticsRetention' => 365,
+    'enableQrCodeCache' => true,
+    'qrCodeCacheDuration' => 604800,  // 7 days
+    'cacheDeviceDetection' => true,
+    'deviceDetectionCacheDuration' => 7200,  // 2 hours
 ],
 ```
 
@@ -337,9 +423,32 @@ use craft\helpers\App;
 'anonymizeIpAddress' => true, // Extra privacy for EU/GDPR compliance
 
 // Restrict QR code generation
-'defaultQrSize' => 300, // Max size controlled in settings
+'defaultQrSize' => 256, // Default size (100-1000 pixels)
 'defaultQrFormat' => 'png', // PNG is safer than SVG for user input
 ```
+
+### SEOmatic Integration
+
+When SEOmatic plugin is installed and enabled, Smart Links can automatically track events to Google Analytics/GTM:
+
+```php
+'enabledIntegrations' => ['seomatic'],
+'seomaticTrackingEvents' => ['redirect', 'button_click', 'qr_scan'],
+'seomaticEventPrefix' => 'smart_links',
+```
+
+**Events tracked:**
+- `smart_links_redirect` - When user clicks a smart link
+- `smart_links_button_click` - When user clicks a CTA button in the smart link page
+- `smart_links_qr_scan` - When user views the QR code page
+
+**Event data includes:**
+- Smart link slug
+- Destination URL
+- Device type (mobile, desktop, tablet)
+- Browser information
+- Geographic data (if enabled)
+
 
 ### IP Privacy Configuration
 

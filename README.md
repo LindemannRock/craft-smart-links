@@ -3,6 +3,7 @@
 [![Latest Version](https://img.shields.io/packagist/v/lindemannrock/craft-smart-links.svg)](https://packagist.org/packages/lindemannrock/craft-smart-links)
 [![Craft CMS](https://img.shields.io/badge/Craft%20CMS-5.0+-orange.svg)](https://craftcms.com/)
 [![PHP](https://img.shields.io/badge/PHP-8.2+-blue.svg)](https://php.net/)
+[![Logging Library](https://img.shields.io/badge/Logging%20Library-5.0+-green.svg)](https://github.com/LindemannRock/craft-logging-library)
 [![License](https://img.shields.io/packagist/l/lindemannrock/craft-smart-links.svg)](LICENSE)
 
 Intelligent URL shortening and redirect management plugin for Craft CMS 5.x with device detection, QR codes, and analytics.
@@ -95,6 +96,10 @@ Navigate to **Settings → Smart Links** in the control panel to configure:
 ### Config File
 
 Create a `config/smart-links.php` file to override default settings:
+
+```bash
+cp vendor/lindemannrock/craft-smart-links/src/config.php config/smart-links.php
+```
 
 ```php
 <?php
@@ -873,7 +878,7 @@ Event::on(
 
 ## Logging
 
-Smart Links uses the [LindemannRock Logging Library](https://github.com/LindemannRock/craft-logging-library) for centralized, structured logging across all LindemannRock plugins.
+Smart Links uses the [LindemannRock Logging Library](https://github.com/LindemannRock/craft-logging-library) for centralized logging.
 
 ### Log Levels
 - **Error**: Critical errors only (default)

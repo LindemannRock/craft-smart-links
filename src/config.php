@@ -1,14 +1,5 @@
 <?php
 /**
- * Smart Links plugin for Craft CMS 5.x
- *
- * Configuration file template
- *
- * @link      https://lindemannrock.com
- * @copyright Copyright (c) 2025 LindemannRock
- */
-
-/**
  * Smart Links config.php
  *
  * This file exists only as a template for the Smart Links settings.

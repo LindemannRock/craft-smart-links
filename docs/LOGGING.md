@@ -91,11 +91,15 @@ The plugin logs meaningful events using context arrays for structured data. All 
 #### Save Operations
 - **[INFO]** `Saving Smart Link analytics` - Analytics save initiated
   - Context: `linkId`
-- **[ERROR]** `IP hash salt not configured - analytics tracking disabled` - Missing IP salt
+- **[ERROR]** `Failed to hash IP address` - IP hashing failed
+  - Context: `error` (exception message)
+- **[ERROR]** `IP hash salt not configured - analytics tracking disabled` - Missing IP hash salt
   - Context: `ip` (always 'hidden'), `saltValue` (NULL or unparsed string)
   - **Solution**: Run `php craft smart-links/security/generate-salt`
-- **[ERROR]** `Failed to save analytics` - Analytics save failure
-  - Context: `error` (exception message), `linkId`, `data` (if available)
+- **[ERROR]** `Failed to save analytics` - Analytics save failure (multiple contexts)
+  - Context variations:
+    - `error` (exception message)
+    - `error`, `linkId`, `data`, `trace` (detailed failure context)
 
 #### Geolocation
 - **[WARNING]** `Failed to get location from IP` - IP geolocation lookup failed
@@ -104,6 +108,127 @@ The plugin logs meaningful events using context arrays for structured data. All 
 ### Smart Links Service (SmartLinksService)
 
 - **[INFO]** `Smart link not saved due to validation errors` - Validation failure notice
+  - Context: `errors` (validation errors array)
+
+### Settings Controller (SettingsController)
+
+#### Field Layout Configuration
+- **[DEBUG]** `Field Layout debug info` - Field layout debugging information
+  - Context: `uid`, `currentFieldLayout`, `fromConfig`, `forElement`
+- **[DEBUG]** `actionFieldLayout called` - Field layout action called
+  - Context: `smartLinkUid`, `layoutUid`
+
+#### Settings Save Operations
+- **[DEBUG]** `Settings data received` - Settings data posted
+  - Context: `settingsData` (posted settings)
+- **[DEBUG]** `imageVolumeUid debug` - Image volume UID debugging
+  - Context: `posted`, `fromSettings`, `fromGetBodyParam`
+- **[DEBUG]** `All POST data` - Complete POST data dump
+  - Context: `bodyParams` (all POST parameters)
+- **[DEBUG]** `Auto-setting qrLogoVolumeUid to match imageVolumeUid` - QR logo volume auto-set
+  - Context: `uid` (volume UID)
+- **[DEBUG]** `Settings after updates` - Settings state after updates
+  - Context: `enabledSites` (enabled sites array)
+- **[ERROR]** `Settings validation failed` - Settings validation errors
+  - Context: `errors` (validation errors array)
+
+### Settings Model (Settings)
+
+#### Log Level Adjustments
+- **[WARNING]** `Log level "debug" from config file changed to "info" because devMode is disabled` - Debug level auto-corrected from config file
+  - Context: `configFile` (path to config file)
+- **[WARNING]** `Log level automatically changed from "debug" to "info" because devMode is disabled` - Debug level auto-corrected from database setting
+
+#### Loading Operations
+- **[ERROR]** `Failed to load settings from database` - Database query error
+  - Context: `error` (exception message)
+- **[WARNING]** `No settings found in database` - No settings record exists in database
+
+#### Validation & Save Operations
+- **[ERROR]** `Settings validation failed` - Settings model validation errors
+  - Context: `errors` (validation errors array)
+- **[DEBUG]** `Attempting to save settings` - Settings save operation initiated
+  - Context: `attributes` (settings being saved)
+- **[DEBUG]** `Database update result` - Database update operation result
+  - Context: `result` (update result)
+- **[INFO]** `Settings saved successfully to database` - Settings saved
+- **[ERROR]** `Database update returned false` - Database update operation returned false
+- **[ERROR]** `Failed to save Smart Links settings` - Settings save exception
+  - Context: `error` (exception message)
+
+### Redirect Controller (RedirectController)
+
+- **[INFO]** `Smart link 404 handled by Redirect Manager` - 404 forwarded to Redirect Manager plugin
+  - Context: `slug`, `hasRedirectManager`
+- **[INFO]** `SEOmatic client-side tracking: {clickType} event for '{slug}'` - SEOmatic tracking event
+  - Context: `linkId`, `clickType`, `slug`
+
+### Integration Service (IntegrationService)
+
+- **[DEBUG]** `Integrations loaded` - Integrations loaded successfully
+  - Context: `count` (number of integrations), `names` (integration names)
+- **[ERROR]** `Failed to load integrations` - Integration loading failed
+  - Context: `error` (exception message)
+- **[DEBUG]** `Registered integration` - Integration registered
+  - Context: `name` (integration name), `class` (integration class)
+- **[ERROR]** `Integration failed` - Integration execution error
+  - Context: `name` (integration name), `error` (exception message)
+- **[ERROR]** `Failed to render SEOmatic tracking` - SEOmatic tracking render error
+  - Context: `error` (exception message)
+
+### Cleanup Analytics Job (CleanupAnalyticsJob)
+
+- **[INFO]** `Cleaned up analytics records` - Scheduled analytics cleanup completed
+  - Context: `deleted` (number of records deleted), `retentionDays`
+
+### Track Analytics Job (TrackAnalyticsJob)
+
+- **[ERROR]** `Failed to save analytics for link` - Analytics tracking job failed
+  - Context: `linkId`
+
+### Base Integration (BaseIntegration)
+
+- **[WARNING]** `Unknown event type: {eventType}` - Unknown event type received
+- **[WARNING]** `Missing required fields for {eventType}: {fields}` - Required fields missing for event
+
+### SEOmatic Integration (SeomaticIntegration)
+
+#### Plugin Availability
+- **[DEBUG]** `SEOmatic plugin not available` - SEOmatic plugin not installed
+- **[DEBUG]** `SEOmatic integration not enabled` - SEOmatic integration disabled in settings
+- **[DEBUG]** `Event type '{eventType}' not configured for tracking` - Event type not configured
+
+#### Event Tracking
+- **[INFO]** `Event '{eventType}' queued successfully` - Event queued for tracking
+  - Context: `eventType`, `eventData`
+- **[ERROR]** `Failed to push event` - Event push failed
+  - Context: `error` (exception message), `eventType`
+
+#### Data Layer Injection
+- **[DEBUG]** `SEOmatic script service not available` - SEOmatic script service unavailable
+- **[DEBUG]** `Event injected into GTM data layer` - GTM event injected
+  - Context: `event` (event data)
+- **[DEBUG]** `Event injected into gtag data layer` - Google Analytics event injected
+  - Context: `event` (event data)
+- **[DEBUG]** `No active tracking scripts found in SEOmatic` - No tracking scripts active
+- **[ERROR]** `Failed to inject data layer event` - Data layer injection failed
+  - Context: `error` (exception message)
+
+#### Event Listeners
+- **[DEBUG]** `Registered SEOmatic event listeners` - Event listeners registered
+- **[DEBUG]** `Injected queued events` - Queued events injected into page
+  - Context: `count` (number of events)
+- **[ERROR]** `Error in AddDynamicMeta handler` - AddDynamicMeta event handler error
+  - Context: `error` (exception message)
+- **[ERROR]** `Error getting SEOmatic status` - SEOmatic status check error
+  - Context: `error` (exception message)
+
+### Main Plugin (SmartLinks)
+
+- **[INFO]** `Scheduled initial analytics cleanup job` - Analytics cleanup job scheduled
+  - Context: `interval` (cleanup interval)
+- **[INFO]** `Applied Smart Links field layout from project config` - Field layout applied from project config
+  - Context: `uid` (field layout UID)
 
 ## Log Management
 
@@ -246,12 +371,25 @@ $this->logInfo('Processing link', ['slug' => $slug]);
 ## Performance Considerations
 
 - **Error/Warning levels**: Minimal performance impact, suitable for production
+  - Logs only failures and important warnings
+  - Suitable for production environments
 - **Info level**: Moderate logging, useful for tracking operations
+  - Logs smart link saves and validation
+  - Analytics operations
+  - QR code generation
+  - Integration events
+  - Job completions
+  - Settings saves
 - **Debug level**: Extensive logging, use only in development (requires devMode)
   - Includes performance metrics
   - Logs detailed analytics data
   - Tracks redirect operations
   - Records device detection details
+  - **Settings operations**: Full POST data dumps, volume UID debugging
+  - **Field layout**: Configuration debugging with UIDs and layouts
+  - **Integrations**: Loading, registration, and execution details
+  - **SEOmatic**: Event tracking, data layer injection, script availability
+  - **Database**: Update results and operation tracking
 
 ## Requirements
 
@@ -330,6 +468,97 @@ SMART_LINKS_DEFAULT_COUNTRY=AE
 SMART_LINKS_DEFAULT_CITY=Dubai
 ```
 
+### SEOmatic Integration Issues
+
+Debug SEOmatic tracking integration:
+
+```bash
+grep -i "seomatic" storage/logs/smart-links-*.log
+```
+
+Look for:
+
+- `SEOmatic plugin not available` - SEOmatic not installed
+- `SEOmatic integration not enabled` - Integration disabled in settings
+- `Event type not configured for tracking` - Event type not enabled
+- `Event queued successfully` - Event queued for tracking
+- `Failed to push event` - Event push failed
+- `Event injected into GTM data layer` - GTM event injected
+- `Event injected into gtag data layer` - GA4 event injected
+- `No active tracking scripts found` - No tracking configured
+
+Common issues:
+
+- SEOmatic plugin not installed or enabled
+- Event tracking not enabled in Smart Links settings
+- Specific event types not configured
+- No tracking scripts configured in SEOmatic
+- GTM or gtag configuration issues
+
+### Settings Configuration Issues
+
+Debug settings operations:
+
+```bash
+grep -i "settings" storage/logs/smart-links-*.log
+```
+
+Look for:
+
+- `Settings data received` - Settings posted from form
+- `Settings validation failed` - Validation errors
+- `Settings saved successfully to database` - Successful save
+- `Failed to save Smart Links settings` - Save exception
+
+If settings fail to save:
+
+- Check validation errors for specific fields
+- Verify database connectivity
+- Ensure database table exists (run migrations)
+- Review config file overrides (may prevent saves)
+
+### Integration System Issues
+
+Monitor integration system:
+
+```bash
+grep -i "integration" storage/logs/smart-links-*.log
+```
+
+Look for:
+
+- `Integrations loaded` - Integrations loaded successfully
+- `Failed to load integrations` - Integration loading failed
+- `Registered integration` - Integration registered
+- `Integration failed` - Integration execution error
+
+If integrations fail:
+
+- Check integration configuration
+- Verify required plugins installed
+- Review integration-specific settings
+- Check for missing required fields
+
+### Analytics Job Issues
+
+Monitor analytics job execution:
+
+```bash
+grep -i "analytics.*job\|cleanup.*analytics" storage/logs/smart-links-*.log
+```
+
+Look for:
+
+- `Cleaned up analytics records` - Successful cleanup
+- `Failed to save analytics for link` - Job execution failed
+
+Common issues:
+
+- Database connectivity problems
+- Incorrect retention settings
+- Queue not running
+- Job execution timeout
+
 ## Development Tips
 
 ### Enable Debug Logging
@@ -346,10 +575,16 @@ return [
 ```
 
 This provides:
+
 - Detailed redirect URL calculations
 - Full analytics data payloads
 - Device detection details
 - Request headers and parameters
+- Settings save operations with full context
+- Field layout configuration debugging
+- Integration loading and execution details
+- SEOmatic event tracking and data layer injection
+- Volume UID debugging for images and QR logos
 
 ### Monitor Specific Operations
 
@@ -364,4 +599,22 @@ tail -f storage/logs/smart-links-$(date +%Y-%m-%d).log | grep "analytics"
 
 # Check all errors
 grep "\[ERROR\]" storage/logs/smart-links-*.log
+
+# Monitor SEOmatic integration
+grep -i "seomatic" storage/logs/smart-links-*.log
+
+# Track integration system
+grep -i "integration" storage/logs/smart-links-*.log
+
+# Watch settings operations
+grep -i "settings" storage/logs/smart-links-*.log
+
+# Monitor field layout operations
+grep "Field Layout" storage/logs/smart-links-*.log
+
+# Track analytics jobs
+grep -i "cleanup.*analytics" storage/logs/smart-links-*.log
+
+# Monitor Redirect Manager integration
+grep "Redirect Manager" storage/logs/smart-links-*.log
 ```
