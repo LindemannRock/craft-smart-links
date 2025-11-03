@@ -49,12 +49,14 @@
         {% set seomaticStatus = integrationStatuses.seomatic ?? null %}
         {% set seomaticAvailable = seomaticStatus and seomaticStatus.available %}
         {% set seomaticEnabled = 'seomatic' in (settings.enabledIntegrations ?? []) %}
+        {% set seomaticPlugin = craft.app.plugins.getPlugin('seomatic') %}
+        {% set seomaticPluginName = seomaticPlugin ? (seomaticPlugin.name ?? 'SEOmatic') : 'SEOmatic' %}
 
         {# SEOmatic Integration Card #}
         <div class="integration-card" style="border: 1px solid #e3e5e8; border-radius: 4px; margin-bottom: 10px; background: white;">
             <div class="integration-header" style="padding: 15px; display: flex; justify-content: space-between; align-items: center; gap: 15px; background: {{ seomaticAvailable ? '#f7f7f7' : '#f9f9f9' }};">
                 <div style="flex: 1; min-width: 0;">
-                    <strong style="font-size: 15px; {{ not seomaticAvailable ? 'color: #999;' : '' }}">{{ "SEOmatic Integration"|t('smart-links') }}</strong>
+                    <strong style="font-size: 15px; {{ not seomaticAvailable ? 'color: #999;' : '' }}">{{ "{pluginName} Integration"|t('smart-links', { pluginName: seomaticPluginName }) }}</strong>
                     <div style="display: flex; align-items: center; gap: 10px; margin-top: 5px;">
                         {% if seomaticAvailable %}
                             <span class="status on"></span>
@@ -64,7 +66,7 @@
                             <span style="color: #6c757d; font-size: 12px;">{{ "Not Installed"|t('smart-links') }}</span>
                         {% endif %}
                     </div>
-                    <p class="light" style="margin: 8px 0 0 0; font-size: 12px;">{{ "Push {pluginName} events to SEOmatic's Google Tag Manager data layer for tracking in GTM and Google Analytics."|t('smart-links', { pluginName: pluginName }) }}</p>
+                    <p class="light" style="margin: 8px 0 0 0; font-size: 12px;">{{ "Push {smartLinksName} click events to Google Tag Manager and analytics platforms for tracking redirects, button clicks, and QR code scans."|t('smart-links', { smartLinksName: pluginName }) }}</p>
                 </div>
                 <div style="flex-shrink: 0;">
                     {{ forms.lightswitchField({
