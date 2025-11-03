@@ -442,12 +442,21 @@ class SettingsController extends Controller
         // Only update fields that were posted and are not overridden by config
         foreach ($settingsData as $key => $value) {
             if (!$settings->isOverriddenByConfig($key) && property_exists($settings, $key)) {
-                // Check for setter method first (handles array conversions, etc.)
-                $setterMethod = 'set' . ucfirst($key);
-                if (method_exists($settings, $setterMethod)) {
-                    $settings->$setterMethod($value);
+                // Handle special array field conversions
+                if ($key === 'enabledIntegrations') {
+                    // Decode JSON string from hidden field
+                    $settings->enabledIntegrations = is_string($value) ? json_decode($value, true) : (is_array($value) ? $value : []);
+                } elseif ($key === 'redirectManagerEvents') {
+                    // Already an array from checkbox fields
+                    $settings->redirectManagerEvents = is_array($value) ? $value : [];
                 } else {
-                    $settings->$key = $value;
+                    // Check for setter method first (handles array conversions, etc.)
+                    $setterMethod = 'set' . ucfirst($key);
+                    if (method_exists($settings, $setterMethod)) {
+                        $settings->$setterMethod($value);
+                    } else {
+                        $settings->$key = $value;
+                    }
                 }
             }
         }

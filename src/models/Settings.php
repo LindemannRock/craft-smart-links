@@ -220,6 +220,11 @@ class Settings extends Model
     public array $seomaticTrackingEvents = ['redirect', 'button_click', 'qr_scan'];
 
     /**
+     * @var array Event types that create redirects in Redirect Manager
+     */
+    public array $redirectManagerEvents = ['slug-change', 'delete'];
+
+    /**
      * @var string Event prefix for GTM/GA events
      */
     public string $seomaticEventPrefix = 'smart_links';
@@ -432,6 +437,9 @@ class Settings extends Model
             if (isset($row['seomaticTrackingEvents'])) {
                 $row['seomaticTrackingEvents'] = !empty($row['seomaticTrackingEvents']) ? json_decode($row['seomaticTrackingEvents'], true) : [];
             }
+            if (isset($row['redirectManagerEvents'])) {
+                $row['redirectManagerEvents'] = !empty($row['redirectManagerEvents']) ? json_decode($row['redirectManagerEvents'], true) : [];
+            }
 
             // Set attributes from database
             $settings->setAttributes($row, false);
@@ -472,6 +480,9 @@ class Settings extends Model
         }
         if (isset($attributes['seomaticTrackingEvents'])) {
             $attributes['seomaticTrackingEvents'] = json_encode($attributes['seomaticTrackingEvents']);
+        }
+        if (isset($attributes['redirectManagerEvents'])) {
+            $attributes['redirectManagerEvents'] = json_encode($attributes['redirectManagerEvents']);
         }
 
         // Add/update timestamps

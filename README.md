@@ -423,7 +423,36 @@ return [
 
 ### Third-Party Integrations
 
-Smart Links can integrate with third-party analytics and tracking services to push click events beyond its built-in analytics.
+Smart Links can integrate with third-party plugins to enhance functionality with analytics tracking and centralized redirect management.
+
+#### Redirect Manager Integration
+
+When [Redirect Manager](https://github.com/LindemannRock/craft-redirect-manager) is installed, Smart Links can automatically create permanent redirects when smart link slugs change or links are deleted.
+
+**Setup:**
+1. Install Redirect Manager plugin
+2. Navigate to **Settings → Smart Links → Integrations**
+3. Enable **Redirect Manager Integration**
+4. Select which events create redirects:
+   - **Slug Changes**: Creates redirect when slug changes (e.g., `/go/old` → `/go/new`)
+   - **Deleted Links**: Creates redirect when link with traffic is deleted (redirects to fallback URL)
+5. Save settings
+
+**Benefits:**
+- **Centralized Management** - View all redirects (smart links + regular pages) in one place
+- **Analytics Tracking** - Track views of changed or deleted smart links
+- **Smart Undo Detection** - Prevents flip-flop redirects within configurable time window (30-240 minutes)
+- **Loop Prevention** - Automatically detects and prevents circular redirects
+- **Persistent Redirects** - Redirects persist even after smart link deletion
+
+**Configuration:**
+```php
+// config/smart-links.php
+return [
+    'enabledIntegrations' => ['redirect-manager'],
+    'redirectManagerEvents' => ['slug-change', 'delete'],
+];
+```
 
 #### SEOmatic Integration
 

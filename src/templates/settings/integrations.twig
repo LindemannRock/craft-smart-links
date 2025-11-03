@@ -290,34 +290,202 @@
         </div>
         {# End SEOmatic Integration Card #}
 
+        {# Redirect Manager Integration #}
+        {% set rmPlugin = craft.app.plugins.getPlugin('redirect-manager') %}
+        {% set rmInstalled = craft.app.plugins.isPluginInstalled('redirect-manager') %}
+        {% set rmEnabled = craft.app.plugins.isPluginEnabled('redirect-manager') %}
+        {% set rmAvailable = rmInstalled and rmEnabled %}
+        {% set rmPluginName = rmPlugin ? (rmPlugin.settings.pluginName ?? 'Redirect Manager') : 'Redirect Manager' %}
+        {% set rmIntegrationEnabled = 'redirect-manager' in (settings.enabledIntegrations ?? []) %}
+        {% set rmEvents = settings.redirectManagerEvents ?? ['slug-change', 'delete'] %}
+
+        <div class="integration-card" style="border: 1px solid #e3e5e8; border-radius: 4px; margin-bottom: 10px; background: white;">
+            <div class="integration-header" style="padding: 15px; display: flex; justify-content: space-between; align-items: center; gap: 15px; background: {{ rmAvailable ? '#f7f7f7' : '#f9f9f9' }};">
+                <div style="flex: 1; min-width: 0;">
+                    <strong style="font-size: 15px; {{ not rmAvailable ? 'color: #999;' : '' }}">{{ "{pluginName} Integration"|t('smart-links', { pluginName: rmPluginName }) }}</strong>
+                    <div style="display: flex; align-items: center; gap: 10px; margin-top: 5px;">
+                        {% if rmAvailable %}
+                            <span class="status on"></span>
+                            <span style="color: #28a745; font-size: 12px;">{{ "Installed & Active"|t('smart-links') }}</span>
+                        {% elseif rmInstalled %}
+                            <span class="status"></span>
+                            <span style="color: #6c757d; font-size: 12px;">{{ "Installed but Disabled"|t('smart-links') }}</span>
+                        {% else %}
+                            <span class="status"></span>
+                            <span style="color: #6c757d; font-size: 12px;">{{ "Not Installed"|t('smart-links') }}</span>
+                        {% endif %}
+                    </div>
+                    <p class="light" style="margin: 8px 0 0 0; font-size: 12px;">{{ "Create permanent redirect records when smart link slugs change or links are deleted. Provides centralized redirect management and analytics tracking."|t('smart-links') }}</p>
+                </div>
+                <div style="flex-shrink: 0;">
+                    {{ forms.lightswitchField({
+                        label: false,
+                        id: 'enableRedirectManagerIntegration',
+                        name: 'enableRedirectManagerIntegration',
+                        on: rmIntegrationEnabled,
+                        disabled: not rmAvailable or settings.isOverriddenByConfig('enabledIntegrations'),
+                    }) }}
+                </div>
+            </div>
+
+            {% if rmAvailable %}
+                <div id="redirect-manager-settings" class="{{ not rmIntegrationEnabled ? 'hidden' }}" style="padding: 20px; border-top: 1px solid #e3e5e8;">
+                    {% if settings.isOverriddenByConfig('enabledIntegrations') %}
+                        <p class="warning" style="margin-bottom: 20px;">
+                            {{ "This is being overridden by the <code>enabledIntegrations</code> setting in <code>config/smart-links.php</code>."|t('smart-links')|raw }}
+                        </p>
+                    {% endif %}
+
+                    {# Configuration Section #}
+                    <div style="background: #fafafa; border: 1px solid #e3e5e8; padding: 15px; border-radius: 4px; margin-bottom: 20px;">
+                        <h4 style="margin: 0 0 15px 0; font-size: 14px; font-weight: 600;">{{ "Configuration"|t('smart-links') }}</h4>
+
+                        {% set isOverridden = settings.isOverriddenByConfig('redirectManagerEvents') %}
+
+                        <div class="field">
+                            <div class="heading">
+                                <label>{{ "Automatic Redirect Creation"|t('smart-links') }}</label>
+                                <div class="instructions">
+                                    <p>{{ "Select which events should create permanent redirects in {pluginName}"|t('smart-links', { pluginName: rmPluginName }) }}</p>
+                                </div>
+                            </div>
+
+                            {% if isOverridden %}
+                                <p class="warning" style="margin-bottom: 15px;">
+                                    {{ "This is being overridden by the <code>redirectManagerEvents</code> setting in <code>config/smart-links.php</code>."|t('smart-links')|raw }}
+                                </p>
+                            {% endif %}
+
+                            <div style="display: flex; flex-direction: column; gap: 12px;">
+                                {# Slug Changes #}
+                                <div style="display: flex; justify-content: flex-start; align-items: flex-start; gap: 15px; padding: 10px; background: #fafafa; border-radius: 4px;">
+                                    <div style="flex-shrink: 0;">
+                                        {{ forms.lightswitchField({
+                                            label: false,
+                                            id: 'redirectManagerEvents-slug-change',
+                                            name: 'settings[redirectManagerEvents][]',
+                                            value: 'slug-change',
+                                            on: 'slug-change' in rmEvents,
+                                            disabled: isOverridden,
+                                        }) }}
+                                    </div>
+                                    <div>
+                                        <strong>{{ "Slug Changes"|t('smart-links') }}</strong>
+                                        <span class="light" style="display: block; font-size: 12px; margin-top: 2px;">{{ "Change slug from <code>promo-2024</code> to <code>promo-2025</code> → Creates <code>/go/promo-2024</code> → <code>/go/promo-2025</code>"|t('smart-links')|raw }}</span>
+                                    </div>
+                                </div>
+
+                                {# Deleted Smart Links #}
+                                <div style="display: flex; justify-content: flex-start; align-items: flex-start; gap: 15px; padding: 10px; background: #fafafa; border-radius: 4px;">
+                                    <div style="flex-shrink: 0;">
+                                        {{ forms.lightswitchField({
+                                            label: false,
+                                            id: 'redirectManagerEvents-delete',
+                                            name: 'settings[redirectManagerEvents][]',
+                                            value: 'delete',
+                                            on: 'delete' in rmEvents,
+                                            disabled: isOverridden,
+                                        }) }}
+                                    </div>
+                                    <div>
+                                        <strong>{{ "Deleted Smart Links"|t('smart-links') }}</strong>
+                                        <span class="light" style="display: block; font-size: 12px; margin-top: 2px;">{{ "Delete link with traffic → Redirect to <strong>Fallback URL</strong> or <code>/</code>"|t('smart-links')|raw }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {# Help Text #}
+                    <div style="background: #f0fdf4; border: 1px solid #86efac; padding: 12px 15px; border-radius: 3px;">
+                        <p style="margin: 0 0 8px 0; font-size: 13px;">
+                            <strong>{{ "Benefits of This Integration"|t('smart-links') }}:</strong>
+                        </p>
+                        <ul style="margin: 0 0 0 0; padding-left: 20px; font-size: 12px; line-height: 1.6;">
+                            <li style="margin-bottom: 6px;">
+                                <strong>{{ "Centralized Management"|t('smart-links') }}</strong> –
+                                {{ "View and manage all redirects (smart links + regular pages) in one place"|t('smart-links') }}
+                            </li>
+                            <li style="margin-bottom: 6px;">
+                                <strong>{{ "Analytics Tracking"|t('smart-links') }}</strong> –
+                                {{ "See how many people try to access deleted or changed smart links, their devices, browsers, and countries"|t('smart-links') }}
+                            </li>
+                            <li style="margin-bottom: 6px;">
+                                <strong>{{ "Persistent Redirects"|t('smart-links') }}</strong> –
+                                {{ "Redirects persist even if smart link is deleted, preventing broken links permanently"|t('smart-links') }}
+                            </li>
+                            <li>
+                                <strong>{{ "Source Tracking"|t('smart-links') }}</strong> –
+                                {{ "{rmPluginName} shows which plugin created each redirect for better organization"|t('smart-links', {rmPluginName: rmPluginName}) }}
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+        {# End Redirect Manager Integration Card #}
+
         {# Hidden field to track enabled integrations #}
-        {% if seomaticAvailable %}
-            <input type="hidden"
-                   name="settings[enabledIntegrations]"
-                   value="{{ seomaticEnabled ? 'seomatic' : '' }}"
-                   id="enabledIntegrationsField">
-
-            {% js %}
-                // Auto-expand/collapse settings when lightswitch changes
-                $('#enableSeomaticIntegration').on('change', function() {
-                    var isEnabled = $(this).find('input[type="hidden"]').val() === '1';
-
-                    // Update hidden field
-                    $('#enabledIntegrationsField').val(isEnabled ? 'seomatic' : '');
-
-                    // Auto-expand or collapse settings
-                    if (isEnabled) {
-                        $('#seomatic-settings').removeClass('hidden').slideDown(200);
-                    } else {
-                        $('#seomatic-settings').slideUp(200, function() {
-                            $(this).addClass('hidden');
-                        });
-                    }
-                });
-            {% endjs %}
-        {% else %}
-            <input type="hidden" name="settings[enabledIntegrations]" value="">
+        {% set enabledIntegrationsArray = [] %}
+        {% if seomaticAvailable and seomaticEnabled %}
+            {% set enabledIntegrationsArray = enabledIntegrationsArray|merge(['seomatic']) %}
         {% endif %}
+        {% if rmAvailable and rmIntegrationEnabled %}
+            {% set enabledIntegrationsArray = enabledIntegrationsArray|merge(['redirect-manager']) %}
+        {% endif %}
+
+        <input type="hidden"
+               name="settings[enabledIntegrations]"
+               value="{{ enabledIntegrationsArray|json_encode }}"
+               id="enabledIntegrationsField">
+
+        {% js %}
+            function updateEnabledIntegrations() {
+                var integrations = [];
+
+                // Check SEOmatic
+                if ($('#enableSeomaticIntegration').length && $('#enableSeomaticIntegration').find('input[type="hidden"]').val() === '1') {
+                    integrations.push('seomatic');
+                }
+
+                // Check Redirect Manager
+                if ($('#enableRedirectManagerIntegration').length && $('#enableRedirectManagerIntegration').find('input[type="hidden"]').val() === '1') {
+                    integrations.push('redirect-manager');
+                }
+
+                $('#enabledIntegrationsField').val(JSON.stringify(integrations));
+            }
+
+            // SEOmatic toggle
+            $('#enableSeomaticIntegration').on('change', function() {
+                var isEnabled = $(this).find('input[type="hidden"]').val() === '1';
+
+                updateEnabledIntegrations();
+
+                if (isEnabled) {
+                    $('#seomatic-settings').removeClass('hidden').slideDown(200);
+                } else {
+                    $('#seomatic-settings').slideUp(200, function() {
+                        $(this).addClass('hidden');
+                    });
+                }
+            });
+
+            // Redirect Manager toggle
+            $('#enableRedirectManagerIntegration').on('change', function() {
+                var isEnabled = $(this).find('input[type="hidden"]').val() === '1';
+
+                updateEnabledIntegrations();
+
+                if (isEnabled) {
+                    $('#redirect-manager-settings').removeClass('hidden').slideDown(200);
+                } else {
+                    $('#redirect-manager-settings').slideUp(200, function() {
+                        $(this).addClass('hidden');
+                    });
+                }
+            });
+        {% endjs %}
 
         <div class="buttons">
             <button type="submit" class="btn submit">{{ "Save Settings"|t('smart-links') }}</button>

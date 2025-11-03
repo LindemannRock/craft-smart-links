@@ -12,9 +12,11 @@ use Craft;
 use craft\base\Component;
 use craft\helpers\UrlHelper;
 use lindemannrock\logginglibrary\traits\LoggingTrait;
+use lindemannrock\redirectmanager\traits\RedirectHandlingTrait;
 use lindemannrock\smartlinks\elements\SmartLink;
 use lindemannrock\smartlinks\events\SmartLinkEvent;
 use lindemannrock\smartlinks\models\DeviceInfo;
+use lindemannrock\smartlinks\records\SmartLinkRecord;
 use yii\base\Event;
 use lindemannrock\smartlinks\SmartLinks;
 
@@ -26,6 +28,7 @@ use lindemannrock\smartlinks\SmartLinks;
 class SmartLinksService extends Component
 {
     use LoggingTrait;
+    use RedirectHandlingTrait;
 
     /**
      * @inheritdoc
@@ -88,8 +91,27 @@ class SmartLinksService extends Component
             return false;
         }
 
+        $oldSlug = null;
+
+        // Get old slug if this is an update (element has an ID)
+        if ($smartLink->id) {
+            $oldRecord = SmartLinkRecord::findOne($smartLink->id);
+            if ($oldRecord) {
+                $oldSlug = $oldRecord->slug;
+            }
+        }
+
         // Save the element
-        return Craft::$app->elements->saveElement($smartLink, true, true, true);
+        $success = Craft::$app->elements->saveElement($smartLink, true, true, true);
+
+        if ($success) {
+            // Handle slug changes - create redirect from old to new
+            if ($oldSlug && $oldSlug !== $smartLink->slug) {
+                $this->handleSlugChange($oldSlug, $smartLink);
+            }
+        }
+
+        return $success;
     }
 
     /**
@@ -119,6 +141,9 @@ class SmartLinksService extends Component
      */
     public function deleteSmartLink(SmartLink $smartLink): bool
     {
+        // Handle redirect creation before deletion
+        $this->handleDeletedSmartLink($smartLink);
+
         return Craft::$app->elements->deleteElement($smartLink);
     }
 
@@ -308,5 +333,117 @@ class SmartLinksService extends Component
         ]);
         
         $this->trigger(self::EVENT_AFTER_TRACK_ANALYTICS, $event);
+    }
+
+    /**
+     * Handle slug change by creating redirect in Redirect Manager
+     *
+     * @param string $oldSlug
+     * @param SmartLink $link
+     * @return void
+     */
+    private function handleSlugChange(string $oldSlug, SmartLink $link): void
+    {
+        $settings = SmartLinks::$plugin->getSettings();
+
+        // Check if Redirect Manager integration is enabled
+        $enabledIntegrations = $settings->enabledIntegrations ?? [];
+        if (!in_array('redirect-manager', $enabledIntegrations)) {
+            return;
+        }
+
+        // Check if slug change event is enabled
+        $redirectManagerEvents = $settings->redirectManagerEvents ?? [];
+        if (!in_array('slug-change', $redirectManagerEvents)) {
+            return;
+        }
+
+        $slugPrefix = $settings->slugPrefix ?? 'go';
+        $oldUrl = '/' . $slugPrefix . '/' . $oldSlug;
+        $newUrl = '/' . $slugPrefix . '/' . $link->slug;
+
+        // SCENARIO 1: Handle undo using centralized method
+        if ($this->handleUndoRedirect($oldUrl, $newUrl, $link->siteId, 'smart-link-slug-change', 'smart-links')) {
+            return; // Undo was handled
+        }
+
+        // SCENARIO 2: Create the redirect using centralized method with notification
+        $success = $this->createRedirectRule([
+            'sourceUrl' => $oldUrl,
+            'sourceUrlParsed' => $oldUrl,
+            'destinationUrl' => $newUrl,
+            'matchType' => 'exact',
+            'redirectSrcMatch' => 'pathonly',
+            'statusCode' => 301,
+            'siteId' => $link->siteId,
+            'enabled' => true,
+            'priority' => 0,
+            'creationType' => 'smart-link-slug-change',
+            'sourcePlugin' => 'smart-links',
+        ], true); // Show notification
+
+        if ($success) {
+            $this->logInfo('Created redirect for slug change', [
+                'oldSlug' => $oldSlug,
+                'newSlug' => $link->slug,
+                'oldUrl' => $oldUrl,
+                'newUrl' => $newUrl,
+            ]);
+        }
+    }
+
+    /**
+     * Handle deleted smart link by creating redirect in Redirect Manager
+     *
+     * @param SmartLink $link
+     * @return void
+     */
+    public function handleDeletedSmartLink(SmartLink $link): void
+    {
+        $settings = SmartLinks::$plugin->getSettings();
+
+        // Check if Redirect Manager integration is enabled
+        $enabledIntegrations = $settings->enabledIntegrations ?? [];
+        if (!in_array('redirect-manager', $enabledIntegrations)) {
+            return;
+        }
+
+        // Check if delete event is enabled
+        $redirectManagerEvents = $settings->redirectManagerEvents ?? [];
+        if (!in_array('delete', $redirectManagerEvents)) {
+            return;
+        }
+
+        // Only create redirect if smart link has analytics/traffic
+        $hasTraffic = SmartLinks::$plugin->analytics->hasTraffic($link->id);
+        if (!$hasTraffic) {
+            return;
+        }
+
+        $slugPrefix = $settings->slugPrefix ?? 'go';
+        $sourceUrl = '/' . $slugPrefix . '/' . $link->slug;
+        $destinationUrl = $link->fallbackUrl ?? '/';
+
+        $success = $this->createRedirectRule([
+            'sourceUrl' => $sourceUrl,
+            'sourceUrlParsed' => $sourceUrl,
+            'destinationUrl' => $destinationUrl,
+            'matchType' => 'exact',
+            'redirectSrcMatch' => 'pathonly',
+            'statusCode' => 301,
+            'siteId' => $link->siteId,
+            'enabled' => true,
+            'priority' => 0,
+            'creationType' => 'smart-link-deleted',
+            'sourcePlugin' => 'smart-links',
+        ], false); // No notification for deletions
+
+        if ($success) {
+            $this->logInfo('Auto-created redirect for deleted smart link', [
+                'slug' => $link->slug,
+                'sourceUrl' => $sourceUrl,
+                'destination' => $destinationUrl,
+            ]);
+        }
     }
 }

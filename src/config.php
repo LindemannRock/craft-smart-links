@@ -137,9 +137,14 @@ return [
         // ========================================
         // Third-party integrations for enhanced functionality
 
-        'enabledIntegrations' => [],       // Enabled integration handles (e.g., ['seomatic'])
+        'enabledIntegrations' => [],       // Enabled integration handles (e.g., ['seomatic', 'redirect-manager'])
+
+        // SEOmatic Integration
         'seomaticTrackingEvents' => ['redirect', 'button_click', 'qr_scan'], // Event types to track
         'seomaticEventPrefix' => 'smart_links', // Event prefix for GTM/GA events (lowercase, numbers, underscores only)
+
+        // Redirect Manager Integration
+        'redirectManagerEvents' => ['slug-change', 'delete'], // Which events create redirects
     ],
 
     // Dev environment settings
