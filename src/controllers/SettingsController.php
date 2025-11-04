@@ -195,17 +195,17 @@ class SettingsController extends Controller
     }
 
     /**
-     * Redirect settings
+     * Behavior settings
      *
      * @return Response
      */
-    public function actionRedirect(): Response
+    public function actionBehavior(): Response
     {
         // Get settings from plugin (includes config overrides)
         $plugin = SmartLinks::getInstance();
         $settings = $plugin->getSettings();
 
-        return $this->renderTemplate('smart-links/settings/redirect', [
+        return $this->renderTemplate('smart-links/settings/behavior', [
             'settings' => $settings,
             'readOnly' => $this->readOnly,
         ]);

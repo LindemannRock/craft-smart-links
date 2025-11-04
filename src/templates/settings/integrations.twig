@@ -47,10 +47,12 @@
 
         {# SEOmatic Integration #}
         {% set seomaticStatus = integrationStatuses.seomatic ?? null %}
-        {% set seomaticAvailable = seomaticStatus and seomaticStatus.available %}
-        {% set seomaticEnabled = 'seomatic' in (settings.enabledIntegrations ?? []) %}
         {% set seomaticPlugin = craft.app.plugins.getPlugin('seomatic') %}
+        {% set seomaticInstalled = craft.app.plugins.isPluginInstalled('seomatic') %}
+        {% set seomaticPluginEnabled = craft.app.plugins.isPluginEnabled('seomatic') %}
+        {% set seomaticAvailable = seomaticInstalled and seomaticPluginEnabled %}
         {% set seomaticPluginName = seomaticPlugin ? (seomaticPlugin.name ?? 'SEOmatic') : 'SEOmatic' %}
+        {% set seomaticEnabled = 'seomatic' in (settings.enabledIntegrations ?? []) %}
 
         {# SEOmatic Integration Card #}
         <div class="integration-card" style="border: 1px solid #e3e5e8; border-radius: 4px; margin-bottom: 10px; background: white;">
@@ -60,7 +62,10 @@
                     <div style="display: flex; align-items: center; gap: 10px; margin-top: 5px;">
                         {% if seomaticAvailable %}
                             <span class="status on"></span>
-                            <span style="color: #28a745; font-size: 12px;">{{ "Installed & Available"|t('smart-links') }}</span>
+                            <span style="color: #28a745; font-size: 12px;">{{ "Installed & Active"|t('smart-links') }}</span>
+                        {% elseif seomaticInstalled %}
+                            <span class="status"></span>
+                            <span style="color: #6c757d; font-size: 12px;">{{ "Installed but Disabled"|t('smart-links') }}</span>
                         {% else %}
                             <span class="status"></span>
                             <span style="color: #6c757d; font-size: 12px;">{{ "Not Installed"|t('smart-links') }}</span>
@@ -91,7 +96,7 @@
                     {% set dataLayerScripts = ['googleTagManager', 'gtag'] %}
                     {% set hasDataLayerScripts = false %}
                     {% for handle in dataLayerScripts %}
-                        {% if seomaticStatus.status.scripts[handle] is defined %}
+                        {% if seomaticStatus.scripts[handle] is defined %}
                             {% set hasDataLayerScripts = true %}
                         {% endif %}
                     {% endfor %}
@@ -103,8 +108,8 @@
                                 <span class="light" style="font-size: 11px;">{{ "Scripts receiving {pluginName} events"|t('smart-links', { pluginName: pluginName }) }}</span>
                             </div>
                             {% for handle in dataLayerScripts %}
-                                {% if seomaticStatus.status.scripts[handle] is defined %}
-                                    {% set script = seomaticStatus.status.scripts[handle] %}
+                                {% if seomaticStatus.scripts[handle] is defined %}
+                                    {% set script = seomaticStatus.scripts[handle] %}
                                     <div style="background: #f7f7f7; border: 1px solid #e3e5e8; padding: 10px 12px; border-radius: 3px; margin-bottom: 8px;">
                                         <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
                                             <span class="status on" style="width: 8px; height: 8px;"></span>
@@ -133,7 +138,7 @@
                         <div style="background: #fff9e6; border-left: 3px solid #f59e0b; padding: 12px 15px; margin-bottom: 20px; border-radius: 3px;">
                             <p style="margin: 0; font-size: 13px;">
                                 <strong>{{ "Note"|t('smart-links') }}:</strong>
-                                {{ "No tracking scripts are currently configured in SEOmatic. Events will be queued but not sent until you configure GTM or Google Analytics in SEOmatic."|t('smart-links') }}
+                                {{ "No tracking scripts are currently configured in {pluginName}. Events will be queued but not sent until you configure GTM or Google Analytics in {pluginName}."|t('smart-links', { pluginName: seomaticPluginName }) }}
                             </p>
                         </div>
                     {% endif %}
@@ -150,7 +155,7 @@
                             <div class="heading">
                                 <label>{{ "Tracking Events"|t('smart-links') }}</label>
                                 <div class="instructions">
-                                    <p>{{ "Select which {pluginName} events to send to SEOmatic"|t('smart-links', { pluginName: pluginName }) }}</p>
+                                    <p>{{ "Select which events to send to {pluginName}"|t('smart-links', { pluginName: seomaticPluginName }) }}</p>
                                 </div>
                             </div>
 
@@ -295,7 +300,7 @@
         {% set rmInstalled = craft.app.plugins.isPluginInstalled('redirect-manager') %}
         {% set rmEnabled = craft.app.plugins.isPluginEnabled('redirect-manager') %}
         {% set rmAvailable = rmInstalled and rmEnabled %}
-        {% set rmPluginName = rmPlugin ? (rmPlugin.settings.pluginName ?? 'Redirect Manager') : 'Redirect Manager' %}
+        {% set rmPluginName = rmPlugin ? (rmPlugin.settings.pluginName ?? rmPlugin.name ?? 'Redirect Manager') : 'Redirect Manager' %}
         {% set rmIntegrationEnabled = 'redirect-manager' in (settings.enabledIntegrations ?? []) %}
         {% set rmEvents = settings.redirectManagerEvents ?? ['slug-change', 'delete'] %}
 

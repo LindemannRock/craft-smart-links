@@ -6,6 +6,7 @@ use Craft;
 use craft\base\Component;
 use lindemannrock\smartlinks\integrations\IntegrationInterface;
 use lindemannrock\smartlinks\integrations\SeomaticIntegration;
+use lindemannrock\smartlinks\integrations\RedirectManagerIntegration;
 use lindemannrock\logginglibrary\traits\LoggingTrait;
 
 /**
@@ -49,8 +50,11 @@ class IntegrationService extends Component
         }
 
         try {
-            // Register SEOmatic integration
+            // Register SEOmatic integration (event-based analytics)
             $this->registerIntegration(new SeomaticIntegration());
+
+            // Register Redirect Manager integration (utility-based redirect creation)
+            $this->registerIntegration(new RedirectManagerIntegration());
 
             // Future integrations can be added here:
             // $this->registerIntegration(new MatomoIntegration());
@@ -214,13 +218,7 @@ class IntegrationService extends Component
 
         $statuses = [];
         foreach ($this->integrations as $handle => $integration) {
-            $statuses[$handle] = [
-                'name' => $integration->getName(),
-                'handle' => $handle,
-                'available' => $integration->isAvailable(),
-                'enabled' => $integration->isEnabled(),
-                'status' => $integration->getStatus(),
-            ];
+            $statuses[$handle] = $integration->getStatus();
         }
 
         return $statuses;

@@ -1,7 +1,7 @@
 {% extends "smart-links/_layouts/settings" %}
-{% set title = "Redirect Settings"|t('smart-links') %}
+{% set title = "Behavior Settings"|t('smart-links') %}
 {% set fullPageForm = true %}
-{% set selectedSettingsItem = 'redirect' %}
+{% set selectedSettingsItem = 'behavior' %}
 
 {% set plugin = craft.app.plugins.getPlugin('smart-links') %}{% set crumbs = [
     {
@@ -13,8 +13,8 @@
         url: url('smart-links/settings'),
     },
     {
-        label: 'Redirect'|t('smart-links'),
-        url: url('smart-links/settings/redirect'),
+        label: 'Behavior'|t('smart-links'),
+        url: url('smart-links/settings/behavior'),
     },
 ] %}
 
@@ -29,8 +29,8 @@
     <form method="post" accept-charset="UTF-8">
         {{ actionInput('smart-links/settings/save') }}
         {{ csrfInput() }}
-        {{ redirectInput('smart-links/settings/redirect') }}
-        {{ hiddenInput('section', 'redirect') }}
+        {{ redirectInput('smart-links/settings/behavior') }}
+        {{ hiddenInput('section', 'behavior') }}
 
         <h2 style="margin-top: 0px;">{{ "Redirect Behavior"|t('smart-links') }}</h2>
 

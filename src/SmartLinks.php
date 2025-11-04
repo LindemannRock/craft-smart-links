@@ -458,7 +458,7 @@ class SmartLinks extends Plugin
             'smart-links/settings/integrations' => 'smart-links/settings/integrations',
             'smart-links/settings/export' => 'smart-links/settings/export',
             'smart-links/settings/qr-code' => 'smart-links/settings/qr-code',
-            'smart-links/settings/redirect' => 'smart-links/settings/redirect',
+            'smart-links/settings/behavior' => 'smart-links/settings/behavior',
             'smart-links/settings/interface' => 'smart-links/settings/interface',
             'smart-links/settings/cache' => 'smart-links/settings/cache',
             'smart-links/settings/field-layout' => 'smart-links/settings/field-layout',
