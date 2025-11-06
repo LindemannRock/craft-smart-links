@@ -1,5 +1,20 @@
 # Changelog
 
+## [5.4.0](https://github.com/LindemannRock/craft-smart-links/compare/v5.3.3...v5.4.0) (2025-11-06)
+
+
+### Features
+
+* Add Redirect Manager integration with centralized redirect handling ([d345dcc](https://github.com/LindemannRock/craft-smart-links/commit/d345dcc1a10cec478f8a72e0588798d2524afc60))
+* enhance settings management with new integration handling and improved save logic ([98b9c3e](https://github.com/LindemannRock/craft-smart-links/commit/98b9c3ec417721a16fe484c5580246481ce9bdc5))
+
+
+### Bug Fixes
+
+* add comprehensive documentation and configuration options for Smart Links plugin ([fc7b0ca](https://github.com/LindemannRock/craft-smart-links/commit/fc7b0cad635fc05858e5873203ce70173ec7237c))
+* integration status display and rename Redirect settings to Behavior ([3566537](https://github.com/LindemannRock/craft-smart-links/commit/356653756cfc2aec0b916555f12bbccc4db7a403))
+* SEOmatic integration display with dynamic plugin name and updated description ([c73c8b5](https://github.com/LindemannRock/craft-smart-links/commit/c73c8b58a2e1907af0fb37f00c1d90d4c7714329))
+
 ## [5.3.3](https://github.com/LindemannRock/craft-smart-links/compare/v5.3.2...v5.3.3) (2025-10-26)
 
 
