@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.4.1](https://github.com/LindemannRock/craft-smart-links/compare/v5.4.0...v5.4.1) (2025-11-07)
+
+
+### Bug Fixes
+
+* CleanupAnalyticsJob with next run time calculation and display ([ff1beb4](https://github.com/LindemannRock/craft-smart-links/commit/ff1beb4d264d5ccc5283feee2af7e9eb9262ecf4))
+
 ## [5.4.0](https://github.com/LindemannRock/craft-smart-links/compare/v5.3.3...v5.4.0) (2025-11-06)
 
 
