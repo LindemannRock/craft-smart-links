@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.5.0](https://github.com/LindemannRock/craft-smart-links/compare/v5.4.1...v5.5.0) (2025-11-10)
+
+
+### Features
+
+* **SEOMaticIntegration:** Enhance QR Code and Redirect Templates with SEOmatic Integration ([2fb9fdf](https://github.com/LindemannRock/craft-smart-links/commit/2fb9fdf9e4f832bac3ae4e131e06dcf2230750f4))
+
 ## [5.4.1](https://github.com/LindemannRock/craft-smart-links/compare/v5.4.0...v5.4.1) (2025-11-07)
 
 
