@@ -464,51 +464,7 @@ class SettingsController extends Controller
         // Debug: Log what's in settings after updates
         $this->logDebug('Settings after updates', ['enabledSites' => $settings->enabledSites]);
 
-        // Check for Shortlink Manager URL conflict
-        if (!empty($settings->slugPrefix) || !empty($settings->qrPrefix)) {
-            $shortlinkPlugin = Craft::$app->plugins->getPlugin('shortlink-manager');
-            if ($shortlinkPlugin) {
-                $shortlinkSettings = $shortlinkPlugin->getSettings();
-                $shortlinkPluginName = $shortlinkSettings->pluginName ?? 'ShortLink Manager';
-                $conflictingPrefixes = [];
-
-                // Check if Shortlink Manager has custom URL segment enabled
-                if ($shortlinkSettings->enableCustomUrlSegment && !empty($shortlinkSettings->urlSegment)) {
-                    // Check against slugPrefix
-                    if (!empty($settings->slugPrefix) && $settings->slugPrefix === $shortlinkSettings->urlSegment) {
-                        $conflictingPrefixes[] = "Smart Links URL Prefix ('{$settings->slugPrefix}') conflicts with {$shortlinkPluginName} URL segment ('{$shortlinkSettings->urlSegment}')";
-                    }
-
-                    // Check against qrPrefix
-                    if (!empty($settings->qrPrefix) && $settings->qrPrefix === $shortlinkSettings->urlSegment) {
-                        $conflictingPrefixes[] = "QR Code URL Prefix ('{$settings->qrPrefix}') conflicts with {$shortlinkPluginName} URL segment ('{$shortlinkSettings->urlSegment}')";
-                    }
-                } else {
-                    // Shortlink Manager is using default 's', check against that
-                    if ($settings->slugPrefix === 's') {
-                        $conflictingPrefixes[] = "Smart Links URL Prefix ('{$settings->slugPrefix}') conflicts with {$shortlinkPluginName} default URL segment ('s')";
-                    }
-                    if ($settings->qrPrefix === 's') {
-                        $conflictingPrefixes[] = "QR Code URL Prefix ('{$settings->qrPrefix}') conflicts with {$shortlinkPluginName} default URL segment ('s')";
-                    }
-                }
-
-                if (!empty($conflictingPrefixes)) {
-                    Craft::$app->getSession()->setError(Craft::t('smart-links', '{conflicts}', [
-                        'conflicts' => implode('. ', $conflictingPrefixes)
-                    ]));
-
-                    $section = Craft::$app->getRequest()->getBodyParam('section', 'general');
-                    $template = "smart-links/settings/{$section}";
-
-                    return $this->renderTemplate($template, [
-                        'settings' => $settings,
-                        'readOnly' => $this->readOnly,
-                    ]);
-                }
-            }
-        }
-
+        // Validate (includes conflict checking via validateSlugPrefix and validateQrPrefix)
         if (!$settings->validate()) {
             // Log validation errors for debugging
             $this->logError('Settings validation failed', ['errors' => $settings->getErrors()]);

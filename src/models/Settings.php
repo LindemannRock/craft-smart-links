@@ -276,7 +276,10 @@ class Settings extends Model
             [['pluginName', 'slugPrefix', 'qrPrefix'], 'required'],
             [['pluginName'], 'string', 'max' => 255],
             [['slugPrefix', 'qrPrefix'], 'string', 'max' => 50],
-            [['slugPrefix', 'qrPrefix'], 'match', 'pattern' => '/^[a-zA-Z0-9\-\_]+$/', 'message' => Craft::t('smart-links', 'Only letters, numbers, hyphens, and underscores are allowed.')],
+            [['slugPrefix'], 'match', 'pattern' => '/^[a-zA-Z0-9\-\_]+$/', 'message' => Craft::t('smart-links', 'Only letters, numbers, hyphens, and underscores are allowed.')],
+            [['qrPrefix'], 'match', 'pattern' => '/^[a-zA-Z0-9\-\_\/]+$/', 'message' => Craft::t('smart-links', 'Only letters, numbers, hyphens, underscores, and slashes are allowed.')],
+            [['slugPrefix'], 'validateSlugPrefix'],
+            [['qrPrefix'], 'validateQrPrefix'],
             [['enableAnalytics', 'enableGeoDetection', 'cacheDeviceDetection', 'includeDisabledInExport', 'includeExpiredInExport', 'anonymizeIpAddress'], 'boolean'],
             [['analyticsRetention', 'defaultQrSize', 'qrCodeCacheDuration', 'deviceDetectionCacheDuration', 'itemsPerPage'], 'integer'],
             [['analyticsRetention'], 'integer', 'min' => 0, 'max' => 3650], // 0 for unlimited, up to 10 years
@@ -363,6 +366,125 @@ class Settings extends Model
                 $this->logWarning('Log level automatically changed from "debug" to "info" because devMode is disabled');
                 $this->saveToDatabase();
             }
+        }
+    }
+
+    /**
+     * Validate slug prefix to prevent conflicts
+     */
+    public function validateSlugPrefix($attribute, $params, $validator)
+    {
+        $slugPrefix = $this->$attribute;
+
+        if (empty($slugPrefix)) {
+            return;
+        }
+
+        $conflicts = [];
+
+        // Check against ShortLink Manager if installed
+        if (Craft::$app->plugins->isPluginInstalled('shortlink-manager')) {
+            try {
+                $shortlinkPlugin = Craft::$app->plugins->getPlugin('shortlink-manager');
+                if ($shortlinkPlugin) {
+                    $shortlinkSettings = $shortlinkPlugin->getSettings();
+                    $shortlinkPluginName = $shortlinkSettings->pluginName ?? 'ShortLink Manager';
+
+                    // Check against ShortLink Manager slugPrefix
+                    if ($slugPrefix === ($shortlinkSettings->slugPrefix ?? 's')) {
+                        $conflicts[] = "{$shortlinkPluginName} slug prefix ('{$shortlinkSettings->slugPrefix}')";
+                    }
+
+                    // Check against ShortLink Manager qrPrefix
+                    if ($slugPrefix === ($shortlinkSettings->qrPrefix ?? 'qr')) {
+                        $conflicts[] = "{$shortlinkPluginName} QR prefix ('{$shortlinkSettings->qrPrefix}')";
+                    }
+                }
+            } catch (\Exception $e) {
+                // Silently continue if we can't check shortlink-manager
+            }
+        }
+
+        if (!empty($conflicts)) {
+            $suggestions = ['go', 'link', 'links', 'l'];
+            $this->addError($attribute, Craft::t('smart-links', 'Slug prefix "{prefix}" conflicts with: {conflicts}. Suggestions: {suggestions}', [
+                'prefix' => $slugPrefix,
+                'conflicts' => implode(', ', $conflicts),
+                'suggestions' => implode(', ', $suggestions)
+            ]));
+        }
+    }
+
+    /**
+     * Validate QR prefix to prevent conflicts
+     */
+    public function validateQrPrefix($attribute, $params, $validator)
+    {
+        $qrPrefix = $this->$attribute;
+
+        if (empty($qrPrefix)) {
+            return;
+        }
+
+        $conflicts = [];
+
+        // Parse the prefix (supports both "qr" and "go/qr" patterns)
+        $segments = explode('/', $qrPrefix);
+        $isNested = count($segments) > 1;
+
+        // Check against own slugPrefix
+        if (!$isNested && $qrPrefix === $this->slugPrefix) {
+            $this->addError($attribute, Craft::t('smart-links', 'QR prefix cannot be the same as your slug prefix. Try: qr, code, qrc, or {slug}/qr', [
+                'slug' => $this->slugPrefix
+            ]));
+            return;
+        }
+
+        // Check if nested pattern conflicts with own slugPrefix
+        if ($isNested) {
+            $baseSegment = $segments[0];
+            if ($baseSegment !== $this->slugPrefix) {
+                $this->addError($attribute, Craft::t('smart-links', 'Nested QR prefix must start with your slug prefix "{slug}". Use: {slug}/{qr} or use standalone like "qr"', [
+                    'slug' => $this->slugPrefix,
+                    'qr' => $segments[1] ?? 'qr'
+                ]));
+                return;
+            }
+        }
+
+        // Check against ShortLink Manager if installed
+        if (Craft::$app->plugins->isPluginInstalled('shortlink-manager')) {
+            try {
+                $shortlinkPlugin = Craft::$app->plugins->getPlugin('shortlink-manager');
+                if ($shortlinkPlugin) {
+                    $shortlinkSettings = $shortlinkPlugin->getSettings();
+                    $shortlinkPluginName = $shortlinkSettings->pluginName ?? 'ShortLink Manager';
+
+                    // Only check standalone patterns (nested patterns are already validated above)
+                    if (!$isNested) {
+                        // Check against ShortLink Manager slugPrefix
+                        if ($qrPrefix === ($shortlinkSettings->slugPrefix ?? 's')) {
+                            $conflicts[] = "{$shortlinkPluginName} slug prefix ('{$shortlinkSettings->slugPrefix}')";
+                        }
+
+                        // Check against ShortLink Manager qrPrefix
+                        if ($qrPrefix === ($shortlinkSettings->qrPrefix ?? 'qr')) {
+                            $conflicts[] = "{$shortlinkPluginName} QR prefix ('{$shortlinkSettings->qrPrefix}')";
+                        }
+                    }
+                }
+            } catch (\Exception $e) {
+                // Silently continue if we can't check shortlink-manager
+            }
+        }
+
+        if (!empty($conflicts)) {
+            $suggestions = ['qr', 'qrc', 'code', $this->slugPrefix . '/qr'];
+            $this->addError($attribute, Craft::t('smart-links', 'QR prefix "{prefix}" conflicts with: {conflicts}. Suggestions: {suggestions}', [
+                'prefix' => $qrPrefix,
+                'conflicts' => implode(', ', $conflicts),
+                'suggestions' => implode(', ', $suggestions)
+            ]));
         }
     }
 

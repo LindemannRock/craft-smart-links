@@ -10,9 +10,6 @@ namespace lindemannrock\smartlinks\integrations;
 
 use Craft;
 use craft\helpers\Json;
-use nystudio107\seomatic\Seomatic;
-use nystudio107\seomatic\helpers\DynamicMeta;
-use nystudio107\seomatic\events\AddDynamicMetaEvent;
 use yii\base\Event;
 
 /**
@@ -125,13 +122,14 @@ class SeomaticIntegration extends BaseIntegration
      */
     private function injectDataLayerEvent(array $eventData): bool
     {
-        if (!class_exists(Seomatic::class)) {
+        $seomaticClass = 'nystudio107\seomatic\Seomatic';
+        if (!class_exists($seomaticClass)) {
             return false;
         }
 
         try {
             // Access SEOmatic's script service
-            $scriptService = Seomatic::$plugin->script ?? null;
+            $scriptService = $seomaticClass::$plugin->script ?? null;
             if (!$scriptService) {
                 $this->logDebug('SEOmatic script service not available');
                 return false;
@@ -194,14 +192,15 @@ class SeomaticIntegration extends BaseIntegration
             return;
         }
 
-        if (!class_exists(DynamicMeta::class)) {
+        $dynamicMetaClass = 'nystudio107\seomatic\helpers\DynamicMeta';
+        if (!class_exists($dynamicMetaClass)) {
             return;
         }
 
         Event::on(
-            DynamicMeta::class,
-            DynamicMeta::EVENT_ADD_DYNAMIC_META,
-            function (AddDynamicMetaEvent $event) {
+            $dynamicMetaClass,
+            'addDynamicMeta',
+            function ($event) {
                 $this->onAddDynamicMeta($event);
             }
         );
@@ -214,9 +213,9 @@ class SeomaticIntegration extends BaseIntegration
      * Handle SEOmatic's AddDynamicMeta event
      * Inject queued events into the data layer
      *
-     * @param AddDynamicMetaEvent $event
+     * @param mixed $event
      */
-    private function onAddDynamicMeta(AddDynamicMetaEvent $event): void
+    private function onAddDynamicMeta($event): void
     {
         if (empty($this->queuedEvents)) {
             return;
@@ -263,7 +262,8 @@ class SeomaticIntegration extends BaseIntegration
             $scriptsFound = [];
 
             // Check each site for tracking scripts
-            if (class_exists(Seomatic::class)) {
+            $seomaticClass = 'nystudio107\seomatic\Seomatic';
+            if (class_exists($seomaticClass)) {
                 $currentSiteId = Craft::$app->sites->getCurrentSite()->id;
 
                 foreach ($sites as $site) {
@@ -273,14 +273,14 @@ class SeomaticIntegration extends BaseIntegration
                     // Load SEOmatic meta containers for this specific site
                     // This ensures we get site-specific configuration, not cached/global values
                     try {
-                        if (isset(Seomatic::$plugin->metaContainers)) {
-                            Seomatic::$plugin->metaContainers->loadMetaContainers('', $site->id);
+                        if (isset($seomaticClass::$plugin->metaContainers)) {
+                            $seomaticClass::$plugin->metaContainers->loadMetaContainers('', $site->id);
                         }
                     } catch (\Throwable $e) {
                         // Silently continue if we can't load meta containers for this site
                     }
 
-                    $scriptService = Seomatic::$plugin->script ?? null;
+                    $scriptService = $seomaticClass::$plugin->script ?? null;
                     if (!$scriptService) {
                         continue;
                     }

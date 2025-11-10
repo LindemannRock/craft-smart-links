@@ -15,16 +15,16 @@ use lindemannrock\smartlinks\SmartLinks;
  *
  * NOTE: This integration is different from SEOmatic.
  * - SEOmatic: Pushes analytics EVENTS to external service (via pushEvent)
- * - Redirect Manager: Creates REDIRECTS via trait methods (direct API calls)
+ * - Redirect Manager: Creates REDIRECTS via service methods (direct API calls)
  *
  * This class exists for:
  * - Status checking (isAvailable, isEnabled)
  * - UI display (getStatus)
  * - Architecture consistency
  *
- * Actual redirect creation happens in SmartLinksService via RedirectHandlingTrait:
- * - handleSlugChange() -> calls trait's handleUndoRedirect() and createRedirectRule()
- * - handleDeletedSmartLink() -> calls trait's createRedirectRule()
+ * Actual redirect creation happens in SmartLinksService:
+ * - handleSlugChange() -> calls redirect-manager service methods with runtime checks
+ * - handleDeletedSmartLink() -> calls redirect-manager service methods with runtime checks
  *
  * @since 1.1.0
  */
@@ -53,7 +53,7 @@ class RedirectManagerIntegration extends BaseIntegration
      * Push event to Redirect Manager
      *
      * NOTE: This method is not used for Redirect Manager integration.
-     * Redirect creation happens directly in SmartLinksService via RedirectHandlingTrait.
+     * Redirect creation happens directly in SmartLinksService via redirect-manager service calls.
      * This is a no-op to satisfy the IntegrationInterface contract.
      *
      * @param string $eventType Event type (not applicable)
@@ -63,9 +63,9 @@ class RedirectManagerIntegration extends BaseIntegration
     public function pushEvent(string $eventType, array $data): bool
     {
         // Redirect Manager integration doesn't use event pushing
-        // Redirects are created via trait methods in the service layer:
-        // - SmartLinksService::handleSlugChange() -> trait's createRedirectRule()
-        // - SmartLinksService::handleDeletedSmartLink() -> trait's createRedirectRule()
+        // Redirects are created via service method calls in the service layer:
+        // - SmartLinksService::handleSlugChange() -> calls redirect-manager service
+        // - SmartLinksService::handleDeletedSmartLink() -> calls redirect-manager service
         return true;
     }
 

@@ -1,244 +1,194 @@
 <!DOCTYPE html>
 <html lang="{{ currentSite.language }}">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ smartLink.title }} - {{ siteName }}</title>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    {{ smartLink.renderSeomaticTracking('redirect') }}
+	{# SEOmatic meta tags #}
+	{% if seomatic is defined %}
+		{% if smartLink.seo is defined and smartLink.seo %}
+			{# Use SEOmatic field data if available, with Smart Link fallbacks #}
+			{% set seoData = smartLink.seo.metaGlobalVars %}
+			{% do seomatic.meta.seoTitle(seoData.seoTitle ?: smartLink.title) %}
+			{% do seomatic.meta.seoDescription(seoData.seoDescription ?: smartLink.description) %}
+			{% if seoData.seoKeywords %}{% do seomatic.meta.seoKeywords(seoData.seoKeywords) %}{% endif %}
+			{% do seomatic.meta.canonicalUrl(seoData.canonicalUrl ?: siteUrl('go/' ~ smartLink.slug)) %}
+			{% if seoData.robots %}{% do seomatic.meta.robots(seoData.robots) %}{% endif %}
+			{% if seoData.seoImage %}{% do seomatic.meta.seoImage(seoData.seoImage) %}{% endif %}
+			{% if seoData.ogType %}{% do seomatic.meta.ogType(seoData.ogType) %}{% endif %}
+			{% do seomatic.meta.ogTitle(seoData.ogTitle ?: smartLink.title) %}
+			{% do seomatic.meta.ogDescription(seoData.ogDescription ?: smartLink.description) %}
+			{% if seoData.ogImage %}{% do seomatic.meta.ogImage(seoData.ogImage) %}{% endif %}
+			{% if seoData.twitterCard %}{% do seomatic.meta.twitterCard(seoData.twitterCard) %}{% endif %}
+			{% do seomatic.meta.twitterTitle(seoData.twitterTitle ?: smartLink.title) %}
+			{% do seomatic.meta.twitterDescription(seoData.twitterDescription ?: smartLink.description) %}
+			{% if seoData.twitterImage %}{% do seomatic.meta.twitterImage(seoData.twitterImage) %}{% endif %}
+		{% else %}
+			{# Fallback to Smart Link data #}
+			{% do seomatic.meta.seoTitle(smartLink.title) %}
+			{% do seomatic.meta.seoDescription(smartLink.description) %}
+			{% do seomatic.meta.canonicalUrl(siteUrl('go/' ~ smartLink.slug)) %}
+		{% endif %}
+	{% else %}
+		{# Fallback meta tags if SEOmatic is not installed #}
+		<title>{{ smartLink.title }} - {{ siteName }}</title>
+		{% if smartLink.description %}<meta name="description" content="{{ smartLink.description }}">{% endif %}
+		<link rel="canonical" href="{{ siteUrl('go/' ~ smartLink.slug) }}">
+	{% endif %}
 
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            background-color: #f5f5f5;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            padding: 20px;
-        }
-        
-        .container {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
-            max-width: 480px;
-            width: 100%;
-            padding: 40px;
-            text-align: center;
-        }
-        
-        .loader {
-            width: 60px;
-            height: 60px;
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #3498db;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 30px;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        h1 {
-            font-size: 24px;
-            margin-bottom: 10px;
-            color: #333;
-        }
-        
-        .description {
-            color: #666;
-            margin-bottom: 20px;
-            line-height: 1.5;
-        }
-        
-        .redirect-message {
-            color: #999;
-            margin-bottom: 30px;
-        }
-        
-        .platforms {
-            margin-top: 30px;
-        }
-        
-        .platforms h2 {
-            font-size: 16px;
-            color: #666;
-            margin-bottom: 20px;
-            font-weight: normal;
-        }
-        
-        .platform-links {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-        
-        .platform-link {
-            display: block;
-            padding: 16px 24px;
-            border-radius: 8px;
-            text-decoration: none;
-            font-weight: 500;
-            transition: all 0.2s ease;
-            border: 2px solid transparent;
-        }
-        
-        .platform-link.primary {
-            background-color: #007AFF;
-            color: white;
-        }
-        
-        .platform-link.primary:hover {
-            background-color: #0051D5;
-        }
-        
-        .platform-link.secondary {
-            background-color: #f0f0f0;
-            color: #333;
-            border-color: #e0e0e0;
-        }
-        
-        .platform-link.secondary:hover {
-            background-color: #e0e0e0;
-        }
-        
-        .qr-section {
-            margin-top: 40px;
-            padding-top: 40px;
-            border-top: 1px solid #e0e0e0;
-        }
-        
-        .qr-section h3 {
-            font-size: 16px;
-            color: #666;
-            margin-bottom: 20px;
-            font-weight: normal;
-        }
-        
-        .qr-code {
-            display: inline-block;
-            padding: 20px;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-        
-        .qr-code img {
-            display: block;
-            width: 200px;
-            height: 200px;
-        }
-        
-        @media (prefers-color-scheme: dark) {
-            body {
-                background-color: #1a1a1a;
-            }
-            
-            .container {
-                background: #2a2a2a;
-                box-shadow: 0 2px 20px rgba(0, 0, 0, 0.5);
-            }
-            
-            h1, .platform-link.secondary {
-                color: #f0f0f0;
-            }
-            
-            .description, .redirect-message, .platforms h2, .qr-section h3 {
-                color: #aaa;
-            }
-            
-            .platform-link.secondary {
-                background-color: #3a3a3a;
-                border-color: #4a4a4a;
-            }
-            
-            .platform-link.secondary:hover {
-                background-color: #4a4a4a;
-            }
-            
-            .qr-section {
-                border-top-color: #4a4a4a;
-            }
-        }
-    </style>
+	<script src="https://cdn.tailwindcss.com"></script>
+
+	{# Include SEOmatic tracking - this pushes events to GTM dataLayer #}
+	{% set seomaticTracking = null %}
+	{% if smartLink.renderSeomaticTracking is defined %}
+		{% set seomaticTracking = smartLink.renderSeomaticTracking('redirect') %}
+		{{ seomaticTracking }}
+	{% endif %}
 </head>
 <body>
-    <div class="container">
-        {# Loader will be shown by JavaScript for mobile users #}
-        <div class="loader" id="mobile-loader" style="display: none;"></div>
+	<div
+		class="flex justify-center items-center max-w-lg mx-auto px-4 py-8">
+		{# Main container #}
+		<div class="bg-white shadow-lg max-w-lg w-full overflow-hidden">
 
-        <h1>{{ smartLink.title }}</h1>
 
-        {% if smartLink.description %}
-            <p class="description">{{ smartLink.description }}</p>
-        {% endif %}
+			<div
+				class="p-8 md:p-12 text-center">
 
-        <p class="redirect-message" id="redirect-message">
-            {{ 'Choose your platform:'|t('smart-links') }}
-        </p>
-        
-        <div class="platforms">
-            <div class="platform-links">
-                {% if smartLink.iosUrl %}
-                    <a href="{{ actionUrl('smart-links/redirect/go', {slug: smartLink.slug, platform: 'ios', site: smartLink.site.handle}) }}" class="platform-link primary">
-                        {{ 'Download on the App Store'|t('smart-links') }}
-                    </a>
-                {% endif %}
+				{# Image #}
+				{% if smartLink.getImage() %}
+					{# Size mapping for image sizes #}
+					{% set sizeClasses = {
+						'xl': 'size-48',
+						'lg': 'size-40',
+						'md': 'size-32',
+						'sm': 'size-24'
+					} %}
+					{% set imageSize = sizeClasses[smartLink.imageSize] ?? 'size-48' %}
+					{% set image = smartLink.getImage() %}
+					<div class="{{ imageSize }} overflow-hidden bg-gray-100 mx-auto mb-6">
+						<img src="{{ image.getUrl({ width: 600, height: 600 }) }}"
+							 alt="{{ smartLink.title }}"
+							 loading="lazy"
+							 class="h-full w-full object-cover">
+					</div>
+				{% endif %}
 
-                {% if smartLink.androidUrl %}
-                    <a href="{{ actionUrl('smart-links/redirect/go', {slug: smartLink.slug, platform: 'android', site: smartLink.site.handle}) }}" class="platform-link primary">
-                        {{ 'Get it on Google Play'|t('smart-links') }}
-                    </a>
-                {% endif %}
+				{# Title #}
+				<h1 class="text-3xl font-semibold mb-4 text-brand{% if smartLink.hideTitle %} sr-only{% endif %}">{{ smartLink.title }}</h1>
 
-                {% if smartLink.huaweiUrl %}
-                    <a href="{{ actionUrl('smart-links/redirect/go', {slug: smartLink.slug, platform: 'huawei', site: smartLink.site.handle}) }}" class="platform-link secondary">
-                        {{ 'Explore it on AppGallery'|t('smart-links') }}
-                    </a>
-                {% endif %}
+				{# Description #}
+				{% if smartLink.description %}
+					<p class="text-gray-600 mb-8 leading-relaxed">{{ smartLink.description }}</p>
+					{% else %}
+					{# <p class="text-gray-600 mb-8 leading-relaxed">{{ "Download our app for the best experience"|t('smart-links') }}</p> #}
+				{% endif %}
 
-                {% if smartLink.amazonUrl %}
-                    <a href="{{ actionUrl('smart-links/redirect/go', {slug: smartLink.slug, platform: 'amazon', site: smartLink.site.handle}) }}" class="platform-link secondary">
-                        {{ 'Get it from Amazon'|t('smart-links') }}
-                    </a>
-                {% endif %}
+				{# App store buttons #}
+				<div class="flex flex-wrap gap-3 mb-8">
+					{% if smartLink.iosUrl %}
+						<a href="{{ actionUrl('smart-links/redirect/go', {slug: smartLink.slug, platform: 'ios', site: smartLink.site.handle}) }}" class="flex-1 min-w-[140px] px-5 py-4 border border-gray-200  no-underline text-gray-700 text-sm font-medium transition-all duration-200 flex items-center justify-center gap-2 hover:bg-gray-50 hover:border-gray-300 ">
+							<svg class="w-5 h-5" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+								<path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
+							</svg>
+							{{ 'App Store'|t('smart-links') }}
+						</a>
+					{% endif %}
 
-                {% if smartLink.windowsUrl %}
-                    <a href="{{ actionUrl('smart-links/redirect/go', {slug: smartLink.slug, platform: 'windows', site: smartLink.site.handle}) }}" class="platform-link secondary">
-                        {{ 'Download from Microsoft Store'|t('smart-links') }}
-                    </a>
-                {% endif %}
+					{% if smartLink.androidUrl %}
+						<a href="{{ actionUrl('smart-links/redirect/go', {slug: smartLink.slug, platform: 'android', site: smartLink.site.handle}) }}" class="flex-1 min-w-[140px] px-5 py-4 border border-gray-200  no-underline text-gray-700 text-sm font-medium transition-all duration-200 flex items-center justify-center gap-2 hover:bg-gray-50 hover:border-gray-300 ">
+							<svg class="w-5 h-5" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+								<path d="M3 20.5v-17c0-.83.67-1.5 1.5-1.5h1c.83 0 1.5.67 1.5 1.5v17c0 .83-.67 1.5-1.5 1.5h-1c-.83 0-1.5-.67-1.5-1.5zM16.5 2h1c.83 0 1.5.67 1.5 1.5v17c0 .83-.67 1.5-1.5 1.5h-1c-.83 0-1.5-.67-1.5-1.5v-17c0-.83.67-1.5 1.5-1.5zM7 8.5c0-.83.67-1.5 1.5-1.5h1c.83 0 1.5.67 1.5 1.5v12c0 .83-.67 1.5-1.5 1.5h-1c-.83 0-1.5-.67-1.5-1.5v-12zm4-6.5c0-.83.67-1.5 1.5-1.5h1c.83 0 1.5.67 1.5 1.5v18c0 .83-.67 1.5-1.5 1.5h-1c-.83 0-1.5-.67-1.5-1.5V2z"/>
+							</svg>
+							{{ 'Google Play'|t('smart-links') }}
+						</a>
+					{% endif %}
 
-                {% if smartLink.macUrl %}
-                    <a href="{{ actionUrl('smart-links/redirect/go', {slug: smartLink.slug, platform: 'mac', site: smartLink.site.handle}) }}" class="platform-link secondary">
-                        {{ 'Download for Mac'|t('smart-links') }}
-                    </a>
-                {% endif %}
+					{% if smartLink.huaweiUrl %}
+						<a href="{{ actionUrl('smart-links/redirect/go', {slug: smartLink.slug, platform: 'huawei', site: smartLink.site.handle}) }}" class="flex-1 min-w-[140px] px-5 py-4 border border-gray-200  no-underline text-gray-700 text-sm font-medium transition-all duration-200 flex items-center justify-center gap-2 hover:bg-gray-50 hover:border-gray-300 ">
+							{{ 'AppGallery'|t('smart-links') }}
+						</a>
+					{% endif %}
 
-                <a href="{{ actionUrl('smart-links/redirect/go', {slug: smartLink.slug, platform: 'fallback', site: smartLink.site.handle}) }}" class="platform-link secondary">
-                    {{ 'Visit Website'|t('smart-links') }}
-                </a>
-            </div>
-        </div>
-        
-        {% if smartLink.qrCodeEnabled %}
-            <div class="qr-section" id="qr-section">
-                <h3>{{ 'Or scan with your phone:'|t('smart-links') }}</h3>
-                <div class="qr-code">
-                    <img src="{{ smartLink.getQrCodeUrl({ size: 200 }) }}" alt="QR Code" width="200" height="200">
-                </div>
-            </div>
-        {% endif %}
-    </div>
+					{% if smartLink.amazonUrl %}
+						<a href="{{ actionUrl('smart-links/redirect/go', {slug: smartLink.slug, platform: 'amazon', site: smartLink.site.handle}) }}" class="flex-1 min-w-[140px] px-5 py-4 border border-gray-200  no-underline text-gray-700 text-sm font-medium transition-all duration-200 flex items-center justify-center gap-2 hover:bg-gray-50 hover:border-gray-300 ">
+							{{ 'Amazon'|t('smart-links') }}
+						</a>
+					{% endif %}
+
+					{% if smartLink.windowsUrl %}
+						<a href="{{ actionUrl('smart-links/redirect/go', {slug: smartLink.slug, platform: 'windows', site: smartLink.site.handle}) }}" class="flex-1 min-w-[140px] px-5 py-4 border border-gray-200  no-underline text-gray-700 text-sm font-medium transition-all duration-200 flex items-center justify-center gap-2 hover:bg-gray-50 hover:border-gray-300 ">
+							{{ 'Windows Store'|t('smart-links') }}
+						</a>
+					{% endif %}
+
+					{% if smartLink.macUrl %}
+						<a href="{{ actionUrl('smart-links/redirect/go', {slug: smartLink.slug, platform: 'mac', site: smartLink.site.handle}) }}" class="flex-1 min-w-[140px] px-5 py-4 border border-gray-200  no-underline text-gray-700 text-sm font-medium transition-all duration-200 flex items-center justify-center gap-2 hover:bg-gray-50 hover:border-gray-300 ">
+							{{ 'Mac App Store'|t('smart-links') }}
+						</a>
+					{% endif %}
+				</div>
+
+				{# Fallback button #}
+				<a href="{{ actionUrl('smart-links/redirect/go', {slug: smartLink.slug, platform: 'fallback', site: smartLink.site.handle}) }}" class="inline-block px-8 py-4 bg-brand text-white no-underline  font-semibold text-base transition-all duration-200 hover:bg-brand-primary-dark ">
+					{{ 'Continue to Website'|t('smart-links') }}
+				</a>
+
+				{# QR Code section #}
+				{% if smartLink.qrCodeEnabled %}
+					<div class="mt-12 pt-12 border-t border-gray-200">
+						{# <h2 class="text-xl font-semibold mb-6 text-gray-900">{{ "Scan to Download"|t('smart-links') }}</h2> #}
+
+						<div class="">
+							<img src="{{ smartLink.getQrCodeUrl() }}" alt="QR Code" width="180" height="180" class="mx-auto">
+						</div>
+
+						{# <p class="text-sm text-gray-600">{{ "Scan this QR code with your phone to download the app"|t('smart-links') }}</p> #}
+					</div>
+				{% endif %}
+			</div>
+		</div>
+	</div>
+
+	{# Debug mode - Add ?debug=1 to URL to see SEOmatic tracking details #}
+	<script>
+		(function() {
+			// Get debug mode from URL parameter
+			var urlParams = new URLSearchParams(window.location.search);
+			var debugMode = urlParams.get('debug') === '1';
+
+			if (debugMode) {
+				console.log('🐛 DEBUG MODE ENABLED');
+				console.log('🔗 Smart Link Slug:', '{{ smartLink.slug }}');
+				console.log('📊 Event Type:', 'redirect');
+
+				// SEOmatic tracking debug
+				console.log('\n📡 SEOmatic Integration:');
+				{% if seomaticTracking %}
+					console.log('✅ SEOmatic tracking enabled');
+					console.log('📝 Tracking script rendered:');
+					console.log('{{ seomaticTracking|escape('js')|raw }}');
+
+					// Check if dataLayer exists
+					if (typeof window.dataLayer !== 'undefined') {
+						console.log('✅ GTM dataLayer detected:', window.dataLayer);
+					} else {
+						console.log('⚠️ GTM dataLayer not found (SEOmatic may not be configured)');
+					}
+				{% else %}
+					console.log('❌ SEOmatic tracking not available');
+					console.log('   - Plugin may not be installed/enabled');
+					console.log('   - Or integration may be disabled in settings');
+				{% endif %}
+
+				// Add debug indicator to page
+				var debugBanner = document.createElement('div');
+				debugBanner.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; background: #ff6b6b; color: white; padding: 10px; text-align: center; font-weight: bold; z-index: 9999;';
+				debugBanner.textContent = '🐛 DEBUG MODE - Check browser console for details';
+				document.body.insertBefore(debugBanner, document.body.firstChild);
+			}
+		})();
+	</script>
+
 </body>
 </html>

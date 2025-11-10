@@ -11,7 +11,6 @@ namespace lindemannrock\smartlinks\controllers;
 use Craft;
 use craft\web\Controller;
 use lindemannrock\logginglibrary\traits\LoggingTrait;
-use lindemannrock\redirectmanager\traits\RedirectHandlingTrait;
 use lindemannrock\smartlinks\elements\SmartLink;
 use lindemannrock\smartlinks\SmartLinks;
 use yii\web\Response;
@@ -23,7 +22,6 @@ use yii\web\Response;
 class RedirectController extends Controller
 {
     use LoggingTrait;
-    use RedirectHandlingTrait;
 
     /**
      * @var array Allow anonymous access

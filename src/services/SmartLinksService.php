@@ -12,7 +12,6 @@ use Craft;
 use craft\base\Component;
 use craft\helpers\UrlHelper;
 use lindemannrock\logginglibrary\traits\LoggingTrait;
-use lindemannrock\redirectmanager\traits\RedirectHandlingTrait;
 use lindemannrock\smartlinks\elements\SmartLink;
 use lindemannrock\smartlinks\events\SmartLinkEvent;
 use lindemannrock\smartlinks\models\DeviceInfo;
@@ -28,7 +27,6 @@ use lindemannrock\smartlinks\SmartLinks;
 class SmartLinksService extends Component
 {
     use LoggingTrait;
-    use RedirectHandlingTrait;
 
     /**
      * @inheritdoc
@@ -362,33 +360,63 @@ class SmartLinksService extends Component
         $oldUrl = '/' . $slugPrefix . '/' . $oldSlug;
         $newUrl = '/' . $slugPrefix . '/' . $link->slug;
 
-        // SCENARIO 1: Handle undo using centralized method
-        if ($this->handleUndoRedirect($oldUrl, $newUrl, $link->siteId, 'smart-link-slug-change', 'smart-links')) {
-            return; // Undo was handled
+        // Check if Redirect Manager integration is available and enabled
+        $redirectIntegration = SmartLinks::$plugin->integration->getIntegration('redirect-manager');
+        if (!$redirectIntegration || !$redirectIntegration->isAvailable() || !$redirectIntegration->isEnabled()) {
+            $this->logDebug('Redirect Manager integration not available or not enabled');
+            return;
         }
 
-        // SCENARIO 2: Create the redirect using centralized method with notification
-        $success = $this->createRedirectRule([
-            'sourceUrl' => $oldUrl,
-            'sourceUrlParsed' => $oldUrl,
-            'destinationUrl' => $newUrl,
-            'matchType' => 'exact',
-            'redirectSrcMatch' => 'pathonly',
-            'statusCode' => 301,
-            'siteId' => $link->siteId,
-            'enabled' => true,
-            'priority' => 0,
-            'creationType' => 'smart-link-slug-change',
-            'sourcePlugin' => 'smart-links',
-        ], true); // Show notification
+        // Get redirect manager plugin instance
+        $redirectManager = Craft::$app->plugins->getPlugin('redirect-manager');
+        if (!$redirectManager) {
+            $this->logDebug('Redirect Manager plugin not found');
+            return;
+        }
 
-        if ($success) {
-            $this->logInfo('Created redirect for slug change', [
-                'oldSlug' => $oldSlug,
-                'newSlug' => $link->slug,
-                'oldUrl' => $oldUrl,
-                'newUrl' => $newUrl,
-            ]);
+        // SCENARIO 1: Try to handle undo
+        try {
+            $undoHandled = $redirectManager->redirects->handleUndoRedirect(
+                $oldUrl,
+                $newUrl,
+                $link->siteId,
+                'smart-link-slug-change',
+                'smart-links'
+            );
+
+            if ($undoHandled) {
+                return; // Undo was handled
+            }
+        } catch (\Exception $e) {
+            $this->logWarning('Failed to handle undo redirect', ['error' => $e->getMessage()]);
+        }
+
+        // SCENARIO 2: Create the redirect
+        try {
+            $success = $redirectManager->redirects->createRedirectRule([
+                'sourceUrl' => $oldUrl,
+                'sourceUrlParsed' => $oldUrl,
+                'destinationUrl' => $newUrl,
+                'matchType' => 'exact',
+                'redirectSrcMatch' => 'pathonly',
+                'statusCode' => 301,
+                'siteId' => $link->siteId,
+                'enabled' => true,
+                'priority' => 0,
+                'creationType' => 'smart-link-slug-change',
+                'sourcePlugin' => 'smart-links',
+            ], true); // Show notification
+
+            if ($success) {
+                $this->logInfo('Created redirect for slug change', [
+                    'oldSlug' => $oldSlug,
+                    'newSlug' => $link->slug,
+                    'oldUrl' => $oldUrl,
+                    'newUrl' => $newUrl,
+                ]);
+            }
+        } catch (\Exception $e) {
+            $this->logError('Failed to create redirect rule', ['error' => $e->getMessage()]);
         }
     }
 
@@ -424,26 +452,45 @@ class SmartLinksService extends Component
         $sourceUrl = '/' . $slugPrefix . '/' . $link->slug;
         $destinationUrl = $link->fallbackUrl ?? '/';
 
-        $success = $this->createRedirectRule([
-            'sourceUrl' => $sourceUrl,
-            'sourceUrlParsed' => $sourceUrl,
-            'destinationUrl' => $destinationUrl,
-            'matchType' => 'exact',
-            'redirectSrcMatch' => 'pathonly',
-            'statusCode' => 301,
-            'siteId' => $link->siteId,
-            'enabled' => true,
-            'priority' => 0,
-            'creationType' => 'smart-link-deleted',
-            'sourcePlugin' => 'smart-links',
-        ], false); // No notification for deletions
+        // Check if Redirect Manager integration is available and enabled
+        $redirectIntegration = SmartLinks::$plugin->integration->getIntegration('redirect-manager');
+        if (!$redirectIntegration || !$redirectIntegration->isAvailable() || !$redirectIntegration->isEnabled()) {
+            $this->logDebug('Redirect Manager integration not available or not enabled');
+            return;
+        }
 
-        if ($success) {
-            $this->logInfo('Auto-created redirect for deleted smart link', [
-                'slug' => $link->slug,
+        // Get redirect manager plugin instance
+        $redirectManager = Craft::$app->plugins->getPlugin('redirect-manager');
+        if (!$redirectManager) {
+            $this->logDebug('Redirect Manager plugin not found');
+            return;
+        }
+
+        // Create the redirect
+        try {
+            $success = $redirectManager->redirects->createRedirectRule([
                 'sourceUrl' => $sourceUrl,
-                'destination' => $destinationUrl,
-            ]);
+                'sourceUrlParsed' => $sourceUrl,
+                'destinationUrl' => $destinationUrl,
+                'matchType' => 'exact',
+                'redirectSrcMatch' => 'pathonly',
+                'statusCode' => 301,
+                'siteId' => $link->siteId,
+                'enabled' => true,
+                'priority' => 0,
+                'creationType' => 'smart-link-deleted',
+                'sourcePlugin' => 'smart-links',
+            ], false); // No notification for deletions
+
+            if ($success) {
+                $this->logInfo('Auto-created redirect for deleted smart link', [
+                    'slug' => $link->slug,
+                    'sourceUrl' => $sourceUrl,
+                    'destination' => $destinationUrl,
+                ]);
+            }
+        } catch (\Exception $e) {
+            $this->logError('Failed to create redirect rule', ['error' => $e->getMessage()]);
         }
     }
 }

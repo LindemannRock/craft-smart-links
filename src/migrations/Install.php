@@ -158,52 +158,53 @@ class Install extends Migration
                 'pluginName' => $this->string(255)->notNull()->defaultValue('Smart Links'),
                 // Site settings
                 'enabledSites' => $this->text()->null()->comment('JSON array of enabled site IDs'),
-                // Analytics settings
-                'enableAnalytics' => $this->boolean()->notNull()->defaultValue(true),
-                'analyticsRetention' => $this->integer()->notNull()->defaultValue(90),
-                'anonymizeIpAddress' => $this->boolean()->notNull()->defaultValue(false),
-                // Export settings
-                'includeDisabledInExport' => $this->boolean()->defaultValue(false),
-                'includeExpiredInExport' => $this->boolean()->notNull()->defaultValue(false),
+                // Asset/Volume settings
+                'imageVolumeUid' => $this->string()->null(),
+                // URL settings
+                'slugPrefix' => $this->string(50)->notNull()->defaultValue('go'),
+                'qrPrefix' => $this->string(50)->notNull()->defaultValue('qr'),
                 // QR Code settings
                 'defaultQrSize' => $this->integer()->notNull()->defaultValue(256),
                 'defaultQrColor' => $this->string(7)->notNull()->defaultValue('#000000'),
                 'defaultQrBgColor' => $this->string(7)->notNull()->defaultValue('#FFFFFF'),
                 'defaultQrFormat' => $this->string(3)->notNull()->defaultValue('png'),
-                'enableQrCodeCache' => $this->boolean()->notNull()->defaultValue(true),
-                'qrCodeCacheDuration' => $this->integer()->notNull()->defaultValue(86400),
                 'defaultQrErrorCorrection' => $this->string(1)->notNull()->defaultValue('M'),
-                'enableQrLogo' => $this->boolean()->notNull()->defaultValue(false),
-                'qrLogoVolumeUid' => $this->string()->null(),
-                'imageVolumeUid' => $this->string()->null(),
-                'defaultQrLogoId' => $this->integer()->null(),
-                'qrLogoSize' => $this->integer()->notNull()->defaultValue(20),
                 'defaultQrMargin' => $this->integer()->notNull()->defaultValue(4),
                 'qrModuleStyle' => $this->string(10)->notNull()->defaultValue('square'),
                 'qrEyeStyle' => $this->string(10)->notNull()->defaultValue('square'),
                 'qrEyeColor' => $this->string(7)->null(),
-                // QR Download settings
+                'enableQrLogo' => $this->boolean()->notNull()->defaultValue(false),
+                'qrLogoVolumeUid' => $this->string()->null(),
+                'defaultQrLogoId' => $this->integer()->null(),
+                'qrLogoSize' => $this->integer()->notNull()->defaultValue(20),
+                'enableQrCodeCache' => $this->boolean()->notNull()->defaultValue(true),
+                'qrCodeCacheDuration' => $this->integer()->notNull()->defaultValue(86400),
                 'enableQrDownload' => $this->boolean()->notNull()->defaultValue(true),
                 'qrDownloadFilename' => $this->string()->notNull()->defaultValue('{slug}-qr-{size}'),
-                // Redirect settings
+                // Analytics settings
+                'enableAnalytics' => $this->boolean()->notNull()->defaultValue(true),
+                'analyticsRetention' => $this->integer()->notNull()->defaultValue(90),
+                'anonymizeIpAddress' => $this->boolean()->notNull()->defaultValue(false),
+                // Template settings
                 'redirectTemplate' => $this->string()->null(),
                 'qrTemplate' => $this->string()->null(),
+                // Device & Geo Detection
                 'enableGeoDetection' => $this->boolean()->notNull()->defaultValue(false),
                 'cacheDeviceDetection' => $this->boolean()->notNull()->defaultValue(true),
                 'deviceDetectionCacheDuration' => $this->integer()->notNull()->defaultValue(3600),
                 'languageDetectionMethod' => $this->string(10)->notNull()->defaultValue('browser'),
-                // URL settings
-                'slugPrefix' => $this->string(50)->notNull()->defaultValue('go'),
-                'qrPrefix' => $this->string(50)->notNull()->defaultValue('qr'),
                 // Interface settings
                 'itemsPerPage' => $this->integer()->notNull()->defaultValue(100),
                 'notFoundRedirectUrl' => $this->string()->notNull()->defaultValue('/'),
-                // Logging
-                'logLevel' => $this->string(20)->notNull()->defaultValue('error'),
+                // Export settings
+                'includeDisabledInExport' => $this->boolean()->defaultValue(false),
+                'includeExpiredInExport' => $this->boolean()->notNull()->defaultValue(false),
                 // Integration settings
                 'enabledIntegrations' => $this->text()->null()->comment('JSON array of enabled integration handles'),
                 'seomaticTrackingEvents' => $this->text()->null()->comment('JSON array of event types to track in SEOmatic'),
                 'seomaticEventPrefix' => $this->string(50)->defaultValue('smart_links')->comment('Event prefix for GTM/GA events'),
+                // Logging
+                'logLevel' => $this->string(20)->notNull()->defaultValue('error'),
                 // Timestamps
                 'dateCreated' => $this->dateTime()->notNull(),
                 'dateUpdated' => $this->dateTime()->notNull(),

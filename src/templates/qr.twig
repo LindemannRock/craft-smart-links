@@ -1,115 +1,147 @@
 <!DOCTYPE html>
 <html lang="{{ currentSite.language }}">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ smartLink.title }} - {{ 'QR Code'|t('smart-links') }}</title>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    {{ smartLink.renderSeomaticTracking('qr_scan') }}
+		{# SEOmatic meta tags #}
+		{% if seomatic is defined %}
+			{% if smartLink.seo is defined and smartLink.seo %}
+				{# Use SEOmatic field data if available, with Smart Link fallbacks #}
+				{% set seoData = smartLink.seo.metaGlobalVars %}
+				{% do seomatic.meta.seoTitle(seoData.seoTitle ?: (smartLink.title ~ ' - QR Code')) %}
+				{% do seomatic.meta.seoDescription(seoData.seoDescription ?: smartLink.description) %}
+				{% if seoData.seoKeywords %}{% do seomatic.meta.seoKeywords(seoData.seoKeywords) %}{% endif %}
+				{% do seomatic.meta.canonicalUrl(seoData.canonicalUrl ?: siteUrl('qr/' ~ smartLink.slug ~ '/view')) %}
+				{% if seoData.robots %}{% do seomatic.meta.robots(seoData.robots) %}{% endif %}
+				{% if seoData.seoImage %}{% do seomatic.meta.seoImage(seoData.seoImage) %}{% endif %}
+				{% if seoData.ogType %}{% do seomatic.meta.ogType(seoData.ogType) %}{% endif %}
+				{% do seomatic.meta.ogTitle(seoData.ogTitle ?: (smartLink.title ~ ' - QR Code')) %}
+				{% do seomatic.meta.ogDescription(seoData.ogDescription ?: smartLink.description) %}
+				{% if seoData.ogImage %}{% do seomatic.meta.ogImage(seoData.ogImage) %}{% endif %}
+				{% if seoData.twitterCard %}{% do seomatic.meta.twitterCard(seoData.twitterCard) %}{% endif %}
+				{% do seomatic.meta.twitterTitle(seoData.twitterTitle ?: (smartLink.title ~ ' - QR Code')) %}
+				{% do seomatic.meta.twitterDescription(seoData.twitterDescription ?: smartLink.description) %}
+				{% if seoData.twitterImage %}{% do seomatic.meta.twitterImage(seoData.twitterImage) %}{% endif %}
+			{% else %}
+				{# Fallback to Smart Link data #}
+				{% do seomatic.meta.seoTitle(smartLink.title ~ ' - QR Code') %}
+				{% do seomatic.meta.seoDescription(smartLink.description) %}
+				{% do seomatic.meta.canonicalUrl(siteUrl('qr/' ~ smartLink.slug ~ '/view')) %}
+			{% endif %}
+		{% else %}
+			{# Fallback meta tags if SEOmatic is not installed #}
+			<title>{{ smartLink.title }} - QR Code - {{ siteName }}</title>
+			{% if smartLink.description %}<meta name="description" content="{{ smartLink.description }}">{% endif %}
+			<link rel="canonical" href="{{ siteUrl('qr/' ~ smartLink.slug ~ '/view') }}">
+		{% endif %}
 
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+		<script src="https://cdn.tailwindcss.com"></script>
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            background-color: #f5f5f5;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            padding: 20px;
-        }
+		{# Include SEOmatic tracking - this pushes events to GTM dataLayer #}
+		{% set seomaticTracking = null %}
+		{% if smartLink.renderSeomaticTracking is defined %}
+			{% set seomaticTracking = smartLink.renderSeomaticTracking('qr_scan') %}
+			{{ seomaticTracking }}
+		{% endif %}
+	</head>
+	<body>
+		<div class="flex justify-center items-center min-h-screen max-w-lg mx-auto px-4 py-8">
+			{# Main container #}
+			<div class="bg-white shadow-lg max-w-lg w-full overflow-hidden">
+				<div class="p-8 md:p-12 text-center">
+					{# Title #}
+					<h1 class="text-3xl font-semibold mb-4 text-brand {% if smartLink.hideTitle %} sr-only{% endif %}">{{ smartLink.title }}</h1>
 
-        .container {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
-            max-width: 480px;
-            width: 100%;
-            padding: 40px;
-            text-align: center;
-        }
+				{# Description #}
+				{% if smartLink.description %}
+					<p class="text-gray-600 mb-8 leading-relaxed">{{ smartLink.description }}</p>
+				{% endif %}
 
-        h1 {
-            font-size: 24px;
-            margin-bottom: 10px;
-            color: #333;
-        }
+				{# QR Code display #}
+				<div class="my-8 mx-auto">
+					<img src="{{ smartLink.getQrCodeUrl({ size: size ?? 300 }) }}" alt="{{ smartLink.title }} QR Code" class="mx-auto">
+				</div>
 
-        .description {
-            color: #666;
-            margin-bottom: 30px;
-            line-height: 1.5;
-        }
+				{# Instructions #}
+				<div class="mt-8 space-y-4">
+					<p class="text-sm text-gray-600">{{ 'Scan with your phone\'s camera to download'|t('smart-links') }}</p>
 
-        .qr-code {
-            display: inline-block;
-            padding: 20px;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            margin-bottom: 20px;
-        }
+					{# Download button #}
+					<div class="mt-6 hidden">
+						<a href="{{ smartLink.getQrCodeUrl({ download: 1, format: format, size: size }) }}" download="{{ smartLink.slug }}-qr.{{ format }}" class="inline-block px-6 py-3 bg-gray-100 text-gray-700 no-underline rounded-lg font-medium text-sm transition-all duration-200 hover:bg-gray-200">
+							{{ "Download QR Code"|t('smart-links') }}
+						</a>
+					</div>
+				</div>
 
-        .qr-code img {
-            display: block;
-            max-width: 100%;
-            height: auto;
-        }
+				{# App store buttons (optional) #}
+				<div class="mt-12 pt-8 border-t border-gray-200 hidden">
+					<h2 class="text-lg font-semibold mb-4 text-gray-900">{{ 'Or download directly'|t('smart-links') }}</h2>
+					<div class="flex flex-wrap gap-3 justify-center">
+						{% if smartLink.iosUrl %}
+							<a href="{{ smartLink.iosUrl }}" class="inline-flex items-center gap-2 px-4 py-2 border border-gray-200 rounded-lg no-underline text-gray-700 text-sm font-medium transition-all duration-200 hover:bg-gray-50 hover:border-gray-300">
+								<svg class="w-4 h-4" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+									<path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
+								</svg>
+								{{ 'iOS'|t('smart-links') }}
+							</a>
+						{% endif %}
 
-        .instructions {
-            color: #999;
-            font-size: 14px;
-        }
+						{% if smartLink.androidUrl %}
+							<a href="{{ smartLink.androidUrl }}" class="inline-flex items-center gap-2 px-4 py-2 border border-gray-200 rounded-lg no-underline text-gray-700 text-sm font-medium transition-all duration-200 hover:bg-gray-50 hover:border-gray-300">
+								<svg class="w-4 h-4" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+									<path d="M3 20.5v-17c0-.83.67-1.5 1.5-1.5h1c.83 0 1.5.67 1.5 1.5v17c0 .83-.67 1.5-1.5 1.5h-1c-.83 0-1.5-.67-1.5-1.5zM16.5 2h1c.83 0 1.5.67 1.5 1.5v17c0 .83-.67 1.5-1.5 1.5h-1c-.83 0-1.5-.67-1.5-1.5v-17c0-.83.67-1.5 1.5-1.5zM7 8.5c0-.83.67-1.5 1.5-1.5h1c.83 0 1.5.67 1.5 1.5v12c0 .83-.67 1.5-1.5 1.5h-1c-.83 0-1.5-.67-1.5-1.5v-12zm4-6.5c0-.83.67-1.5 1.5-1.5h1c.83 0 1.5.67 1.5 1.5v18c0 .83-.67 1.5-1.5 1.5h-1c-.83 0-1.5-.67-1.5-1.5V2z"/>
+								</svg>
+								{{ 'Android'|t('smart-links') }}
+							</a>
+						{% endif %}
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
 
-        @media (prefers-color-scheme: dark) {
-            body {
-                background-color: #1a1a1a;
-            }
+	{# Debug mode - Add ?debug=1 to URL to see SEOmatic tracking details #}
+	<script>
+		(function() {
+			// Get debug mode from URL parameter
+			var urlParams = new URLSearchParams(window.location.search);
+			var debugMode = urlParams.get('debug') === '1';
 
-            .container {
-                background: #2a2a2a;
-                box-shadow: 0 2px 20px rgba(0, 0, 0, 0.5);
-            }
+			if (debugMode) {
+				console.log('🐛 DEBUG MODE ENABLED');
+				console.log('🔗 Smart Link Slug:', '{{ smartLink.slug }}');
+				console.log('📊 Event Type:', 'qr_scan');
+				console.log('📱 QR Code Page');
 
-            h1 {
-                color: #f0f0f0;
-            }
+				// SEOmatic tracking debug
+				console.log('\n📡 SEOmatic Integration:');
+				{% if seomaticTracking %}
+					console.log('✅ SEOmatic tracking enabled');
+					console.log('📝 Tracking script rendered:');
+					console.log('{{ seomaticTracking|escape('js')|raw }}');
 
-            .description {
-                color: #aaa;
-            }
+					// Check if dataLayer exists
+					if (typeof window.dataLayer !== 'undefined') {
+						console.log('✅ GTM dataLayer detected:', window.dataLayer);
+					} else {
+						console.log('⚠️ GTM dataLayer not found (SEOmatic may not be configured)');
+					}
+				{% else %}
+					console.log('❌ SEOmatic tracking not available');
+					console.log('   - Plugin may not be installed/enabled');
+					console.log('   - Or integration may be disabled in settings');
+				{% endif %}
 
-            .qr-code {
-                background: white;
-            }
+				// Add debug indicator to page
+				var debugBanner = document.createElement('div');
+				debugBanner.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; background: #ff6b6b; color: white; padding: 10px; text-align: center; font-weight: bold; z-index: 9999;';
+				debugBanner.textContent = '🐛 DEBUG MODE - QR Code Page - Check browser console for details';
+				document.body.insertBefore(debugBanner, document.body.firstChild);
+			}
+		})();
+	</script>
 
-            .instructions {
-                color: #666;
-            }
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>{{ smartLink.title }}</h1>
-
-        {% if smartLink.description %}
-            <p class="description">{{ smartLink.description }}</p>
-        {% endif %}
-
-        <div class="qr-code">
-            <img src="{{ smartLink.getQrCodeUrl({ size: size ?? 300 }) }}"
-                 alt="{{ smartLink.title }} {{ 'QR Code'|t('smart-links') }}"
-                 width="{{ size ?? 300 }}"
-                 height="{{ size ?? 300 }}">
-        </div>
-
-        <p class="instructions">{{ 'Scan this QR code with your phone\'s camera'|t('smart-links') }}</p>
-    </div>
 </body>
 </html>

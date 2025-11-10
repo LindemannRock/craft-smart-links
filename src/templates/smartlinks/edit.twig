@@ -93,11 +93,43 @@
 {% block actionButton %}
     {% if smartLink.id %}
         <div class="preview-btn-container btngroup">
-            <a href="{{ smartLink.getRedirectUrl() }}" target="_blank" class="view-btn btn" aria-label="{{ 'View'|t('app') }}">{{ 'View'|t('app') }}</a>
+            {% set viewLabel = plugin.settings.pluginName|replace({' Manager': '', ' manager': ''}) %}
+            <a href="{{ smartLink.getRedirectUrl() }}" target="_blank" class="btn">{{ 'View'|t('app') }}</a>
+            <button type="button" class="btn menubtn"></button>
+            <div class="menu">
+                <ul role="listbox">
+                    <li>
+                        <a role="option" tabindex="0" href="{{ smartLink.getRedirectUrl() }}" target="_blank">
+                            {{ viewLabel }}
+                        </a>
+                    </li>
+                    <li>
+                        <a role="option" tabindex="0" href="{{ smartLink.getQrCodeUrl() }}" target="_blank">
+                            {{ "QR Code Image"|t('smart-links') }}
+                        </a>
+                    </li>
+                    <li>
+                        <a role="option" tabindex="0" href="{{ smartLink.getQrCodeDisplayUrl() }}" target="_blank">
+                            {{ "QR Code Page"|t('smart-links') }}
+                        </a>
+                    </li>
+                </ul>
+            </div>
         </div>
     {% endif %}
-    <div class="btngroup">
+    <div class="btngroup submit">
         <button type="submit" class="btn submit">{{ "Save"|t('app') }}</button>
+        <button type="button" class="btn submit menubtn"></button>
+        <div class="menu">
+            <ul role="listbox">
+                <li>
+                    <a class="formsubmit" role="option" tabindex="0" data-redirect="{{ url('smart-links/{id}', {site: currentSite.handle})|hash }}">
+                        <span class="label">{{ 'Save and continue editing'|t('app') }}</span>
+                        <span class="shortcut" id="save-shortcut"></span>
+                    </a>
+                </li>
+            </ul>
+        </div>
     </div>
     {% if smartLink.id %}
         <button type="button" id="action-btn" class="btn menubtn action-btn hairline-dark m" title="{{ 'Actions'|t('app') }}" aria-controls="action-menu" aria-label="{{ 'Actions'|t('app') }}" data-disclosure-trigger="true" aria-expanded="false"></button>
@@ -287,7 +319,7 @@
                         <label>{{ "Preview"|t('smart-links') }}</label>
                     </div>
                     <div class="input" style="text-align: center;">
-                        <a href="{{ smartLink.getQrCodeDisplayUrl() }}" target="_blank" title="{{ 'Click to view QR code page'|t('smart-links') }}">
+                        <a href="{{ smartLink.getQrCodeUrl() }}" target="_blank" title="{{ 'Click to view QR code image'|t('smart-links') }}">
                             <img id="qr-preview"
                                  src="{{ smartLink.getQrCodeUrl({ size: 150 }) }}"
                                  alt="QR Code Preview"
@@ -397,6 +429,22 @@
                                     </li>
                                     <hr>
                                 {% endif %}
+                                <li>
+                                    <h6>{{ "View QR Code"|t('smart-links') }}</h6>
+                                    <ul>
+                                        <li>
+                                            <a href="{{ smartLink.getQrCodeUrl() }}" target="_blank">
+                                                {{ "QR Code Image"|t('smart-links') }}
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="{{ smartLink.getQrCodeDisplayUrl() }}" target="_blank">
+                                                {{ "QR Code Page"|t('smart-links') }}
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </li>
+                                <hr>
                                 <li><a id="reset-qr-defaults" href="#">{{ "Reset to Defaults"|t('smart-links') }}</a></li>
                             </ul>
                         </div>
@@ -832,5 +880,12 @@
             }
         });
     {% endif %}
+
+    // Set platform-specific keyboard shortcut
+    const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+    const saveShortcut = document.getElementById('save-shortcut');
+    if (saveShortcut) {
+        saveShortcut.textContent = isMac ? '⌘S' : 'Ctrl+S';
+    }
 
 {% endjs %}
