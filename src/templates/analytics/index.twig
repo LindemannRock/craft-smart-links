@@ -11,7 +11,7 @@
 		<div class="menu" data-align="right">
 			<ul>
 				<li>
-					<a href="{{ actionUrl('smart-links/analytics/export', {dateRange: dateRange, format: 'csv'}) }}" class="export-link" data-format="csv">{{ "Export as CSV"|t('smart-links') }}</a>
+					<a href="#" class="export-link" data-format="csv" data-action="smart-links/analytics/export">{{ "Export as CSV"|t('smart-links') }}</a>
 				</li>
 			</ul>
 		</div>
@@ -577,9 +577,6 @@ const translations = {
             url.searchParams.set('dateRange', range);
             window.history.pushState({}, '', url);
 
-            // Update export links
-            updateExportLinks(range);
-
             // Show loading state
             $('#analytics-dashboard').css('opacity', '0.5');
 
@@ -587,20 +584,22 @@ const translations = {
             loadAnalyticsData(range);
         });
 
-        // Update export links when date range changes
-        function updateExportLinks(dateRange) {
-            if (!dateRange) {
-                dateRange = currentDateRange;
-            }
-            $('.export-link').each(function() {
-                const format = $(this).data('format');
-                const exportUrl = Craft.getActionUrl('smart-links/analytics/export', {
-                    dateRange: dateRange,
-                    format: format
-                });
-                $(this).attr('href', exportUrl);
+        // Handle export link clicks
+        $(document).on('click', '.export-link', function(e) {
+            e.preventDefault();
+            const $link = $(this);
+            const action = $link.data('action');
+            const format = $link.data('format') || 'csv';
+
+            // Build URL with current date range
+            const exportUrl = Craft.getActionUrl(action, {
+                dateRange: currentDateRange,
+                format: format
             });
-        }
+
+            // Trigger download
+            window.location.href = exportUrl;
+        });
 
         // Load analytics data
         function loadAnalyticsData(dateRange) {
@@ -804,8 +803,6 @@ const translations = {
             $('#cities-table tbody').html(html);
         }
 
-        // Initial update
-        updateExportLinks();
     });
 
     function initCharts() {
