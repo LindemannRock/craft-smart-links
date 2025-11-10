@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.5.1](https://github.com/LindemannRock/craft-smart-links/compare/v5.5.0...v5.5.1) (2025-11-10)
+
+
+### Bug Fixes
+
+* **analytics:** Update export link handling and streamline export functionality ([bcf960b](https://github.com/LindemannRock/craft-smart-links/commit/bcf960bb209c49f95297ce9b2410844d8c423f8e))
+
 ## [5.5.0](https://github.com/LindemannRock/craft-smart-links/compare/v5.4.1...v5.5.0) (2025-11-10)
 
 
