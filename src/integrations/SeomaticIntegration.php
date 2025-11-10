@@ -9,7 +9,8 @@
 namespace lindemannrock\smartlinks\integrations;
 
 use Craft;
-use craft\helpers\Json;
+use craft\helpers\App;
+use nystudio107\seomatic\Seomatic;
 use yii\base\Event;
 
 /**
@@ -122,14 +123,13 @@ class SeomaticIntegration extends BaseIntegration
      */
     private function injectDataLayerEvent(array $eventData): bool
     {
-        $seomaticClass = 'nystudio107\seomatic\Seomatic';
-        if (!class_exists($seomaticClass)) {
+        if (!class_exists(Seomatic::class) || !isset(Seomatic::$plugin)) {
             return false;
         }
 
         try {
             // Access SEOmatic's script service
-            $scriptService = $seomaticClass::$plugin->script ?? null;
+            $scriptService = Seomatic::$plugin->script ?? null;
             if (!$scriptService) {
                 $this->logDebug('SEOmatic script service not available');
                 return false;
@@ -262,8 +262,7 @@ class SeomaticIntegration extends BaseIntegration
             $scriptsFound = [];
 
             // Check each site for tracking scripts
-            $seomaticClass = 'nystudio107\seomatic\Seomatic';
-            if (class_exists($seomaticClass)) {
+            if (class_exists(Seomatic::class) && isset(Seomatic::$plugin)) {
                 $currentSiteId = Craft::$app->sites->getCurrentSite()->id;
 
                 foreach ($sites as $site) {
@@ -273,14 +272,14 @@ class SeomaticIntegration extends BaseIntegration
                     // Load SEOmatic meta containers for this specific site
                     // This ensures we get site-specific configuration, not cached/global values
                     try {
-                        if (isset($seomaticClass::$plugin->metaContainers)) {
-                            $seomaticClass::$plugin->metaContainers->loadMetaContainers('', $site->id);
+                        if (isset(Seomatic::$plugin->metaContainers)) {
+                            Seomatic::$plugin->metaContainers->loadMetaContainers('', $site->id);
                         }
                     } catch (\Throwable $e) {
                         // Silently continue if we can't load meta containers for this site
                     }
 
-                    $scriptService = $seomaticClass::$plugin->script ?? null;
+                    $scriptService = Seomatic::$plugin->script ?? null;
                     if (!$scriptService) {
                         continue;
                     }
@@ -295,9 +294,12 @@ class SeomaticIntegration extends BaseIntegration
                                 $gtmScript->vars['googleTagManagerContainerId']['value'] ??
                                 null;
 
-                        // Parse environment variables
+                        // Parse environment variables only if it looks like an env var (starts with $)
                         if (is_string($gtmId)) {
-                            $gtmId = \Craft::parseEnv($gtmId);
+                            // Only parse if it's an environment variable reference
+                            if (strpos($gtmId, '$') !== false) {
+                                $gtmId = App::env($gtmId);
+                            }
                             $gtmId = trim($gtmId);
                         }
 
@@ -329,9 +331,11 @@ class SeomaticIntegration extends BaseIntegration
                         // Correct key is 'googleAnalyticsId', not 'googleAnalyticsMeasurementId'
                         $measurementId = $gtagScript->vars['googleAnalyticsId']['value'] ?? null;
 
-                        // Parse environment variables if it's a string
+                        // Parse environment variables only if it looks like an env var (starts with $)
                         if (is_string($measurementId)) {
-                            $measurementId = \Craft::parseEnv($measurementId);
+                            if (strpos($measurementId, '$') !== false) {
+                                $measurementId = App::env($measurementId);
+                            }
                             $measurementId = trim($measurementId);
                         }
 
@@ -382,9 +386,11 @@ class SeomaticIntegration extends BaseIntegration
                         // Correct key is 'dataPartnerId'
                         $partnerId = $linkedInScript->vars['dataPartnerId']['value'] ?? null;
 
-                        // Parse environment variables
+                        // Parse environment variables only if it looks like an env var (starts with $)
                         if (is_string($partnerId)) {
-                            $partnerId = \Craft::parseEnv($partnerId);
+                            if (strpos($partnerId, '$') !== false) {
+                                $partnerId = App::env($partnerId);
+                            }
                             $partnerId = trim($partnerId);
                         }
 
@@ -433,9 +439,11 @@ class SeomaticIntegration extends BaseIntegration
                         // Correct key is 'pinterestTagId'
                         $pinterestId = $pinterestScript->vars['pinterestTagId']['value'] ?? null;
 
-                        // Parse environment variables
+                        // Parse environment variables only if it looks like an env var (starts with $)
                         if (is_string($pinterestId)) {
-                            $pinterestId = \Craft::parseEnv($pinterestId);
+                            if (strpos($pinterestId, '$') !== false) {
+                                $pinterestId = App::env($pinterestId);
+                            }
                             $pinterestId = trim($pinterestId);
                         }
 
@@ -461,9 +469,11 @@ class SeomaticIntegration extends BaseIntegration
                         // Correct key is 'siteId'
                         $fathomSiteId = $fathomScript->vars['siteId']['value'] ?? null;
 
-                        // Parse environment variables
+                        // Parse environment variables only if it looks like an env var (starts with $)
                         if (is_string($fathomSiteId)) {
-                            $fathomSiteId = \Craft::parseEnv($fathomSiteId);
+                            if (strpos($fathomSiteId, '$') !== false) {
+                                $fathomSiteId = App::env($fathomSiteId);
+                            }
                             $fathomSiteId = trim($fathomSiteId);
                         }
 
@@ -489,9 +499,11 @@ class SeomaticIntegration extends BaseIntegration
                         // Correct key is 'siteId'
                         $matomoSiteId = $matomoScript->vars['siteId']['value'] ?? null;
 
-                        // Parse environment variables
+                        // Parse environment variables only if it looks like an env var (starts with $)
                         if (is_string($matomoSiteId)) {
-                            $matomoSiteId = \Craft::parseEnv($matomoSiteId);
+                            if (strpos($matomoSiteId, '$') !== false) {
+                                $matomoSiteId = App::env($matomoSiteId);
+                            }
                             $matomoSiteId = trim($matomoSiteId);
                         }
 
@@ -517,9 +529,11 @@ class SeomaticIntegration extends BaseIntegration
                         // Correct key is 'siteDomain'
                         $plausibleDomain = $plausibleScript->vars['siteDomain']['value'] ?? null;
 
-                        // Parse environment variables
+                        // Parse environment variables only if it looks like an env var (starts with $)
                         if (is_string($plausibleDomain)) {
-                            $plausibleDomain = \Craft::parseEnv($plausibleDomain);
+                            if (strpos($plausibleDomain, '$') !== false) {
+                                $plausibleDomain = App::env($plausibleDomain);
+                            }
                             $plausibleDomain = trim($plausibleDomain);
                         }
 

@@ -68,7 +68,10 @@
                             <span style="color: #6c757d; font-size: 12px;">{{ "Installed but Disabled"|t('smart-links') }}</span>
                         {% else %}
                             <span class="status"></span>
-                            <span style="color: #6c757d; font-size: 12px;">{{ "Not Installed"|t('smart-links') }}</span>
+                            <span style="color: #6c757d; font-size: 12px;">
+                                {{ "Not Installed"|t('smart-links') }}
+                                <a href="https://plugins.craftcms.com/seomatic" target="_blank" class="go" style="margin-left: 8px;">{{ "Install Plugin"|t('smart-links') }}</a>
+                            </span>
                         {% endif %}
                     </div>
                     <p class="light" style="margin: 8px 0 0 0; font-size: 12px;">{{ "Push {smartLinksName} click events to Google Tag Manager and analytics platforms for tracking redirects, button clicks, and QR code scans."|t('smart-links', { smartLinksName: pluginName }) }}</p>
@@ -317,7 +320,10 @@
                             <span style="color: #6c757d; font-size: 12px;">{{ "Installed but Disabled"|t('smart-links') }}</span>
                         {% else %}
                             <span class="status"></span>
-                            <span style="color: #6c757d; font-size: 12px;">{{ "Not Installed"|t('smart-links') }}</span>
+                            <span style="color: #6c757d; font-size: 12px;">
+                                {{ "Not Installed"|t('smart-links') }}
+                                <a href="https://github.com/LindemannRock/craft-redirect-manager" target="_blank" class="go" style="margin-left: 8px;">{{ "Install Plugin"|t('smart-links') }}</a>
+                            </span>
                         {% endif %}
                     </div>
                     <p class="light" style="margin: 8px 0 0 0; font-size: 12px;">{{ "Create permanent redirect records when smart link slugs change or links are deleted. Provides centralized redirect management and analytics tracking."|t('smart-links') }}</p>
