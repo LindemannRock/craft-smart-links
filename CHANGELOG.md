@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.5.3](https://github.com/LindemannRock/craft-smart-links/compare/v5.5.2...v5.5.3) (2025-11-11)
+
+
+### Bug Fixes
+
+* **ip-salt-error:** enhance error message with copyable commands for generating IP hash salt ([b19129c](https://github.com/LindemannRock/craft-smart-links/commit/b19129c5b18b6110d68b7664caeba71e5ce9f243))
+
 ## [5.5.2](https://github.com/LindemannRock/craft-smart-links/compare/v5.5.1...v5.5.2) (2025-11-11)
 
 
