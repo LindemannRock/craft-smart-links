@@ -42,7 +42,13 @@ Intelligent URL shortening and redirect management plugin for Craft CMS 5.x with
 
 ```bash
 cd /path/to/project
+```
+
+```bash
 composer require lindemannrock/craft-smart-links
+```
+
+```bash
 ./craft plugin/install smart-links
 ```
 
@@ -50,7 +56,13 @@ composer require lindemannrock/craft-smart-links
 
 ```bash
 cd /path/to/project
+```
+
+```bash
 ddev composer require lindemannrock/craft-smart-links
+```
+
+```bash
 ddev craft plugin/install smart-links
 ```
 
