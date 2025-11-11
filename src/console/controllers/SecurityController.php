@@ -25,7 +25,8 @@ class SecurityController extends Controller
      */
     public function actionGenerateSalt(): int
     {
-        $this->stdout("Smart Links - IP Hash Salt Generator\n", Console::FG_CYAN);
+        $pluginName = \lindemannrock\smartlinks\SmartLinks::$plugin->getSettings()->getFullName();
+        $this->stdout("{$pluginName} - IP Hash Salt Generator\n", Console::FG_CYAN);
         $this->stdout(str_repeat('=', 60) . "\n\n");
 
         // Generate cryptographically secure random salt
@@ -73,7 +74,7 @@ class SecurityController extends Controller
             if (!empty($envContent) && substr($envContent, -1) !== "\n") {
                 $envContent .= "\n";
             }
-            $envContent .= "\n# Smart Links IP Hash Salt (generated " . date('Y-m-d H:i:s') . ")\n";
+            $envContent .= "\n# {$pluginName} IP Hash Salt (generated " . date('Y-m-d H:i:s') . ")\n";
             $envContent .= 'SMART_LINKS_IP_SALT="' . $salt . '"' . "\n";
             $action = "Added";
         }

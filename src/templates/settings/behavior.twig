@@ -5,7 +5,7 @@
 
 {% set plugin = craft.app.plugins.getPlugin('smart-links') %}{% set crumbs = [
     {
-        label: plugin.settings.pluginName|t('smart-links'),
+        label: smartlinkHelper.fullName|t('smart-links'),
         url: url('smart-links'),
     },
     {
@@ -21,8 +21,6 @@
 {% import "_includes/forms" as forms %}
 
 {% block content %}
-    {% set pluginName = plugin.settings.pluginName %}
-    {% set singularName = pluginName|replace({'/s$/': ''}) %}
 
     {% include 'smart-links/_components/ip-salt-error' %}
 
@@ -52,7 +50,7 @@
 
         {{ forms.textField({
             label: "404 Redirect URL"|t('smart-links'),
-            instructions: "Where to redirect when a {singularName} is not found or disabled"|t('smart-links', {singularName: singularName|lower}),
+            instructions: "Where to redirect when a {singularName} is not found or disabled"|t('smart-links', {singularName: smartlinkHelper.lowerDisplayName}),
             id: 'notFoundRedirectUrl',
             name: 'settings[notFoundRedirectUrl]',
             value: settings.notFoundRedirectUrl ?? '/',

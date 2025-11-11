@@ -27,7 +27,7 @@ class SmartLinkType extends BaseElementLinkType
      */
     public static function displayName(): string
     {
-        return Craft::t('smart-links', 'Smart Link');
+        return SmartLinks::$plugin->getSettings()->getDisplayName();
     }
 
     /**
@@ -186,7 +186,9 @@ class SmartLinkType extends BaseElementLinkType
         // Parse the value to get the element ID
         $matches = [];
         if (!preg_match('/^{smartLink:(\d+)(@(\d+))?:url}$/', $value, $matches)) {
-            $error = Craft::t('app', 'Invalid smart link format.');
+            $error = Craft::t('smart-links', 'Invalid {pluginName} format.', [
+                'pluginName' => SmartLinks::$plugin->getSettings()->getLowerDisplayName()
+            ]);
             return false;
         }
 
@@ -200,7 +202,9 @@ class SmartLinkType extends BaseElementLinkType
             ->one();
 
         if (!$smartLink) {
-            $error = Craft::t('app', 'Smart link not found.');
+            $error = Craft::t('smart-links', '{pluginName} not found.', [
+                'pluginName' => SmartLinks::$plugin->getSettings()->getDisplayName()
+            ]);
             return false;
         }
 

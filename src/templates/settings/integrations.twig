@@ -6,7 +6,7 @@
 {% set plugin = craft.app.plugins.getPlugin('smart-links') %}
 {% set crumbs = [
     {
-        label: plugin.settings.pluginName|t('smart-links'),
+        label: smartlinkHelper.fullName|t('smart-links'),
         url: url('smart-links'),
     },
     {
@@ -38,9 +38,8 @@
 
         <h2 style="margin-top: 0px;">{{ "Third-Party Integrations"|t('smart-links') }}</h2>
 
-        {% set pluginName = plugin.settings.pluginName %}
         <div class="field">
-            <p class="light">{{ "Integrate {pluginName} with third-party analytics and tracking services to push click events to Google Tag Manager, Google Analytics, and other platforms."|t('smart-links', { pluginName: pluginName }) }}</p>
+            <p class="light">{{ "Integrate {pluginName} with third-party analytics and tracking services to push click events to Google Tag Manager, Google Analytics, and other platforms."|t('smart-links', { pluginName: smartlinkHelper.fullName }) }}</p>
         </div>
 
         {% set integrationStatuses = craft.app.plugins.getPlugin('smart-links').integration.getAllIntegrationStatuses() %}
@@ -74,7 +73,7 @@
                             </span>
                         {% endif %}
                     </div>
-                    <p class="light" style="margin: 8px 0 0 0; font-size: 12px;">{{ "Push {smartLinksName} click events to Google Tag Manager and analytics platforms for tracking redirects, button clicks, and QR code scans."|t('smart-links', { smartLinksName: pluginName }) }}</p>
+                    <p class="light" style="margin: 8px 0 0 0; font-size: 12px;">{{ "Push {smartLinksName} click events to Google Tag Manager and analytics platforms for tracking redirects, button clicks, and QR code scans."|t('smart-links', { smartLinksName: smartlinkHelper.lowerDisplayName }) }}</p>
                 </div>
                 <div style="flex-shrink: 0;">
                     {{ forms.lightswitchField({
@@ -108,7 +107,7 @@
                         <div style="margin-bottom: 20px;">
                             <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
                                 <strong style="font-size: 13px;">{{ "Active Tracking Scripts"|t('smart-links') }}</strong>
-                                <span class="light" style="font-size: 11px;">{{ "Scripts receiving {pluginName} events"|t('smart-links', { pluginName: pluginName }) }}</span>
+                                <span class="light" style="font-size: 11px;">{{ "Scripts receiving {pluginName} events"|t('smart-links', { pluginName: smartlinkHelper.fullName }) }}</span>
                             </div>
                             {% for handle in dataLayerScripts %}
                                 {% if seomaticStatus.scripts[handle] is defined %}
@@ -136,7 +135,7 @@
                         </div>
 
                         {# Hidden for now - Other tracking scripts (Facebook, LinkedIn, HubSpot, Pinterest, Fathom, Matomo, Plausible)
-                           receive events via GTM, not directly from Smart Links, so we don't display them here #}
+                           receive events via GTM, not directly from {{ smartlinkHelper.fullName }}, so we don't display them here #}
                     {% else %}
                         <div style="background: #fff9e6; border-left: 3px solid #f59e0b; padding: 12px 15px; margin-bottom: 20px; border-radius: 3px;">
                             <p style="margin: 0; font-size: 13px;">
@@ -273,16 +272,16 @@
                         </p>
                         <ul style="margin: 0 0 12px 0; padding-left: 20px; font-size: 12px; line-height: 1.6;">
                             <li style="margin-bottom: 6px;">
-                                <strong>{{ "{pluginName} pushes events to GTM or GA4 dataLayer only"|t('smart-links', {pluginName: pluginName}) }}</strong><br>
+                                <strong>{{ "{pluginName} pushes events to GTM or GA4 dataLayer only"|t('smart-links', {pluginName: smartlinkHelper.fullName}) }}</strong><br>
                                 <span class="light">{{ "Only Google Tag Manager and Google Analytics 4 support the dataLayer format in SEOmatic"|t('smart-links') }}</span>
                             </li>
                             <li style="margin-bottom: 6px;">
                                 <strong>{{ "Use GTM to forward to other platforms"|t('smart-links') }}</strong><br>
-                                <span class="light">{{ "Configure GTM triggers and tags to forward {pluginName} events to Facebook Pixel, LinkedIn, HubSpot, etc."|t('smart-links', {pluginName: pluginName}) }}</span>
+                                <span class="light">{{ "Configure GTM triggers and tags to forward {pluginName} events to Facebook Pixel, LinkedIn, HubSpot, etc."|t('smart-links', {pluginName: smartlinkHelper.fullName}) }}</span>
                             </li>
                             <li style="margin-bottom: 6px;">
                                 <strong>{{ "Other scripts are detected for reference only"|t('smart-links') }}</strong><br>
-                                <span class="light">{{ "Fathom, Matomo, and Plausible are shown above but do not receive events directly from {pluginName}"|t('smart-links', {pluginName: pluginName}) }}</span>
+                                <span class="light">{{ "Fathom, Matomo, and Plausible are shown above but do not receive events directly from {pluginName}"|t('smart-links', {pluginName: smartlinkHelper.fullName}) }}</span>
                             </li>
                             <li>
                                 <span class="light">{{ "Events are only sent when analytics tracking is enabled both globally and per-link"|t('smart-links') }}</span>
@@ -290,7 +289,7 @@
                         </ul>
                         <p style="margin: 0; font-size: 11px; color: #666;">
                             <strong>{{ "Architecture"|t('smart-links') }}:</strong>
-                            {{ pluginName }} → GTM/GA4 dataLayer → GTM Triggers → Facebook/LinkedIn/HubSpot/etc.
+                            {{ smartlinkHelper.fullName }} → GTM/GA4 dataLayer → GTM Triggers → Facebook/LinkedIn/HubSpot/etc.
                         </p>
                     </div>
                 </div>
@@ -326,7 +325,7 @@
                             </span>
                         {% endif %}
                     </div>
-                    <p class="light" style="margin: 8px 0 0 0; font-size: 12px;">{{ "Create permanent redirect records when smart link slugs change or links are deleted. Provides centralized redirect management and analytics tracking."|t('smart-links') }}</p>
+                    <p class="light" style="margin: 8px 0 0 0; font-size: 12px;">{{ "Create permanent redirect records when {pluginName} slugs change or links are deleted. Provides centralized redirect management and analytics tracking."|t('smart-links', {pluginName: smartlinkHelper.lowerDisplayName}) }}</p>
                 </div>
                 <div style="flex-shrink: 0;">
                     {{ forms.lightswitchField({
@@ -399,7 +398,7 @@
                                         }) }}
                                     </div>
                                     <div>
-                                        <strong>{{ "Deleted Smart Links"|t('smart-links') }}</strong>
+                                        <strong>{{ "Deleted {pluginName}"|t('smart-links', {pluginName: smartlinkHelper.pluralDisplayName}) }}</strong>
                                         <span class="light" style="display: block; font-size: 12px; margin-top: 2px;">{{ "Delete link with traffic → Redirect to <strong>Fallback URL</strong> or <code>/</code>"|t('smart-links')|raw }}</span>
                                     </div>
                                 </div>
@@ -415,15 +414,15 @@
                         <ul style="margin: 0 0 0 0; padding-left: 20px; font-size: 12px; line-height: 1.6;">
                             <li style="margin-bottom: 6px;">
                                 <strong>{{ "Centralized Management"|t('smart-links') }}</strong> –
-                                {{ "View and manage all redirects (smart links + regular pages) in one place"|t('smart-links') }}
+                                {{ "View and manage all redirects ({pluginName} + regular pages) in one place"|t('smart-links', {pluginName: smartlinkHelper.pluralLowerDisplayName}) }}
                             </li>
                             <li style="margin-bottom: 6px;">
                                 <strong>{{ "Analytics Tracking"|t('smart-links') }}</strong> –
-                                {{ "See how many people try to access deleted or changed smart links, their devices, browsers, and countries"|t('smart-links') }}
+                                {{ "See how many people try to access deleted or changed {pluginName}, their devices, browsers, and countries"|t('smart-links', {pluginName: smartlinkHelper.pluralLowerDisplayName}) }}
                             </li>
                             <li style="margin-bottom: 6px;">
                                 <strong>{{ "Persistent Redirects"|t('smart-links') }}</strong> –
-                                {{ "Redirects persist even if smart link is deleted, preventing broken links permanently"|t('smart-links') }}
+                                {{ "Redirects persist even if {pluginName} is deleted, preventing broken links permanently"|t('smart-links', {pluginName: smartlinkHelper.lowerDisplayName}) }}
                             </li>
                             <li>
                                 <strong>{{ "Source Tracking"|t('smart-links') }}</strong> –

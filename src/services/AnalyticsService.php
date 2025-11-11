@@ -1091,18 +1091,18 @@ class AnalyticsService extends Component
 
         $results = $query->all();
 
-        // Get plugin name and singularize for CSV headers
-        $pluginName = SmartLinks::$plugin->getSettings()->pluginName ?? 'Smart Links';
-        $singularName = preg_replace('/s$/', '', $pluginName) ?: $pluginName;
+        // Get plugin name for CSV headers
+        $settings = SmartLinks::$plugin->getSettings();
+        $displayName = $settings->getDisplayName();
 
         // Check if geo detection is enabled
-        $geoEnabled = SmartLinks::$plugin->getSettings()->enableGeoDetection ?? true;
+        $geoEnabled = $settings->enableGeoDetection ?? true;
 
         // CSV format only - conditionally include geo columns
         if ($geoEnabled) {
-            $csv = "Date,Time,{$singularName} Title,{$singularName} Status,{$singularName} URL,Site,Type,Button,Source,Destination URL,Referrer,User Device Type,User Device Brand,User Device Model,User OS,User OS Version,User Browser,User Browser Version,User Country,User City,User Language,User Agent\n";
+            $csv = "Date,Time,{$displayName} Title,{$displayName} Status,{$displayName} URL,Site,Type,Button,Source,Destination URL,Referrer,User Device Type,User Device Brand,User Device Model,User OS,User OS Version,User Browser,User Browser Version,User Country,User City,User Language,User Agent\n";
         } else {
-            $csv = "Date,Time,{$singularName} Title,{$singularName} Status,{$singularName} URL,Site,Type,Button,Source,Destination URL,Referrer,User Device Type,User Device Brand,User Device Model,User OS,User OS Version,User Browser,User Browser Version,User Language,User Agent\n";
+            $csv = "Date,Time,{$displayName} Title,{$displayName} Status,{$displayName} URL,Site,Type,Button,Source,Destination URL,Referrer,User Device Type,User Device Brand,User Device Model,User OS,User OS Version,User Browser,User Browser Version,User Language,User Agent\n";
         }
 
             foreach ($results as $row) {

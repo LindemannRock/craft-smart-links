@@ -10,8 +10,6 @@
 
 {% block content %}
     {% set plugin = craft.app.plugins.getPlugin('smart-links') %}
-    {% set pluginName = plugin.settings.pluginName %}
-    {% set singularName = pluginName|replace({'/s$/': ''}) %}
 
     {% include 'smart-links/_components/ip-salt-error' %}
 
@@ -23,7 +21,7 @@
 
     <div class="field">
         <p class="readable">
-            {{ 'Add custom fields to {singularName} elements. Any fields you add here will appear in the {singularName} edit screen.'|t('smart-links', {singularName: singularName}) }}
+            {{ 'Add custom fields to {singularName} elements. Any fields you add here will appear in the {singularName} edit screen.'|t('smart-links', {singularName: smartlinkHelper.displayName}) }}
         </p>
     </div>
 

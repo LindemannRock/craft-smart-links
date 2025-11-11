@@ -5,7 +5,7 @@
 
 {% set plugin = craft.app.plugins.getPlugin('smart-links') %}{% set crumbs = [
     {
-        label: plugin.settings.pluginName|t('smart-links'),
+        label: smartlinkHelper.fullName|t('smart-links'),
         url: url('smart-links'),
     },
     {
@@ -21,7 +21,6 @@
 {% import "_includes/forms" as forms %}
 
 {% block content %}
-    {% set pluginName = plugin.settings.pluginName %}
 
     {% include 'smart-links/_components/ip-salt-error' %}
 
@@ -35,7 +34,7 @@
 
         {{ forms.textField({
             label: "Items Per Page"|t('smart-links'),
-            instructions: "Number of {pluginName} to show per page"|t('smart-links', {pluginName: pluginName|lower}),
+            instructions: "Number of {pluginName} to show per page"|t('smart-links', {pluginName: smartlinkHelper.pluralLowerDisplayName}),
             id: 'itemsPerPage',
             name: 'settings[itemsPerPage]',
             value: settings.itemsPerPage ?? 100,

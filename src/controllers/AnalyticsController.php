@@ -263,7 +263,9 @@ class AnalyticsController extends Controller
             $data = SmartLinks::$plugin->analytics->exportAnalytics($smartLinkId, $dateRange, $format);
             
             // Generate filename
-            $baseFilename = 'smart-links-analytics';
+            $settings = SmartLinks::$plugin->getSettings();
+            $filenamePart = strtolower(str_replace(' ', '-', $settings->getPluralLowerDisplayName()));
+            $baseFilename = $filenamePart . '-analytics';
             if ($smartLinkId) {
                 $smartLink = \lindemannrock\smartlinks\elements\SmartLink::find()
                     ->id($smartLinkId)
@@ -271,7 +273,8 @@ class AnalyticsController extends Controller
                 if ($smartLink) {
                     // Clean the slug for filename
                     $cleanSlug = preg_replace('/[^a-zA-Z0-9-_]/', '', $smartLink->slug);
-                    $baseFilename = 'smart-link-' . $cleanSlug . '-analytics';
+                    $singularPart = strtolower(str_replace(' ', '-', $settings->getLowerDisplayName()));
+                    $baseFilename = $singularPart . '-' . $cleanSlug . '-analytics';
                 }
             }
             

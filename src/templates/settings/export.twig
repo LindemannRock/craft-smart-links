@@ -5,7 +5,7 @@
 
 {% set plugin = craft.app.plugins.getPlugin('smart-links') %}{% set crumbs = [
     {
-        label: plugin.settings.pluginName|t('smart-links'),
+        label: smartlinkHelper.fullName|t('smart-links'),
         url: url('smart-links'),
     },
     {
@@ -21,7 +21,6 @@
 {% import "_includes/forms" as forms %}
 
 {% block content %}
-    {% set pluginName = plugin.settings.pluginName %}
 
     {% include 'smart-links/_components/ip-salt-error' %}
 
@@ -34,8 +33,8 @@
         <h2 style="margin-top: 0px;">{{ "Analytics Export Options"|t('smart-links') }}</h2>
 
         {{ forms.lightswitchField({
-            label: "Include Disabled {pluginName} in Export"|t('smart-links', {pluginName: pluginName}),
-            instructions: "When enabled, analytics exports will include data from disabled {pluginName}"|t('smart-links', {pluginName: pluginName|lower}),
+            label: "Include Disabled {pluginName} in Export"|t('smart-links', {pluginName: smartlinkHelper.pluralDisplayName}),
+            instructions: "When enabled, analytics exports will include data from disabled {pluginName}"|t('smart-links', {pluginName: smartlinkHelper.pluralLowerDisplayName}),
             id: 'includeDisabledInExport',
             name: 'settings[includeDisabledInExport]',
             on: settings.includeDisabledInExport ?? false,
@@ -45,8 +44,8 @@
         }) }}
 
         {{ forms.lightswitchField({
-            label: "Include Expired {pluginName} in Export"|t('smart-links', {pluginName: pluginName}),
-            instructions: "When enabled, analytics exports will include data from expired {pluginName}"|t('smart-links', {pluginName: pluginName|lower}),
+            label: "Include Expired {pluginName} in Export"|t('smart-links', {pluginName: smartlinkHelper.pluralDisplayName}),
+            instructions: "When enabled, analytics exports will include data from expired {pluginName}"|t('smart-links', {pluginName: smartlinkHelper.pluralLowerDisplayName}),
             id: 'includeExpiredInExport',
             name: 'settings[includeExpiredInExport]',
             on: settings.includeExpiredInExport ?? false,

@@ -630,7 +630,7 @@ class Settings extends Model
             $this->logError('Database update returned false');
             return false;
         } catch (\Exception $e) {
-            $this->logError('Failed to save Smart Links settings', ['error' => $e->getMessage()]);
+            $this->logError('Failed to save ' . $this->getFullName() . ' settings', ['error' => $e->getMessage()]);
             return false;
         }
     }
@@ -767,5 +767,77 @@ class Settings extends Model
             'seomaticTrackingEvents' => Craft::t('smart-links', 'Tracking Events'),
             'seomaticEventPrefix' => Craft::t('smart-links', 'Event Prefix'),
         ];
+    }
+
+    /**
+     * Get display name (singular, without "Manager")
+     *
+     * Strips "Manager" and singularizes the plugin name for use in UI labels.
+     * E.g., "Smart Link Manager" → "Smart Link", "Smart Links" → "Smart Link"
+     *
+     * @return string
+     */
+    public function getDisplayName(): string
+    {
+        // Strip "Manager" or "manager" from the name
+        $name = str_replace([' Manager', ' manager'], '', $this->pluginName);
+
+        // Singularize by removing trailing 's' if present
+        $singular = preg_replace('/s$/', '', $name) ?: $name;
+
+        return $singular;
+    }
+
+    /**
+     * Get full plugin name (as configured, with "Manager" if present)
+     *
+     * Returns the plugin name exactly as configured in settings.
+     * E.g., "Smart Link Manager", "Smart Links", etc.
+     *
+     * @return string
+     */
+    public function getFullName(): string
+    {
+        return $this->pluginName;
+    }
+
+    /**
+     * Get plural display name (without "Manager")
+     *
+     * Strips "Manager" from the plugin name but keeps plural form.
+     * E.g., "Smart Link Manager" → "Smart Links", "Smart Links" → "Smart Links"
+     *
+     * @return string
+     */
+    public function getPluralDisplayName(): string
+    {
+        // Strip "Manager" or "manager" from the name
+        return str_replace([' Manager', ' manager'], '', $this->pluginName);
+    }
+
+    /**
+     * Get lowercase display name (singular, without "Manager")
+     *
+     * Lowercase version of getDisplayName() for use in messages, handles, etc.
+     * E.g., "Smart Link Manager" → "smart link", "Smart Links" → "smart link"
+     *
+     * @return string
+     */
+    public function getLowerDisplayName(): string
+    {
+        return strtolower($this->getDisplayName());
+    }
+
+    /**
+     * Get lowercase plural display name (without "Manager")
+     *
+     * Lowercase version of getPluralDisplayName() for use in messages, handles, etc.
+     * E.g., "Smart Link Manager" → "smart links", "Smart Links" → "smart links"
+     *
+     * @return string
+     */
+    public function getPluralLowerDisplayName(): string
+    {
+        return strtolower($this->getPluralDisplayName());
     }
 }

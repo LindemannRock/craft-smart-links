@@ -1,6 +1,6 @@
 {% extends "_layouts/cp" %}
 
-{% set pluginName = craft.smartLinks.settings.pluginName %}
+{% set pluginName = smartlinkHelper.fullName %}
 {% set title = title ?? pluginName %}
 
 {# Define the plugin's CP section #}

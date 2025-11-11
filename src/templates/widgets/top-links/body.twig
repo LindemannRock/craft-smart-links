@@ -1,6 +1,4 @@
 {% set plugin = craft.app.plugins.getPlugin('smart-links') %}
-{% set pluginName = plugin.settings.pluginName %}
-{% set singularName = pluginName matches '/s$/' ? pluginName|slice(0, -1) : pluginName %}
 
 <div class="top-links-widget">
     {% if links|length > 0 %}
@@ -41,12 +39,12 @@
         </table>
 
         <div class="widget-footer">
-            <a href="{{ cpUrl('smart-links/smartlinks') }}" class="go">{{ "View all {pluginName}"|t('smart-links', {pluginName: pluginName|lower}) }}</a>
+            <a href="{{ cpUrl('smart-links/smartlinks') }}" class="go">{{ "View all {pluginName}"|t('smart-links', {pluginName: smartlinkHelper.pluralLowerDisplayName}) }}</a>
         </div>
     {% else %}
         <div class="zilch">
-            <p>{{ "No {pluginName} yet"|t('smart-links', {pluginName: pluginName|lower}) }}</p>
-            <p class="light">{{ "Create your first {singularName} to see it here."|t('smart-links', {singularName: singularName|lower}) }}</p>
+            <p>{{ "No {pluginName} yet"|t('smart-links', {pluginName: smartlinkHelper.pluralLowerDisplayName}) }}</p>
+            <p class="light">{{ "Create your first {singularName} to see it here."|t('smart-links', {singularName: smartlinkHelper.lowerDisplayName}) }}</p>
         </div>
     {% endif %}
 </div>

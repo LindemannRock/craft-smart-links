@@ -5,7 +5,7 @@
 
 {% set plugin = craft.app.plugins.getPlugin('smart-links') %}{% set crumbs = [
     {
-        label: plugin.settings.pluginName|t('smart-links'),
+        label: smartlinkHelper.fullName|t('smart-links'),
         url: url('smart-links'),
     },
     {

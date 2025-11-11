@@ -1,8 +1,8 @@
 {% import "_includes/forms" as forms %}
 
 <div style="margin-bottom: 32px;">
-    <h2>{{ pluginName }} {{ "Overview"|t('smart-links') }}</h2>
-    <p class="light">{{ "Monitor link performance, track analytics, and manage cache for your {singularName} redirects and QR codes."|t('smart-links', {singularName: singularName|lower}) }}</p>
+    <h2>{{ smartlinkHelper.fullName }} {{ "Overview"|t('smart-links') }}</h2>
+    <p class="light">{{ "Monitor link performance, track analytics, and manage cache for your {singularName} redirects and QR codes."|t('smart-links', {singularName: smartlinkHelper.lowerDisplayName}) }}</p>
 </div>
 
 <div style="margin-bottom: 40px;">
@@ -29,7 +29,7 @@
                     </div>
                 </div>
                 <div style="font-size: 14px; color: #4b5563; margin-bottom: 12px;">
-                    {{ "Active {pluginName}"|t('smart-links', {pluginName: pluginName|lower}) }}
+                    {{ "Active {pluginName}"|t('smart-links', {pluginName: smartlinkHelper.pluralLowerDisplayName}) }}
                 </div>
 
                 <!-- Bottom Boxes -->
@@ -136,7 +136,7 @@
             <p class="light" style="margin-bottom: 16px;">{{ "Access main plugin sections"|t('smart-links') }}</p>
             <div style="display: flex; gap: 10px; flex-wrap: wrap;">
                 <a href="{{ url('smart-links') }}" class="btn">
-                    {{ "Manage"|t('smart-links') }} {{ pluginName|replace({' Manager': '', ' manager': ''}) }}
+                    {{ "Manage {pluginName}"|t('smart-links', {pluginName: smartlinkHelper.pluralDisplayName}) }}
                 </a>
                 {% if settings.enableAnalytics %}
                     <a href="{{ url('smart-links/analytics') }}" class="btn">
@@ -255,7 +255,7 @@ $('#clear-device-cache').on('click', function() {
 {% endif %}
 
 $('#clear-all-caches').on('click', function() {
-    if (!confirm('{{ "Are you sure you want to clear all {pluginName} caches?"|t('smart-links', { pluginName: pluginName })|e('js') }}')) {
+    if (!confirm('{{ "Are you sure you want to clear all {pluginName} caches?"|t('smart-links', { pluginName: smartlinkHelper.fullName })|e('js') }}')) {
         return;
     }
 

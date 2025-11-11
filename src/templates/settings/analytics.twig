@@ -5,7 +5,7 @@
 
 {% set plugin = craft.app.plugins.getPlugin('smart-links') %}{% set crumbs = [
     {
-        label: plugin.settings.pluginName|t('smart-links'),
+        label: smartlinkHelper.fullName|t('smart-links'),
         url: url('smart-links'),
     },
     {
@@ -21,7 +21,6 @@
 {% import "_includes/forms" as forms %}
 
 {% block content %}
-    {% set pluginName = plugin.settings.pluginName %}
 
     {% include 'smart-links/_components/ip-salt-error' %}
 
@@ -35,7 +34,7 @@
 
         {{ forms.lightswitchField({
             label: "Enable Analytics"|t('smart-links'),
-            instructions: "Track clicks and visitor data for {pluginName}"|t('smart-links', {pluginName: pluginName|lower}),
+            instructions: "Track clicks and visitor data for {pluginName}"|t('smart-links', {pluginName: smartlinkHelper.pluralLowerDisplayName}),
             id: 'enableAnalytics',
             name: 'settings[enableAnalytics]',
             on: settings.enableAnalytics ?? true,
@@ -47,7 +46,7 @@
 
         <div id="analytics-settings" class="{{ not (settings.enableAnalytics ?? true) ? 'hidden' }}">
             <div class="field">
-                <p class="light">{{ "When enabled, {pluginName} will track visitor interactions, device types, geographic data, and other analytics information."|t('smart-links', {pluginName: pluginName}) }}</p>
+                <p class="light">{{ "When enabled, {pluginName} will track visitor interactions, device types, geographic data, and other analytics information."|t('smart-links', {pluginName: smartlinkHelper.fullName}) }}</p>
             </div>
 
             <hr>

@@ -1,8 +1,5 @@
 {% import "_includes/forms" as forms %}
 
-{% set pluginName = craft.smartLinks.settings.pluginName %}
-{% set singularName = pluginName|replace({'/s$/': ''}) %}
-
 {% set currentSite = craft.app.sites.getSiteById(smartLink.siteId ?? craft.app.sites.currentSite.id) %}
 {% set locale = craft.app.i18n.getLocaleById(currentSite.language) %}
 {% set textDir = locale.getOrientation() %}
@@ -11,7 +8,7 @@
 
 {{ forms.textField({
     label: "Title"|t('smart-links'),
-    instructions: "The title of this {singularName}"|t('smart-links', {singularName: singularName|lower}),
+    instructions: "The title of this {singularName}"|t('smart-links', {singularName: smartlinkHelper.lowerDisplayName}),
     id: 'title',
     name: 'title',
     value: smartLink.title ?? '',
@@ -27,7 +24,7 @@
 
 {{ forms.textareaField({
     label: "Description"|t('smart-links'),
-    instructions: "A brief description of this {singularName}"|t('smart-links', {singularName: singularName|lower}),
+    instructions: "A brief description of this {singularName}"|t('smart-links', {singularName: smartlinkHelper.lowerDisplayName}),
     id: 'description',
     name: 'description',
     value: smartLink.description ?? '',
@@ -46,7 +43,7 @@
 
 {{ forms.elementSelectField({
     label: "Image"|t('smart-links'),
-    instructions: "Select an image for this {singularName}"|t('smart-links', {singularName: singularName|lower}),
+    instructions: "Select an image for this {singularName}"|t('smart-links', {singularName: smartlinkHelper.lowerDisplayName}),
     id: 'imageId',
     name: 'imageId',
     elementType: 'craft\\elements\\Asset',
@@ -63,7 +60,7 @@
 
 {{ forms.selectField({
     label: "Image Size"|t('smart-links'),
-    instructions: "Select the size for the {singularName} image"|t('smart-links', {singularName: singularName|lower}),
+    instructions: "Select the size for the {singularName} image"|t('smart-links', {singularName: smartlinkHelper.lowerDisplayName}),
     id: 'imageSize',
     name: 'imageSize',
     value: smartLink.imageSize ?? 'xl',
@@ -188,7 +185,7 @@
 
 {{ forms.lightswitchField({
     label: "Hide Title on Landing Pages"|t('smart-links'),
-    instructions: "Hide the {singularName} title on both redirect and QR code landing pages"|t('smart-links', {singularName: singularName|lower}),
+    instructions: "Hide the {singularName} title on both redirect and QR code landing pages"|t('smart-links', {singularName: smartlinkHelper.lowerDisplayName}),
     id: 'hideTitle',
     name: 'hideTitle',
     on: smartLink.hideTitle ?? false,
@@ -210,7 +207,7 @@
 
 {{ forms.textField({
     label: "Icon"|t('smart-links'),
-    instructions: "Icon identifier or URL for this {singularName}"|t('smart-links', {singularName: singularName|lower}),
+    instructions: "Icon identifier or URL for this {singularName}"|t('smart-links', {singularName: smartlinkHelper.lowerDisplayName}),
     id: 'icon',
     name: 'icon',
     value: smartLink.icon ?? '',

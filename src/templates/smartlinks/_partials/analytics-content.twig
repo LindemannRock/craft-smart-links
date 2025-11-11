@@ -1,6 +1,4 @@
 {% set plugin = craft.app.plugins.getPlugin('smart-links') %}
-{% set pluginName = plugin.settings.pluginName %}
-{% set singularName = pluginName matches '/s$/' ? pluginName|slice(0, -1) : pluginName %}
 
 {% set dateRange = dateRange ?? craft.app.request.getQueryParam('range') ?? 'last7days' %}
 
@@ -14,7 +12,7 @@
 {% if analytics.totalClicks == 0 %}
     <div class="zilch">
         <p>{{ "No analytics data yet"|t('smart-links') }}</p>
-        <p class="light">{{ "Analytics will appear here once your {singularName} starts receiving clicks."|t('smart-links', {singularName: singularName|lower}) }}</p>
+        <p class="light">{{ "Analytics will appear here once your {singularName} starts receiving clicks."|t('smart-links', {singularName: smartlinkHelper.lowerDisplayName}) }}</p>
     </div>
 {% else %}
 

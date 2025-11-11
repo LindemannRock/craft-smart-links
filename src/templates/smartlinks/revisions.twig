@@ -33,7 +33,7 @@
 {# Main navigation #}
 {% set crumbs = crumbs|merge([
     {
-        label: craft.smartLinks.settings.pluginName,
+        label: smartlinkHelper.fullName,
         url: url('smart-links')
     },
     {

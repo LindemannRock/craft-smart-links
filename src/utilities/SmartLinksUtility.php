@@ -110,8 +110,8 @@ class SmartLinksUtility extends Utility
 
         // Cache stats
         $settings = $smartLinks->getSettings();
-        $pluginName = $settings->pluginName ?? 'Smart Links';
-        $singularName = preg_replace('/s$/', '', $pluginName) ?: $pluginName;
+        $pluginName = $settings->getFullName();
+        $singularName = $settings->getDisplayName();
 
         $qrCachePath = Craft::$app->path->getRuntimePath() . '/smart-links/cache/qr/';
         $deviceCachePath = Craft::$app->path->getRuntimePath() . '/smart-links/cache/device/';

@@ -224,10 +224,7 @@ class SmartLink extends Element
      */
     public static function displayName(): string
     {
-        $pluginName = SmartLinks::$plugin->getSettings()->pluginName ?? 'Smart Links';
-        // Singularize by removing trailing 's' if present
-        $singular = preg_replace('/s$/', '', $pluginName) ?: $pluginName;
-        return $singular;
+        return SmartLinks::$plugin->getSettings()->getDisplayName();
     }
 
     /**
@@ -235,7 +232,7 @@ class SmartLink extends Element
      */
     public static function lowerDisplayName(): string
     {
-        return strtolower(static::displayName());
+        return SmartLinks::$plugin->getSettings()->getLowerDisplayName();
     }
 
     /**
@@ -243,8 +240,7 @@ class SmartLink extends Element
      */
     public static function pluralDisplayName(): string
     {
-        $pluginName = SmartLinks::$plugin->getSettings()->pluginName ?? 'Smart Links';
-        return $pluginName;
+        return SmartLinks::$plugin->getSettings()->getPluralDisplayName();
     }
 
     /**
@@ -252,7 +248,7 @@ class SmartLink extends Element
      */
     public static function pluralLowerDisplayName(): string
     {
-        return strtolower(static::pluralDisplayName());
+        return SmartLinks::$plugin->getSettings()->getPluralLowerDisplayName();
     }
 
     /**
@@ -375,12 +371,12 @@ class SmartLink extends Element
      */
     protected static function defineSources(string $context = null): array
     {
-        $pluginName = SmartLinks::$plugin->getSettings()->pluginName ?? 'Smart Links';
-
         return [
             [
                 'key' => '*',
-                'label' => Craft::t('smart-links', 'All {pluginName}', ['pluginName' => $pluginName]),
+                'label' => Craft::t('smart-links', 'All {pluginName}', [
+                    'pluginName' => SmartLinks::$plugin->getSettings()->getPluralDisplayName()
+                ]),
                 'criteria' => [],
                 'defaultSort' => ['dateCreated', 'desc'],
             ],

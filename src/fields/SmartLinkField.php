@@ -48,8 +48,7 @@ class SmartLinkField extends Field implements PreviewableFieldInterface
      */
     public static function displayName(): string
     {
-        $plugin = SmartLinks::getInstance();
-        return $plugin->getSettings()->pluginName ?? 'Smart Links';
+        return SmartLinks::$plugin->getSettings()->getDisplayName();
     }
 
     /**

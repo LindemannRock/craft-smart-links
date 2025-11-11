@@ -43,7 +43,7 @@
 {# Set up breadcrumbs #}
 {% set crumbs = [
     {
-        label: plugin.settings.pluginName|t('smart-links'),
+        label: smartlinkHelper.fullName|t('smart-links'),
         url: url('smart-links')
     },
     {
@@ -82,7 +82,7 @@
 			</div>
 		</div>
 
-		<h2 style="margin: 30px 0 20px;">{{ "Top {pluginName}"|t('smart-links', {pluginName: plugin.settings.pluginName}) }}</h2>
+		<h2 style="margin: 30px 0 20px;">{{ "Top {pluginName}"|t('smart-links', {pluginName: smartlinkHelper.pluralDisplayName}) }}</h2>
 
 		<div class="analytics-charts">
 			<div class="chart-container full-width">
@@ -90,8 +90,7 @@
 					<table class="data fullwidth">
 						<thead>
 							<tr>
-								{% set singularName = plugin.settings.pluginName matches '/s$/' ? plugin.settings.pluginName|slice(0, -1) : plugin.settings.pluginName %}
-								<th>{{ singularName }}</th>
+								<th>{{ smartlinkHelper.displayName }}</th>
 								<th>{{ "Site"|t('smart-links') }}</th>
 								<th>{{ "Total Interactions"|t('smart-links') }}</th>
 								<th>{{ "Last Interaction"|t('smart-links') }}</th>
@@ -141,7 +140,7 @@
 						<thead>
 							<tr>
 								<th>{{ "Date"|t('smart-links') }}</th>
-								<th>{{ singularName }}</th>
+								<th>{{ smartlinkHelper.displayName }}</th>
 								<th>{{ "Site"|t('smart-links') }}</th>
 								<th>{{ "Type"|t('smart-links') }}</th>
 								<th>{{ "Button"|t('smart-links') }}</th>

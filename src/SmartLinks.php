@@ -98,7 +98,7 @@ class SmartLinks extends Plugin
         $settings = $this->getSettings();
         LoggingLibrary::configure([
             'pluginHandle' => $this->handle,
-            'pluginName' => $settings->pluginName ?? $this->name,
+            'pluginName' => $settings->getDisplayName(),
             'logLevel' => $settings->logLevel ?? 'error',
             'itemsPerPage' => $settings->itemsPerPage ?? 50,
             'permissions' => ['smartLinks:viewLogs'],
@@ -136,6 +136,9 @@ class SmartLinks extends Plugin
             'forceTranslation' => true,
             'allowOverrides' => true,
         ];
+
+        // Register Twig extension for plugin name helpers
+        Craft::$app->view->registerTwigExtension(new \lindemannrock\smartlinks\twigextensions\PluginNameExtension());
 
         // Register template roots
         Event::on(
@@ -239,7 +242,7 @@ class SmartLinks extends Plugin
             ClearCaches::EVENT_REGISTER_CACHE_OPTIONS,
             function(RegisterCacheOptionsEvent $event) {
                 $settings = $this->getSettings();
-                $pluginName = $settings->pluginName ?? 'Smart Links';
+                $pluginName = $settings->getFullName();
 
                 $event->options[] = [
                     'key' => 'smart-links-cache',
@@ -269,7 +272,7 @@ class SmartLinks extends Plugin
                             }
                         }
 
-                        Craft::info('Cleared Smart Links cache entries', __METHOD__, ['count' => $cleared]);
+                        Craft::info('Cleared ' . $this->getSettings()->getFullName() . ' cache entries', __METHOD__, ['count' => $cleared]);
                     },
                 ];
             }
@@ -319,7 +322,7 @@ class SmartLinks extends Plugin
         $item = parent::getCpNavItem();
 
         if ($item) {
-            $item['label'] = $this->getSettings()->pluginName;
+            $item['label'] = $this->getSettings()->getFullName();
 
             // Use Craft's built-in link icon
             $item['icon'] = '@appicons/link.svg';

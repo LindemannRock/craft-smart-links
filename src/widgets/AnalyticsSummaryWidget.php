@@ -38,7 +38,7 @@ class AnalyticsSummaryWidget extends Widget
      */
     public static function displayName(): string
     {
-        $pluginName = SmartLinks::$plugin->getSettings()->pluginName ?? 'Smart Links';
+        $pluginName = SmartLinks::$plugin->getSettings()->getFullName();
         return Craft::t('smart-links', '{pluginName} - Analytics', ['pluginName' => $pluginName]);
     }
 
@@ -63,7 +63,7 @@ class AnalyticsSummaryWidget extends Widget
      */
     public function getTitle(): ?string
     {
-        $pluginName = SmartLinks::$plugin->getSettings()->pluginName ?? 'Smart Links';
+        $pluginName = SmartLinks::$plugin->getSettings()->getFullName();
         return Craft::t('smart-links', '{pluginName} - Analytics', ['pluginName' => $pluginName]);
     }
 

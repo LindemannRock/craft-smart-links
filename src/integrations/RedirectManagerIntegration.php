@@ -8,6 +8,7 @@
 
 namespace lindemannrock\smartlinks\integrations;
 
+use Craft;
 use lindemannrock\smartlinks\SmartLinks;
 
 /**
@@ -85,7 +86,9 @@ class RedirectManagerIntegration extends BaseIntegration
             'available' => $this->isAvailable(),
             'enabled' => $this->isEnabled(),
             'events' => $redirectManagerEvents,
-            'description' => 'Creates permanent redirects when smart link slugs change or links are deleted',
+            'description' => Craft::t('smart-links', 'Creates permanent redirects when {pluginName} slugs change or links are deleted', [
+                'pluginName' => SmartLinks::$plugin->getSettings()->getLowerDisplayName()
+            ]),
         ];
     }
 

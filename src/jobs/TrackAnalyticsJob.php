@@ -66,7 +66,8 @@ class TrackAnalyticsJob extends BaseJob
      */
     protected function defaultDescription(): ?string
     {
-        return Craft::t('smart-links', 'Tracking analytics for smart link {id}', [
+        return Craft::t('smart-links', 'Tracking analytics for {pluginName} {id}', [
+            'pluginName' => SmartLinks::$plugin->getSettings()->getLowerDisplayName(),
             'id' => $this->linkId,
         ]);
     }
