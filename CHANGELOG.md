@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.5.2](https://github.com/LindemannRock/craft-smart-links/compare/v5.5.1...v5.5.2) (2025-11-11)
+
+
+### Bug Fixes
+
+* **qrPrefix:** Update QR code URL prefix to support nested patterns ([401a642](https://github.com/LindemannRock/craft-smart-links/commit/401a642ed15a60f225221d9626b1d6fb45a0f2f3))
+
 ## [5.5.1](https://github.com/LindemannRock/craft-smart-links/compare/v5.5.0...v5.5.1) (2025-11-10)
 
 
