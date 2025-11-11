@@ -41,7 +41,7 @@ return [
 
     // URL Settings
     'slugPrefix' => 'go', // URL prefix for smart links (e.g., 'go' creates /go/your-link)
-    'qrPrefix' => 'qr', // URL prefix for QR code pages (e.g., 'qr' creates /qr/your-link)
+    'qrPrefix' => 'go/qr', // URL prefix for QR code pages (e.g., 'go/qr' creates /go/qr/your-link)
 
     // Template Settings
     'redirectTemplate' => null, // Custom redirect landing page template path
@@ -180,9 +180,9 @@ return [
 - **slugPrefix**: URL prefix for smart links (e.g., 'go' creates /go/your-link)
   - **Type:** `string`
   - **Default:** `'go'`
-- **qrPrefix**: URL prefix for QR code pages (e.g., 'qr' creates /qr/your-link)
+- **qrPrefix**: URL prefix for QR code pages (e.g., 'go/qr' creates /go/qr/your-link). Supports nested patterns.
   - **Type:** `string`
-  - **Default:** `'qr'`
+  - **Default:** `'go/qr'`
 
 #### Template Settings
 
@@ -376,7 +376,7 @@ return [
         'enableAnalytics' => true,
         'analyticsRetention' => 365,
         'slugPrefix' => 'go',
-        'qrPrefix' => 'qr',
+        'qrPrefix' => 'go/qr',
         'enableQrCodeCache' => true,
         'qrCodeCacheDuration' => 604800,
         'logLevel' => 'error',

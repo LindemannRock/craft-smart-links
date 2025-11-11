@@ -162,7 +162,7 @@ class Install extends Migration
                 'imageVolumeUid' => $this->string()->null(),
                 // URL settings
                 'slugPrefix' => $this->string(50)->notNull()->defaultValue('go'),
-                'qrPrefix' => $this->string(50)->notNull()->defaultValue('qr'),
+                'qrPrefix' => $this->string(50)->notNull()->defaultValue('go/qr'),
                 // QR Code settings
                 'defaultQrSize' => $this->integer()->notNull()->defaultValue(256),
                 'defaultQrColor' => $this->string(7)->notNull()->defaultValue('#000000'),

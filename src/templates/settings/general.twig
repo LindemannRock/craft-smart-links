@@ -105,14 +105,45 @@
             : "Supports standalone (e.g., 'qr') or nested (e.g., 'go/qr') patterns. Checked for conflicts with ShortLink Manager."
         %}
 
+        {# Calculate smart default for qrPrefix if empty #}
+        {% set qrPrefixValue = settings.qrPrefix %}
+        {% if qrPrefixValue is empty %}
+            {# Try nested pattern first (safer and more organized) #}
+            {% set nestedDefault = settings.slugPrefix ~ '/qr' %}
+            {% set smartQrDefault = nestedDefault %}
+
+            {% set shortlinkPlugin = craft.app.plugins.getPlugin('shortlink-manager') %}
+            {% if shortlinkPlugin and craft.app.plugins.isPluginEnabled('shortlink-manager') %}
+                {% set shortlinkSettings = shortlinkPlugin.getSettings() %}
+                {% set conflictingPrefixes = [
+                    shortlinkSettings.slugPrefix ?? 's',
+                    shortlinkSettings.qrPrefix ?? 's/qr',
+                ] %}
+
+                {# Check if nested pattern conflicts with ShortLink Manager #}
+                {% if nestedDefault in conflictingPrefixes %}
+                    {# Try standalone alternatives #}
+                    {% set found = false %}
+                    {% for candidate in ['qr', 'gqr', 'q', 'go-qr'] %}
+                        {% if not found and candidate not in conflictingPrefixes and candidate != settings.slugPrefix %}
+                            {% set smartQrDefault = candidate %}
+                            {% set found = true %}
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+            {% endif %}
+
+            {% set qrPrefixValue = smartQrDefault %}
+        {% endif %}
+
         {{ forms.textField({
             label: "QR Code URL Prefix"|t('smart-links'),
             instructions: "The URL prefix for QR code pages (e.g., 'qr' creates /qr/your-link/view or 'go/qr' creates /go/qr/your-link/view)"|t('smart-links'),
             id: 'qrPrefix',
             name: 'settings[qrPrefix]',
-            value: settings.qrPrefix ?? 'qr',
+            value: qrPrefixValue,
             errors: settings.getErrors('qrPrefix'),
-            placeholder: 'qr',
+            placeholder: settings.slugPrefix ~ '/qr',
             required: true,
             tip: qrTip|t('smart-links'),
             disabled: settings.isOverriddenByConfig('qrPrefix'),

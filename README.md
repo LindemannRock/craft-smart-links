@@ -111,8 +111,8 @@ return [
     'logLevel' => 'error', // error, warning, info, or debug (debug requires devMode)
 
     // URL Settings
-    'slugPrefix' => 'go',  // URL prefix for smart links (e.g., 'go' creates /go/your-link)
-    'qrPrefix' => 'qr',    // URL prefix for QR code pages (e.g., 'qr' creates /qr/your-link)
+    'slugPrefix' => 'go',     // URL prefix for smart links (e.g., 'go' creates /go/your-link)
+    'qrPrefix' => 'go/qr',    // URL prefix for QR code pages (e.g., 'go/qr' creates /go/qr/your-link)
 
     // Analytics Settings
     'enableAnalytics' => true,
@@ -253,9 +253,9 @@ Your smart links will be accessible at:
 - `https://yourdomain.com/qr/[slug]/view` - QR code display page
 
 **Customizable URL Prefixes:**
-You can customize the `/go/` and `/qr/` prefixes via Settings → General or Settings → QR Code:
+You can customize the `/go/` and `/go/qr/` prefixes via Settings → General:
 - Change `slugPrefix` from `go` to `link`, `s`, or any custom prefix
-- Change `qrPrefix` from `qr` to `qrcode`, `code`, or any custom prefix
+- Change `qrPrefix` from `go/qr` to `qr`, `qrcode`, or any custom prefix (supports nested patterns)
 - Only letters, numbers, hyphens, and underscores are allowed
 - After changing, clear routes cache: `php craft clear-caches/compiled-templates`
 

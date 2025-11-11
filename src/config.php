@@ -33,7 +33,7 @@ return [
 
         // URL Settings
         'slugPrefix' => 'go',              // URL prefix for smart links (e.g., 'go' creates /go/your-link)
-        'qrPrefix' => 'qr',                // URL prefix for QR code pages (e.g., 'qr' creates /qr/your-link)
+        'qrPrefix' => 'go/qr',             // URL prefix for QR code pages (e.g., 'go/qr' creates /go/qr/your-link)
 
         // Template Settings
         'redirectTemplate' => null,        // Custom redirect landing page template path
