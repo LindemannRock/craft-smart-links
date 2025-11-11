@@ -68,17 +68,22 @@ class SmartLinkType extends BaseElementLinkType
         if (!$siteId) {
             $siteId = Craft::$app->sites->currentSite->id;
         }
-        
+
+        // Check if smart links are enabled for this site
+        $settings = SmartLinks::$plugin->getSettings();
+        $enabledSites = $settings->enabledSites ?? [];
+        $siteEnabled = empty($enabledSites) || in_array($siteId, $enabledSites);
+
         // Parse the value to get the element
         $smartLink = null;
         if ($value) {
             $matches = [];
             if (preg_match('/^{smartLink:(\d+)(@(\d+))?:url}$/', $value, $matches)) {
                 $elementId = $matches[1];
-                $parsedSiteId = $matches[3] ?? null;
+                // Always use current site context (ignore stored siteId)
                 $smartLink = SmartLink::find()
                     ->id($elementId)
-                    ->siteId($parsedSiteId ?? $siteId)
+                    ->siteId($siteId)
                     ->status(null)
                     ->one();
             }
@@ -86,7 +91,20 @@ class SmartLinkType extends BaseElementLinkType
 
         // Get site for the field
         $currentSite = Craft::$app->sites->getSiteById($siteId);
-        
+
+        // If site is not enabled, show warning
+        if (!$siteEnabled) {
+            $pluginName = SmartLinks::$plugin->getSettings()->getFullName();
+            return Html::tag('div',
+                Html::tag('p', Craft::t('smart-links', '{pluginName} is not enabled for site "{site}". Enable it in plugin settings to use {pluginNameLower} here.', [
+                    'pluginName' => $pluginName,
+                    'pluginNameLower' => SmartLinks::$plugin->getSettings()->getPluralLowerDisplayName(),
+                    'site' => $currentSite->name
+                ]), ['class' => 'warning']),
+                ['class' => 'field']
+            );
+        }
+
         return Cp::elementSelectFieldHtml([
             'id' => $id,
             'name' => 'value',
@@ -114,7 +132,16 @@ class SmartLinkType extends BaseElementLinkType
     public function renderValue(string $value): string
     {
         $element = $this->element($value);
-        return $element instanceof SmartLink ? $element->getRedirectUrl() : '';
+        if (!$element instanceof SmartLink) {
+            return '';
+        }
+
+        // Get destination URL for current site
+        try {
+            return $element->getRedirectUrl();
+        } catch (\Exception $e) {
+            return '';
+        }
     }
 
     /**
@@ -160,22 +187,27 @@ class SmartLinkType extends BaseElementLinkType
      */
     private function detectCurrentSiteId(): int
     {
-        // Try POST data first
+        // On frontend, always use the current site
+        if (Craft::$app->getRequest()->getIsSiteRequest()) {
+            return Craft::$app->getSites()->getCurrentSite()->id;
+        }
+
+        // In CP, try POST data first (when saving)
         if (Craft::$app->getRequest()->getIsPost()) {
             $siteId = Craft::$app->getRequest()->getBodyParam('siteId');
             if ($siteId) {
                 return (int)$siteId;
             }
         }
-        
-        // Try query param
+
+        // Try query param (CP editing)
         $siteHandle = Craft::$app->getRequest()->getQueryParam('site');
         if ($siteHandle && $site = Craft::$app->sites->getSiteByHandle($siteHandle)) {
             return $site->id;
         }
-        
+
         // Default to current site
-        return Craft::$app->sites->currentSite->id;
+        return Craft::$app->getSites()->getCurrentSite()->id;
     }
     
     /**
@@ -193,11 +225,13 @@ class SmartLinkType extends BaseElementLinkType
         }
 
         $elementId = $matches[1];
-        $siteId = $matches[3] ?? null;
+
+        // Use current site context for validation
+        $currentSiteId = $this->detectCurrentSiteId();
 
         $smartLink = SmartLink::find()
             ->id($elementId)
-            ->siteId($siteId)
+            ->siteId($currentSiteId)
             ->status(null)
             ->one();
 
@@ -234,13 +268,37 @@ class SmartLinkType extends BaseElementLinkType
         }
 
         $elementId = $matches[1];
-        $siteId = $matches[3] ?? null;
 
-        return SmartLink::find()
+        // Always use CURRENT site context (not the stored siteId)
+        // This ensures the smart link adapts to the current site like Entry fields do
+        $currentSiteId = $this->detectCurrentSiteId();
+
+        // Check if smart links are enabled for the current site
+        $settings = SmartLinks::$plugin->getSettings();
+        $enabledSites = $settings->enabledSites ?? [];
+        $siteEnabled = empty($enabledSites) || in_array($currentSiteId, $enabledSites);
+
+        // If site is not enabled, return null (field will be empty)
+        if (!$siteEnabled) {
+            return null;
+        }
+
+        $smartLink = SmartLink::find()
             ->id($elementId)
-            ->siteId($siteId)
+            ->siteId($currentSiteId)
             ->status(null)
             ->one();
+
+        // If not found for current site, try to find in any enabled site (fallback)
+        if (!$smartLink) {
+            $smartLink = SmartLink::find()
+                ->id($elementId)
+                ->siteId('*')
+                ->status(null)
+                ->one();
+        }
+
+        return $smartLink;
     }
 
 }
