@@ -269,6 +269,22 @@
         }) }}
     </div>
 
+    {% if smartLink.id %}
+        <fieldset>
+            <legend class="h6">{{ "{pluginName} URL"|t('smart-links', {pluginName: smartlinkHelper.displayName}) }}</legend>
+            <div class="meta" style="padding-inline: 0;">
+                <div class="flex" style="gap: 8px;">
+                    <div class="textwrapper" style="flex-grow: 1;">
+                        <input type="text" class="text fullwidth" readonly value="{{ smartLink.getRedirectUrl() }}" id="smartlink-url" style="border: none; padding-inline: var(--m) var(--s);">
+                    </div>
+                    <button type="button" class="btn" id="copy-url-btn" style="border-start-start-radius: 0; border-end-start-radius: 0;">
+                        {{ "Copy"|t('app') }}
+                    </button>
+                </div>
+            </div>
+        </fieldset>
+    {% endif %}
+
     <fieldset>
         <legend class="h6">Status</legend>
         <div class="meta">
@@ -858,6 +874,16 @@
         }, 50);
 
         Craft.cp.displayNotice('{{ "QR code settings reset to defaults"|t('smart-links')|e('js') }}');
+    });
+
+    // Copy URL button
+    $('#copy-url-btn').on('click', function() {
+        const urlInput = document.getElementById('smartlink-url');
+        if (urlInput) {
+            urlInput.select();
+            document.execCommand('copy');
+            Craft.cp.displayNotice('{{ "URL copied to clipboard"|t('smart-links')|e('js') }}');
+        }
     });
 
     {% if craft.smartLinks.settings.enableAnalytics %}
