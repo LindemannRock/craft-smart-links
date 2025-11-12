@@ -203,6 +203,7 @@ class Install extends Migration
                 'enabledIntegrations' => $this->text()->null()->comment('JSON array of enabled integration handles'),
                 'seomaticTrackingEvents' => $this->text()->null()->comment('JSON array of event types to track in SEOmatic'),
                 'seomaticEventPrefix' => $this->string(50)->defaultValue('smart_links')->comment('Event prefix for GTM/GA events'),
+                'redirectManagerEvents' => $this->text()->null()->comment('JSON array of redirect manager event types'),
                 // Logging
                 'logLevel' => $this->string(20)->notNull()->defaultValue('error'),
                 // Timestamps
