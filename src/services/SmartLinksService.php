@@ -379,7 +379,7 @@ class SmartLinksService extends Component
             $undoHandled = $redirectManager->redirects->handleUndoRedirect(
                 $oldUrl,
                 $newUrl,
-                $link->siteId,
+                null, // null = all sites
                 'smart-link-slug-change',
                 'smart-links'
             );
@@ -393,14 +393,14 @@ class SmartLinksService extends Component
 
         // SCENARIO 2: Create the redirect
         try {
-            $success = $redirectManager->redirects->createRedirectRule([
+            $success = $redirectManager->redirects->createRedirect([
                 'sourceUrl' => $oldUrl,
                 'sourceUrlParsed' => $oldUrl,
                 'destinationUrl' => $newUrl,
                 'matchType' => 'exact',
                 'redirectSrcMatch' => 'pathonly',
                 'statusCode' => 301,
-                'siteId' => $link->siteId,
+                'siteId' => null, // Smart link slugs are shared across all sites
                 'enabled' => true,
                 'priority' => 0,
                 'creationType' => 'smart-link-slug-change',
@@ -468,14 +468,14 @@ class SmartLinksService extends Component
 
         // Create the redirect
         try {
-            $success = $redirectManager->redirects->createRedirectRule([
+            $success = $redirectManager->redirects->createRedirect([
                 'sourceUrl' => $sourceUrl,
                 'sourceUrlParsed' => $sourceUrl,
                 'destinationUrl' => $destinationUrl,
                 'matchType' => 'exact',
                 'redirectSrcMatch' => 'pathonly',
                 'statusCode' => 301,
-                'siteId' => $link->siteId,
+                'siteId' => null, // null = all sites
                 'enabled' => true,
                 'priority' => 0,
                 'creationType' => 'smart-link-deleted',
@@ -491,6 +491,74 @@ class SmartLinksService extends Component
             }
         } catch (\Exception $e) {
             $this->logError('Failed to create redirect rule', ['error' => $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Handle expired smart link by creating redirect in Redirect Manager
+     *
+     * @param SmartLink $link
+     * @return void
+     */
+    public function handleExpiredSmartLink(SmartLink $link): void
+    {
+        $settings = SmartLinks::$plugin->getSettings();
+
+        // Check if Redirect Manager integration is enabled
+        $enabledIntegrations = $settings->enabledIntegrations ?? [];
+        if (!in_array('redirect-manager', $enabledIntegrations)) {
+            return;
+        }
+
+        // Check if expire event is enabled
+        $redirectManagerEvents = $settings->redirectManagerEvents ?? [];
+        if (!in_array('expire', $redirectManagerEvents)) {
+            return;
+        }
+
+        $slugPrefix = $settings->slugPrefix ?? 'go';
+        $sourceUrl = '/' . $slugPrefix . '/' . $link->slug;
+        $destinationUrl = $link->fallbackUrl ?? '/';
+
+        // Check if Redirect Manager integration is available and enabled
+        $redirectIntegration = SmartLinks::$plugin->integration->getIntegration('redirect-manager');
+        if (!$redirectIntegration || !$redirectIntegration->isAvailable() || !$redirectIntegration->isEnabled()) {
+            $this->logDebug('Redirect Manager integration not available or not enabled');
+            return;
+        }
+
+        // Get redirect manager plugin instance
+        $redirectManager = Craft::$app->plugins->getPlugin('redirect-manager');
+        if (!$redirectManager) {
+            $this->logDebug('Redirect Manager plugin not found');
+            return;
+        }
+
+        // Create the redirect
+        try {
+            $success = $redirectManager->redirects->createRedirect([
+                'sourceUrl' => $sourceUrl,
+                'sourceUrlParsed' => $sourceUrl,
+                'destinationUrl' => $destinationUrl,
+                'matchType' => 'exact',
+                'redirectSrcMatch' => 'pathonly',
+                'statusCode' => 302,
+                'siteId' => null, // null = all sites
+                'enabled' => true,
+                'priority' => 0,
+                'creationType' => 'smart-link-expired',
+                'sourcePlugin' => 'smart-links',
+            ], false); // No notification for expirations
+
+            if ($success) {
+                $this->logInfo('Auto-created redirect for expired smart link', [
+                    'slug' => $link->slug,
+                    'sourceUrl' => $sourceUrl,
+                    'destination' => $destinationUrl,
+                ]);
+            }
+        } catch (\Exception $e) {
+            $this->logError('Failed to create redirect rule for expired smart link', ['error' => $e->getMessage()]);
         }
     }
 }

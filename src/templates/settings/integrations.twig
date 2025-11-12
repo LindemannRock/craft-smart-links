@@ -385,6 +385,24 @@
                                     </div>
                                 </div>
 
+                                {# Expired Smart Links #}
+                                <div style="display: flex; justify-content: flex-start; align-items: flex-start; gap: 15px; padding: 10px; background: #fafafa; border-radius: 4px;">
+                                    <div style="flex-shrink: 0;">
+                                        {{ forms.lightswitchField({
+                                            label: false,
+                                            id: 'redirectManagerEvents-expire',
+                                            name: 'settings[redirectManagerEvents][]',
+                                            value: 'expire',
+                                            on: 'expire' in rmEvents,
+                                            disabled: isOverridden,
+                                        }) }}
+                                    </div>
+                                    <div>
+                                        <strong>{{ "Expired {pluginName}"|t('smart-links', {pluginName: smartlinkHelper.pluralDisplayName}) }}</strong>
+                                        <span class="light" style="display: block; font-size: 12px; margin-top: 2px;">{{ "Link expires → Redirect to <strong>Fallback URL</strong> or <code>/</code>"|t('smart-links')|raw }}</span>
+                                    </div>
+                                </div>
+
                                 {# Deleted Smart Links #}
                                 <div style="display: flex; justify-content: flex-start; align-items: flex-start; gap: 15px; padding: 10px; background: #fafafa; border-radius: 4px;">
                                     <div style="flex-shrink: 0;">

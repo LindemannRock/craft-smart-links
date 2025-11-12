@@ -22,6 +22,7 @@ use yii\web\Response;
 class RedirectController extends Controller
 {
     use LoggingTrait;
+    use \lindemannrock\redirectmanager\traits\RedirectHandlingTrait;
 
     /**
      * @var array Allow anonymous access
@@ -49,11 +50,11 @@ class RedirectController extends Controller
         $currentSite = Craft::$app->getSites()->getCurrentSite();
 
         // Get the smart link for the current site
-        // Only show enabled smart links (not disabled, expired, or pending)
+        // Get any status to check expired/disabled/pending separately
         $smartLink = SmartLink::find()
             ->slug($slug)
             ->siteId($currentSite->id)
-            ->status(SmartLink::STATUS_ENABLED)
+            ->status(null)
             ->one();
 
         if (!$smartLink) {
@@ -84,6 +85,36 @@ class RedirectController extends Controller
                 $redirectUrl = '/' . $redirectUrl;
             }
 
+            return $this->redirect($redirectUrl);
+        }
+
+        // Check if smart link is disabled
+        if ($smartLink->getStatus() === SmartLink::STATUS_DISABLED) {
+            $this->logInfo('Smart link disabled', ['slug' => $slug]);
+            // Redirect to not found
+            $settings = SmartLinks::$plugin->getSettings();
+            $redirectUrl = $settings->notFoundRedirectUrl ?: '/';
+            return $this->redirect($redirectUrl);
+        }
+
+        // Check if smart link is expired
+        if ($smartLink->getStatus() === SmartLink::STATUS_EXPIRED) {
+            $this->logInfo('Smart link expired', ['slug' => $slug]);
+
+            // Call handler to create redirect if enabled
+            SmartLinks::$plugin->smartLinks->handleExpiredSmartLink($smartLink);
+
+            // Redirect to fallback URL
+            $destinationUrl = $smartLink->fallbackUrl ?? '/';
+            return $this->redirect($destinationUrl, 302);
+        }
+
+        // Check if smart link is pending
+        if ($smartLink->getStatus() === SmartLink::STATUS_PENDING) {
+            $this->logInfo('Smart link pending', ['slug' => $slug]);
+            // Redirect to not found
+            $settings = SmartLinks::$plugin->getSettings();
+            $redirectUrl = $settings->notFoundRedirectUrl ?: '/';
             return $this->redirect($redirectUrl);
         }
 
@@ -136,13 +167,42 @@ class RedirectController extends Controller
         }
 
         // Get the smart link for the site
+        // Get any status to check expired/disabled/pending separately
         $smartLink = SmartLink::find()
             ->slug($slug)
             ->siteId($siteId)
-            ->status(SmartLink::STATUS_ENABLED)
+            ->status(null)
             ->one();
 
         if (!$smartLink) {
+            $settings = SmartLinks::$plugin->getSettings();
+            $redirectUrl = $settings->notFoundRedirectUrl ?: '/';
+            return $this->redirect($redirectUrl);
+        }
+
+        // Check if smart link is disabled
+        if ($smartLink->getStatus() === SmartLink::STATUS_DISABLED) {
+            $this->logInfo('Smart link disabled', ['slug' => $slug]);
+            $settings = SmartLinks::$plugin->getSettings();
+            $redirectUrl = $settings->notFoundRedirectUrl ?: '/';
+            return $this->redirect($redirectUrl);
+        }
+
+        // Check if smart link is expired
+        if ($smartLink->getStatus() === SmartLink::STATUS_EXPIRED) {
+            $this->logInfo('Smart link expired', ['slug' => $slug]);
+
+            // Call handler to create redirect if enabled
+            SmartLinks::$plugin->smartLinks->handleExpiredSmartLink($smartLink);
+
+            // Redirect to fallback URL
+            $destinationUrl = $smartLink->fallbackUrl ?? '/';
+            return $this->redirect($destinationUrl, 302);
+        }
+
+        // Check if smart link is pending
+        if ($smartLink->getStatus() === SmartLink::STATUS_PENDING) {
+            $this->logInfo('Smart link pending', ['slug' => $slug]);
             $settings = SmartLinks::$plugin->getSettings();
             $redirectUrl = $settings->notFoundRedirectUrl ?: '/';
             return $this->redirect($redirectUrl);

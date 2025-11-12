@@ -144,7 +144,7 @@ return [
         'seomaticEventPrefix' => 'smart_links', // Event prefix for GTM/GA events (lowercase, numbers, underscores only)
 
         // Redirect Manager Integration
-        'redirectManagerEvents' => ['slug-change', 'delete'], // Which events create redirects
+        'redirectManagerEvents' => ['slug-change', 'expire', 'delete'], // Which events create redirects
     ],
 
     // Dev environment settings
