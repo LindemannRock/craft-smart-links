@@ -25,6 +25,7 @@ use lindemannrock\smartlinks\elements\db\SmartLinkQuery;
 use lindemannrock\smartlinks\records\SmartLinkRecord;
 use lindemannrock\smartlinks\records\SmartLinkContentRecord;
 use lindemannrock\smartlinks\SmartLinks;
+use lindemannrock\logginglibrary\traits\LoggingTrait;
 use yii\validators\RequiredValidator;
 use yii\validators\UrlValidator;
 
@@ -37,6 +38,8 @@ use yii\validators\UrlValidator;
  */
 class SmartLink extends Element
 {
+    use LoggingTrait;
+
     // Properties
     // =========================================================================
 
@@ -609,12 +612,15 @@ class SmartLink extends Element
     public function init(): void
     {
         parent::init();
-        
+
+        // Set logging handle for LoggingTrait
+        $this->setLoggingHandle('smart-links');
+
         // If we have an ID but no content loaded yet, load it now
         if ($this->id && $this->siteId && $this->fallbackUrl === null) {
             $this->loadContent();
         }
-        
+
         // Normalize date values
         $this->normalizeDateTime('postDate');
         $this->normalizeDateTime('dateExpired');
@@ -1355,7 +1361,7 @@ class SmartLink extends Element
             $contentRecord->imageSize = $this->imageSize;
 
             if (!$contentRecord->save(false)) {
-                Craft::error('Failed to save content record', __METHOD__, ['errors' => $contentRecord->getErrors()]);
+                $this->logError('Failed to save content record', ['errors' => $contentRecord->getErrors()]);
             }
         }
 

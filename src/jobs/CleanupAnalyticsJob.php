@@ -56,7 +56,7 @@ class CleanupAnalyticsJob extends BaseJob
      */
     public function getDescription(): ?string
     {
-        $pluginName = SmartLinks::$plugin->getSettings()->pluginName;
+        $pluginName = SmartLinks::$plugin->getSettings()->getDisplayName();
         $description = Craft::t('smart-links', '{pluginName}: Cleaning up old analytics', ['pluginName' => $pluginName]);
 
         if ($this->nextRunTime) {

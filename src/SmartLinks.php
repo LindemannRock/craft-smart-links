@@ -98,7 +98,7 @@ class SmartLinks extends Plugin
         $settings = $this->getSettings();
         LoggingLibrary::configure([
             'pluginHandle' => $this->handle,
-            'pluginName' => $settings->getDisplayName(),
+            'pluginName' => $settings->getFullName(),
             'logLevel' => $settings->logLevel ?? 'error',
             'itemsPerPage' => $settings->itemsPerPage ?? 50,
             'permissions' => ['smartLinks:viewLogs'],
@@ -272,7 +272,10 @@ class SmartLinks extends Plugin
                             }
                         }
 
-                        Craft::info('Cleared ' . $this->getSettings()->getFullName() . ' cache entries', __METHOD__, ['count' => $cleared]);
+                        $this->logInfo('Cleared cache entries', [
+                            'pluginName' => $this->getSettings()->getFullName(),
+                            'count' => $cleared
+                        ]);
                     },
                 ];
             }
@@ -296,10 +299,7 @@ class SmartLinks extends Plugin
                     $this->scheduleAnalyticsCleanup();
                 }
 
-                Craft::info(
-                    Craft::t('smart-links', 'Analytics cleanup settings updated'),
-                    __METHOD__
-                );
+                $this->logInfo('Analytics cleanup settings updated');
             }
         );
 
