@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.6.1](https://github.com/LindemannRock/craft-smart-links/compare/v5.6.0...v5.6.1) (2025-11-14)
+
+
+### Bug Fixes
+
+* **analytics:** improve site name display for clicks by checking site ID ([d27ce51](https://github.com/LindemannRock/craft-smart-links/commit/d27ce511301939b2981f1511bcfa8d34428ce372))
+
 ## [5.6.0](https://github.com/LindemannRock/craft-smart-links/compare/v5.5.3...v5.6.0) (2025-11-14)
 
 
