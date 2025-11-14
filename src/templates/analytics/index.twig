@@ -161,7 +161,14 @@
 									<td>
 										<a href="{{ cpUrl('smart-links/' ~ click.linkId) }}">{{ click.smartLinkTitle }}</a>
 									</td>
-									<td>{{ click.siteName ?? '-' }}</td>
+									<td>
+										{% if click.siteId %}
+											{% set site = craft.app.sites.getSiteById(click.siteId) %}
+											{{ site ? site.name : '—' }}
+										{% else %}
+											—
+										{% endif %}
+									</td>
 									<td>
 										{% if click.clickType == 'button' %}
 											{{ "Button"|t('smart-links') }}
