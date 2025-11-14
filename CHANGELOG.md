@@ -1,5 +1,19 @@
 # Changelog
 
+## [5.6.0](https://github.com/LindemannRock/craft-smart-links/compare/v5.5.3...v5.6.0) (2025-11-14)
+
+
+### Features
+
+* **integrations:** add option to handle expired smart links in redirect manager settings ([cf7aaf3](https://github.com/LindemannRock/craft-smart-links/commit/cf7aaf388eada6ee86903af540cdec3291ed7c35))
+* **smartlinks:** add copy URL functionality for smart link redirect ([f43f76e](https://github.com/LindemannRock/craft-smart-links/commit/f43f76e437b75df0301a2faa9cb010149a3eae24))
+* **smartlinks:** enhance site context handling for smart links and add validation for enabled sites ([30dd959](https://github.com/LindemannRock/craft-smart-links/commit/30dd9590a5c9e33e96ede05ee0c18501883874b3))
+
+
+### Bug Fixes
+
+* **migrations:** add redirect manager events field to smartlinks settings ([86779fb](https://github.com/LindemannRock/craft-smart-links/commit/86779fbb4b9063189b778e18ddef009349c82b16))
+
 ## [5.5.3](https://github.com/LindemannRock/craft-smart-links/compare/v5.5.2...v5.5.3) (2025-11-11)
 
 
