@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.6.2](https://github.com/LindemannRock/craft-smart-links/compare/v5.6.1...v5.6.2) (2025-11-15)
+
+
+### Miscellaneous Chores
+
+* **license:** add MIT License file ([e4962e1](https://github.com/LindemannRock/craft-smart-links/commit/e4962e1c4deb48d9b0085d7e6699f4c00b8e0515))
+
 ## [5.6.1](https://github.com/LindemannRock/craft-smart-links/compare/v5.6.0...v5.6.1) (2025-11-14)
 
 
