@@ -100,6 +100,11 @@ return [
         'anonymizeIpAddress' => false,     // Mask IP addresses for maximum privacy (IPv4: last octet, IPv6: last 80 bits)
         'analyticsRetention' => 90,        // Days to keep analytics data (0 = unlimited, max 3650)
 
+        // Default location for local development
+        // Used when IP address is private/local (127.0.0.1, 192.168.x.x, etc.)
+        // 'defaultCountry' => App::env('SMART_LINKS_DEFAULT_COUNTRY') ?: 'AE', // 2-letter country code (US, GB, AE, etc.)
+        // 'defaultCity' => App::env('SMART_LINKS_DEFAULT_CITY') ?: 'Dubai', // Must match a city in the predefined locations list
+
 
         // ========================================
         // INTERFACE SETTINGS

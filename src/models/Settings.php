@@ -164,6 +164,16 @@ class Settings extends Model
     public bool $enableGeoDetection = false;
 
     /**
+     * @var string|null Default country for local development (when IP is private)
+     */
+    public ?string $defaultCountry = null;
+
+    /**
+     * @var string|null Default city for local development (when IP is private)
+     */
+    public ?string $defaultCity = null;
+
+    /**
      * @var bool Cache device detection results
      */
     public bool $cacheDeviceDetection = true;
@@ -245,6 +255,14 @@ class Settings extends Model
         // Fallback to .env if ipHashSalt not set by config file
         if ($this->ipHashSalt === null) {
             $this->ipHashSalt = App::env('SMART_LINKS_IP_SALT');
+        }
+
+        // Load default location from .env if not set by config file
+        if ($this->defaultCountry === null) {
+            $this->defaultCountry = App::env('SMART_LINKS_DEFAULT_COUNTRY');
+        }
+        if ($this->defaultCity === null) {
+            $this->defaultCity = App::env('SMART_LINKS_DEFAULT_CITY');
         }
     }
 
@@ -588,7 +606,7 @@ class Settings extends Model
         $attributes = $this->getAttributes();
 
         // Exclude config-only attributes that shouldn't be saved to database
-        unset($attributes['ipHashSalt']); // This comes from .env, not database
+        unset($attributes['ipHashSalt'], $attributes['defaultCountry'], $attributes['defaultCity']); // These come from .env/config, not database
 
         // Debug: Log what we're trying to save
         $this->logDebug('Attempting to save settings', ['attributes' => $attributes]);
