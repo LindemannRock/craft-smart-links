@@ -23,8 +23,19 @@ use yii\db\Expression;
 class SmartLinkQuery extends ElementQuery
 {
     // Store slug in custom property to prevent Craft from adding elements_sites.slug filter
+    /**
+     * @var mixed|null Smart link slug filter stored separately from the base query
+     */
     private mixed $_smartLinkSlug = null;
+
+    /**
+     * @var mixed|null Whether to filter by analytics tracking state
+     */
     public mixed $trackAnalytics = null;
+
+    /**
+     * @var mixed|null Whether to filter by QR code enabled state
+     */
     public mixed $qrCodeEnabled = null;
 
 
@@ -80,6 +91,9 @@ class SmartLinkQuery extends ElementQuery
         return parent::status($value);
     }
 
+    /**
+     * @var mixed|null Requested status used for custom status handling
+     */
     private $_requestedStatus = null;
 
     protected function beforePrepare(): bool

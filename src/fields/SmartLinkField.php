@@ -34,7 +34,7 @@ class SmartLinkField extends Field implements PreviewableFieldInterface
     public ?int $limit = null;
 
     /**
-     * @var string
+     * @var string Selection label shown in the element picker
      */
     public string $selectionLabel = 'Add a smart link';
 
