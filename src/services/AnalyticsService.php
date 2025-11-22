@@ -523,7 +523,7 @@ class AnalyticsService extends Component
     /**
      * Get top countries
      */
-    public function getTopCountries(?int $smartLinkId, string $dateRange): array
+    public function getTopCountries(?int $smartLinkId, string $dateRange, int $limit = 15): array
     {
         $query = (new Query())
             ->from('{{%smartlinks_analytics}}')
@@ -531,7 +531,7 @@ class AnalyticsService extends Component
             ->where(['not', ['country' => null]])
             ->groupBy(['country'])
             ->orderBy(['clicks' => SORT_DESC])
-            ->limit(15);
+            ->limit($limit);
 
         // Apply date range filter
         $this->applyDateRangeFilter($query, $dateRange);
