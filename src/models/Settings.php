@@ -84,9 +84,9 @@ class Settings extends Model
     public bool $enableQrCodeCache = true;
 
     /**
-     * @var int QR code cache duration in seconds
+     * @var int QR code cache duration in seconds (24 hours)
      */
-    public int $qrCodeCacheDuration = 86400; // 24 hours
+    public int $qrCodeCacheDuration = 86400;
 
     /**
      * @var string Default QR code error correction level (L, M, Q, H)
@@ -179,14 +179,14 @@ class Settings extends Model
     public bool $cacheDeviceDetection = true;
 
     /**
-     * @var int Device detection cache duration in seconds
+     * @var int Device detection cache duration in seconds (1 hour)
      */
-    public int $deviceDetectionCacheDuration = 3600; // 1 hour
+    public int $deviceDetectionCacheDuration = 3600;
 
     /**
-     * @var string Default language detection method
+     * @var string Default language detection method (browser, ip, or both)
      */
-    public string $languageDetectionMethod = 'browser'; // browser, ip, or both
+    public string $languageDetectionMethod = 'browser';
 
     /**
      * @var int Items per page in element index
