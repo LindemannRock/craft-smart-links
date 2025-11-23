@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.7.2](https://github.com/LindemannRock/craft-smart-links/compare/v5.7.1...v5.7.2) (2025-11-23)
+
+
+### Bug Fixes
+
+* date range parameter for getRecentClicks method and update template usage ([aae76ad](https://github.com/LindemannRock/craft-smart-links/commit/aae76ad478c187342b9371ccbb05b6cc87b5784a))
+
 ## [5.7.1](https://github.com/LindemannRock/craft-smart-links/compare/v5.7.0...v5.7.1) (2025-11-23)
 
 
