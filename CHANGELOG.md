@@ -1,5 +1,17 @@
 # Changelog
 
+## [5.7.0](https://github.com/LindemannRock/craft-smart-links/compare/v5.6.2...v5.7.0) (2025-11-23)
+
+
+### Features
+
+* **analytics:** add default location settings for local development ([f719cd1](https://github.com/LindemannRock/craft-smart-links/commit/f719cd1984d98a25f649d55782d6e3016609134a))
+
+
+### Bug Fixes
+
+* **docs:** clarify cache duration and detection method descriptions ([e66285b](https://github.com/LindemannRock/craft-smart-links/commit/e66285b0200774208042dd1bd7d967f7b8490625))
+
 ## [5.6.2](https://github.com/LindemannRock/craft-smart-links/compare/v5.6.1...v5.6.2) (2025-11-15)
 
 
