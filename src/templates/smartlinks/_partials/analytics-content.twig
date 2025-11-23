@@ -63,7 +63,7 @@
 
 {# Recent Clicks #}
 {% if analyticsService is defined %}
-    {% set recentClicks = analyticsService.getRecentClicks(smartLink.id, 20) %}
+    {% set recentClicks = analyticsService.getRecentClicks(smartLink.id, 20, dateRange) %}
 {% else %}
     {% set recentClicks = [] %}
 {% endif %}

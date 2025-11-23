@@ -176,16 +176,21 @@ class AnalyticsService extends Component
      *
      * @param int $smartLinkId
      * @param int $limit
+     * @param string $dateRange
      * @return array
      */
-    public function getRecentClicks(int $smartLinkId, int $limit = 20): array
+    public function getRecentClicks(int $smartLinkId, int $limit = 20, string $dateRange = 'last7days'): array
     {
-        $results = (new Query())
+        $query = (new Query())
             ->from('{{%smartlinks_analytics}}')
             ->where(['linkId' => $smartLinkId])
             ->orderBy('dateCreated DESC')
-            ->limit($limit)
-            ->all();
+            ->limit($limit);
+
+        // Apply date range filter
+        $this->applyDateRangeFilter($query, $dateRange);
+
+        $results = $query->all();
 
         // Convert dateCreated to DateTime objects for consistent timezone handling
         foreach ($results as &$result) {
