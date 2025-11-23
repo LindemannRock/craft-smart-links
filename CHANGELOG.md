@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.7.1](https://github.com/LindemannRock/craft-smart-links/compare/v5.7.0...v5.7.1) (2025-11-23)
+
+
+### Bug Fixes
+
+* 404 handling through Redirect Manager integration ([9d9c233](https://github.com/LindemannRock/craft-smart-links/commit/9d9c233748d436a210a719dfad4504870f632b56))
+
 ## [5.7.0](https://github.com/LindemannRock/craft-smart-links/compare/v5.6.2...v5.7.0) (2025-11-23)
 
 
