@@ -2,6 +2,7 @@
 
 {% set pluginName = smartlinkHelper.fullName %}
 {% set title = title ?? pluginName %}
+{% set docTitle = title ~ ' - ' ~ pluginName %}
 
 {# Define the plugin's CP section #}
 {% set pluginCpUrl = url('smart-links') %}
