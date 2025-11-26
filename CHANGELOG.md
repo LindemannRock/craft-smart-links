@@ -1,5 +1,18 @@
 # Changelog
 
+## [5.8.0](https://github.com/LindemannRock/craft-smart-links/compare/v5.7.2...v5.8.0) (2025-11-26)
+
+
+### Features
+
+* add Info Box component for displaying informational notices ([ea8f1be](https://github.com/LindemannRock/craft-smart-links/commit/ea8f1be456a887992e78a98ce5c6478cf840f041))
+* update analytics display to show top 20 links and recent interactions ([a5a9089](https://github.com/LindemannRock/craft-smart-links/commit/a5a9089bdfc97be865bcc433151f9da84f4799d4))
+
+
+### Bug Fixes
+
+* improve site name retrieval in AnalyticsService for better accuracy ([b5640dc](https://github.com/LindemannRock/craft-smart-links/commit/b5640dc398bcd2c57ad1b831f3c0b8fd2095606a))
+
 ## [5.7.2](https://github.com/LindemannRock/craft-smart-links/compare/v5.7.1...v5.7.2) (2025-11-23)
 
 
