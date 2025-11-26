@@ -1325,12 +1325,13 @@ class AnalyticsService extends Component
                     }
                 }
 
+                $topLinkSite = $smartLink->getSite();
                 $topLinks[] = [
                     'id' => $smartLink->id,
                     'name' => $smartLink->title,
                     'slug' => $smartLink->slug,
                     'enabled' => $smartLink->enabled,
-                    'siteName' => $smartLink->getSite()->name ?? '-',
+                    'siteName' => $topLinkSite ? $topLinkSite->name : '-',
                     'clicks' => (int)$row['clicks'],
                     'lastClick' => $row['lastClick'] ? DateTimeHelper::toIso8601(DateTimeHelper::toDateTime($row['lastClick'])) : null,
                     'lastInteractionType' => $lastInteractionType,
@@ -1390,12 +1391,15 @@ class AnalyticsService extends Component
                 $destinationUrl = $metadata['redirectUrl'] ?? $metadata['buttonUrl'] ?? '';
             }
 
+            // Get site name through Site model to parse env vars
+            $site = !empty($row['siteId']) ? Craft::$app->getSites()->getSiteById($row['siteId']) : null;
+
             $clicks[] = [
                 'id' => $row['id'],
                 'linkId' => $row['linkId'],
                 'smartLinkTitle' => $row['smartLinkTitle'],
                 'smartLinkSlug' => $row['smartLinkSlug'],
-                'siteName' => $row['siteName'] ?? '-',
+                'siteName' => $site ? $site->name : '-',
                 'dateCreated' => DateTimeHelper::toIso8601(DateTimeHelper::toDateTime($row['dateCreated'])),
                 'siteId' => $row['siteId'],
                 'deviceType' => $row['deviceType'],
