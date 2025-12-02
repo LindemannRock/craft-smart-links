@@ -24,7 +24,7 @@ class RedirectController extends Controller
     use LoggingTrait;
 
     /**
-     * @var array Allow anonymous access
+     * @var array<int|string>|bool|int Allow anonymous access
      */
     protected array|int|bool $allowAnonymous = true;
 
@@ -62,14 +62,14 @@ class RedirectController extends Controller
             // Check Redirect Manager for matching redirect (if installed)
             $redirect = $this->handleRedirect404($url, 'smart-links', [
                 'type' => 'smart-link-not-found',
-                'slug' => $slug
+                'slug' => $slug,
             ]);
 
             if ($redirect) {
                 $this->logInfo('Smart link 404 handled by Redirect Manager', [
                     'url' => $url,
                     'slug' => $slug,
-                    'destination' => $redirect['destinationUrl']
+                    'destination' => $redirect['destinationUrl'],
                 ]);
 
                 return $this->redirect($redirect['destinationUrl'], $redirect['statusCode']);
@@ -229,22 +229,21 @@ class RedirectController extends Controller
             $platform = $deviceInfo->platform ?? 'unknown';
         } else {
             // Manual platform selection from button click
-            $destinationUrl = match($platform) {
+            $destinationUrl = match ($platform) {
                 'ios' => $smartLink->iosUrl,
                 'android' => $smartLink->androidUrl,
                 'huawei' => $smartLink->huaweiUrl,
                 'amazon' => $smartLink->amazonUrl,
                 'windows' => $smartLink->windowsUrl,
                 'mac' => $smartLink->macUrl,
-                'fallback' => $smartLink->fallbackUrl,
-                default => $smartLink->fallbackUrl,
+                default => $smartLink->fallbackUrl, // fallback and any other values
             };
         }
 
         // Track the click if analytics are enabled
         if ($smartLink->trackAnalytics && SmartLinks::$plugin->getSettings()->enableAnalytics) {
             // Normalize platform value to match DeviceInfo valid values
-            $normalizedPlatform = match($platform) {
+            $normalizedPlatform = match ($platform) {
                 'mac' => 'macos',
                 'fallback' => 'other',
                 default => $platform
@@ -333,7 +332,7 @@ class RedirectController extends Controller
         try {
             // Get Redirect Manager plugin instance
             $redirectManager = Craft::$app->plugins->getPlugin('redirect-manager');
-            if (!$redirectManager) {
+            if (!$redirectManager instanceof \lindemannrock\redirectmanager\RedirectManager) {
                 return null;
             }
 
@@ -350,5 +349,4 @@ class RedirectController extends Controller
             return null;
         }
     }
-
 }

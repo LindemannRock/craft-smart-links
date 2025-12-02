@@ -12,8 +12,6 @@ use Craft;
 use craft\base\Component;
 use DeviceDetector\DeviceDetector;
 use DeviceDetector\Parser\Client\Browser;
-use DeviceDetector\Parser\OperatingSystem;
-use DeviceDetector\Parser\Device\AbstractDeviceParser;
 use lindemannrock\logginglibrary\traits\LoggingTrait;
 use lindemannrock\smartlinks\elements\SmartLink;
 use lindemannrock\smartlinks\models\DeviceInfo;

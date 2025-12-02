@@ -9,8 +9,8 @@
 namespace lindemannrock\smartlinks\integrations;
 
 use Craft;
-use lindemannrock\smartlinks\SmartLinks;
 use lindemannrock\logginglibrary\traits\LoggingTrait;
+use lindemannrock\smartlinks\SmartLinks;
 
 /**
  * Base Integration
@@ -128,7 +128,7 @@ abstract class BaseIntegration implements IntegrationInterface
         // Build base event structure
         $formattedData = [
             'event' => "{$eventPrefix}_{$eventType}",
-            'smart_link' => []
+            'smart_link' => [],
         ];
 
         // Map common fields

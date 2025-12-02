@@ -100,7 +100,7 @@ class SmartLinksUtility extends Utility
         $dailyClicks = (new Query())
             ->select([
                 'DATE(dateCreated) as date',
-                'COUNT(*) as clicks'
+                'COUNT(*) as clicks',
             ])
             ->from('{{%smartlinks_analytics}}')
             ->where(['>=', 'dateCreated', (new \DateTime('-14 days'))->format('Y-m-d H:i:s')])
@@ -119,27 +119,6 @@ class SmartLinksUtility extends Utility
         $qrCacheFiles = is_dir($qrCachePath) ? count(glob($qrCachePath . '*.cache')) : 0;
         $deviceCacheFiles = is_dir($deviceCachePath) ? count(glob($deviceCachePath . '*.cache')) : 0;
 
-        // Check if there are any invalid platform values that need fixing
-        $invalidPlatformValues = [
-            'app-store', 'google-play', 'mac-app-store', 'amazon-appstore',
-            'redirect', 'auto-redirect', 'button', 'test',
-            'iOS', 'Ios', 'IOS', 'Android', 'ANDROID',
-            'Windows', 'WINDOWS', 'macOS', 'MacOS', 'Mac', 'MAC',
-            'Linux', 'LINUX'
-        ];
-
-        // Build the WHERE clause manually since Yii2 doesn't handle JSON functions well in IN clause
-        $platformConditions = array_map(function($val) {
-            return "JSON_UNQUOTE(JSON_EXTRACT(metadata, '$.platform')) = '" . addslashes($val) . "'";
-        }, $invalidPlatformValues);
-
-        $whereClause = '(' . implode(' OR ', $platformConditions) . ')';
-
-        $invalidPlatformCount = (new Query())
-            ->from('{{%smartlinks_analytics}}')
-            ->where($whereClause)
-            ->count();
-
         return Craft::$app->getView()->renderTemplate('smart-links/utilities/index', [
             'totalLinks' => $totalLinks,
             'activeLinks' => $activeLinks,
@@ -157,7 +136,6 @@ class SmartLinksUtility extends Utility
             'settings' => $settings,
             'pluginName' => $pluginName,
             'singularName' => $singularName,
-            'invalidPlatformCount' => $invalidPlatformCount,
         ]);
     }
 }

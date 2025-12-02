@@ -41,10 +41,18 @@
         "matomo/device-detector": "^6.4",
         "bacon/bacon-qr-code": "^2.0"
     },
+    "require-dev": {
+        "craftcms/phpstan": "dev-main"
+    },
     "autoload": {
         "psr-4": {
             "lindemannrock\\smartlinks\\": "src/"
         }
+    },
+    "scripts": {
+        "phpstan": "phpstan --ansi --memory-limit=1G",
+        "check-cs": "ecs check --ansi",
+        "fix-cs": "ecs check --fix --ansi"
     },
     "extra": {
         "name": "Smart Links",

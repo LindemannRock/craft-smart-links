@@ -12,8 +12,8 @@ use Craft;
 use craft\base\Model;
 use craft\behaviors\EnvAttributeParserBehavior;
 use craft\db\Query;
-use craft\helpers\Db;
 use craft\helpers\App;
+use craft\helpers\Db;
 use lindemannrock\logginglibrary\traits\LoggingTrait;
 
 /**
@@ -26,7 +26,7 @@ class Settings extends Model
     /**
      * @event Event The event that is triggered after settings are saved
      */
-    const EVENT_AFTER_SAVE_SETTINGS = 'afterSaveSettings';
+    public const EVENT_AFTER_SAVE_SETTINGS = 'afterSaveSettings';
 
     /**
      * @var string Plugin display name
@@ -346,8 +346,10 @@ class Settings extends Model
                 // Single integration handle as string, convert to array
                 $this->enabledIntegrations = [$value];
             }
+        } elseif (is_array($value)) {
+            $this->enabledIntegrations = $value;
         } else {
-            $this->enabledIntegrations = is_array($value) ? $value : [];
+            $this->enabledIntegrations = [];
         }
     }
 
@@ -371,13 +373,13 @@ class Settings extends Model
                 if (!Craft::$app->getRequest()->getIsConsoleRequest()) {
                     if (Craft::$app->getSession()->get('sl_debug_config_warning') === null) {
                         $this->logWarning('Log level "debug" from config file changed to "info" because devMode is disabled', [
-                            'configFile' => 'config/smart-links.php'
+                            'configFile' => 'config/smart-links.php',
                         ]);
                         Craft::$app->getSession()->set('sl_debug_config_warning', true);
                     }
                 } else {
                     $this->logWarning('Log level "debug" from config file changed to "info" because devMode is disabled', [
-                        'configFile' => 'config/smart-links.php'
+                        'configFile' => 'config/smart-links.php',
                     ]);
                 }
             } else {
@@ -409,13 +411,17 @@ class Settings extends Model
                     $shortlinkPluginName = $shortlinkSettings->pluginName ?? 'ShortLink Manager';
 
                     // Check against ShortLink Manager slugPrefix
-                    if ($slugPrefix === ($shortlinkSettings->slugPrefix ?? 's')) {
-                        $conflicts[] = "{$shortlinkPluginName} slug prefix ('{$shortlinkSettings->slugPrefix}')";
+                    /** @phpstan-ignore-next-line - Dynamic property access on plugin settings */
+                    $shortlinkSlugPrefix = property_exists($shortlinkSettings, 'slugPrefix') ? $shortlinkSettings->slugPrefix : 's';
+                    if ($slugPrefix === $shortlinkSlugPrefix) {
+                        $conflicts[] = "{$shortlinkPluginName} slug prefix ('{$shortlinkSlugPrefix}')";
                     }
 
                     // Check against ShortLink Manager qrPrefix
-                    if ($slugPrefix === ($shortlinkSettings->qrPrefix ?? 'qr')) {
-                        $conflicts[] = "{$shortlinkPluginName} QR prefix ('{$shortlinkSettings->qrPrefix}')";
+                    /** @phpstan-ignore-next-line - Dynamic property access on plugin settings */
+                    $shortlinkQrPrefix = property_exists($shortlinkSettings, 'qrPrefix') ? $shortlinkSettings->qrPrefix : 'qr';
+                    if ($slugPrefix === $shortlinkQrPrefix) {
+                        $conflicts[] = "{$shortlinkPluginName} QR prefix ('{$shortlinkQrPrefix}')";
                     }
                 }
             } catch (\Exception $e) {
@@ -428,7 +434,7 @@ class Settings extends Model
             $this->addError($attribute, Craft::t('smart-links', 'Slug prefix "{prefix}" conflicts with: {conflicts}. Suggestions: {suggestions}', [
                 'prefix' => $slugPrefix,
                 'conflicts' => implode(', ', $conflicts),
-                'suggestions' => implode(', ', $suggestions)
+                'suggestions' => implode(', ', $suggestions),
             ]));
         }
     }
@@ -453,7 +459,7 @@ class Settings extends Model
         // Check against own slugPrefix
         if (!$isNested && $qrPrefix === $this->slugPrefix) {
             $this->addError($attribute, Craft::t('smart-links', 'QR prefix cannot be the same as your slug prefix. Try: qr, code, qrc, or {slug}/qr', [
-                'slug' => $this->slugPrefix
+                'slug' => $this->slugPrefix,
             ]));
             return;
         }
@@ -464,7 +470,7 @@ class Settings extends Model
             if ($baseSegment !== $this->slugPrefix) {
                 $this->addError($attribute, Craft::t('smart-links', 'Nested QR prefix must start with your slug prefix "{slug}". Use: {slug}/{qr} or use standalone like "qr"', [
                     'slug' => $this->slugPrefix,
-                    'qr' => $segments[1] ?? 'qr'
+                    'qr' => $segments[1] ?? 'qr',
                 ]));
                 return;
             }
@@ -481,13 +487,17 @@ class Settings extends Model
                     // Only check standalone patterns (nested patterns are already validated above)
                     if (!$isNested) {
                         // Check against ShortLink Manager slugPrefix
-                        if ($qrPrefix === ($shortlinkSettings->slugPrefix ?? 's')) {
-                            $conflicts[] = "{$shortlinkPluginName} slug prefix ('{$shortlinkSettings->slugPrefix}')";
+                        /** @phpstan-ignore-next-line - Dynamic property access on plugin settings */
+                        $shortlinkSlugPrefix = property_exists($shortlinkSettings, 'slugPrefix') ? $shortlinkSettings->slugPrefix : 's';
+                        if ($qrPrefix === $shortlinkSlugPrefix) {
+                            $conflicts[] = "{$shortlinkPluginName} slug prefix ('{$shortlinkSlugPrefix}')";
                         }
 
                         // Check against ShortLink Manager qrPrefix
-                        if ($qrPrefix === ($shortlinkSettings->qrPrefix ?? 'qr')) {
-                            $conflicts[] = "{$shortlinkPluginName} QR prefix ('{$shortlinkSettings->qrPrefix}')";
+                        /** @phpstan-ignore-next-line - Dynamic property access on plugin settings */
+                        $shortlinkQrPrefix = property_exists($shortlinkSettings, 'qrPrefix') ? $shortlinkSettings->qrPrefix : 'qr';
+                        if ($qrPrefix === $shortlinkQrPrefix) {
+                            $conflicts[] = "{$shortlinkPluginName} QR prefix ('{$shortlinkQrPrefix}')";
                         }
                     }
                 }
@@ -501,7 +511,7 @@ class Settings extends Model
             $this->addError($attribute, Craft::t('smart-links', 'QR prefix "{prefix}" conflicts with: {conflicts}. Suggestions: {suggestions}', [
                 'prefix' => $qrPrefix,
                 'conflicts' => implode(', ', $conflicts),
-                'suggestions' => implode(', ', $suggestions)
+                'suggestions' => implode(', ', $suggestions),
             ]));
         }
     }
@@ -541,7 +551,7 @@ class Settings extends Model
                 'enableGeoDetection',
                 'cacheDeviceDetection',
                 'enableQrLogo',
-                'enableQrDownload'
+                'enableQrDownload',
             ];
             
             foreach ($booleanFields as $field) {
@@ -558,7 +568,7 @@ class Settings extends Model
                 'deviceDetectionCacheDuration',
                 'itemsPerPage',
                 'defaultQrMargin',
-                'qrLogoSize'
+                'qrLogoSize',
             ];
 
             foreach ($integerFields as $field) {
@@ -638,15 +648,10 @@ class Settings extends Model
             // Debug: Log the result
             $this->logDebug('Database update result', ['result' => $result]);
 
-            if ($result !== false) {
-                // Trigger event after successful save
-                $this->trigger(self::EVENT_AFTER_SAVE_SETTINGS);
-                $this->logInfo('Settings saved successfully to database');
-                return true;
-            }
-
-            $this->logError('Database update returned false');
-            return false;
+            // Trigger event after successful save
+            $this->trigger(self::EVENT_AFTER_SAVE_SETTINGS);
+            $this->logInfo('Settings saved successfully to database');
+            return true;
         } catch (\Exception $e) {
             $this->logError('Failed to save ' . $this->getFullName() . ' settings', ['error' => $e->getMessage()]);
             return false;

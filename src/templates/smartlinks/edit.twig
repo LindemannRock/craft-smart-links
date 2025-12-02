@@ -328,7 +328,7 @@
 
         <div id="qr-settings" class="meta {{ not (smartLink.qrCodeEnabled ?? true) ? 'hidden' }}">
             {% if smartLink.id %}
-                <div class="field nested">
+                <div class="field">
                     <div class="heading">
                         <label>{{ "Preview"|t('smart-links') }}</label>
                     </div>
@@ -352,7 +352,7 @@
                 min: 100,
                 max: 1000,
                 size: 5,
-                fieldClass: 'nested'
+                fieldClass: ''
             }) }}
 
             {{ forms.colorField({
@@ -360,7 +360,7 @@
                 id: 'qrCodeColor',
                 name: 'qrCodeColor',
                 value: smartLink.qrCodeColor ?: craft.smartLinks.settings.defaultQrColor,
-                fieldClass: 'nested'
+                fieldClass: ''
             }) }}
 
             {{ forms.colorField({
@@ -368,7 +368,7 @@
                 id: 'qrCodeBgColor',
                 name: 'qrCodeBgColor',
                 value: smartLink.qrCodeBgColor ?: craft.smartLinks.settings.defaultQrBgColor,
-                fieldClass: 'nested'
+                fieldClass: ''
             }) }}
 
             {{ forms.colorField({
@@ -377,7 +377,7 @@
                 id: 'qrCodeEyeColor',
                 name: 'qrCodeEyeColor',
                 value: smartLink.qrCodeEyeColor ?: (craft.smartLinks.settings.qrEyeColor ?? ''),
-                fieldClass: 'nested'
+                fieldClass: ''
             }) }}
 
             {% set defaultFormat = craft.smartLinks.settings.defaultQrFormat ?? 'png' %}
@@ -392,7 +392,7 @@
                     {label: 'PNG', value: 'png'},
                     {label: 'SVG', value: 'svg'},
                 ],
-                fieldClass: 'nested'
+                fieldClass: ''
             }) }}
 
             {# QR Logo field (only show if logos are enabled in settings) #}
@@ -417,11 +417,11 @@
                     },
                     limit: 1,
                     elements: selectedLogo ? [selectedLogo] : [],
-                    fieldClass: 'nested'
+                    fieldClass: ''
                 }) }}
             {% endif %}
 
-            <div class="field nested" style="margin-top: 15px;">
+            <div class="field" style="margin-top: 15px;">
                 <div class="heading">
                     <label>{{ "Actions"|t('smart-links') }}</label>
                 </div>

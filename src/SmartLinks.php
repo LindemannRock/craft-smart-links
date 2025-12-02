@@ -11,40 +11,39 @@
 namespace lindemannrock\smartlinks;
 
 use Craft;
-use craft\base\Plugin;
 use craft\base\Model;
+use craft\base\Plugin;
 use craft\events\RegisterCacheOptionsEvent;
 use craft\events\RegisterComponentTypesEvent;
 use craft\events\RegisterTemplateRootsEvent;
 use craft\events\RegisterUrlRulesEvent;
 use craft\events\RegisterUserPermissionsEvent;
 use craft\fields\Link as LinkField;
-use craft\helpers\FileHelper;
 use craft\services\Dashboard;
 use craft\services\Elements;
 use craft\services\Fields;
 use craft\services\UserPermissions;
 use craft\services\Utilities;
 use craft\utilities\ClearCaches;
+use craft\web\twig\variables\CraftVariable;
 use craft\web\UrlManager;
 use craft\web\View;
-use craft\web\twig\variables\CraftVariable;
+use lindemannrock\logginglibrary\LoggingLibrary;
+use lindemannrock\logginglibrary\traits\LoggingTrait;
 use lindemannrock\smartlinks\elements\SmartLink;
 use lindemannrock\smartlinks\fields\SmartLinkField;
 use lindemannrock\smartlinks\integrations\SmartLinkType;
 use lindemannrock\smartlinks\jobs\CleanupAnalyticsJob;
 use lindemannrock\smartlinks\models\Settings;
-use lindemannrock\smartlinks\utilities\SmartLinksUtility;
 use lindemannrock\smartlinks\services\AnalyticsService;
 use lindemannrock\smartlinks\services\DeviceDetectionService;
 use lindemannrock\smartlinks\services\IntegrationService;
 use lindemannrock\smartlinks\services\QrCodeService;
 use lindemannrock\smartlinks\services\SmartLinksService;
+use lindemannrock\smartlinks\utilities\SmartLinksUtility;
 use lindemannrock\smartlinks\variables\SmartLinksVariable;
 use lindemannrock\smartlinks\widgets\AnalyticsSummaryWidget;
 use lindemannrock\smartlinks\widgets\TopLinksWidget;
-use lindemannrock\logginglibrary\traits\LoggingTrait;
-use lindemannrock\logginglibrary\LoggingLibrary;
 use yii\base\Event;
 
 /**
@@ -144,7 +143,7 @@ class SmartLinks extends Plugin
         Event::on(
             View::class,
             View::EVENT_REGISTER_CP_TEMPLATE_ROOTS,
-            function (RegisterTemplateRootsEvent $event) {
+            function(RegisterTemplateRootsEvent $event) {
                 $event->roots['smart-links'] = __DIR__ . '/templates';
             }
         );
@@ -274,7 +273,7 @@ class SmartLinks extends Plugin
 
                         $this->logInfo('Cleared cache entries', [
                             'pluginName' => $this->getSettings()->getFullName(),
-                            'count' => $cleared
+                            'count' => $cleared,
                         ]);
                     },
                 ];
@@ -345,7 +344,7 @@ class SmartLinks extends Plugin
             if (Craft::$app->getPlugins()->isPluginInstalled('logging-library') &&
                 Craft::$app->getPlugins()->isPluginEnabled('logging-library')) {
                 $item = LoggingLibrary::addLogsNav($item, $this->handle, [
-                    'smartLinks:viewLogs'
+                    'smartLinks:viewLogs',
                 ]);
             }
 
@@ -367,11 +366,6 @@ class SmartLinks extends Plugin
     {
         // Always load fresh settings from database
         $settings = Settings::loadFromDatabase();
-
-        // If no settings found in database, return new instance with defaults
-        if (!$settings) {
-            $settings = new Settings();
-        }
 
         return $settings;
     }

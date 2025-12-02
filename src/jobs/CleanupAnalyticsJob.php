@@ -99,7 +99,7 @@ class CleanupAnalyticsJob extends BaseJob
         }
 
         $this->setProgress($queue, 0, Craft::t('smart-links', 'Deleting {count} old analytics records', [
-            'count' => $totalRecords
+            'count' => $totalRecords,
         ]));
 
         // Delete in batches to avoid memory issues
@@ -128,7 +128,7 @@ class CleanupAnalyticsJob extends BaseJob
 
             $this->setProgress($queue, $deleted / $totalRecords, Craft::t('smart-links', 'Deleted {deleted} of {total} records', [
                 'deleted' => $deleted,
-                'total' => $totalRecords
+                'total' => $totalRecords,
             ]));
         }
 

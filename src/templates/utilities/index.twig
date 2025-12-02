@@ -198,16 +198,9 @@
 
 			<div>
 				<h3 style="margin-bottom: 8px;">{{ "Analytics Data Management"|t('smart-links') }}</h3>
-				<p class="light" style="margin-bottom: 16px;">{{ "Clean up or reset analytics data. Use 'Fix Platform Data' to correct invalid platform values in existing analytics (e.g., fixing test data or incorrect classifications). Use 'Clear All Analytics' to permanently delete all tracking data."|t('smart-links') }}</p>
+				<p class="light" style="margin-bottom: 16px;">{{ "Permanently delete all analytics tracking data. This action cannot be undone!"|t('smart-links') }}</p>
 
 				<div style="display: flex; gap: 10px; flex-wrap: wrap;">
-					<button type="button" class="btn submit {% if invalidPlatformCount == 0 %}disabled{% endif %}" id="cleanup-platform-values" {% if invalidPlatformCount == 0 %} disabled style="cursor: not-allowed; opacity: 0.5;" {% endif %}>
-						{{ "Fix Platform Data"|t('smart-links') }}
-						{% if invalidPlatformCount > 0 %}
-							({{ invalidPlatformCount }})
-						{% endif %}
-					</button>
-
 					<button type="button" class="btn submit" id="clear-all-analytics" style="background: #dc2626; border-color: #dc2626; color: white;">
 						{{ "Clear All Analytics"|t('smart-links') }}
 					</button>
@@ -312,39 +305,7 @@ $('#clear-all-caches').on('click', function() {
 });
 
 {% if settings.enableAnalytics %}
-	$('#cleanup-platform-values').on('click', function() {
-		    if (!confirm('{{ "This will fix invalid platform values in your analytics data. Continue?"|t('smart-links')|e('js') }}')) {
-		        return;
-		    }
-	
-		    const $btn = $(this);
-		    $btn.addClass('loading').prop('disabled', true);
-	
-		    $.ajax({
-		        url: '{{ actionUrl('smart-links/settings/cleanup-platform-values')|raw }}',
-		        type: 'POST',
-		        dataType: 'json',
-		        data: {
-	{{ craft.app.config.general.csrfTokenName }}: '{{ craft.app.request.csrfToken }}'
-		        },
-		        success: function(response) {
-		            if (response.success) {
-		                Craft.cp.displayNotice(response.message);
-		                setTimeout(() => window.location.reload(), 1500);
-		            } else {
-		                Craft.cp.displayError(response.error || '{{ "Failed to cleanup platform values"|t('smart-links')|e('js') }}');
-		            }
-		        },
-		        error: function() {
-		            Craft.cp.displayError('{{ "Failed to cleanup platform values"|t('smart-links')|e('js') }}');
-		        },
-		        complete: function() {
-		            $btn.removeClass('loading').prop('disabled', false);
-		        }
-		    });
-		});
-	
-		$('#clear-all-analytics').on('click', function() {
+	$('#clear-all-analytics').on('click', function() {
 		    if (!confirm('{{ "Are you sure you want to permanently delete ALL analytics data? This action cannot be undone!"|t('smart-links')|e('js') }}')) {
 		        return;
 		    }

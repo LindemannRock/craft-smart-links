@@ -16,8 +16,8 @@ use lindemannrock\smartlinks\elements\SmartLink;
 use lindemannrock\smartlinks\events\SmartLinkEvent;
 use lindemannrock\smartlinks\models\DeviceInfo;
 use lindemannrock\smartlinks\records\SmartLinkRecord;
-use yii\base\Event;
 use lindemannrock\smartlinks\SmartLinks;
+use yii\base\Event;
 
 /**
  * Smart Links Service
@@ -43,12 +43,12 @@ class SmartLinksService extends Component
     /**
      * @event SmartLinkEvent The event that is triggered before a smart link redirect.
      */
-    const EVENT_BEFORE_REDIRECT = 'beforeRedirect';
+    public const EVENT_BEFORE_REDIRECT = 'beforeRedirect';
 
     /**
      * @event SmartLinkEvent The event that is triggered after analytics are tracked.
      */
-    const EVENT_AFTER_TRACK_ANALYTICS = 'afterTrackAnalytics';
+    public const EVENT_AFTER_TRACK_ANALYTICS = 'afterTrackAnalytics';
 
     // Public Methods
     // =========================================================================
@@ -84,7 +84,7 @@ class SmartLinksService extends Component
     {
         if ($runValidation && !$smartLink->validate()) {
             $this->logInfo('Smart link not saved due to validation errors', [
-                'errors' => $smartLink->getErrors()
+                'errors' => $smartLink->getErrors(),
             ]);
             return false;
         }
@@ -369,7 +369,7 @@ class SmartLinksService extends Component
 
         // Get redirect manager plugin instance
         $redirectManager = Craft::$app->plugins->getPlugin('redirect-manager');
-        if (!$redirectManager) {
+        if (!$redirectManager instanceof \lindemannrock\redirectmanager\RedirectManager) {
             $this->logDebug('Redirect Manager plugin not found');
             return;
         }
@@ -443,7 +443,10 @@ class SmartLinksService extends Component
         }
 
         // Only create redirect if smart link has analytics/traffic
-        $hasTraffic = SmartLinks::$plugin->analytics->hasTraffic($link->id);
+        $hasTraffic = (new \craft\db\Query())
+            ->from('{{%smartlinks_analytics}}')
+            ->where(['linkId' => $link->id])
+            ->exists();
         if (!$hasTraffic) {
             return;
         }
@@ -461,7 +464,7 @@ class SmartLinksService extends Component
 
         // Get redirect manager plugin instance
         $redirectManager = Craft::$app->plugins->getPlugin('redirect-manager');
-        if (!$redirectManager) {
+        if (!$redirectManager instanceof \lindemannrock\redirectmanager\RedirectManager) {
             $this->logDebug('Redirect Manager plugin not found');
             return;
         }
@@ -529,7 +532,7 @@ class SmartLinksService extends Component
 
         // Get redirect manager plugin instance
         $redirectManager = Craft::$app->plugins->getPlugin('redirect-manager');
-        if (!$redirectManager) {
+        if (!$redirectManager instanceof \lindemannrock\redirectmanager\RedirectManager) {
             $this->logDebug('Redirect Manager plugin not found');
             return;
         }

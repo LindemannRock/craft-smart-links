@@ -13,10 +13,10 @@ use craft\base\ElementInterface;
 use craft\base\Field;
 use craft\base\PreviewableFieldInterface;
 use craft\elements\db\ElementQueryInterface;
-use lindemannrock\smartlinks\elements\SmartLink;
-use lindemannrock\smartlinks\elements\db\SmartLinkQuery;
-use lindemannrock\smartlinks\SmartLinks;
 use GraphQL\Type\Definition\Type;
+use lindemannrock\smartlinks\elements\db\SmartLinkQuery;
+use lindemannrock\smartlinks\elements\SmartLink;
+use lindemannrock\smartlinks\SmartLinks;
 
 /**
  * Smart Link Field

@@ -87,7 +87,7 @@ class RedirectManagerIntegration extends BaseIntegration
             'enabled' => $this->isEnabled(),
             'events' => $redirectManagerEvents,
             'description' => Craft::t('smart-links', 'Creates permanent redirects when {pluginName} slugs change or links are deleted', [
-                'pluginName' => SmartLinks::$plugin->getSettings()->getLowerDisplayName()
+                'pluginName' => SmartLinks::$plugin->getSettings()->getLowerDisplayName(),
             ]),
         ];
     }

@@ -2,7 +2,6 @@
 
 namespace lindemannrock\smartlinks\console\controllers;
 
-use Craft;
 use craft\console\Controller;
 use craft\helpers\Console;
 use lindemannrock\smartlinks\elements\SmartLink;
@@ -42,7 +41,7 @@ class DemoController extends Controller
             'isTablet' => false,
             'isDesktop' => false,
             'isBot' => false,
-            'userAgent' => 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15'
+            'userAgent' => 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15',
         ]);
         
         // Save analytics directly

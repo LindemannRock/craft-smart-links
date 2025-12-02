@@ -13,11 +13,11 @@ use craft\helpers\Json;
 use craft\web\Controller;
 use lindemannrock\logginglibrary\traits\LoggingTrait;
 use lindemannrock\smartlinks\elements\SmartLink;
+use lindemannrock\smartlinks\jobs\CleanupAnalyticsJob;
 use lindemannrock\smartlinks\models\Settings;
 use lindemannrock\smartlinks\SmartLinks;
-use lindemannrock\smartlinks\jobs\CleanupAnalyticsJob;
-use yii\web\Response;
 use yii\web\ForbiddenHttpException;
+use yii\web\Response;
 
 /**
  * Settings Controller
@@ -27,7 +27,7 @@ class SettingsController extends Controller
     use LoggingTrait;
 
     /**
-     * @var array
+     * @var array<int|string>|bool|int
      */
     protected array|bool|int $allowAnonymous = false;
 
@@ -93,7 +93,7 @@ class SettingsController extends Controller
 
         return $this->asJson([
             'database_row' => $row,
-            'loaded_settings' => $settings ? $settings->getAttributes() : null,
+            'loaded_settings' => $settings->getAttributes(),
             'settings_class' => get_class($settings),
         ]);
     }
@@ -303,7 +303,7 @@ class SettingsController extends Controller
             'id' => $fieldLayout->id ?? 'null',
             'uid' => $fieldLayout->uid ?? 'null',
             'type' => $fieldLayout->type ?? 'null',
-            'class' => get_class($fieldLayout)
+            'class' => get_class($fieldLayout),
         ]);
 
         $variables = [
@@ -314,7 +314,7 @@ class SettingsController extends Controller
         // Debug logging
         $this->logDebug('actionFieldLayout called', [
             'fieldLayout_exists' => $fieldLayout !== null,
-            'fieldLayout_id' => $fieldLayout ? $fieldLayout->id : null,
+            'fieldLayout_id' => $fieldLayout->id,
             'readOnly' => $this->readOnly,
         ]);
 
@@ -378,9 +378,6 @@ class SettingsController extends Controller
 
         // Load current settings from database
         $settings = Settings::loadFromDatabase();
-        if (!$settings) {
-            $settings = new Settings();
-        }
 
         $settingsData = Craft::$app->getRequest()->getBodyParam('settings');
 
@@ -391,7 +388,7 @@ class SettingsController extends Controller
         if (isset($settingsData['imageVolumeUid'])) {
             $this->logDebug('imageVolumeUid debug', [
                 'type' => gettype($settingsData['imageVolumeUid']),
-                'value' => $settingsData['imageVolumeUid']
+                'value' => $settingsData['imageVolumeUid'],
             ]);
         }
 
@@ -530,12 +527,12 @@ class SettingsController extends Controller
 
             return $this->asJson([
                 'success' => true,
-                'message' => Craft::t('smart-links', 'Analytics cleanup job has been queued. It will run in the background.')
+                'message' => Craft::t('smart-links', 'Analytics cleanup job has been queued. It will run in the background.'),
             ]);
         } catch (\Exception $e) {
             return $this->asJson([
                 'success' => false,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
         }
     }
@@ -565,12 +562,12 @@ class SettingsController extends Controller
 
             return $this->asJson([
                 'success' => true,
-                'message' => Craft::t('smart-links', 'Cleared {count} QR code caches.', ['count' => $cleared])
+                'message' => Craft::t('smart-links', 'Cleared {count} QR code caches.', ['count' => $cleared]),
             ]);
         } catch (\Exception $e) {
             return $this->asJson([
                 'success' => false,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
         }
     }
@@ -600,12 +597,12 @@ class SettingsController extends Controller
 
             return $this->asJson([
                 'success' => true,
-                'message' => Craft::t('smart-links', 'Cleared {count} device detection caches.', ['count' => $cleared])
+                'message' => Craft::t('smart-links', 'Cleared {count} device detection caches.', ['count' => $cleared]),
             ]);
         } catch (\Exception $e) {
             return $this->asJson([
                 'success' => false,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
         }
     }
@@ -647,12 +644,12 @@ class SettingsController extends Controller
 
             return $this->asJson([
                 'success' => true,
-                'message' => Craft::t('smart-links', 'Cleared {count} cache entries.', ['count' => $totalCleared])
+                'message' => Craft::t('smart-links', 'Cleared {count} cache entries.', ['count' => $totalCleared]),
             ]);
         } catch (\Exception $e) {
             return $this->asJson([
                 'success' => false,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
         }
     }
@@ -671,7 +668,7 @@ class SettingsController extends Controller
         if (!Craft::$app->getUser()->getIsAdmin()) {
             return $this->asJson([
                 'success' => false,
-                'error' => Craft::t('smart-links', 'Only administrators can clear analytics data.')
+                'error' => Craft::t('smart-links', 'Only administrators can clear analytics data.'),
             ]);
         }
 
@@ -694,19 +691,19 @@ class SettingsController extends Controller
                 $metadata['lastClick'] = null;
                 Craft::$app->db->createCommand()
                     ->update('{{%smartlinks}}', [
-                        'metadata' => Json::encode($metadata)
+                        'metadata' => Json::encode($metadata),
                     ], ['id' => $smartLink->id])
                     ->execute();
             }
 
             return $this->asJson([
                 'success' => true,
-                'message' => Craft::t('smart-links', 'Cleared {count} analytics records and reset all click counts.', ['count' => $count])
+                'message' => Craft::t('smart-links', 'Cleared {count} analytics records and reset all click counts.', ['count' => $count]),
             ]);
         } catch (\Exception $e) {
             return $this->asJson([
                 'success' => false,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
         }
     }
@@ -725,7 +722,7 @@ class SettingsController extends Controller
         if (!Craft::$app->getUser()->getIsAdmin()) {
             return $this->asJson([
                 'success' => false,
-                'error' => Craft::t('smart-links', 'Only administrators can clean up analytics data.')
+                'error' => Craft::t('smart-links', 'Only administrators can clean up analytics data.'),
             ]);
         }
 
@@ -734,12 +731,12 @@ class SettingsController extends Controller
 
             return $this->asJson([
                 'success' => true,
-                'message' => Craft::t('smart-links', 'Cleaned up {count} analytics records with invalid platform values.', ['count' => $updated])
+                'message' => Craft::t('smart-links', 'Cleaned up {count} analytics records with invalid platform values.', ['count' => $updated]),
             ]);
         } catch (\Exception $e) {
             return $this->asJson([
                 'success' => false,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
         }
     }

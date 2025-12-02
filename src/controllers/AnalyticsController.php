@@ -21,7 +21,7 @@ class AnalyticsController extends Controller
 {
     use LoggingTrait;
     /**
-     * @var array
+     * @var array<int|string>|bool|int
      */
     protected array|bool|int $allowAnonymous = false;
 
@@ -80,7 +80,7 @@ class AnalyticsController extends Controller
         if (!SmartLinks::$plugin->getSettings()->enableAnalytics) {
             return $this->asJson([
                 'success' => false,
-                'error' => 'Analytics are disabled in plugin settings.'
+                'error' => 'Analytics are disabled in plugin settings.',
             ]);
         }
 
@@ -101,14 +101,14 @@ class AnalyticsController extends Controller
             if (!$smartLink) {
                 return $this->asJson([
                     'success' => false,
-                    'error' => 'Smart link not found'
+                    'error' => 'Smart link not found',
                 ]);
             }
             
             if (!($smartLink->trackAnalytics ?? true)) {
                 return $this->asJson([
                     'success' => false,
-                    'error' => 'Analytics tracking is disabled for this smart link'
+                    'error' => 'Analytics tracking is disabled for this smart link',
                 ]);
             }
         }
@@ -139,7 +139,7 @@ class AnalyticsController extends Controller
             $this->logError('Analytics getData error', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
             return $this->asJson([
                 'success' => false,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
         }
     }
@@ -158,7 +158,7 @@ class AnalyticsController extends Controller
         if (!SmartLinks::$plugin->getSettings()->enableAnalytics) {
             return $this->asJson([
                 'success' => false,
-                'error' => 'Analytics are disabled in plugin settings.'
+                'error' => 'Analytics are disabled in plugin settings.',
             ]);
         }
 
@@ -168,7 +168,7 @@ class AnalyticsController extends Controller
         if (!$smartLinkId) {
             return $this->asJson([
                 'success' => false,
-                'error' => 'Smart link ID is required'
+                'error' => 'Smart link ID is required',
             ]);
         }
 
@@ -182,7 +182,7 @@ class AnalyticsController extends Controller
             if (!$smartLink) {
                 return $this->asJson([
                     'success' => false,
-                    'error' => 'Smart link not found'
+                    'error' => 'Smart link not found',
                 ]);
             }
 
@@ -190,7 +190,7 @@ class AnalyticsController extends Controller
             if (!($smartLink->trackAnalytics ?? true)) {
                 return $this->asJson([
                     'success' => false,
-                    'error' => 'Analytics tracking is disabled for this smart link'
+                    'error' => 'Analytics tracking is disabled for this smart link',
                 ]);
             }
 
@@ -211,13 +211,13 @@ class AnalyticsController extends Controller
 
             return $this->asJson([
                 'success' => true,
-                'html' => $html
+                'html' => $html,
             ]);
         } catch (\Exception $e) {
             $this->logError('Failed to get analytics data', ['error' => $e->getMessage()]);
             return $this->asJson([
                 'success' => false,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
         }
     }

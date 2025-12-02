@@ -103,7 +103,6 @@ class SeomaticIntegration extends BaseIntegration
             ]);
 
             return true;
-
         } catch (\Throwable $e) {
             $this->logError('Failed to push event', [
                 'eventType' => $eventType,
@@ -137,7 +136,7 @@ class SeomaticIntegration extends BaseIntegration
 
             // Try to inject into Google Tag Manager
             $gtmScript = $scriptService->get('googleTagManager');
-            if ($gtmScript && isset($gtmScript->include) && $gtmScript->include) {
+            if ($gtmScript && $gtmScript->include) {
                 // Initialize dataLayer if not exists
                 if (!is_array($gtmScript->dataLayer)) {
                     $gtmScript->dataLayer = [];
@@ -154,7 +153,7 @@ class SeomaticIntegration extends BaseIntegration
 
             // Try to inject into gtag.js (Google Analytics)
             $gtagScript = $scriptService->get('gtag');
-            if ($gtagScript && isset($gtagScript->include) && $gtagScript->include) {
+            if ($gtagScript && $gtagScript->include) {
                 // Initialize dataLayer if not exists
                 if (!is_array($gtagScript->dataLayer)) {
                     $gtagScript->dataLayer = [];
@@ -171,7 +170,6 @@ class SeomaticIntegration extends BaseIntegration
 
             $this->logDebug('No active tracking scripts found in SEOmatic');
             return false;
-
         } catch (\Throwable $e) {
             $this->logError('Failed to inject data layer event', [
                 'error' => $e->getMessage(),
@@ -200,7 +198,7 @@ class SeomaticIntegration extends BaseIntegration
         Event::on(
             $dynamicMetaClass,
             'addDynamicMeta',
-            function ($event) {
+            function($event) {
                 $this->onAddDynamicMeta($event);
             }
         );
@@ -227,7 +225,6 @@ class SeomaticIntegration extends BaseIntegration
             }
 
             $this->logDebug('Injected queued events', ['count' => count($this->queuedEvents)]);
-
         } catch (\Throwable $e) {
             $this->logError('Error in AddDynamicMeta handler', [
                 'error' => $e->getMessage(),
@@ -288,7 +285,7 @@ class SeomaticIntegration extends BaseIntegration
                     $gtmScript = $scriptService->get('googleTagManager');
 
                     // Only include if GTM is enabled AND has an actual GTM ID configured
-                    if ($gtmScript && isset($gtmScript->include) && $gtmScript->include) {
+                    if ($gtmScript && $gtmScript->include) {
                         // Try both possible keys for GTM ID
                         $gtmId = $gtmScript->vars['googleTagManagerId']['value'] ??
                                 $gtmScript->vars['googleTagManagerContainerId']['value'] ??
@@ -327,7 +324,7 @@ class SeomaticIntegration extends BaseIntegration
                     $shouldInclude = false;
                     $measurementId = null;
 
-                    if ($gtagScript && isset($gtagScript->include) && $gtagScript->include) {
+                    if ($gtagScript && $gtagScript->include) {
                         // Correct key is 'googleAnalyticsId', not 'googleAnalyticsMeasurementId'
                         $measurementId = $gtagScript->vars['googleAnalyticsId']['value'] ?? null;
 
@@ -360,7 +357,7 @@ class SeomaticIntegration extends BaseIntegration
 
                     // Check Facebook Pixel
                     $fbScript = $scriptService->get('facebookPixel');
-                    if ($fbScript && isset($fbScript->include) && $fbScript->include) {
+                    if ($fbScript && $fbScript->include) {
                         $fbId = $fbScript->vars['facebookPixelId']['value'] ?? null;
 
                         // Only add if there's an actual Facebook Pixel ID
@@ -382,7 +379,7 @@ class SeomaticIntegration extends BaseIntegration
 
                     // Check LinkedIn Insight
                     $linkedInScript = $scriptService->get('linkedInInsight');
-                    if ($linkedInScript && isset($linkedInScript->include) && $linkedInScript->include) {
+                    if ($linkedInScript && $linkedInScript->include) {
                         // Correct key is 'dataPartnerId'
                         $partnerId = $linkedInScript->vars['dataPartnerId']['value'] ?? null;
 
@@ -413,7 +410,7 @@ class SeomaticIntegration extends BaseIntegration
 
                     // Check HubSpot
                     $hubSpotScript = $scriptService->get('hubSpot');
-                    if ($hubSpotScript && isset($hubSpotScript->include) && $hubSpotScript->include) {
+                    if ($hubSpotScript && $hubSpotScript->include) {
                         $hubSpotId = $hubSpotScript->vars['hubSpotId']['value'] ?? null;
 
                         if (!empty($hubSpotId)) {
@@ -435,7 +432,7 @@ class SeomaticIntegration extends BaseIntegration
                     // Check Pinterest Tag
                     // Correct handle is 'pinterestTag'
                     $pinterestScript = $scriptService->get('pinterestTag');
-                    if ($pinterestScript && isset($pinterestScript->include) && $pinterestScript->include) {
+                    if ($pinterestScript && $pinterestScript->include) {
                         // Correct key is 'pinterestTagId'
                         $pinterestId = $pinterestScript->vars['pinterestTagId']['value'] ?? null;
 
@@ -465,7 +462,7 @@ class SeomaticIntegration extends BaseIntegration
 
                     // Check Fathom Analytics
                     $fathomScript = $scriptService->get('fathom');
-                    if ($fathomScript && isset($fathomScript->include) && $fathomScript->include) {
+                    if ($fathomScript && $fathomScript->include) {
                         // Correct key is 'siteId'
                         $fathomSiteId = $fathomScript->vars['siteId']['value'] ?? null;
 
@@ -495,7 +492,7 @@ class SeomaticIntegration extends BaseIntegration
 
                     // Check Matomo
                     $matomoScript = $scriptService->get('matomo');
-                    if ($matomoScript && isset($matomoScript->include) && $matomoScript->include) {
+                    if ($matomoScript && $matomoScript->include) {
                         // Correct key is 'siteId'
                         $matomoSiteId = $matomoScript->vars['siteId']['value'] ?? null;
 
@@ -525,7 +522,7 @@ class SeomaticIntegration extends BaseIntegration
 
                     // Check Plausible
                     $plausibleScript = $scriptService->get('plausible');
-                    if ($plausibleScript && isset($plausibleScript->include) && $plausibleScript->include) {
+                    if ($plausibleScript && $plausibleScript->include) {
                         // Correct key is 'siteDomain'
                         $plausibleDomain = $plausibleScript->vars['siteDomain']['value'] ?? null;
 
@@ -566,7 +563,6 @@ class SeomaticIntegration extends BaseIntegration
                 'eventPrefix' => $settings->seomaticEventPrefix ?? 'smart_links',
                 'trackingEvents' => $settings->seomaticTrackingEvents ?? [],
             ];
-
         } catch (\Throwable $e) {
             $this->logError('Error getting SEOmatic status', [
                 'error' => $e->getMessage(),

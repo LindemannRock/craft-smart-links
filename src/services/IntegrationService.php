@@ -4,10 +4,10 @@ namespace lindemannrock\smartlinks\services;
 
 use Craft;
 use craft\base\Component;
-use lindemannrock\smartlinks\integrations\IntegrationInterface;
-use lindemannrock\smartlinks\integrations\SeomaticIntegration;
-use lindemannrock\smartlinks\integrations\RedirectManagerIntegration;
 use lindemannrock\logginglibrary\traits\LoggingTrait;
+use lindemannrock\smartlinks\integrations\IntegrationInterface;
+use lindemannrock\smartlinks\integrations\RedirectManagerIntegration;
+use lindemannrock\smartlinks\integrations\SeomaticIntegration;
 
 /**
  * Integration Service
@@ -66,7 +66,6 @@ class IntegrationService extends Component
                 'count' => count($this->integrations),
                 'available' => $this->getAvailableIntegrations(),
             ]);
-
         } catch (\Throwable $e) {
             $this->logError('Failed to load integrations', [
                 'error' => $e->getMessage(),
@@ -118,7 +117,6 @@ class IntegrationService extends Component
 
                 $success = $integration->pushEvent($eventType, $data);
                 $results[$handle] = $success;
-
             } catch (\Throwable $e) {
                 $this->logError('Integration failed', [
                     'handle' => $handle,
@@ -290,7 +288,6 @@ class IntegrationService extends Component
                     'status' => $integration->getStatus(),
                 ];
             }
-
         } catch (\Throwable $e) {
             return [
                 'success' => false,
@@ -330,8 +327,7 @@ class IntegrationService extends Component
             $view->setTemplateMode($oldMode);
 
             // Return as Twig Markup so it's automatically treated as safe HTML
-            return \Twig\Markup::class ? new \Twig\Markup($html, 'UTF-8') : $html;
-
+            return new \Twig\Markup($html, 'UTF-8');
         } catch (\Throwable $e) {
             $view->setTemplateMode($oldMode);
             $this->logError('Failed to render SEOmatic tracking', [
@@ -342,5 +338,4 @@ class IntegrationService extends Component
             return null;
         }
     }
-
 }

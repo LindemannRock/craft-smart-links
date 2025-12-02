@@ -19,7 +19,6 @@ use craft\helpers\UrlHelper;
 use lindemannrock\logginglibrary\traits\LoggingTrait;
 use lindemannrock\smartlinks\elements\SmartLink;
 use lindemannrock\smartlinks\models\DeviceInfo;
-use lindemannrock\smartlinks\records\AnalyticsRecord;
 use lindemannrock\smartlinks\SmartLinks;
 
 /**
@@ -279,7 +278,7 @@ class AnalyticsService extends Component
                 return null;
         }
 
-        return $date ? Db::prepareDateForDb($date) : null;
+        return Db::prepareDateForDb($date);
     }
 
     /**
@@ -303,7 +302,7 @@ class AnalyticsService extends Component
                 return null;
         }
 
-        return $date ? Db::prepareDateForDb($date) : null;
+        return Db::prepareDateForDb($date);
     }
 
     /**
@@ -377,7 +376,7 @@ class AnalyticsService extends Component
             $now = new \DateTime('now', new \DateTimeZone($timezone));
             $startTimestamp = strtotime($now->format('Y-m-d'));
             $endTimestamp = $startTimestamp;
-        } else if ($dateRange === 'yesterday') {
+        } elseif ($dateRange === 'yesterday') {
             $yesterday = new \DateTime('yesterday', new \DateTimeZone($timezone));
             $startTimestamp = strtotime($yesterday->format('Y-m-d'));
             $endTimestamp = $startTimestamp;
@@ -425,7 +424,7 @@ class AnalyticsService extends Component
 
         return [
             'labels' => $filledLabels,
-            'values' => $filledValues
+            'values' => $filledValues,
         ];
     }
 
@@ -461,13 +460,13 @@ class AnalyticsService extends Component
         if (empty($labels)) {
             return [
                 'labels' => ['No data yet'],
-                'values' => [1] // Show empty state
+                'values' => [1], // Show empty state
             ];
         }
 
         return [
             'labels' => $labels,
-            'values' => $values
+            'values' => $values,
         ];
     }
 
@@ -502,7 +501,7 @@ class AnalyticsService extends Component
             'macos' => 'macOS',
             'linux' => 'Linux',
             'huawei' => 'HarmonyOS',
-            'other' => 'Other'
+            'other' => 'Other',
         ];
 
         foreach ($results as $row) {
@@ -515,13 +514,13 @@ class AnalyticsService extends Component
         if (empty($labels)) {
             return [
                 'labels' => ['No data yet'],
-                'values' => [1] // Show empty state
+                'values' => [1], // Show empty state
             ];
         }
 
         return [
             'labels' => $labels,
-            'values' => $values
+            'values' => $values,
         ];
     }
 
@@ -617,7 +616,7 @@ class AnalyticsService extends Component
             ->from('{{%smartlinks_analytics}}')
             ->select([
                 'HOUR(dateCreated) as hour',
-                'COUNT(*) as clicks'
+                'COUNT(*) as clicks',
             ])
             ->groupBy(['hour'])
             ->orderBy(['hour' => SORT_ASC]);
@@ -662,7 +661,7 @@ class AnalyticsService extends Component
             ->select([
                 'city',
                 'SUM(CASE WHEN osName IN ("iOS", "Android") THEN 1 ELSE 0 END) as mobile_clicks',
-                'COUNT(*) as total_clicks'
+                'COUNT(*) as total_clicks',
             ])
             ->where(['not', ['city' => null]])
             ->groupBy(['city'])
@@ -689,7 +688,7 @@ class AnalyticsService extends Component
             ->select([
                 'country',
                 'browser',
-                'COUNT(*) as clicks'
+                'COUNT(*) as clicks',
             ])
             ->where(['not', ['country' => null]])
             ->andWhere(['not', ['browser' => null]])
@@ -718,7 +717,7 @@ class AnalyticsService extends Component
             ->select([
                 'country',
                 'deviceBrand',
-                'COUNT(*) as clicks'
+                'COUNT(*) as clicks',
             ])
             ->where(['not', ['country' => null]])
             ->andWhere(['not', ['deviceBrand' => null]])
@@ -757,7 +756,7 @@ class AnalyticsService extends Component
     {
         return [
             'labels' => [],
-            'values' => []
+            'values' => [],
         ];
     }
 
@@ -770,7 +769,7 @@ class AnalyticsService extends Component
             ->from('{{%smartlinks_analytics}}')
             ->select([
                 'deviceBrand',
-                'COUNT(*) as clicks'
+                'COUNT(*) as clicks',
             ])
             ->where(['not', ['deviceBrand' => null]])
             ->andWhere(['not', ['deviceBrand' => '']])
@@ -817,7 +816,7 @@ class AnalyticsService extends Component
             ->select([
                 'osName',
                 'osVersion',
-                'COUNT(*) as clicks'
+                'COUNT(*) as clicks',
             ])
             ->where(['not', ['osName' => null]])
             ->andWhere(['not', ['osName' => '']])
@@ -844,7 +843,7 @@ class AnalyticsService extends Component
                 $osData[$osName] = [
                     'name' => $osName,
                     'totalClicks' => 0,
-                    'versions' => []
+                    'versions' => [],
                 ];
             }
 
@@ -853,7 +852,7 @@ class AnalyticsService extends Component
             if ($row['osVersion']) {
                 $osData[$osName]['versions'][] = [
                     'version' => $row['osVersion'],
-                    'clicks' => (int)$row['clicks']
+                    'clicks' => (int)$row['clicks'],
                 ];
             }
         }
@@ -874,7 +873,7 @@ class AnalyticsService extends Component
                 'name' => $os['name'],
                 'clicks' => $os['totalClicks'],
                 'percentage' => $totalClicks > 0 ? round(($os['totalClicks'] / $totalClicks) * 100, 1) : 0,
-                'versions' => array_slice($os['versions'], 0, 5) // Top 5 versions per OS
+                'versions' => array_slice($os['versions'], 0, 5), // Top 5 versions per OS
             ];
         }
 
@@ -896,7 +895,7 @@ class AnalyticsService extends Component
             ->select([
                 'browser',
                 'browserVersion',
-                'COUNT(*) as clicks'
+                'COUNT(*) as clicks',
             ])
             ->where(['not', ['browser' => null]])
             ->andWhere(['not', ['browser' => '']])
@@ -923,7 +922,7 @@ class AnalyticsService extends Component
                 $browserData[$browserName] = [
                     'name' => $browserName,
                     'totalClicks' => 0,
-                    'versions' => []
+                    'versions' => [],
                 ];
             }
 
@@ -962,7 +961,7 @@ class AnalyticsService extends Component
             foreach (array_slice($browser['versions'], 0, 5, true) as $version => $clicks) {
                 $versions[] = [
                     'version' => $version,
-                    'clicks' => $clicks
+                    'clicks' => $clicks,
                 ];
             }
 
@@ -970,7 +969,7 @@ class AnalyticsService extends Component
                 'name' => $browser['name'],
                 'clicks' => $browser['totalClicks'],
                 'percentage' => $totalClicks > 0 ? round(($browser['totalClicks'] / $totalClicks) * 100, 1) : 0,
-                'versions' => $versions
+                'versions' => $versions,
             ];
         }
 
@@ -991,7 +990,7 @@ class AnalyticsService extends Component
             ->from('{{%smartlinks_analytics}}')
             ->select([
                 'deviceType',
-                'COUNT(*) as clicks'
+                'COUNT(*) as clicks',
             ])
             ->where(['not', ['deviceType' => null]])
             ->andWhere(['not', ['deviceType' => '']])
@@ -1031,7 +1030,7 @@ class AnalyticsService extends Component
             'mobile' => 0,
             'desktop' => 0,
             'other' => 0,
-            'unknown' => 0
+            'unknown' => 0,
         ];
 
         foreach ($results as $row) {
@@ -1082,7 +1081,7 @@ class AnalyticsService extends Component
                 'referrer',
                 'metadata',
                 'ip',
-                'userAgent'
+                'userAgent',
             ])
             ->orderBy(['dateCreated' => SORT_DESC]);
 
@@ -1110,91 +1109,89 @@ class AnalyticsService extends Component
             $csv = "Date,Time,{$displayName} Title,{$displayName} Status,{$displayName} URL,Site,Type,Button,Source,Destination URL,Referrer,User Device Type,User Device Brand,User Device Model,User OS,User OS Version,User Browser,User Browser Version,User Language,User Agent\n";
         }
 
-            foreach ($results as $row) {
-                // Check settings to determine if we should include disabled/expired links
-                $settings = SmartLinks::$plugin->getSettings();
-                $includeDisabled = $settings->includeDisabledInExport ?? false;
-                $includeExpired = $settings->includeExpiredInExport ?? false;
+        foreach ($results as $row) {
+            // Check settings to determine if we should include disabled/expired links
+            $settings = SmartLinks::$plugin->getSettings();
+            $includeDisabled = $settings->includeDisabledInExport ?? false;
+            $includeExpired = $settings->includeExpiredInExport ?? false;
 
-                // Always get the link with all statuses to check if it exists and its status
-                $smartLink = SmartLink::find()
+            // Always get the link with all statuses to check if it exists and its status
+            $smartLink = SmartLink::find()
                     ->id($row['linkId'])
                     ->siteId($row['siteId'])
                     ->status(null)
                     ->one();
 
-                if (!$smartLink) {
-                    continue;
-                }
+            if (!$smartLink) {
+                continue;
+            }
 
-                // Get the actual status
-                $status = $smartLink->getStatus();
+            // Get the actual status
+            $status = $smartLink->getStatus();
 
-                // Skip based on settings
-                if (!$includeDisabled && $status === SmartLink::STATUS_DISABLED) {
-                    continue;
-                }
+            // Skip based on settings
+            if (!$includeDisabled && $status === SmartLink::STATUS_DISABLED) {
+                continue;
+            }
 
-                if (!$includeExpired && $status === SmartLink::STATUS_EXPIRED) {
-                    continue;
-                }
+            if (!$includeExpired && $status === SmartLink::STATUS_EXPIRED) {
+                continue;
+            }
 
-                $linkName = $smartLink->title;
-                $linkStatus = match($status) {
-                    SmartLink::STATUS_ENABLED => 'Active',
+            $linkName = $smartLink->title;
+            $linkStatus = match ($status) {
+                SmartLink::STATUS_ENABLED => 'Active',
                     SmartLink::STATUS_DISABLED => 'Disabled',
                     SmartLink::STATUS_PENDING => 'Pending',
                     SmartLink::STATUS_EXPIRED => 'Expired',
                     default => 'Unknown'
-                };
-                $linkUrl = '';
+            };
+            $linkUrl = '';
 
-                // Get site name and build the smart link URL
-                $siteName = '';
-                if (!empty($row['siteId'])) {
-                    $site = Craft::$app->getSites()->getSiteById($row['siteId']);
-                    $siteName = $site ? $site->name : '';
-                    if ($smartLink) {
-                        // Generate the URL for the specific site
-                        $linkUrl = UrlHelper::siteUrl("go/{$smartLink->slug}", null, null, $row['siteId']);
-                    }
+            // Get site name and build the smart link URL
+            $siteName = '';
+            if (!empty($row['siteId'])) {
+                $site = Craft::$app->getSites()->getSiteById($row['siteId']);
+                $siteName = $site ? $site->name : '';
+                // Generate the URL for the specific site
+                $linkUrl = UrlHelper::siteUrl("go/{$smartLink->slug}", null, null, $row['siteId']);
+            }
+
+            $date = DateTimeHelper::toDateTime($row['dateCreated']);
+            $dateStr = $date ? $date->format('Y-m-d') : '';
+            $timeStr = $date ? $date->format('H:i:s') : '';
+
+            // Parse metadata
+            $metadata = $row['metadata'] ? Json::decode($row['metadata']) : [];
+            $source = $metadata['source'] ?? 'direct';
+            $clickType = $metadata['clickType'] ?? 'redirect';
+            $buttonPlatform = '';
+            $targetUrl = '';
+
+            // Get the URL that was used
+            if ($clickType === 'button') {
+                // For button clicks, show which button URL was clicked
+                $targetUrl = $metadata['buttonUrl'] ?? '';
+                if (isset($metadata['platform'])) {
+                    $buttonPlatform = ucfirst($metadata['platform']);
                 }
+            } else {
+                // For redirects, show which URL they were sent to (check both old and new formats)
+                $targetUrl = $metadata['redirectUrl'] ?? $metadata['buttonUrl'] ?? '';
+            }
 
-                $date = DateTimeHelper::toDateTime($row['dateCreated']);
-                $dateStr = $date ? $date->format('Y-m-d') : '';
-                $timeStr = $date ? $date->format('H:i:s') : '';
+            // Keep the actual referrer URL
+            $referrerDisplay = $row['referrer'] ?? '';
 
-                // Parse metadata
-                $metadata = $row['metadata'] ? Json::decode($row['metadata']) : [];
-                $source = $metadata['source'] ?? 'direct';
-                $clickType = $metadata['clickType'] ?? 'redirect';
-                $buttonPlatform = '';
-                $targetUrl = '';
-
-                // Get the URL that was used
-                if ($clickType === 'button') {
-                    // For button clicks, show which button URL was clicked
-                    $targetUrl = $metadata['buttonUrl'] ?? '';
-                    if (isset($metadata['platform'])) {
-                        $buttonPlatform = ucfirst($metadata['platform']);
-                    }
-                } else {
-                    // For redirects, show which URL they were sent to (check both old and new formats)
-                    $targetUrl = $metadata['redirectUrl'] ?? $metadata['buttonUrl'] ?? '';
-                }
-
-                // Keep the actual referrer URL
-                $referrerDisplay = $row['referrer'] ?? '';
-
-                // Convert source to display format
-                $sourceDisplay = match($source) {
-                    'qr' => 'QR',
+            // Convert source to display format
+            $sourceDisplay = match ($source) {
+                'qr' => 'QR',
                     'landing' => 'Landing',
                     default => 'Direct'
-                };
+            };
 
-                if ($geoEnabled) {
-                    $csv .= sprintf(
+            if ($geoEnabled) {
+                $csv .= sprintf(
                         '"%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s"' . "\n",
                         $dateStr,
                         $timeStr,
@@ -1219,8 +1216,8 @@ class AnalyticsService extends Component
                         $row['language'] ?? '',
                         $row['userAgent'] ?? ''
                     );
-                } else {
-                    $csv .= sprintf(
+            } else {
+                $csv .= sprintf(
                         '"%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s"' . "\n",
                         $dateStr,
                         $timeStr,
@@ -1243,10 +1240,10 @@ class AnalyticsService extends Component
                         $row['language'] ?? '',
                         $row['userAgent'] ?? ''
                     );
-                }
             }
+        }
 
-            return $csv;
+        return $csv;
     }
     /**
      * Get top smart links by clicks
@@ -1265,7 +1262,7 @@ class AnalyticsService extends Component
                 'COUNT(*) as clicks',
                 'MAX(a.dateCreated) as lastClick',
                 'SUM(CASE WHEN JSON_EXTRACT(a.metadata, \'$.source\') = \'qr\' THEN 1 ELSE 0 END) as qrScans',
-                'SUM(CASE WHEN JSON_EXTRACT(a.metadata, \'$.source\') != \'qr\' OR JSON_EXTRACT(a.metadata, \'$.source\') IS NULL THEN 1 ELSE 0 END) as directVisits'
+                'SUM(CASE WHEN JSON_EXTRACT(a.metadata, \'$.source\') != \'qr\' OR JSON_EXTRACT(a.metadata, \'$.source\') IS NULL THEN 1 ELSE 0 END) as directVisits',
             ])
             ->groupBy(['a.linkId', 'a.siteId'])
             ->orderBy(['clicks' => SORT_DESC])
@@ -1331,9 +1328,9 @@ class AnalyticsService extends Component
                     'name' => $smartLink->title,
                     'slug' => $smartLink->slug,
                     'enabled' => $smartLink->enabled,
-                    'siteName' => $topLinkSite ? $topLinkSite->name : '-',
+                    'siteName' => $topLinkSite->name ?? '-',
                     'clicks' => (int)$row['clicks'],
-                    'lastClick' => $row['lastClick'] ? DateTimeHelper::toIso8601(DateTimeHelper::toDateTime($row['lastClick'])) : null,
+                    'lastClick' => DateTimeHelper::toIso8601(DateTimeHelper::toDateTime($row['lastClick'])),
                     'lastInteractionType' => $lastInteractionType,
                     'lastDestinationUrl' => $lastDestinationUrl,
                     'qrScans' => (int)$row['qrScans'],
@@ -1367,7 +1364,7 @@ class AnalyticsService extends Component
                 'a.*',
                 'COALESCE(c.title, s.title) as smartLinkTitle',
                 's.slug as smartLinkSlug',
-                'sites.name as siteName'
+                'sites.name as siteName',
             ])
             ->where(['es.enabled' => true])
             ->orderBy('a.dateCreated DESC')
@@ -1533,7 +1530,6 @@ class AnalyticsService extends Component
             return (bool)$db->createCommand()
                 ->insert('{{%smartlinks_analytics}}', $data)
                 ->execute();
-
         } catch (\Exception $e) {
             $context = ['error' => $e->getMessage(), 'linkId' => $linkId];
             if (isset($data)) {
@@ -1559,7 +1555,7 @@ class AnalyticsService extends Component
         if (!$salt || $salt === '$SMART_LINKS_IP_SALT' || trim($salt) === '') {
             $this->logError('IP hash salt not configured - analytics tracking disabled', [
                 'ip' => 'hidden',
-                'saltValue' => $salt ?? 'NULL'
+                'saltValue' => $salt ?? 'NULL',
             ]);
             throw new \Exception('IP hash salt not configured. Run: php craft smart-links/security/generate-salt');
         }
@@ -1769,7 +1765,7 @@ class AnalyticsService extends Component
         // Update directly in database to avoid triggering events
         Craft::$app->db->createCommand()
             ->update('{{%smartlinks}}', [
-                'metadata' => Json::encode($metadata)
+                'metadata' => Json::encode($metadata),
             ], ['id' => $smartLink->id])
             ->execute();
     }
@@ -1796,7 +1792,6 @@ class AnalyticsService extends Component
             'w' => $value * 604800,
             'm' => $value * 2592000,
             'y' => $value * 31536000,
-            default => 0,
         };
     }
 

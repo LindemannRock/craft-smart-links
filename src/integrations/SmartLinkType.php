@@ -99,7 +99,7 @@ class SmartLinkType extends BaseElementLinkType
                 Html::tag('p', Craft::t('smart-links', '{pluginName} is not enabled for site "{site}". Enable it in plugin settings to use {pluginNameLower} here.', [
                     'pluginName' => $pluginName,
                     'pluginNameLower' => SmartLinks::$plugin->getSettings()->getPluralLowerDisplayName(),
-                    'site' => $currentSite->name
+                    'site' => $currentSite->name,
                 ]), ['class' => 'warning']),
                 ['class' => 'field']
             );
@@ -179,7 +179,7 @@ class SmartLinkType extends BaseElementLinkType
         if ($element instanceof SmartLink) {
             return sprintf('{smartLink:%s@%s:url}', $element->id, $element->siteId);
         }
-        return parent::value($element);
+        return null;
     }
     
     /**
@@ -219,7 +219,7 @@ class SmartLinkType extends BaseElementLinkType
         $matches = [];
         if (!preg_match('/^{smartLink:(\d+)(@(\d+))?:url}$/', $value, $matches)) {
             $error = Craft::t('smart-links', 'Invalid {pluginName} format.', [
-                'pluginName' => SmartLinks::$plugin->getSettings()->getLowerDisplayName()
+                'pluginName' => SmartLinks::$plugin->getSettings()->getLowerDisplayName(),
             ]);
             return false;
         }
@@ -237,7 +237,7 @@ class SmartLinkType extends BaseElementLinkType
 
         if (!$smartLink) {
             $error = Craft::t('smart-links', '{pluginName} not found.', [
-                'pluginName' => SmartLinks::$plugin->getSettings()->getDisplayName()
+                'pluginName' => SmartLinks::$plugin->getSettings()->getDisplayName(),
             ]);
             return false;
         }
@@ -300,5 +300,4 @@ class SmartLinkType extends BaseElementLinkType
 
         return $smartLink;
     }
-
 }

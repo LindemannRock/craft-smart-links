@@ -34,7 +34,15 @@ use yii\db\ActiveQueryInterface;
  * @property string|null $qrCodeBgColor
  * @property array|null $languageDetection
  * @property array|null $localizedUrls
- * @property array|null $metadata
+ * @property string|null $metadata
+ * @property string|null $title
+ * @property int|null $authorId
+ * @property string|null $postDate
+ * @property string|null $dateExpired
+ * @property bool $hideTitle
+ * @property string|null $qrCodeFormat
+ * @property string|null $qrCodeEyeColor
+ * @property int|null $qrLogoId
  * @property Element $element
  */
 class SmartLinkRecord extends ActiveRecord

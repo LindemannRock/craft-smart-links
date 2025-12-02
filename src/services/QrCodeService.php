@@ -9,17 +9,17 @@
 namespace lindemannrock\smartlinks\services;
 
 use BaconQrCode\Renderer\Color\Rgb;
+use BaconQrCode\Renderer\Eye\ModuleEye;
+use BaconQrCode\Renderer\Eye\SimpleCircleEye;
+use BaconQrCode\Renderer\Eye\SquareEye;
 use BaconQrCode\Renderer\Image\SvgImageBackEnd;
 use BaconQrCode\Renderer\ImageRenderer;
-use BaconQrCode\Renderer\RendererStyle\RendererStyle;
-use BaconQrCode\Renderer\RendererStyle\Fill;
-use BaconQrCode\Renderer\RendererStyle\EyeFill;
-use BaconQrCode\Renderer\Module\SquareModule;
-use BaconQrCode\Renderer\Module\RoundnessModule;
 use BaconQrCode\Renderer\Module\DotsModule;
-use BaconQrCode\Renderer\Eye\SquareEye;
-use BaconQrCode\Renderer\Eye\SimpleCircleEye;
-use BaconQrCode\Renderer\Eye\ModuleEye;
+use BaconQrCode\Renderer\Module\RoundnessModule;
+use BaconQrCode\Renderer\Module\SquareModule;
+use BaconQrCode\Renderer\RendererStyle\EyeFill;
+use BaconQrCode\Renderer\RendererStyle\Fill;
+use BaconQrCode\Renderer\RendererStyle\RendererStyle;
 use BaconQrCode\Writer;
 use Craft;
 use craft\base\Component;
@@ -251,7 +251,7 @@ class QrCodeService extends Component
             case 'circle':
                 return SimpleCircleEye::instance();
             case 'leaf':
-                // Use ModuleEye with rounded modules for a leaf-like appearance  
+                // Use ModuleEye with rounded modules for a leaf-like appearance
                 return new ModuleEye(new RoundnessModule(RoundnessModule::MEDIUM));
             case 'square':
             default:
@@ -398,12 +398,9 @@ class QrCodeService extends Component
             imagedestroy($resizedLogo);
 
             // Clean up temporary file
-            if (file_exists($logoPath)) {
-                unlink($logoPath);
-            }
+            unlink($logoPath);
 
             return $result;
-
         } catch (\Exception $e) {
             $this->logError('Failed to add logo to QR code', ['error' => $e->getMessage()]);
             return $qrCodeData; // Return original on any error

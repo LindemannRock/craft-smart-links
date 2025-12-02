@@ -24,7 +24,7 @@ class QrCodeController extends Controller
 {
     use LoggingTrait;
     /**
-     * @var array Allow anonymous access
+     * @var array<int|string>|bool|int Allow anonymous access
      */
     protected array|int|bool $allowAnonymous = true;
 
@@ -119,7 +119,6 @@ class QrCodeController extends Controller
             $template = $settings->qrTemplate ?: 'smart-links/qr';
 
             return $this->renderTemplate($template, $templateVars);
-            
         } catch (\Exception $e) {
             $this->logError('Failed to generate QR code', ['error' => $e->getMessage()]);
             throw new NotFoundHttpException('Failed to generate QR code.');

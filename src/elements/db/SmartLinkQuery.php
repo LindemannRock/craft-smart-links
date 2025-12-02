@@ -11,7 +11,6 @@ namespace lindemannrock\smartlinks\elements\db;
 use craft\elements\db\ElementQuery;
 use craft\helpers\Db;
 use lindemannrock\smartlinks\elements\SmartLink;
-use yii\db\Expression;
 
 /**
  * SmartLinkQuery represents a SELECT SQL statement for smart links.
@@ -38,6 +37,15 @@ class SmartLinkQuery extends ElementQuery
      */
     public mixed $qrCodeEnabled = null;
 
+    /**
+     * @var int|null Field ID for relational queries
+     */
+    public ?int $fieldId = null;
+
+    /**
+     * @var int|null Owner element ID for relational queries
+     */
+    public ?int $ownerId = null;
 
     /**
      * Narrows the query results based on the smart links' slugs.
@@ -75,26 +83,36 @@ class SmartLinkQuery extends ElementQuery
     /**
      * @inheritdoc
      */
-    public function status($value): static
+    protected function statusCondition(string $status): mixed
     {
-        // Store the requested status for use in beforePrepare
-        $this->_requestedStatus = $value;
+        // Always consider "now" to be the current time @ 59 seconds into the minute.
+        // This makes smart link queries more cacheable, since they only change once every
+        // minute, while not excluding smart links published in the past minute.
+        $now = new \DateTime();
+        $now->setTime((int)$now->format('H'), (int)$now->format('i'), 59);
+        $currentTimeDb = Db::prepareDateForDb($now);
 
-        // For custom statuses (expired, pending), don't pass to parent yet
-        // We'll handle the enabled filtering in beforePrepare()
-        if ($value === SmartLink::STATUS_EXPIRED || $value === SmartLink::STATUS_PENDING) {
-            // Set to null so parent doesn't filter by status
-            // We'll add enabled check manually in beforePrepare
-            return parent::status(null);
-        }
-
-        return parent::status($value);
+        return match ($status) {
+            SmartLink::STATUS_ENABLED => [
+                'and',
+                ['elements.enabled' => true, 'elements_sites.enabled' => true],
+                ['<=', 'smartlinks.postDate', $currentTimeDb],
+                ['or', ['smartlinks.dateExpired' => null], ['>', 'smartlinks.dateExpired', $currentTimeDb]],
+            ],
+            SmartLink::STATUS_PENDING => [
+                'and',
+                ['elements.enabled' => true, 'elements_sites.enabled' => true],
+                ['>', 'smartlinks.postDate', $currentTimeDb],
+            ],
+            SmartLink::STATUS_EXPIRED => [
+                'and',
+                ['elements.enabled' => true, 'elements_sites.enabled' => true],
+                ['not', ['smartlinks.dateExpired' => null]],
+                ['<=', 'smartlinks.dateExpired', $currentTimeDb],
+            ],
+            default => parent::statusCondition($status),
+        };
     }
-
-    /**
-     * @var mixed|null Requested status used for custom status handling
-     */
-    private $_requestedStatus = null;
 
     protected function beforePrepare(): bool
     {
@@ -137,38 +155,11 @@ class SmartLinkQuery extends ElementQuery
         // through the elements_sites.enabled column, not smartlinks.active
 
         if ($this->trackAnalytics !== null) {
-            $this->subQuery->andWhere(Db::parseParam('smartlinks.trackAnalytics', $this->trackAnalytics));
+            $this->subQuery->andWhere(Db::parseParam('smartlinks.trackAnalytics', is_bool($this->trackAnalytics) ? (int)$this->trackAnalytics : $this->trackAnalytics));
         }
 
         if ($this->qrCodeEnabled !== null) {
-            $this->subQuery->andWhere(Db::parseParam('smartlinks.qrCodeEnabled', $this->qrCodeEnabled));
-        }
-        
-        // Handle custom statuses
-        if ($this->_requestedStatus === SmartLink::STATUS_EXPIRED) {
-            // Show only expired items (must have dateExpired in the past)
-            $this->subQuery->andWhere(['<', 'smartlinks.dateExpired', new Expression('NOW()')]);
-            // Also must be enabled in elements_sites
-            $this->subQuery->andWhere(['elements_sites.enabled' => true]);
-        } elseif ($this->_requestedStatus === SmartLink::STATUS_PENDING) {
-            // Show only pending items (postDate in the future)
-            $this->subQuery->andWhere(['>', 'smartlinks.postDate', new Expression('NOW()')]);
-            // Also must be enabled in elements_sites
-            $this->subQuery->andWhere(['elements_sites.enabled' => true]);
-        } elseif ($this->_requestedStatus === SmartLink::STATUS_ENABLED) {
-            // For enabled status, exclude expired and pending
-            // Parent already filtered by elements_sites.enabled = true
-            // Add date filters to the MAIN query, not subQuery
-            $this->query->andWhere([
-                'or',
-                ['smartlinks.dateExpired' => null],
-                ['>=', 'smartlinks.dateExpired', new Expression('NOW()')]
-            ]);
-            $this->query->andWhere([
-                'or',
-                ['smartlinks.postDate' => null],
-                ['<=', 'smartlinks.postDate', new Expression('NOW()')]
-            ]);
+            $this->subQuery->andWhere(Db::parseParam('smartlinks.qrCodeEnabled', is_bool($this->qrCodeEnabled) ? (int)$this->qrCodeEnabled : $this->qrCodeEnabled));
         }
 
         return true;

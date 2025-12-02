@@ -15,7 +15,7 @@ use lindemannrock\smartlinks\SmartLinks;
 
 /**
  * Smart Links Variable
- * 
+ *
  * @author    Al Hatab Foods
  * @package   SmartLinks
  * @since     1.0.0

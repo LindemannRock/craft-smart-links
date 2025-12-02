@@ -24,7 +24,7 @@ class SmartLinksController extends Controller
 {
     use LoggingTrait;
     /**
-     * @var array
+     * @var array<int|string>|bool|int
      */
     protected array|bool|int $allowAnonymous = false;
 
@@ -158,138 +158,137 @@ class SmartLinksController extends Controller
             $smartLinkId = $request->getBodyParam('smartLinkId');
             $siteId = $request->getBodyParam('siteId');
 
-        // Get the smart link
-        if ($smartLinkId) {
-            $smartLink = SmartLinks::$plugin->smartLinks->getSmartLinkById($smartLinkId, $siteId);
+            // Get the smart link
+            if ($smartLinkId) {
+                $smartLink = SmartLinks::$plugin->smartLinks->getSmartLinkById($smartLinkId, $siteId);
 
-            if (!$smartLink) {
-                throw new \yii\web\NotFoundHttpException('Smart link not found');
+                if (!$smartLink) {
+                    throw new \yii\web\NotFoundHttpException('Smart link not found');
+                }
+
+                $this->requirePermission('smartLinks:editLinks');
+            } else {
+                $this->requirePermission('smartLinks:createLinks');
+                $smartLink = new SmartLink();
+                $smartLink->siteId = $siteId ?? Craft::$app->getSites()->getPrimarySite()->id;
             }
 
-            $this->requirePermission('smartLinks:editLinks');
-        } else {
-            $this->requirePermission('smartLinks:createLinks');
-            $smartLink = new SmartLink();
-            $smartLink->siteId = $siteId ?? Craft::$app->getSites()->getPrimarySite()->id;
-        }
-
-        // Set non-translatable attributes (main table)
-        $smartLink->title = $request->getBodyParam('title');
-        $smartLink->slug = $request->getBodyParam('slug');
-        $smartLink->description = $request->getBodyParam('description');
-        $smartLink->icon = $request->getBodyParam('icon');
+            // Set non-translatable attributes (main table)
+            $smartLink->title = $request->getBodyParam('title');
+            $smartLink->slug = $request->getBodyParam('slug');
+            $smartLink->description = $request->getBodyParam('description');
+            $smartLink->icon = $request->getBodyParam('icon');
         
-        // Handle authorId - elementSelectField returns an array
-        $authorIds = $request->getBodyParam('authorId');
-        $smartLink->authorId = is_array($authorIds) ? ($authorIds[0] ?? null) : $authorIds;
-        $smartLink->trackAnalytics = (bool)$request->getBodyParam('trackAnalytics');
-        $smartLink->hideTitle = (bool)$request->getBodyParam('hideTitle');
+            // Handle authorId - elementSelectField returns an array
+            $authorIds = $request->getBodyParam('authorId');
+            $smartLink->authorId = is_array($authorIds) ? ($authorIds[0] ?? null) : $authorIds;
+            $smartLink->trackAnalytics = (bool)$request->getBodyParam('trackAnalytics');
+            $smartLink->hideTitle = (bool)$request->getBodyParam('hideTitle');
 
-        $smartLink->qrCodeEnabled = (bool)$request->getBodyParam('qrCodeEnabled');
-        $smartLink->qrCodeSize = $request->getBodyParam('qrCodeSize') ?: 200;
+            $smartLink->qrCodeEnabled = (bool)$request->getBodyParam('qrCodeEnabled');
+            $smartLink->qrCodeSize = $request->getBodyParam('qrCodeSize') ?: 200;
         
-        // Fix color values - ensure they have # prefix, or set to null if empty
-        $qrCodeColor = $request->getBodyParam('qrCodeColor');
-        $smartLink->qrCodeColor = $qrCodeColor ? (strpos($qrCodeColor, '#') === 0 ? $qrCodeColor : '#' . $qrCodeColor) : null;
+            // Fix color values - ensure they have # prefix, or set to null if empty
+            $qrCodeColor = $request->getBodyParam('qrCodeColor');
+            $smartLink->qrCodeColor = $qrCodeColor ? (strpos($qrCodeColor, '#') === 0 ? $qrCodeColor : '#' . $qrCodeColor) : null;
 
-        $qrCodeBgColor = $request->getBodyParam('qrCodeBgColor');
-        $smartLink->qrCodeBgColor = $qrCodeBgColor ? (strpos($qrCodeBgColor, '#') === 0 ? $qrCodeBgColor : '#' . $qrCodeBgColor) : null;
+            $qrCodeBgColor = $request->getBodyParam('qrCodeBgColor');
+            $smartLink->qrCodeBgColor = $qrCodeBgColor ? (strpos($qrCodeBgColor, '#') === 0 ? $qrCodeBgColor : '#' . $qrCodeBgColor) : null;
         
-        // QR code eye color (can be empty)
-        $qrCodeEyeColor = $request->getBodyParam('qrCodeEyeColor');
-        $smartLink->qrCodeEyeColor = $qrCodeEyeColor ? (strpos($qrCodeEyeColor, '#') === 0 ? $qrCodeEyeColor : '#' . $qrCodeEyeColor) : null;
+            // QR code eye color (can be empty)
+            $qrCodeEyeColor = $request->getBodyParam('qrCodeEyeColor');
+            $smartLink->qrCodeEyeColor = $qrCodeEyeColor ? (strpos($qrCodeEyeColor, '#') === 0 ? $qrCodeEyeColor : '#' . $qrCodeEyeColor) : null;
         
-        // QR code format (empty string means use default, store as null)
-        $qrCodeFormat = $request->getBodyParam('qrCodeFormat');
-        $smartLink->qrCodeFormat = $qrCodeFormat ? $qrCodeFormat : null;
+            // QR code format (empty string means use default, store as null)
+            $qrCodeFormat = $request->getBodyParam('qrCodeFormat');
+            $smartLink->qrCodeFormat = $qrCodeFormat ? $qrCodeFormat : null;
         
-        // QR logo (elementSelectField returns an array)
-        $qrLogoIds = $request->getBodyParam('qrLogoId');
-        $smartLink->qrLogoId = is_array($qrLogoIds) ? ($qrLogoIds[0] ?? null) : (empty($qrLogoIds) ? null : (int)$qrLogoIds);
+            // QR logo (elementSelectField returns an array)
+            $qrLogoIds = $request->getBodyParam('qrLogoId');
+            $smartLink->qrLogoId = is_array($qrLogoIds) ? ($qrLogoIds[0] ?? null) : (empty($qrLogoIds) ? null : (int)$qrLogoIds);
 
-        // Smart Link image (elementSelectField returns an array)
-        $imageIds = $request->getBodyParam('imageId');
-        $smartLink->imageId = is_array($imageIds) ? ($imageIds[0] ?? null) : (empty($imageIds) ? null : (int)$imageIds);
+            // Smart Link image (elementSelectField returns an array)
+            $imageIds = $request->getBodyParam('imageId');
+            $smartLink->imageId = is_array($imageIds) ? ($imageIds[0] ?? null) : (empty($imageIds) ? null : (int)$imageIds);
         
-        // Smart Link image size
-        $smartLink->imageSize = $request->getBodyParam('imageSize', 'xl');
+            // Smart Link image size
+            $smartLink->imageSize = $request->getBodyParam('imageSize', 'xl');
 
-        $smartLink->languageDetection = (bool)$request->getBodyParam('languageDetection');
+            $smartLink->languageDetection = (bool)$request->getBodyParam('languageDetection');
 
-        // Handle enabled status - set BEFORE setFieldValuesFromRequest
-        // This is per-site and managed by Craft's element system
-        $enabledParam = $request->getBodyParam('enabled');
-        $enabled = $enabledParam === '1' || $enabledParam === 1 || $enabledParam === true;
+            // Handle enabled status - set BEFORE setFieldValuesFromRequest
+            // This is per-site and managed by Craft's element system
+            $enabledParam = $request->getBodyParam('enabled');
+            $enabled = $enabledParam === '1' || $enabledParam === 1 || $enabledParam === true;
 
-        // Set enabled ONLY for the current site being edited
-        $smartLink->setEnabledForSite($enabled);
+            // Set enabled ONLY for the current site being edited
+            $smartLink->setEnabledForSite($enabled);
 
-        // Set translatable attributes (content table) - these need to be set on the element
-        $smartLink->iosUrl = $request->getBodyParam('iosUrl');
-        $smartLink->androidUrl = $request->getBodyParam('androidUrl');
-        $smartLink->huaweiUrl = $request->getBodyParam('huaweiUrl');
-        $smartLink->amazonUrl = $request->getBodyParam('amazonUrl');
-        $smartLink->windowsUrl = $request->getBodyParam('windowsUrl');
-        $smartLink->macUrl = $request->getBodyParam('macUrl');
-        $smartLink->fallbackUrl = $request->getBodyParam('fallbackUrl');
+            // Set translatable attributes (content table) - these need to be set on the element
+            $smartLink->iosUrl = $request->getBodyParam('iosUrl');
+            $smartLink->androidUrl = $request->getBodyParam('androidUrl');
+            $smartLink->huaweiUrl = $request->getBodyParam('huaweiUrl');
+            $smartLink->amazonUrl = $request->getBodyParam('amazonUrl');
+            $smartLink->windowsUrl = $request->getBodyParam('windowsUrl');
+            $smartLink->macUrl = $request->getBodyParam('macUrl');
+            $smartLink->fallbackUrl = $request->getBodyParam('fallbackUrl');
 
-        // Set field values
-        $smartLink->setFieldValuesFromRequest('fields');
+            // Set field values
+            $smartLink->setFieldValuesFromRequest('fields');
 
-        // Handle dates
-        $postDate = $request->getBodyParam('postDate');
-        if ($postDate) {
-            $dateTime = DateTimeHelper::toDateTime($postDate, true);
-            $smartLink->postDate = $dateTime !== false ? $dateTime : null;
-        }
+            // Handle dates
+            $postDate = $request->getBodyParam('postDate');
+            if ($postDate) {
+                $dateTime = DateTimeHelper::toDateTime($postDate, true);
+                $smartLink->postDate = $dateTime !== false ? $dateTime : null;
+            }
 
-        $expiryDate = $request->getBodyParam('expiryDate');
-        if ($expiryDate) {
-            $dateTime = DateTimeHelper::toDateTime($expiryDate, true);
-            $smartLink->dateExpired = $dateTime !== false ? $dateTime : null;
-        }
+            $expiryDate = $request->getBodyParam('expiryDate');
+            if ($expiryDate) {
+                $dateTime = DateTimeHelper::toDateTime($expiryDate, true);
+                $smartLink->dateExpired = $dateTime !== false ? $dateTime : null;
+            }
 
-        // Save it
-        if (!SmartLinks::$plugin->smartLinks->saveSmartLink($smartLink)) {
-            $this->logError('Smart link save failed', ['errors' => $smartLink->getErrors()]);
-            // If it's an AJAX request, return JSON response
-            if ($this->request->getAcceptsJson()) {
-                return $this->asModelFailure(
+            // Save it
+            if (!SmartLinks::$plugin->smartLinks->saveSmartLink($smartLink)) {
+                $this->logError('Smart link save failed', ['errors' => $smartLink->getErrors()]);
+                // If it's an AJAX request, return JSON response
+                if ($this->request->getAcceptsJson()) {
+                    return $this->asModelFailure(
                     $smartLink,
                     Craft::t('smart-links', 'Couldn\'t save smart link.'),
                     'smartLink'
                 );
-            }
+                }
 
-            // Otherwise, set error flash and re-render the template
-            Craft::$app->getSession()->setError(Craft::t('smart-links', 'Couldn\'t save smart link.'));
+                // Otherwise, set error flash and re-render the template
+                Craft::$app->getSession()->setError(Craft::t('smart-links', 'Couldn\'t save smart link.'));
 
-            // Set route params so Craft can re-render the template with errors
-            Craft::$app->getUrlManager()->setRouteParams([
+                // Set route params so Craft can re-render the template with errors
+                Craft::$app->getUrlManager()->setRouteParams([
                 'smartLink' => $smartLink,
                 'title' => $smartLink->id ? $smartLink->title : Craft::t('smart-links', 'New smart link'),
             ]);
 
-            return null;
-        }
+                return null;
+            }
 
-        // Clear ALL caches for this element across all sites
-        Craft::$app->getElements()->invalidateCachesForElement($smartLink);
+            // Clear ALL caches for this element across all sites
+            Craft::$app->getElements()->invalidateCachesForElement($smartLink);
 
-        // Reload the element in the correct site context for the response
-        // This ensures the notification chip shows the correct enabled status
-        $smartLink = SmartLink::find()
+            // Reload the element in the correct site context for the response
+            // This ensures the notification chip shows the correct enabled status
+            $smartLink = SmartLink::find()
             ->id($smartLink->id)
             ->siteId($smartLink->siteId)
             ->status(null)
             ->one();
 
-        return $this->asModelSuccess(
+            return $this->asModelSuccess(
             $smartLink,
             Craft::t('smart-links', 'Smart link saved.'),
             'smartLink'
         );
-        
         } catch (\Exception $e) {
             $this->logError('Smart link save error', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
 

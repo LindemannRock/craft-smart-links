@@ -21,11 +21,11 @@ use craft\helpers\Html;
 use craft\helpers\UrlHelper;
 use craft\models\FieldLayout;
 use craft\validators\UniqueValidator;
-use lindemannrock\smartlinks\elements\db\SmartLinkQuery;
-use lindemannrock\smartlinks\records\SmartLinkRecord;
-use lindemannrock\smartlinks\records\SmartLinkContentRecord;
-use lindemannrock\smartlinks\SmartLinks;
 use lindemannrock\logginglibrary\traits\LoggingTrait;
+use lindemannrock\smartlinks\elements\db\SmartLinkQuery;
+use lindemannrock\smartlinks\records\SmartLinkContentRecord;
+use lindemannrock\smartlinks\records\SmartLinkRecord;
+use lindemannrock\smartlinks\SmartLinks;
 use yii\validators\RequiredValidator;
 use yii\validators\UrlValidator;
 
@@ -35,6 +35,8 @@ use yii\validators\UrlValidator;
  * @property-read string $redirectUrl
  * @property-read string $qrCodeUrl
  * @property-read array $analyticsData
+ * @property int $clicks
+ * @property array|null $metadata
  */
 class SmartLink extends Element
 {
@@ -325,12 +327,12 @@ class SmartLink extends Element
     /**
      * @var string Status expired
      */
-    const STATUS_EXPIRED = 'expired';
+    public const STATUS_EXPIRED = 'expired';
     
     /**
      * @var string Status pending
      */
-    const STATUS_PENDING = 'pending';
+    public const STATUS_PENDING = 'pending';
 
     /**
      * @inheritdoc
@@ -378,7 +380,7 @@ class SmartLink extends Element
             [
                 'key' => '*',
                 'label' => Craft::t('smart-links', 'All {pluginName}', [
-                    'pluginName' => SmartLinks::$plugin->getSettings()->getPluralDisplayName()
+                    'pluginName' => SmartLinks::$plugin->getSettings()->getPluralDisplayName(),
                 ]),
                 'criteria' => [],
                 'defaultSort' => ['dateCreated', 'desc'],
@@ -565,7 +567,7 @@ class SmartLink extends Element
      */
     protected function defineAttributes(): array
     {
-        return array_merge(parent::defineAttributes(), [
+        return [
             'slug' => null,
             'description' => null,
             'iosUrl' => null,
@@ -592,7 +594,7 @@ class SmartLink extends Element
             'qrLogoId' => null,
             'languageDetection' => false,
             'metadata' => null,
-        ]);
+        ];
     }
     
     /**
@@ -673,7 +675,6 @@ class SmartLink extends Element
             $this->fallbackUrl = $contentRecord->fallbackUrl;
             $this->imageId = $contentRecord->imageId;
             $this->imageSize = $contentRecord->imageSize ?? 'xl';
-            
         }
     }
 
@@ -682,8 +683,6 @@ class SmartLink extends Element
      */
     public function afterPopulate(): void
     {
-        parent::afterPopulate();
-
         // Load content data for current site
         $this->loadContent();
     }
@@ -1046,7 +1045,7 @@ class SmartLink extends Element
             'when' => function($model) {
                 // Skip standard unique validation during duplication
                 return !($model->duplicateOf && !$model->id);
-            }
+            },
         ];
         
         $rules[] = [
@@ -1093,7 +1092,7 @@ class SmartLink extends Element
                 ]);
         }
 
-        return parent::getTableAttributeHtml($attribute);
+        return (string)$this->$attribute;
     }
 
     /**
@@ -1137,18 +1136,18 @@ class SmartLink extends Element
         }
         
         // Handle duplication
-        if ($this->duplicateOf && !$this->id) {
-            
+        if ($this->duplicateOf instanceof SmartLink && !$this->id) {
+
             // Only generate unique slug on the primary site
             // For other sites, slug will be the same
             $primarySiteId = Craft::$app->sites->getPrimarySite()->id;
-            
+
             if ($this->siteId == $primarySiteId || !$this->propagating) {
                 // Ensure duplicateOf has its content loaded
-                if ($this->duplicateOf instanceof SmartLink && !$this->duplicateOf->fallbackUrl) {
+                if (!$this->duplicateOf->fallbackUrl) {
                     $this->duplicateOf->loadContent();
                 }
-                
+
                 // Copy required fields if not set
                 if (!$this->title && $this->duplicateOf->title) {
                     $this->title = $this->duplicateOf->title;
@@ -1320,8 +1319,8 @@ class SmartLink extends Element
 
             $record->icon = $this->icon;
             $record->authorId = $this->authorId;
-            $record->postDate = $this->postDate;
-            $record->dateExpired = $this->dateExpired;
+            $record->postDate = $this->postDate ? DateTimeHelper::toIso8601($this->postDate) : null;
+            $record->dateExpired = $this->dateExpired ? DateTimeHelper::toIso8601($this->dateExpired) : null;
             $record->trackAnalytics = $this->trackAnalytics;
             $record->hideTitle = $this->hideTitle;
             $record->qrCodeEnabled = $this->qrCodeEnabled;
@@ -1331,7 +1330,7 @@ class SmartLink extends Element
             $record->qrCodeFormat = $this->qrCodeFormat;
             $record->qrCodeEyeColor = $this->qrCodeEyeColor;
             $record->qrLogoId = $this->qrLogoId;
-            $record->languageDetection = $this->languageDetection;
+            $record->languageDetection = $this->languageDetection ? [] : null;
             $record->metadata = $this->_metadata ? json_encode($this->_metadata) : null;
 
             $record->save(false);
@@ -1416,5 +1415,4 @@ class SmartLink extends Element
     {
         parent::afterValidate();
     }
-
 }
