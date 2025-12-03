@@ -23,6 +23,7 @@ use yii\base\Event;
  * Smart Links Service
  *
  * @property-read SmartLinks $module
+ * @since 1.0.0
  */
 class SmartLinksService extends Component
 {

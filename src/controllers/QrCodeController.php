@@ -19,6 +19,8 @@ use yii\web\Response;
 /**
  * QR Code Controller
  * Handles QR code generation for smart links
+ *
+ * @since 1.0.0
  */
 class QrCodeController extends Controller
 {

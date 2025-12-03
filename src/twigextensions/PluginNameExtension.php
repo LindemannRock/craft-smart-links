@@ -23,6 +23,7 @@ use Twig\Extension\GlobalsInterface;
  * - {{ pluginHelper.fullName }}                // "Smart Links" (as configured)
  * - {{ pluginHelper.lowerDisplayName }}        // "smart link" (lowercase singular)
  * - {{ pluginHelper.pluralLowerDisplayName }}  // "smart links" (lowercase plural)
+ * @since 1.0.0
  */
 class PluginNameExtension extends AbstractExtension implements GlobalsInterface
 {

@@ -20,6 +20,8 @@ use lindemannrock\smartlinks\SmartLinks;
 
 /**
  * Smart Link Field
+ *
+ * @since 1.0.0
  */
 class SmartLinkField extends Field implements PreviewableFieldInterface
 {

@@ -19,6 +19,8 @@ use yii\web\Response;
 
 /**
  * Smart Links Controller
+ *
+ * @since 1.0.0
  */
 class SmartLinksController extends Controller
 {

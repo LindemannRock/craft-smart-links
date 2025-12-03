@@ -44,6 +44,7 @@ use yii\db\ActiveQueryInterface;
  * @property string|null $qrCodeEyeColor
  * @property int|null $qrLogoId
  * @property Element $element
+ * @since 1.0.0
  */
 class SmartLinkRecord extends ActiveRecord
 {

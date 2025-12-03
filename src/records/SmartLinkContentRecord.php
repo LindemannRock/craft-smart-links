@@ -31,6 +31,7 @@ use yii\db\ActiveQueryInterface;
  * @property string $imageSize
  * @property SmartLinkRecord $smartLink
  * @property Site $site
+ * @since 1.0.0
  */
 class SmartLinkContentRecord extends ActiveRecord
 {

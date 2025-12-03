@@ -14,6 +14,8 @@ use lindemannrock\smartlinks\SmartLinks;
 
 /**
  * Smart Links Top Performing Links Widget
+ *
+ * @since 1.0.0
  */
 class TopLinksWidget extends Widget
 {

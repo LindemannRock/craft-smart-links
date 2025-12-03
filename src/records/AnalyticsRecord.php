@@ -25,6 +25,7 @@ use yii\db\ActiveQueryInterface;
  * @property string|null $country
  * @property string $timestamp
  * @property SmartLinkRecord $smartLink
+ * @since 1.0.0
  */
 class AnalyticsRecord extends ActiveRecord
 {

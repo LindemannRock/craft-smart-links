@@ -29,6 +29,8 @@ use lindemannrock\smartlinks\SmartLinks;
 
 /**
  * QR Code Service
+ *
+ * @since 1.0.0
  */
 class QrCodeService extends Component
 {

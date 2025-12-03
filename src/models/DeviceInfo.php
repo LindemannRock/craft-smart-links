@@ -12,6 +12,8 @@ use craft\base\Model;
 
 /**
  * Device Info Model
+ *
+ * @since 1.0.0
  */
 class DeviceInfo extends Model
 {

@@ -18,6 +18,8 @@ use lindemannrock\logginglibrary\traits\LoggingTrait;
 
 /**
  * Smart Links Settings Model
+ *
+ * @since 1.0.0
  */
 class Settings extends Model
 {

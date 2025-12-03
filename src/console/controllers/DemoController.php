@@ -1,4 +1,10 @@
 <?php
+/**
+ * Smart Links plugin for Craft CMS 5.x
+ *
+ * @link      https://lindemannrock.com
+ * @copyright Copyright (c) 2025 LindemannRock
+ */
 
 namespace lindemannrock\smartlinks\console\controllers;
 
@@ -7,6 +13,11 @@ use craft\helpers\Console;
 use lindemannrock\smartlinks\elements\SmartLink;
 use lindemannrock\smartlinks\SmartLinks;
 
+/**
+ * Demo Controller for testing
+ *
+ * @since 1.0.0
+ */
 class DemoController extends Controller
 {
     /**

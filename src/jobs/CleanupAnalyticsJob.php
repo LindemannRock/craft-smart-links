@@ -18,6 +18,8 @@ use lindemannrock\smartlinks\SmartLinks;
 
 /**
  * Cleanup old analytics data based on retention settings
+ *
+ * @since 1.0.0
  */
 class CleanupAnalyticsJob extends BaseJob
 {

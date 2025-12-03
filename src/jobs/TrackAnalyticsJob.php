@@ -15,6 +15,8 @@ use lindemannrock\smartlinks\SmartLinks;
 
 /**
  * Track Analytics Job
+ *
+ * @since 1.0.0
  */
 class TrackAnalyticsJob extends BaseJob
 {

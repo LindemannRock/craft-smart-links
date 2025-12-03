@@ -19,6 +19,8 @@ use lindemannrock\smartlinks\SmartLinks;
 
 /**
  * Smart Link Type for Link Field
+ *
+ * @since 1.0.0
  */
 class SmartLinkType extends BaseElementLinkType
 {

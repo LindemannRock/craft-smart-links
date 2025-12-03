@@ -18,6 +18,8 @@ use yii\web\Response;
 /**
  * Redirect Controller
  * Handles smart link redirects on the frontend
+ *
+ * @since 1.0.0
  */
 class RedirectController extends Controller
 {

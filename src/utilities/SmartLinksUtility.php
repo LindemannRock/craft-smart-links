@@ -15,6 +15,8 @@ use lindemannrock\smartlinks\SmartLinks;
 
 /**
  * Smart Links Utility
+ *
+ * @since 1.0.0
  */
 class SmartLinksUtility extends Utility
 {

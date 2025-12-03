@@ -18,6 +18,7 @@ use lindemannrock\smartlinks\elements\SmartLink;
  * @method SmartLink[]|array all($db = null)
  * @method SmartLink|array|null one($db = null)
  * @method SmartLink|array|null nth(int $n, ?Connection $db = null)
+ * @since 1.0.0
  */
 class SmartLinkQuery extends ElementQuery
 {

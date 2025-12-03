@@ -8,6 +8,8 @@
 
 /**
  * Arabic Translations
+ *
+ * @since 1.0.0
  */
 
 return [

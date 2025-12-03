@@ -23,6 +23,8 @@ use lindemannrock\smartlinks\SmartLinks;
 
 /**
  * Analytics Service
+ *
+ * @since 1.0.0
  */
 class AnalyticsService extends Component
 {

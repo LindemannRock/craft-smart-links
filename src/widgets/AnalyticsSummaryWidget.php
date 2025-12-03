@@ -14,6 +14,8 @@ use lindemannrock\smartlinks\SmartLinks;
 
 /**
  * Smart Links Analytics Summary Widget
+ *
+ * @since 1.0.0
  */
 class AnalyticsSummaryWidget extends Widget
 {

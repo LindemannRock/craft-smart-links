@@ -15,6 +15,8 @@ use yii\console\ExitCode;
 
 /**
  * Security utilities for Smart Links
+ *
+ * @since 1.0.0
  */
 class SecurityController extends Controller
 {

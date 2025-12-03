@@ -19,6 +19,8 @@ use lindemannrock\smartlinks\SmartLinks;
 
 /**
  * Device Detection Service
+ *
+ * @since 1.0.0
  */
 class DeviceDetectionService extends Component
 {

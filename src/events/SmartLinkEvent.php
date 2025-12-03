@@ -19,6 +19,7 @@ use yii\base\Event;
  * @property DeviceInfo $device The device information
  * @property string $redirectUrl The redirect URL (modifiable)
  * @property array $metadata Additional metadata
+ * @since 1.0.0
  */
 class SmartLinkEvent extends Event
 {

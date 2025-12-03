@@ -37,6 +37,7 @@ use yii\validators\UrlValidator;
  * @property-read array $analyticsData
  * @property int $clicks
  * @property array|null $metadata
+ * @since 1.0.0
  */
 class SmartLink extends Element
 {
