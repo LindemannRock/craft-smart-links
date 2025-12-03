@@ -1,5 +1,24 @@
 # Changelog
 
+## [5.8.0](https://github.com/LindemannRock/craft-smart-links/compare/v5.7.2...v5.8.0) (2025-12-03)
+
+
+### Features
+
+* add docTitle variable to enhance page titles in CP layouts ([6e5434b](https://github.com/LindemannRock/craft-smart-links/commit/6e5434b57a7942c5c51186b345d79fd73310e59c))
+* add Info Box component for displaying informational notices ([ea8f1be](https://github.com/LindemannRock/craft-smart-links/commit/ea8f1be456a887992e78a98ce5c6478cf840f041))
+* update analytics display to show top 20 links and recent interactions ([a5a9089](https://github.com/LindemannRock/craft-smart-links/commit/a5a9089bdfc97be865bcc433151f9da84f4799d4))
+
+
+### Bug Fixes
+
+* improve site name retrieval in AnalyticsService for better accuracy ([b5640dc](https://github.com/LindemannRock/craft-smart-links/commit/b5640dc398bcd2c57ad1b831f3c0b8fd2095606a))
+
+
+### Miscellaneous Chores
+
+* add [@since](https://github.com/since) 1.0.0 annotations to various files for version tracking ([4f0373c](https://github.com/LindemannRock/craft-smart-links/commit/4f0373cc702ff2c5c7ef54d3776a9a5d6a98f8c0))
+
 ## [5.7.2](https://github.com/LindemannRock/craft-smart-links/compare/v5.7.1...v5.7.2) (2025-11-23)
 
 
