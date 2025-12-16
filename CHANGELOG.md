@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.9.3](https://github.com/LindemannRock/craft-smart-links/compare/v5.9.2...v5.9.3) (2025-12-16)
+
+
+### Bug Fixes
+
+* update QR code handling to redirect when disabled and conditionally display options ([13b8cb8](https://github.com/LindemannRock/craft-smart-links/commit/13b8cb892cbafc5f84ddc5573172f62ef5a28758))
+
 ## [5.9.2](https://github.com/LindemannRock/craft-smart-links/compare/v5.9.1...v5.9.2) (2025-12-16)
 
 
