@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.9.1](https://github.com/LindemannRock/craft-smart-links/compare/v5.9.0...v5.9.1) (2025-12-16)
+
+
+### Bug Fixes
+
+* correct variable name and improve sidebar markup in settings layout ([80bf6f0](https://github.com/LindemannRock/craft-smart-links/commit/80bf6f02c500d2b5a748c02e5ad2bca9793a57cf))
+
 ## [5.9.0](https://github.com/LindemannRock/craft-smart-links/compare/v5.8.0...v5.9.0) (2025-12-16)
 
 
