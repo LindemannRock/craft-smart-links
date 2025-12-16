@@ -101,13 +101,10 @@ class RedirectController extends Controller
         // Check if smart link is expired
         if ($smartLink->getStatus() === SmartLink::STATUS_EXPIRED) {
             $this->logInfo('Smart link expired', ['slug' => $slug]);
-
-            // Call handler to create redirect if enabled
-            SmartLinks::$plugin->smartLinks->handleExpiredSmartLink($smartLink);
-
-            // Redirect to fallback URL
-            $destinationUrl = $smartLink->fallbackUrl ?? '/';
-            return $this->redirect($destinationUrl, 302);
+            // Redirect to not found
+            $settings = SmartLinks::$plugin->getSettings();
+            $redirectUrl = $settings->notFoundRedirectUrl ?: '/';
+            return $this->redirect($redirectUrl);
         }
 
         // Check if smart link is pending
@@ -192,13 +189,10 @@ class RedirectController extends Controller
         // Check if smart link is expired
         if ($smartLink->getStatus() === SmartLink::STATUS_EXPIRED) {
             $this->logInfo('Smart link expired', ['slug' => $slug]);
-
-            // Call handler to create redirect if enabled
-            SmartLinks::$plugin->smartLinks->handleExpiredSmartLink($smartLink);
-
-            // Redirect to fallback URL
-            $destinationUrl = $smartLink->fallbackUrl ?? '/';
-            return $this->redirect($destinationUrl, 302);
+            // Redirect to not found
+            $settings = SmartLinks::$plugin->getSettings();
+            $redirectUrl = $settings->notFoundRedirectUrl ?: '/';
+            return $this->redirect($redirectUrl);
         }
 
         // Check if smart link is pending

@@ -304,7 +304,7 @@
         {% set rmAvailable = rmInstalled and rmEnabled %}
         {% set rmPluginName = rmPlugin ? (rmPlugin.settings.pluginName ?? rmPlugin.name ?? 'Redirect Manager') : 'Redirect Manager' %}
         {% set rmIntegrationEnabled = 'redirect-manager' in (settings.enabledIntegrations ?? []) %}
-        {% set rmEvents = settings.redirectManagerEvents ?? ['slug-change', 'delete'] %}
+        {% set rmEvents = settings.redirectManagerEvents ?? ['slug-change'] %}
 
         <div class="integration-card" style="border: 1px solid #e3e5e8; border-radius: 4px; margin-bottom: 10px; background: white;">
             <div class="integration-header" style="padding: 15px; display: flex; justify-content: space-between; align-items: center; gap: 15px; background: {{ rmAvailable ? '#f7f7f7' : '#f9f9f9' }};">
@@ -325,7 +325,7 @@
                             </span>
                         {% endif %}
                     </div>
-                    <p class="light" style="margin: 8px 0 0 0; font-size: 12px;">{{ "Create permanent redirect records when {pluginName} slugs change or links are deleted. Provides centralized redirect management and analytics tracking."|t('smart-links', {pluginName: smartlinkHelper.lowerDisplayName}) }}</p>
+                    <p class="light" style="margin: 8px 0 0 0; font-size: 12px;">{{ "Create permanent redirect records when {pluginName} slugs change. Provides centralized redirect management and analytics tracking."|t('smart-links', {pluginName: smartlinkHelper.lowerDisplayName}) }}</p>
                 </div>
                 <div style="flex-shrink: 0;">
                     {{ forms.lightswitchField({
@@ -382,42 +382,6 @@
                                     <div>
                                         <strong>{{ "Slug Changes"|t('smart-links') }}</strong>
                                         <span class="light" style="display: block; font-size: 12px; margin-top: 2px;">{{ "Change slug from <code>promo-2024</code> to <code>promo-2025</code> → Creates <code>/go/promo-2024</code> → <code>/go/promo-2025</code>"|t('smart-links')|raw }}</span>
-                                    </div>
-                                </div>
-
-                                {# Expired Smart Links #}
-                                <div style="display: flex; justify-content: flex-start; align-items: flex-start; gap: 15px; padding: 10px; background: #fafafa; border-radius: 4px;">
-                                    <div style="flex-shrink: 0;">
-                                        {{ forms.lightswitchField({
-                                            label: false,
-                                            id: 'redirectManagerEvents-expire',
-                                            name: 'settings[redirectManagerEvents][]',
-                                            value: 'expire',
-                                            on: 'expire' in rmEvents,
-                                            disabled: isOverridden,
-                                        }) }}
-                                    </div>
-                                    <div>
-                                        <strong>{{ "Expired {pluginName}"|t('smart-links', {pluginName: smartlinkHelper.pluralDisplayName}) }}</strong>
-                                        <span class="light" style="display: block; font-size: 12px; margin-top: 2px;">{{ "Link expires → Redirect to <strong>Fallback URL</strong> or <code>/</code>"|t('smart-links')|raw }}</span>
-                                    </div>
-                                </div>
-
-                                {# Deleted Smart Links #}
-                                <div style="display: flex; justify-content: flex-start; align-items: flex-start; gap: 15px; padding: 10px; background: #fafafa; border-radius: 4px;">
-                                    <div style="flex-shrink: 0;">
-                                        {{ forms.lightswitchField({
-                                            label: false,
-                                            id: 'redirectManagerEvents-delete',
-                                            name: 'settings[redirectManagerEvents][]',
-                                            value: 'delete',
-                                            on: 'delete' in rmEvents,
-                                            disabled: isOverridden,
-                                        }) }}
-                                    </div>
-                                    <div>
-                                        <strong>{{ "Deleted {pluginName}"|t('smart-links', {pluginName: smartlinkHelper.pluralDisplayName}) }}</strong>
-                                        <span class="light" style="display: block; font-size: 12px; margin-top: 2px;">{{ "Delete link with traffic → Redirect to <strong>Fallback URL</strong> or <code>/</code>"|t('smart-links')|raw }}</span>
                                     </div>
                                 </div>
                             </div>
