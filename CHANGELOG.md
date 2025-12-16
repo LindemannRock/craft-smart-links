@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.9.2](https://github.com/LindemannRock/craft-smart-links/compare/v5.9.1...v5.9.2) (2025-12-16)
+
+
+### Bug Fixes
+
+* correct anchor tag formatting in settings layout sidebar ([6e8a8c4](https://github.com/LindemannRock/craft-smart-links/commit/6e8a8c4227e63a1eea86869eba87d85d00da884e))
+
 ## [5.9.1](https://github.com/LindemannRock/craft-smart-links/compare/v5.9.0...v5.9.1) (2025-12-16)
 
 
