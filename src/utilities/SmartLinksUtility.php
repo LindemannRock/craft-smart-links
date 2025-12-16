@@ -52,10 +52,12 @@ class SmartLinksUtility extends Utility
     {
         $smartLinks = SmartLinks::$plugin;
 
-        // Get basic stats
-        $totalLinks = \lindemannrock\smartlinks\elements\SmartLink::find()->count();
+        // Get basic stats (include all statuses)
+        $totalLinks = \lindemannrock\smartlinks\elements\SmartLink::find()->status(null)->count();
         $activeLinks = \lindemannrock\smartlinks\elements\SmartLink::find()->status('enabled')->count();
-        $disabledLinks = $totalLinks - $activeLinks;
+        $pendingLinks = \lindemannrock\smartlinks\elements\SmartLink::find()->status('pending')->count();
+        $expiredLinks = \lindemannrock\smartlinks\elements\SmartLink::find()->status('expired')->count();
+        $disabledLinks = \lindemannrock\smartlinks\elements\SmartLink::find()->status('disabled')->count();
 
         // Get click stats from analytics table
         $totalClicks = (int) (new Query())
@@ -115,15 +117,24 @@ class SmartLinksUtility extends Utility
         $pluginName = $settings->getFullName();
         $singularName = $settings->getDisplayName();
 
-        $qrCachePath = Craft::$app->path->getRuntimePath() . '/smart-links/cache/qr/';
-        $deviceCachePath = Craft::$app->path->getRuntimePath() . '/smart-links/cache/device/';
+        // Get cache counts (only for file storage)
+        $qrCacheFiles = 0;
+        $deviceCacheFiles = 0;
 
-        $qrCacheFiles = is_dir($qrCachePath) ? count(glob($qrCachePath . '*.cache')) : 0;
-        $deviceCacheFiles = is_dir($deviceCachePath) ? count(glob($deviceCachePath . '*.cache')) : 0;
+        // Only count files when using file storage (Redis counts are not displayed)
+        if ($settings->cacheStorageMethod === 'file') {
+            $qrCachePath = Craft::$app->path->getRuntimePath() . '/smart-links/cache/qr/';
+            $deviceCachePath = Craft::$app->path->getRuntimePath() . '/smart-links/cache/device/';
+
+            $qrCacheFiles = is_dir($qrCachePath) ? count(glob($qrCachePath . '*.cache')) : 0;
+            $deviceCacheFiles = is_dir($deviceCachePath) ? count(glob($deviceCachePath . '*.cache')) : 0;
+        }
 
         return Craft::$app->getView()->renderTemplate('smart-links/utilities/index', [
             'totalLinks' => $totalLinks,
             'activeLinks' => $activeLinks,
+            'pendingLinks' => $pendingLinks,
+            'expiredLinks' => $expiredLinks,
             'disabledLinks' => $disabledLinks,
             'totalClicks' => $totalClicks,
             'qrScans' => $qrScans,
