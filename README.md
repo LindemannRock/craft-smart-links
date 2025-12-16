@@ -442,30 +442,28 @@ Smart Links can integrate with third-party plugins to enhance functionality with
 
 #### Redirect Manager Integration
 
-When [Redirect Manager](https://github.com/LindemannRock/craft-redirect-manager) is installed, Smart Links can automatically create permanent redirects when smart link slugs change or links are deleted.
+When [Redirect Manager](https://github.com/LindemannRock/craft-redirect-manager) is installed, Smart Links can automatically create permanent redirects when smart link slugs change.
 
 **Setup:**
 1. Install Redirect Manager plugin
 2. Navigate to **Settings → Smart Links → Integrations**
 3. Enable **Redirect Manager Integration**
-4. Select which events create redirects:
-   - **Slug Changes**: Creates redirect when slug changes (e.g., `/go/old` → `/go/new`)
-   - **Deleted Links**: Creates redirect when link with traffic is deleted (redirects to fallback URL)
+4. Slug changes will automatically create redirects (e.g., `/go/promo-2024` → `/go/promo-2025`)
 5. Save settings
 
 **Benefits:**
 - **Centralized Management** - View all redirects (smart links + regular pages) in one place
-- **Analytics Tracking** - Track views of changed or deleted smart links
+- **Analytics Tracking** - Track how many people access old smart link slugs after changes
 - **Smart Undo Detection** - Prevents flip-flop redirects within configurable time window (30-240 minutes)
 - **Loop Prevention** - Automatically detects and prevents circular redirects
-- **Persistent Redirects** - Redirects persist even after smart link deletion
+- **Persistent Redirects** - Slug change redirects remain active permanently
 
 **Configuration:**
 ```php
 // config/smart-links.php
 return [
     'enabledIntegrations' => ['redirect-manager'],
-    'redirectManagerEvents' => ['slug-change', 'delete'],
+    'redirectManagerEvents' => ['slug-change'],
 ];
 ```
 
