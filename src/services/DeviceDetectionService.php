@@ -404,13 +404,23 @@ class DeviceDetectionService extends Component
     }
 
     /**
-     * Get cached device info from custom file storage
+     * Get cached device info from storage (file or Redis)
      *
      * @param string $userAgent
      * @return array|null
      */
     private function _getCachedDeviceInfo(string $userAgent): ?array
     {
+        $settings = SmartLinks::$plugin->getSettings();
+        $cacheKey = 'smartlinks:device:' . md5($userAgent);
+
+        // Use Redis/database cache if configured
+        if ($settings->cacheStorageMethod === 'redis') {
+            $cached = Craft::$app->cache->get($cacheKey);
+            return $cached !== false ? $cached : null;
+        }
+
+        // Use file-based cache (default)
         $cachePath = Craft::$app->path->getRuntimePath() . '/smart-links/cache/device/';
         $cacheFile = $cachePath . md5($userAgent) . '.cache';
 
@@ -420,7 +430,6 @@ class DeviceDetectionService extends Component
 
         // Check if cache is expired
         $mtime = filemtime($cacheFile);
-        $settings = SmartLinks::$plugin->getSettings();
         if (time() - $mtime > $settings->deviceDetectionCacheDuration) {
             @unlink($cacheFile);
             return null;
@@ -431,7 +440,7 @@ class DeviceDetectionService extends Component
     }
 
     /**
-     * Cache device info to custom file storage
+     * Cache device info to storage (file or Redis)
      *
      * @param string $userAgent
      * @param array $data
@@ -440,6 +449,24 @@ class DeviceDetectionService extends Component
      */
     private function _cacheDeviceInfo(string $userAgent, array $data, int $duration): void
     {
+        $settings = SmartLinks::$plugin->getSettings();
+        $cacheKey = 'smartlinks:device:' . md5($userAgent);
+
+        // Use Redis/database cache if configured
+        if ($settings->cacheStorageMethod === 'redis') {
+            $cache = Craft::$app->cache;
+            $cache->set($cacheKey, $data, $duration);
+
+            // Track key in set for selective deletion
+            if ($cache instanceof \yii\redis\Cache) {
+                $redis = $cache->redis;
+                $redis->executeCommand('SADD', ['smartlinks-device-keys', $cacheKey]);
+            }
+
+            return;
+        }
+
+        // Use file-based cache (default)
         $cachePath = Craft::$app->path->getRuntimePath() . '/smart-links/cache/device/';
 
         // Create directory if it doesn't exist

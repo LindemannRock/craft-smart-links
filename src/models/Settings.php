@@ -91,6 +91,11 @@ class Settings extends Model
     public int $qrCodeCacheDuration = 86400;
 
     /**
+     * @var string Cache storage method (file or redis)
+     */
+    public string $cacheStorageMethod = 'file';
+
+    /**
      * @var string Default QR code error correction level (L, M, Q, H)
      */
     public string $defaultQrErrorCorrection = 'M';
@@ -310,6 +315,7 @@ class Settings extends Model
             [['qrEyeColor'], 'match', 'pattern' => '/^#[0-9A-F]{6}$/i', 'skipOnEmpty' => true],
             [['defaultQrFormat'], 'in', 'range' => ['png', 'svg']],
             [['defaultQrErrorCorrection'], 'in', 'range' => ['L', 'M', 'Q', 'H']],
+            [['cacheStorageMethod'], 'in', 'range' => ['file', 'redis']],
             [['qrModuleStyle'], 'in', 'range' => ['square', 'rounded', 'dots']],
             [['qrEyeStyle'], 'in', 'range' => ['square', 'rounded', 'leaf']],
             [['qrLogoSize'], 'integer', 'min' => 10, 'max' => 30],
@@ -766,6 +772,7 @@ class Settings extends Model
             'defaultQrBgColor' => Craft::t('smart-links', 'Default QR Background Color'),
             'defaultQrFormat' => Craft::t('smart-links', 'Default QR Code Format'),
             'qrCodeCacheDuration' => Craft::t('smart-links', 'QR Code Cache Duration (seconds)'),
+            'cacheStorageMethod' => Craft::t('smart-links', 'Cache Storage Method'),
             'defaultQrErrorCorrection' => Craft::t('smart-links', 'Error Correction Level'),
             'defaultQrMargin' => Craft::t('smart-links', 'QR Code Margin'),
             'qrModuleStyle' => Craft::t('smart-links', 'Module Style'),

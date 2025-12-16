@@ -410,13 +410,22 @@ class QrCodeService extends Component
     }
 
     /**
-     * Get cached QR code from custom file storage
+     * Get cached QR code from storage (file or Redis)
      *
      * @param string $cacheKey
      * @return string|null
      */
     private function _getCachedQrCode(string $cacheKey): ?string
     {
+        $settings = SmartLinks::$plugin->getSettings();
+
+        // Use Redis/database cache if configured
+        if ($settings->cacheStorageMethod === 'redis') {
+            $cached = Craft::$app->cache->get($cacheKey);
+            return $cached !== false ? $cached : null;
+        }
+
+        // Use file-based cache (default)
         $cachePath = Craft::$app->path->getRuntimePath() . '/smart-links/cache/qr/';
         $cacheFile = $cachePath . md5($cacheKey) . '.cache';
 
@@ -426,7 +435,6 @@ class QrCodeService extends Component
 
         // Check if cache is expired
         $mtime = filemtime($cacheFile);
-        $settings = SmartLinks::$plugin->getSettings();
         if (time() - $mtime > $settings->qrCodeCacheDuration) {
             @unlink($cacheFile);
             return null;
@@ -436,7 +444,7 @@ class QrCodeService extends Component
     }
 
     /**
-     * Cache QR code to custom file storage
+     * Cache QR code to storage (file or Redis)
      *
      * @param string $cacheKey
      * @param string $data
@@ -445,6 +453,23 @@ class QrCodeService extends Component
      */
     private function _cacheQrCode(string $cacheKey, string $data, int $duration): void
     {
+        $settings = SmartLinks::$plugin->getSettings();
+
+        // Use Redis/database cache if configured
+        if ($settings->cacheStorageMethod === 'redis') {
+            $cache = Craft::$app->cache;
+            $cache->set($cacheKey, $data, $duration);
+
+            // Track key in set for selective deletion
+            if ($cache instanceof \yii\redis\Cache) {
+                $redis = $cache->redis;
+                $redis->executeCommand('SADD', ['smartlinks-qr-keys', $cacheKey]);
+            }
+
+            return;
+        }
+
+        // Use file-based cache (default)
         $cachePath = Craft::$app->path->getRuntimePath() . '/smart-links/cache/qr/';
 
         // Create directory if it doesn't exist

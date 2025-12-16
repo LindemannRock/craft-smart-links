@@ -550,21 +550,46 @@ class SettingsController extends Controller
         $this->requireAcceptsJson();
 
         try {
-            $cachePath = Craft::$app->path->getRuntimePath() . '/smart-links/cache/qr/';
+            $settings = SmartLinks::$plugin->getSettings();
             $cleared = 0;
 
-            if (is_dir($cachePath)) {
-                $files = glob($cachePath . '*.cache');
-                foreach ($files as $file) {
-                    if (@unlink($file)) {
-                        $cleared++;
+            if ($settings->cacheStorageMethod === 'redis') {
+                // Clear Redis cache
+                $cache = Craft::$app->cache;
+                if ($cache instanceof \yii\redis\Cache) {
+                    $redis = $cache->redis;
+
+                    // Get all QR cache keys from tracking set
+                    $keys = $redis->executeCommand('SMEMBERS', ['smartlinks-qr-keys']) ?: [];
+
+                    // Delete QR cache keys using Craft's cache component
+                    foreach ($keys as $key) {
+                        $cache->delete($key);
+                    }
+
+                    // Clear the tracking set
+                    $redis->executeCommand('DEL', ['smartlinks-qr-keys']);
+                }
+            } else {
+                // Clear file cache
+                $cachePath = Craft::$app->path->getRuntimePath() . '/smart-links/cache/qr/';
+                if (is_dir($cachePath)) {
+                    $files = glob($cachePath . '*.cache');
+                    foreach ($files as $file) {
+                        if (@unlink($file)) {
+                            $cleared++;
+                        }
                     }
                 }
             }
 
+            $message = $settings->cacheStorageMethod === 'redis'
+                ? Craft::t('smart-links', 'QR code cache cleared successfully.')
+                : Craft::t('smart-links', 'Cleared {count} QR code caches.', ['count' => $cleared]);
+
             return $this->asJson([
                 'success' => true,
-                'message' => Craft::t('smart-links', 'Cleared {count} QR code caches.', ['count' => $cleared]),
+                'message' => $message,
             ]);
         } catch (\Exception $e) {
             return $this->asJson([
@@ -585,21 +610,46 @@ class SettingsController extends Controller
         $this->requireAcceptsJson();
 
         try {
-            $cachePath = Craft::$app->path->getRuntimePath() . '/smart-links/cache/device/';
+            $settings = SmartLinks::$plugin->getSettings();
             $cleared = 0;
 
-            if (is_dir($cachePath)) {
-                $files = glob($cachePath . '*.cache');
-                foreach ($files as $file) {
-                    if (@unlink($file)) {
-                        $cleared++;
+            if ($settings->cacheStorageMethod === 'redis') {
+                // Clear Redis cache
+                $cache = Craft::$app->cache;
+                if ($cache instanceof \yii\redis\Cache) {
+                    $redis = $cache->redis;
+
+                    // Get all device cache keys from tracking set
+                    $keys = $redis->executeCommand('SMEMBERS', ['smartlinks-device-keys']) ?: [];
+
+                    // Delete device cache keys using Craft's cache component
+                    foreach ($keys as $key) {
+                        $cache->delete($key);
+                    }
+
+                    // Clear the tracking set
+                    $redis->executeCommand('DEL', ['smartlinks-device-keys']);
+                }
+            } else {
+                // Clear file cache
+                $cachePath = Craft::$app->path->getRuntimePath() . '/smart-links/cache/device/';
+                if (is_dir($cachePath)) {
+                    $files = glob($cachePath . '*.cache');
+                    foreach ($files as $file) {
+                        if (@unlink($file)) {
+                            $cleared++;
+                        }
                     }
                 }
             }
 
+            $message = $settings->cacheStorageMethod === 'redis'
+                ? Craft::t('smart-links', 'Device cache cleared successfully.')
+                : Craft::t('smart-links', 'Cleared {count} device detection caches.', ['count' => $cleared]);
+
             return $this->asJson([
                 'success' => true,
-                'message' => Craft::t('smart-links', 'Cleared {count} device detection caches.', ['count' => $cleared]),
+                'message' => $message,
             ]);
         } catch (\Exception $e) {
             return $this->asJson([
@@ -620,33 +670,66 @@ class SettingsController extends Controller
         $this->requireAcceptsJson();
 
         try {
+            $settings = SmartLinks::$plugin->getSettings();
             $totalCleared = 0;
 
-            // Clear QR code caches
-            $qrPath = Craft::$app->path->getRuntimePath() . '/smart-links/cache/qr/';
-            if (is_dir($qrPath)) {
-                $files = glob($qrPath . '*.cache');
-                foreach ($files as $file) {
-                    if (@unlink($file)) {
-                        $totalCleared++;
+            if ($settings->cacheStorageMethod === 'redis') {
+                // Clear Redis cache
+                $cache = Craft::$app->cache;
+                if ($cache instanceof \yii\redis\Cache) {
+                    $redis = $cache->redis;
+
+                    // Get all QR cache keys from tracking set
+                    $qrKeys = $redis->executeCommand('SMEMBERS', ['smartlinks-qr-keys']) ?: [];
+
+                    // Delete QR cache keys using Craft's cache component
+                    foreach ($qrKeys as $key) {
+                        $cache->delete($key);
+                    }
+
+                    // Get all device cache keys from tracking set
+                    $deviceKeys = $redis->executeCommand('SMEMBERS', ['smartlinks-device-keys']) ?: [];
+
+                    // Delete device cache keys using Craft's cache component
+                    foreach ($deviceKeys as $key) {
+                        $cache->delete($key);
+                    }
+
+                    // Clear the tracking sets
+                    $redis->executeCommand('DEL', ['smartlinks-qr-keys']);
+                    $redis->executeCommand('DEL', ['smartlinks-device-keys']);
+                }
+            } else {
+                // Clear QR code file caches
+                $qrPath = Craft::$app->path->getRuntimePath() . '/smart-links/cache/qr/';
+                if (is_dir($qrPath)) {
+                    $files = glob($qrPath . '*.cache');
+                    foreach ($files as $file) {
+                        if (@unlink($file)) {
+                            $totalCleared++;
+                        }
+                    }
+                }
+
+                // Clear device detection file caches
+                $devicePath = Craft::$app->path->getRuntimePath() . '/smart-links/cache/device/';
+                if (is_dir($devicePath)) {
+                    $files = glob($devicePath . '*.cache');
+                    foreach ($files as $file) {
+                        if (@unlink($file)) {
+                            $totalCleared++;
+                        }
                     }
                 }
             }
 
-            // Clear device detection caches
-            $devicePath = Craft::$app->path->getRuntimePath() . '/smart-links/cache/device/';
-            if (is_dir($devicePath)) {
-                $files = glob($devicePath . '*.cache');
-                foreach ($files as $file) {
-                    if (@unlink($file)) {
-                        $totalCleared++;
-                    }
-                }
-            }
+            $message = $settings->cacheStorageMethod === 'redis'
+                ? Craft::t('smart-links', 'All caches cleared successfully.')
+                : Craft::t('smart-links', 'Cleared {count} cache entries.', ['count' => $totalCleared]);
 
             return $this->asJson([
                 'success' => true,
-                'message' => Craft::t('smart-links', 'Cleared {count} cache entries.', ['count' => $totalCleared]),
+                'message' => $message,
             ]);
         } catch (\Exception $e) {
             return $this->asJson([

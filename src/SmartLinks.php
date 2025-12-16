@@ -246,27 +246,53 @@ class SmartLinks extends Plugin
                 $event->options[] = [
                     'key' => 'smart-links-cache',
                     'label' => Craft::t('smart-links', '{pluginName} Cache', ['pluginName' => $pluginName]),
-                    'action' => function() {
+                    'action' => function() use ($settings) {
                         $cleared = 0;
 
-                        // Clear QR code caches
-                        $qrPath = Craft::$app->path->getRuntimePath() . '/smart-links/cache/qr/';
-                        if (is_dir($qrPath)) {
-                            $files = glob($qrPath . '*.cache');
-                            foreach ($files as $file) {
-                                if (@unlink($file)) {
-                                    $cleared++;
+                        if ($settings->cacheStorageMethod === 'redis') {
+                            // Clear Redis cache
+                            $cache = Craft::$app->cache;
+                            if ($cache instanceof \yii\redis\Cache) {
+                                $redis = $cache->redis;
+
+                                // Get all keys from tracking sets
+                                $qrKeys = $redis->executeCommand('SMEMBERS', ['smartlinks-qr-keys']) ?: [];
+                                $deviceKeys = $redis->executeCommand('SMEMBERS', ['smartlinks-device-keys']) ?: [];
+
+                                // Delete QR cache keys using Craft's cache component
+                                foreach ($qrKeys as $key) {
+                                    $cache->delete($key);
+                                }
+
+                                // Delete device cache keys using Craft's cache component
+                                foreach ($deviceKeys as $key) {
+                                    $cache->delete($key);
+                                }
+
+                                // Clear the tracking sets
+                                $redis->executeCommand('DEL', ['smartlinks-qr-keys']);
+                                $redis->executeCommand('DEL', ['smartlinks-device-keys']);
+                            }
+                        } else {
+                            // Clear QR code file caches
+                            $qrPath = Craft::$app->path->getRuntimePath() . '/smart-links/cache/qr/';
+                            if (is_dir($qrPath)) {
+                                $files = glob($qrPath . '*.cache');
+                                foreach ($files as $file) {
+                                    if (@unlink($file)) {
+                                        $cleared++;
+                                    }
                                 }
                             }
-                        }
 
-                        // Clear device detection caches
-                        $devicePath = Craft::$app->path->getRuntimePath() . '/smart-links/cache/device/';
-                        if (is_dir($devicePath)) {
-                            $files = glob($devicePath . '*.cache');
-                            foreach ($files as $file) {
-                                if (@unlink($file)) {
-                                    $cleared++;
+                            // Clear device detection file caches
+                            $devicePath = Craft::$app->path->getRuntimePath() . '/smart-links/cache/device/';
+                            if (is_dir($devicePath)) {
+                                $files = glob($devicePath . '*.cache');
+                                foreach ($files as $file) {
+                                    if (@unlink($file)) {
+                                        $cleared++;
+                                    }
                                 }
                             }
                         }
