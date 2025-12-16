@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.9.4](https://github.com/LindemannRock/craft-smart-links/compare/v5.9.3...v5.9.4) (2025-12-16)
+
+
+### Bug Fixes
+
+* update redirect manager events to only include slug-change ([2e7a31f](https://github.com/LindemannRock/craft-smart-links/commit/2e7a31f26562e15c6c3f8209b4dfbec957bfd4f1))
+
 ## [5.9.3](https://github.com/LindemannRock/craft-smart-links/compare/v5.9.2...v5.9.3) (2025-12-16)
 
 
