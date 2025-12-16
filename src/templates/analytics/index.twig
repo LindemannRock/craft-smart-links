@@ -749,7 +749,7 @@ const translations = {
                         const date = new Date(dateStr);
                         if (!isNaN(date.getTime())) {
                             html += '<td>' + Craft.formatDate(date, 'short') + '</td>';
-                            html += '<td>' + Craft.formatTime(date, 'short') + '</td>';
+                            html += '<td>' + date.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'}) + '</td>';
                         } else {
                             html += '<td>-</td><td>-</td>';
                         }
