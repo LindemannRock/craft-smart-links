@@ -148,15 +148,17 @@ return [
     'defaultQrLogoId' => null,
     'enableQrDownload' => true,
     'qrDownloadFilename' => '{slug}-qr-{size}',
+
+    // Cache Settings
+    'cacheStorageMethod' => 'file',  // 'file' or 'redis'
+    'enableQrCodeCache' => true,
     'qrCodeCacheDuration' => 86400, // seconds
+    'cacheDeviceDetection' => true,
+    'deviceDetectionCacheDuration' => 3600, // seconds
 
     // Template Settings
     'redirectTemplate' => null, // e.g., 'smart-links/redirect'
     'qrTemplate' => null, // e.g., 'smart-links/qr'
-
-    // Device Detection & Caching
-    'cacheDeviceDetection' => true,
-    'deviceDetectionCacheDuration' => 3600, // seconds
 
     // Language & Redirect Settings
     'languageDetectionMethod' => 'browser', // 'browser', 'ip', or 'both'
@@ -178,6 +180,7 @@ return [
         'logLevel' => 'error', // Only errors in production
         'enableAnalytics' => true,
         'analyticsRetention' => 365,
+        'cacheStorageMethod' => 'redis',  // Use Redis in production (Servd/AWS/Platform.sh)
         'cacheDeviceDetection' => true,
         'deviceDetectionCacheDuration' => 7200,
     ],
