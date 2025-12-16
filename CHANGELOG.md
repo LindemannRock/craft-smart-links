@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.9.5](https://github.com/LindemannRock/craft-smart-links/compare/v5.9.4...v5.9.5) (2025-12-16)
+
+
+### Bug Fixes
+
+* update time formatting in analytics dashboard to use locale settings ([b2ce9ee](https://github.com/LindemannRock/craft-smart-links/commit/b2ce9ee520e32176d14fa861ee1873fcbdacdc66))
+
 ## [5.9.4](https://github.com/LindemannRock/craft-smart-links/compare/v5.9.3...v5.9.4) (2025-12-16)
 
 
