@@ -1,5 +1,22 @@
 # Changelog
 
+## [5.9.0](https://github.com/LindemannRock/craft-smart-links/compare/v5.8.0...v5.9.0) (2025-12-16)
+
+
+### Features
+
+* add cache storage method configuration for different environments ([e23f34b](https://github.com/LindemannRock/craft-smart-links/commit/e23f34b05572d80dc0036ce82571187afac239af))
+* add cache storage method configuration to settings ([5f517c1](https://github.com/LindemannRock/craft-smart-links/commit/5f517c12a78e9b4d76cb6b3022bfa97e0e9391f6))
+* enhance analytics by including detailed link status counts and conditional cache file counting ([0f4251e](https://github.com/LindemannRock/craft-smart-links/commit/0f4251e0a6cbf6beab440bb6ca2de51ba75252cf))
+* enhance analytics by preserving date range on redirect and converting date/time to user's timezone ([c7fd6f8](https://github.com/LindemannRock/craft-smart-links/commit/c7fd6f8bf10afdbc9ef7cb065813bbfa7bf29d85))
+* enhance analytics display with number formatting and improved cache status overview ([36b5598](https://github.com/LindemannRock/craft-smart-links/commit/36b5598a49e8dc87366100433e273cb1c32a6d1a))
+* implement cache storage method selection and handling for Redis and file systems ([1fc4b36](https://github.com/LindemannRock/craft-smart-links/commit/1fc4b3696872927aa5ace3c25e5e238ab36cb16a))
+
+
+### Bug Fixes
+
+* update Redis cache display by removing redundant text and adjusting styles ([b9fbb45](https://github.com/LindemannRock/craft-smart-links/commit/b9fbb459d34c41da3f02dd49cfdd132fc1813f67))
+
 ## [5.8.0](https://github.com/LindemannRock/craft-smart-links/compare/v5.7.2...v5.8.0) (2025-12-03)
 
 
