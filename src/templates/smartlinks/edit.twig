@@ -101,16 +101,18 @@
                             {{ viewLabel }}
                         </a>
                     </li>
-                    <li>
-                        <a role="option" tabindex="0" href="{{ smartLink.getQrCodeUrl() }}" target="_blank">
-                            {{ "QR Code Image"|t('smart-links') }}
-                        </a>
-                    </li>
-                    <li>
-                        <a role="option" tabindex="0" href="{{ smartLink.getQrCodeDisplayUrl() }}" target="_blank">
-                            {{ "QR Code Page"|t('smart-links') }}
-                        </a>
-                    </li>
+                    {% if smartLink.qrCodeEnabled %}
+                        <li>
+                            <a role="option" tabindex="0" href="{{ smartLink.getQrCodeUrl() }}" target="_blank">
+                                {{ "QR Code Image"|t('smart-links') }}
+                            </a>
+                        </li>
+                        <li>
+                            <a role="option" tabindex="0" href="{{ smartLink.getQrCodeDisplayUrl() }}" target="_blank">
+                                {{ "QR Code Page"|t('smart-links') }}
+                            </a>
+                        </li>
+                    {% endif %}
                 </ul>
             </div>
         </div>

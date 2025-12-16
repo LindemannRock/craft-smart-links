@@ -54,13 +54,20 @@ class QrCodeController extends Controller
             ->status(null) // Allow any status
             ->one();
 
-        if (!$smartLink || !$smartLink->qrCodeEnabled) {
+        if (!$smartLink) {
             throw new NotFoundHttpException('QR code not found.');
         }
-        
+
         // Check if link is trashed
         if ($smartLink->trashed) {
             throw new NotFoundHttpException('QR code not found.');
+        }
+
+        // If QR is disabled, redirect to 404 redirect URL (consistent with smart link behavior)
+        if (!$smartLink->qrCodeEnabled) {
+            $settings = SmartLinks::$plugin->getSettings();
+            $redirectUrl = $settings->notFoundRedirectUrl ?: '/';
+            return $this->redirect($redirectUrl);
         }
 
         // Get parameters
@@ -158,13 +165,20 @@ class QrCodeController extends Controller
                 ->status(null) // Allow any status
                 ->one();
 
-            if (!$smartLink || !$smartLink->qrCodeEnabled) {
+            if (!$smartLink) {
                 throw new NotFoundHttpException('QR code not found.');
             }
-            
+
             // Check if link is trashed
             if ($smartLink->trashed) {
                 throw new NotFoundHttpException('QR code not found.');
+            }
+
+            // If QR is disabled, redirect to 404 redirect URL (consistent with smart link behavior)
+            if (!$smartLink->qrCodeEnabled) {
+                $settings = SmartLinks::$plugin->getSettings();
+                $redirectUrl = $settings->notFoundRedirectUrl ?: '/';
+                return $this->redirect($redirectUrl);
             }
 
             // Generate full URL for the smart link with QR tracking parameter
