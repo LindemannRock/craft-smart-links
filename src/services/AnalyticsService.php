@@ -193,10 +193,12 @@ class AnalyticsService extends Component
 
         $results = $query->all();
 
-        // Convert dateCreated to DateTime objects for consistent timezone handling
+        // Convert dateCreated to DateTime objects in user's timezone
         foreach ($results as &$result) {
-            if (isset($result['dateCreated'])) {
-                $result['dateCreated'] = DateTimeHelper::toDateTime($result['dateCreated']);
+            if (!empty($result['dateCreated'])) {
+                $utcDate = new \DateTime($result['dateCreated'], new \DateTimeZone('UTC'));
+                $utcDate->setTimezone(new \DateTimeZone(Craft::$app->getTimeZone()));
+                $result['dateCreated'] = $utcDate;
             }
         }
 
@@ -1097,6 +1099,11 @@ class AnalyticsService extends Component
 
         $results = $query->all();
 
+        // Check if there's any data to export
+        if (empty($results)) {
+            throw new \Exception('No data to export for the selected period.');
+        }
+
         // Get plugin name for CSV headers
         $settings = SmartLinks::$plugin->getSettings();
         $displayName = $settings->getDisplayName();
@@ -1325,6 +1332,17 @@ class AnalyticsService extends Component
                 }
 
                 $topLinkSite = $smartLink->getSite();
+
+                // Convert lastClick to user's timezone
+                $lastClick = null;
+                $lastClickFormatted = null;
+                if (!empty($row['lastClick'])) {
+                    $utcDate = new \DateTime($row['lastClick'], new \DateTimeZone('UTC'));
+                    $utcDate->setTimezone(new \DateTimeZone(Craft::$app->getTimeZone()));
+                    $lastClick = $utcDate;
+                    $lastClickFormatted = Craft::$app->getFormatter()->asDatetime($utcDate, 'short');
+                }
+
                 $topLinks[] = [
                     'id' => $smartLink->id,
                     'name' => $smartLink->title,
@@ -1332,7 +1350,8 @@ class AnalyticsService extends Component
                     'enabled' => $smartLink->enabled,
                     'siteName' => $topLinkSite->name ?? '-',
                     'clicks' => (int)$row['clicks'],
-                    'lastClick' => DateTimeHelper::toIso8601(DateTimeHelper::toDateTime($row['lastClick'])),
+                    'lastClick' => $lastClick,
+                    'lastClickFormatted' => $lastClickFormatted,
                     'lastInteractionType' => $lastInteractionType,
                     'lastDestinationUrl' => $lastDestinationUrl,
                     'qrScans' => (int)$row['qrScans'],
@@ -1393,13 +1412,24 @@ class AnalyticsService extends Component
             // Get site name through Site model to parse env vars
             $site = !empty($row['siteId']) ? Craft::$app->getSites()->getSiteById($row['siteId']) : null;
 
+            // Convert dateCreated to user's timezone
+            $dateCreated = null;
+            $dateCreatedFormatted = null;
+            if (!empty($row['dateCreated'])) {
+                $utcDate = new \DateTime($row['dateCreated'], new \DateTimeZone('UTC'));
+                $utcDate->setTimezone(new \DateTimeZone(Craft::$app->getTimeZone()));
+                $dateCreated = $utcDate;
+                $dateCreatedFormatted = Craft::$app->getFormatter()->asDatetime($utcDate, 'short');
+            }
+
             $clicks[] = [
                 'id' => $row['id'],
                 'linkId' => $row['linkId'],
                 'smartLinkTitle' => $row['smartLinkTitle'],
                 'smartLinkSlug' => $row['smartLinkSlug'],
                 'siteName' => $site ? $site->name : '-',
-                'dateCreated' => DateTimeHelper::toIso8601(DateTimeHelper::toDateTime($row['dateCreated'])),
+                'dateCreated' => $dateCreated,
+                'dateCreatedFormatted' => $dateCreatedFormatted,
                 'siteId' => $row['siteId'],
                 'deviceType' => $row['deviceType'],
                 'browser' => $row['browser'],

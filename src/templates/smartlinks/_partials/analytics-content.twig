@@ -74,6 +74,7 @@
             <thead>
                 <tr>
                     <th>{{ "Date"|t('smart-links') }}</th>
+                    <th>{{ "Time"|t('smart-links') }}</th>
                     <th>{{ "Site"|t('smart-links') }}</th>
                     <th>{{ "Type"|t('smart-links') }}</th>
                     <th>{{ "Button"|t('smart-links') }}</th>
@@ -91,7 +92,8 @@
                     {% set metadata = click.metadata ? click.metadata|json_decode : {} %}
                     {% set clickType = metadata.clickType ?? 'redirect' %}
                     <tr>
-                        <td>{{ click.dateCreated|datetime('short') }}</td>
+                        <td>{{ click.dateCreated|date('short') }}</td>
+                        <td>{{ click.dateCreated|time('short') }}</td>
                         <td>
                             {% if click.siteId %}
                                 {% set site = craft.app.sites.getSiteById(click.siteId) %}

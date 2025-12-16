@@ -291,7 +291,12 @@ class AnalyticsController extends Controller
             );
         } catch (\Exception $e) {
             Craft::$app->getSession()->setError($e->getMessage());
-            return $this->redirect('smart-links/analytics');
+
+            // Preserve the date range when redirecting back
+            if ($smartLinkId) {
+                return $this->redirect('smart-links/smartlinks/' . $smartLinkId . '?range=' . $dateRange);
+            }
+            return $this->redirect('smart-links/analytics?dateRange=' . $dateRange);
         }
     }
 }
