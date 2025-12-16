@@ -56,15 +56,15 @@
 	<div id="analytics-dashboard">
 		<div class="analytics-stats">
 			<div class="stat-box">
-				<div class="stat-value" id="total-clicks">{{ analyticsData.totalClicks ?? 0 }}</div>
+				<div class="stat-value" id="total-clicks">{{ (analyticsData.totalClicks ?? 0)|number }}</div>
 				<div class="stat-label">{{ "Total Interactions"|t('smart-links') }}</div>
 			</div>
 			<div class="stat-box">
-				<div class="stat-value" id="unique-visitors">{{ analyticsData.uniqueVisitors ?? 0 }}</div>
+				<div class="stat-value" id="unique-visitors">{{ (analyticsData.uniqueVisitors ?? 0)|number }}</div>
 				<div class="stat-label">{{ "Unique Visitors"|t('smart-links') }}</div>
 			</div>
 			<div class="stat-box">
-				<div class="stat-value" id="active-links">{{ analyticsData.activeLinks ?? 0 }}</div>
+				<div class="stat-value" id="active-links">{{ (analyticsData.activeLinks ?? 0)|number }}</div>
 				<div class="stat-label">{{ "Active Links"|t('smart-links') }}</div>
 			</div>
 			<div class="stat-box">
@@ -102,7 +102,7 @@
 						</thead>
 						<tbody>
 							{% for link in analyticsData.topLinks ?? [] %}
-								{% if link.enabled ?? true %}
+								{% if (link.enabled ?? true) and (link.clicks > 0) %}
 									<tr>
 										<td>
 											<a href="{{ url('smart-links/smartlinks/' ~ link.id) }}">
@@ -110,7 +110,7 @@
 											</a>
 										</td>
 										<td>{{ link.siteName ?? '-' }}</td>
-										<td>{{ link.clicks }}</td>
+										<td>{{ link.clicks|number }}</td>
 										<td>{{ link.lastClick ? link.lastClick|datetime('short') : '-' }}</td>
 										<td>{{ link.lastInteractionType ?? '-' }}</td>
 										<td>
@@ -120,8 +120,8 @@
 												-
 											{% endif %}
 										</td>
-										<td>{{ link.qrScans ?? '-' }}</td>
-										<td>{{ link.directVisits ?? '-' }}</td>
+										<td>{{ link.qrScans ? link.qrScans|number : '-' }}</td>
+										<td>{{ link.directVisits ? link.directVisits|number : '-' }}</td>
 									</tr>
 								{% endif %}
 							{% endfor %}
@@ -140,6 +140,7 @@
 						<thead>
 							<tr>
 								<th>{{ "Date"|t('smart-links') }}</th>
+								<th>{{ "Time"|t('smart-links') }}</th>
 								<th>{{ smartlinkHelper.displayName }}</th>
 								<th>{{ "Site"|t('smart-links') }}</th>
 								<th>{{ "Type"|t('smart-links') }}</th>
@@ -157,7 +158,8 @@
 						<tbody>
 							{% for click in analyticsData.recentClicks ?? [] %}
 								<tr>
-									<td>{{ click.dateCreated|datetime('short') }}</td>
+									<td>{{ click.dateCreated|date('short') }}</td>
+									<td>{{ click.dateCreated|time('short') }}</td>
 									<td>
 										<a href="{{ cpUrl('smart-links/' ~ click.linkId) }}">{{ click.smartLinkTitle }}</a>
 									</td>
@@ -228,7 +230,7 @@
 								</tr>
 							{% else %}
 								<tr>
-									<td colspan="{{ settings.enableGeoDetection ? 11 : 10 }}" class="thin light">{{ "No interactions recorded yet"|t('smart-links') }}</td>
+									<td colspan="{{ settings.enableGeoDetection ? 12 : 11 }}" class="thin light">{{ "No interactions recorded yet"|t('smart-links') }}</td>
 								</tr>
 							{% endfor %}
 						</tbody>
@@ -284,7 +286,7 @@
 									{% for country in topCountries %}
 										<tr>
 											<td>{{ country.name }}</td>
-											<td>{{ country.clicks }}</td>
+											<td>{{ country.clicks|number }}</td>
 											<td>{{ country.percentage }}%</td>
 										</tr>
 									{% endfor %}
@@ -319,7 +321,7 @@
 										<tr>
 											<td>{{ city.city }}</td>
 											<td>{{ city.countryName }}</td>
-											<td>{{ city.clicks }}</td>
+											<td>{{ city.clicks|number }}</td>
 											<td>{{ city.percentage }}%</td>
 										</tr>
 									{% endfor %}
@@ -621,10 +623,10 @@ const translations = {
                 },
                 success: function(response) {
                     if (response.success && response.data) {
-                        // Update stat boxes
-                        $('#total-clicks').text(response.data.totalClicks || 0);
-                        $('#unique-visitors').text(response.data.uniqueVisitors || 0);
-                        $('#active-links').text(response.data.activeLinks || 0);
+                        // Update stat boxes with number formatting
+                        $('#total-clicks').text((response.data.totalClicks || 0).toLocaleString());
+                        $('#unique-visitors').text((response.data.uniqueVisitors || 0).toLocaleString());
+                        $('#active-links').text((response.data.activeLinks || 0).toLocaleString());
                         $('#links-used').text((response.data.linksUsedPercentage || 0) + '%');
 
                         // Update tables
@@ -654,7 +656,7 @@ const translations = {
                 countries.forEach(function(country) {
                     html += '<tr>';
 		                    html += '<td>' + country.name + '</td>';
-		                    html += '<td>' + country.clicks + '</td>';
+		                    html += '<td>' + (country.clicks || 0).toLocaleString() + '</td>';
 		                    html += '<td>' + country.percentage + '%</td>';
 		                    html += '</tr>';
 		                });
@@ -672,16 +674,18 @@ const translations = {
 
         function updateTopLinksTable(links) {
             let html = '';
+            let hasData = false;
             if (links.length === 0) {
                 html = '<tr><td colspan="8" class="thin light">{{ "No data for selected period"|t('smart-links')|e('js') }}</td></tr>';
             } else {
                 links.forEach(function(link) {
-                    // Check for enabled status (defaults to true if not set)
-                    if (link.enabled !== false) {
+                    // Check for enabled status and clicks > 0
+                    if (link.enabled !== false && (link.clicks || 0) > 0) {
+                        hasData = true;
                         html += '<tr>';
                         html += '<td><a href="' + Craft.getUrl('smart-links/smartlinks/' + link.id) + '">' + Craft.escapeHtml(link.name) + '</a></td>';
                         html += '<td>' + (link.siteName || '-') + '</td>';
-                        html += '<td>' + link.clicks + '</td>';
+                        html += '<td>' + (link.clicks || 0).toLocaleString() + '</td>';
                         html += '<td>';
                         if (link.lastClick) {
                             // Handle different date formats
@@ -709,26 +713,34 @@ const translations = {
                             html += '-';
                         }
                         html += '</td>';
-                        html += '<td>' + (link.qrScans || '-') + '</td>';
-                        html += '<td>' + (link.directVisits || '-') + '</td>';
+                        html += '<td>' + (link.qrScans ? link.qrScans.toLocaleString() : '-') + '</td>';
+                        html += '<td>' + (link.directVisits ? link.directVisits.toLocaleString() : '-') + '</td>';
                         html += '</tr>';
                     }
                 });
+                if (!hasData) {
+                    html = '<tr><td colspan="8" class="thin light">{{ "No data for selected period"|t('smart-links')|e('js') }}</td></tr>';
+                }
             }
             $('#top-links-table tbody').html(html);
         }
 
         function updateRecentClicksTable(clicks) {
             const geoEnabled = {{ settings.enableGeoDetection ? 'true' : 'false' }};
-            const colspan = geoEnabled ? 11 : 10;
+            const colspan = geoEnabled ? 12 : 11;
             let html = '';
             if (clicks.length === 0) {
                 html = '<tr><td colspan="' + colspan + '" class="thin light">{{ "No interactions recorded yet"|t('smart-links')|e('js') }}</td></tr>';
             } else {
                 clicks.forEach(function(click) {
                     html += '<tr>';
-                    html += '<td>';
-                    if (click.dateCreated) {
+                    // Date and Time columns
+                    if (click.dateCreatedFormatted) {
+                        // Pre-formatted from server, split into date and time
+                        const parts = click.dateCreatedFormatted.split(', ');
+                        html += '<td>' + (parts[0] || '') + '</td>';
+                        html += '<td>' + (parts[1] || '') + '</td>';
+                    } else if (click.dateCreated) {
                         // Handle different date formats
                         let dateStr = click.dateCreated;
                         if (typeof click.dateCreated === 'object' && click.dateCreated.date) {
@@ -736,14 +748,14 @@ const translations = {
                         }
                         const date = new Date(dateStr);
                         if (!isNaN(date.getTime())) {
-                            html += Craft.formatDate(date);
+                            html += '<td>' + Craft.formatDate(date, 'short') + '</td>';
+                            html += '<td>' + Craft.formatTime(date, 'short') + '</td>';
                         } else {
-                            html += '-';
+                            html += '<td>-</td><td>-</td>';
                         }
                     } else {
-                        html += '-';
+                        html += '<td>-</td><td>-</td>';
                     }
-                    html += '</td>';
                     html += '<td><a href="' + Craft.getUrl('smart-links/' + click.linkId) + '">' + Craft.escapeHtml(click.smartLinkTitle) + '</a></td>';
                     html += '<td>' + (click.siteName || '-') + '</td>';
                     html += '<td>' + (click.clickType === 'button' ? '{{ "Button"|t('smart-links')|e('js') }}' : '{{ "Redirect"|t('smart-links')|e('js') }}') + '</td>';
@@ -799,7 +811,7 @@ const translations = {
 				                    html += '<tr>';
 				                    html += '<td>' + city.city + '</td>';
 				                    html += '<td>' + city.countryName + '</td>';
-				                    html += '<td>' + city.clicks + '</td>';
+				                    html += '<td>' + (city.clicks || 0).toLocaleString() + '</td>';
 				                    html += '<td>' + city.percentage + '%</td>';
 				                    html += '</tr>';
 				                });
