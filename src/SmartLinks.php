@@ -241,11 +241,11 @@ class SmartLinks extends Plugin
             ClearCaches::EVENT_REGISTER_CACHE_OPTIONS,
             function(RegisterCacheOptionsEvent $event) {
                 $settings = $this->getSettings();
-                $pluginName = $settings->getFullName();
+                $displayName = $settings->getDisplayName();
 
                 $event->options[] = [
                     'key' => 'smart-links-cache',
-                    'label' => Craft::t('smart-links', '{pluginName} Cache', ['pluginName' => $pluginName]),
+                    'label' => Craft::t('smart-links', '{displayName} caches', ['displayName' => $displayName]),
                     'action' => function() use ($settings) {
                         $cleared = 0;
 
