@@ -491,8 +491,8 @@ class SmartLink extends Element
     protected static function defineDefaultTableAttributes(string $source): array
     {
         return [
-            'status',
             'slug',
+            'status',
             'clicks',
             'postDate',
             'dateCreated',
