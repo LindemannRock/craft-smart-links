@@ -63,14 +63,17 @@ class AnalyticsController extends Controller
         $variables['dateRange'] = $dateRange;
         $variables['siteId'] = $siteId;
 
-        // Get all sites for site selector
-        $variables['sites'] = Craft::$app->getSites()->getAllSites();
+        // Get enabled sites for site selector (respects enabledSites setting)
+        $settings = SmartLinks::$plugin->getSettings();
+        $enabledSiteIds = $settings->getEnabledSiteIds();
+        $allSites = Craft::$app->getSites()->getAllSites();
+        $variables['sites'] = array_filter($allSites, fn($site) => in_array($site->id, $enabledSiteIds));
 
         // Get analytics data
         $variables['analyticsData'] = SmartLinks::$plugin->analytics->getAnalyticsSummary($dateRange, null, $siteId);
 
         // Pass settings to template
-        $variables['settings'] = SmartLinks::$plugin->getSettings();
+        $variables['settings'] = $settings;
 
         return $this->renderTemplate('smart-links/analytics/index', $variables);
     }
