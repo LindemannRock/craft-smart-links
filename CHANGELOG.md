@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.10.1](https://github.com/LindemannRock/craft-smart-links/compare/v5.10.0...v5.10.1) (2025-12-19)
+
+
+### Bug Fixes
+
+* filter sites for selector to respect enabledSites setting ([0407773](https://github.com/LindemannRock/craft-smart-links/commit/0407773ea8b953f712ec65ea14f5339236abd7c7))
+
 ## [5.10.0](https://github.com/LindemannRock/craft-smart-links/compare/v5.9.5...v5.10.0) (2025-12-19)
 
 
