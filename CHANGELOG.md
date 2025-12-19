@@ -1,5 +1,20 @@
 # Changelog
 
+## [5.10.0](https://github.com/LindemannRock/craft-smart-links/compare/v5.9.5...v5.10.0) (2025-12-19)
+
+
+### Features
+
+* Add geographic, overview, and traffic devices analytics tabs ([a7e4ed7](https://github.com/LindemannRock/craft-smart-links/commit/a7e4ed78ad2019924bcd2c06d77012f6e52454ba))
+
+
+### Bug Fixes
+
+* enhance cache duration settings with human-readable format and validation ([0337cd2](https://github.com/LindemannRock/craft-smart-links/commit/0337cd28fd5fdd917940701a39ed156ad9497db4))
+* improve country name retrieval by adding missing ISO codes and handling empty input ([dcd9388](https://github.com/LindemannRock/craft-smart-links/commit/dcd938803afe79de0faf19b0a8a2ed6f08a2cc50))
+* reorder default table attributes to include 'status' for better clarity ([b472235](https://github.com/LindemannRock/craft-smart-links/commit/b472235bb5236c878fe8a5ae93fd3263c5b89a9e))
+* update display name handling to trim whitespace and improve clarity ([cb35971](https://github.com/LindemannRock/craft-smart-links/commit/cb35971e3eba8162289662755980cb02c8cd6119))
+
 ## [5.9.5](https://github.com/LindemannRock/craft-smart-links/compare/v5.9.4...v5.9.5) (2025-12-16)
 
 
