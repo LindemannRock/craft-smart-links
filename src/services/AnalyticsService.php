@@ -44,9 +44,10 @@ class AnalyticsService extends Component
      *
      * @param string $dateRange
      * @param int|null $smartLinkId
+     * @param int|null $siteId
      * @return array
      */
-    public function getAnalyticsSummary(string $dateRange = 'last7days', ?int $smartLinkId = null): array
+    public function getAnalyticsSummary(string $dateRange = 'last7days', ?int $smartLinkId = null, ?int $siteId = null): array
     {
         $query = (new Query())
             ->from('{{%smartlinks_analytics}}');
@@ -59,13 +60,21 @@ class AnalyticsService extends Component
             $query->andWhere(['linkId' => $smartLinkId]);
         }
 
+        // Filter by site if specified
+        if ($siteId) {
+            $query->andWhere(['siteId' => $siteId]);
+        }
+
         $totalClicks = (int) $query->count();
-        $uniqueVisitors = (int) $query->select('COUNT(DISTINCT ip)')->scalar();
+        $uniqueVisitors = (int) (clone $query)->select('COUNT(DISTINCT ip)')->scalar();
 
         // Get active links count
-        $activeLinks = SmartLink::find()
-            ->status(SmartLink::STATUS_ENABLED)
-            ->count();
+        $activeLinksQuery = SmartLink::find()
+            ->status(SmartLink::STATUS_ENABLED);
+        if ($siteId) {
+            $activeLinksQuery->siteId($siteId);
+        }
+        $activeLinks = $activeLinksQuery->count();
 
         // Get total links
         $totalLinks = SmartLink::find()->count();
@@ -82,6 +91,11 @@ class AnalyticsService extends Component
         // Apply date filter to analytics table
         $this->applyDateRangeFilter($linksQuery, $dateRange, 'a.dateCreated');
 
+        // Filter by site if specified
+        if ($siteId) {
+            $linksQuery->andWhere(['a.siteId' => $siteId]);
+        }
+
         $linksWithClicks = (int) $linksQuery->scalar();
 
         // Calculate what percentage of active links have been used
@@ -95,10 +109,10 @@ class AnalyticsService extends Component
             'totalLinks' => $totalLinks,
             'linksUsed' => $linksWithClicks,
             'linksUsedPercentage' => $linksUsedPercentage,
-            'topLinks' => $this->getTopLinks($dateRange, 20),
-            'topCountries' => $this->getTopCountries(null, $dateRange),
-            'topCities' => $this->getTopCities(null, $dateRange),
-            'recentClicks' => $this->getAllRecentClicks($dateRange, 20),
+            'topLinks' => $this->getTopLinks($dateRange, 20, $siteId),
+            'topCountries' => $this->getTopCountries(null, $dateRange, 15, $siteId),
+            'topCities' => $this->getTopCities(null, $dateRange, 15, $siteId),
+            'recentClicks' => $this->getAllRecentClicks($dateRange, 20, $siteId),
         ];
     }
 
@@ -341,7 +355,7 @@ class AnalyticsService extends Component
     /**
      * Get clicks data for charts
      */
-    public function getClicksData(?int $smartLinkId, string $dateRange): array
+    public function getClicksData(?int $smartLinkId, string $dateRange, ?int $siteId = null): array
     {
         // Get Craft's timezone offset for MySQL CONVERT_TZ
         $timezone = \Craft::$app->getTimeZone();
@@ -360,6 +374,11 @@ class AnalyticsService extends Component
         // Filter by smart link if specified
         if ($smartLinkId) {
             $query->andWhere(['linkId' => $smartLinkId]);
+        }
+
+        // Filter by site if specified
+        if ($siteId) {
+            $query->andWhere(['siteId' => $siteId]);
         }
 
         $results = $query->all();
@@ -435,7 +454,7 @@ class AnalyticsService extends Component
     /**
      * Get device breakdown (mobile, tablet, desktop)
      */
-    public function getDeviceBreakdown(?int $smartLinkId, string $dateRange): array
+    public function getDeviceBreakdown(?int $smartLinkId, string $dateRange, ?int $siteId = null): array
     {
         $query = (new Query())
             ->from('{{%smartlinks_analytics}}')
@@ -448,6 +467,11 @@ class AnalyticsService extends Component
         // Filter by smart link if specified
         if ($smartLinkId) {
             $query->andWhere(['linkId' => $smartLinkId]);
+        }
+
+        // Filter by site if specified
+        if ($siteId) {
+            $query->andWhere(['siteId' => $siteId]);
         }
 
         $results = $query->all();
@@ -477,7 +501,7 @@ class AnalyticsService extends Component
     /**
      * Get platform breakdown (iOS, Android, Windows, macOS, Linux)
      */
-    public function getPlatformBreakdown(?int $smartLinkId, string $dateRange): array
+    public function getPlatformBreakdown(?int $smartLinkId, string $dateRange, ?int $siteId = null): array
     {
         $query = (new Query())
             ->from('{{%smartlinks_analytics}}')
@@ -490,6 +514,11 @@ class AnalyticsService extends Component
         // Filter by smart link if specified
         if ($smartLinkId) {
             $query->andWhere(['linkId' => $smartLinkId]);
+        }
+
+        // Filter by site if specified
+        if ($siteId) {
+            $query->andWhere(['siteId' => $siteId]);
         }
 
         $results = $query->all();
@@ -531,7 +560,7 @@ class AnalyticsService extends Component
     /**
      * Get top countries
      */
-    public function getTopCountries(?int $smartLinkId, string $dateRange, int $limit = 15): array
+    public function getTopCountries(?int $smartLinkId, string $dateRange, int $limit = 15, ?int $siteId = null): array
     {
         $query = (new Query())
             ->from('{{%smartlinks_analytics}}')
@@ -547,6 +576,11 @@ class AnalyticsService extends Component
         // Filter by smart link if specified
         if ($smartLinkId) {
             $query->andWhere(['linkId' => $smartLinkId]);
+        }
+
+        // Filter by site if specified
+        if ($siteId) {
+            $query->andWhere(['siteId' => $siteId]);
         }
 
         $results = $query->all();
@@ -568,15 +602,15 @@ class AnalyticsService extends Component
     /**
      * Get all countries (no limit)
      */
-    public function getAllCountries(?int $smartLinkId, string $dateRange): array
+    public function getAllCountries(?int $smartLinkId, string $dateRange, ?int $siteId = null): array
     {
-        return $this->getTopCountries($smartLinkId, $dateRange, 9999);
+        return $this->getTopCountries($smartLinkId, $dateRange, 9999, $siteId);
     }
 
     /**
      * Get top cities
      */
-    public function getTopCities(?int $smartLinkId, string $dateRange, int $limit = 15): array
+    public function getTopCities(?int $smartLinkId, string $dateRange, int $limit = 15, ?int $siteId = null): array
     {
         $query = (new Query())
             ->from('{{%smartlinks_analytics}}')
@@ -592,6 +626,11 @@ class AnalyticsService extends Component
         // Filter by smart link if specified
         if ($smartLinkId) {
             $query->andWhere(['linkId' => $smartLinkId]);
+        }
+
+        // Filter by site if specified
+        if ($siteId) {
+            $query->andWhere(['siteId' => $siteId]);
         }
 
         $results = $query->all();
@@ -614,7 +653,7 @@ class AnalyticsService extends Component
     /**
      * Get hourly analytics for peak usage times
      */
-    public function getHourlyAnalytics(?int $smartLinkId, string $dateRange): array
+    public function getHourlyAnalytics(?int $smartLinkId, string $dateRange, ?int $siteId = null): array
     {
         $query = (new Query())
             ->from('{{%smartlinks_analytics}}')
@@ -631,6 +670,11 @@ class AnalyticsService extends Component
         // Filter by smart link if specified
         if ($smartLinkId) {
             $query->andWhere(['linkId' => $smartLinkId]);
+        }
+
+        // Filter by site if specified
+        if ($siteId) {
+            $query->andWhere(['siteId' => $siteId]);
         }
 
         $results = $query->all();
@@ -655,7 +699,7 @@ class AnalyticsService extends Component
     /**
      * Get insights (cross-referenced analytics)
      */
-    public function getInsights(string $dateRange): array
+    public function getInsights(string $dateRange, ?int $siteId = null): array
     {
         $insights = [];
 
@@ -675,6 +719,11 @@ class AnalyticsService extends Component
 
         // Apply date range filter
         $this->applyDateRangeFilter($query, $dateRange);
+
+        // Filter by site if specified
+        if ($siteId) {
+            $query->andWhere(['siteId' => $siteId]);
+        }
 
         $cityMobileUsage = [];
         foreach ($query->all() as $row) {
@@ -756,7 +805,7 @@ class AnalyticsService extends Component
     /**
      * Get language breakdown
      */
-    public function getLanguageBreakdown(?int $smartLinkId, string $dateRange): array
+    public function getLanguageBreakdown(?int $smartLinkId, string $dateRange, ?int $siteId = null): array
     {
         return [
             'labels' => [],
@@ -767,7 +816,7 @@ class AnalyticsService extends Component
     /**
      * Get device brand breakdown
      */
-    public function getDeviceBrandBreakdown(?int $smartLinkId, string $dateRange): array
+    public function getDeviceBrandBreakdown(?int $smartLinkId, string $dateRange, ?int $siteId = null): array
     {
         $query = (new Query())
             ->from('{{%smartlinks_analytics}}')
@@ -787,6 +836,11 @@ class AnalyticsService extends Component
         // Filter by smart link if specified
         if ($smartLinkId) {
             $query->andWhere(['linkId' => $smartLinkId]);
+        }
+
+        // Filter by site if specified
+        if ($siteId) {
+            $query->andWhere(['siteId' => $siteId]);
         }
 
         $results = $query->all();
@@ -813,7 +867,7 @@ class AnalyticsService extends Component
     /**
      * Get OS breakdown with versions
      */
-    public function getOsBreakdown(?int $smartLinkId, string $dateRange): array
+    public function getOsBreakdown(?int $smartLinkId, string $dateRange, ?int $siteId = null): array
     {
         $query = (new Query())
             ->from('{{%smartlinks_analytics}}')
@@ -834,6 +888,11 @@ class AnalyticsService extends Component
         // Filter by smart link if specified
         if ($smartLinkId) {
             $query->andWhere(['linkId' => $smartLinkId]);
+        }
+
+        // Filter by site if specified
+        if ($siteId) {
+            $query->andWhere(['siteId' => $siteId]);
         }
 
         $results = $query->all();
@@ -892,7 +951,7 @@ class AnalyticsService extends Component
     /**
      * Get browser breakdown with versions
      */
-    public function getBrowserBreakdown(?int $smartLinkId, string $dateRange): array
+    public function getBrowserBreakdown(?int $smartLinkId, string $dateRange, ?int $siteId = null): array
     {
         $query = (new Query())
             ->from('{{%smartlinks_analytics}}')
@@ -913,6 +972,11 @@ class AnalyticsService extends Component
         // Filter by smart link if specified
         if ($smartLinkId) {
             $query->andWhere(['linkId' => $smartLinkId]);
+        }
+
+        // Filter by site if specified
+        if ($siteId) {
+            $query->andWhere(['siteId' => $siteId]);
         }
 
         $results = $query->all();
@@ -988,7 +1052,7 @@ class AnalyticsService extends Component
     /**
      * Get detailed device type breakdown
      */
-    public function getDeviceTypeBreakdown(?int $smartLinkId, string $dateRange): array
+    public function getDeviceTypeBreakdown(?int $smartLinkId, string $dateRange, ?int $siteId = null): array
     {
         $query = (new Query())
             ->from('{{%smartlinks_analytics}}')
@@ -1007,6 +1071,11 @@ class AnalyticsService extends Component
         // Filter by smart link if specified
         if ($smartLinkId) {
             $query->andWhere(['linkId' => $smartLinkId]);
+        }
+
+        // Filter by site if specified
+        if ($siteId) {
+            $query->andWhere(['siteId' => $siteId]);
         }
 
         $results = $query->all();
@@ -1064,7 +1133,7 @@ class AnalyticsService extends Component
     /**
      * Export analytics data
      */
-    public function exportAnalytics(?int $smartLinkId, string $dateRange, string $format): string
+    public function exportAnalytics(?int $smartLinkId, string $dateRange, string $format, ?int $siteId = null): string
     {
         $query = (new Query())
             ->from('{{%smartlinks_analytics}}')
@@ -1097,6 +1166,11 @@ class AnalyticsService extends Component
             $query->andWhere(['linkId' => $smartLinkId]);
         }
 
+        // Filter by site if specified
+        if ($siteId) {
+            $query->andWhere(['siteId' => $siteId]);
+        }
+
         $results = $query->all();
 
         // Check if there's any data to export
@@ -1111,7 +1185,12 @@ class AnalyticsService extends Component
         // Check if geo detection is enabled
         $geoEnabled = $settings->enableGeoDetection ?? true;
 
-        // CSV format only - conditionally include geo columns
+        // Handle JSON format
+        if ($format === 'json') {
+            return $this->_exportAsJson($results, $geoEnabled);
+        }
+
+        // CSV format - conditionally include geo columns
         if ($geoEnabled) {
             $csv = "Date,Time,{$displayName} Title,{$displayName} Status,{$displayName} URL,Site,Type,Button,Source,Destination URL,Referrer,User Device Type,User Device Brand,User Device Model,User OS,User OS Version,User Browser,User Browser Version,User Country,User City,User Language,User Agent\n";
         } else {
@@ -1125,9 +1204,9 @@ class AnalyticsService extends Component
             $includeExpired = $settings->includeExpiredInExport ?? false;
 
             // Always get the link with all statuses to check if it exists and its status
+            // Don't filter by siteId here - just find the element by ID
             $smartLink = SmartLink::find()
                     ->id($row['linkId'])
-                    ->siteId($row['siteId'])
                     ->status(null)
                     ->one();
 
@@ -1261,7 +1340,7 @@ class AnalyticsService extends Component
      * @param int $limit
      * @return array
      */
-    public function getTopLinks(string $dateRange = 'last7days', int $limit = 5): array
+    public function getTopLinks(string $dateRange = 'last7days', int $limit = 5, ?int $siteId = null): array
     {
         $query = (new Query())
             ->from(['a' => '{{%smartlinks_analytics}}'])
@@ -1279,6 +1358,11 @@ class AnalyticsService extends Component
 
         // Apply date range filter
         $this->applyDateRangeFilter($query, $dateRange, 'a.dateCreated');
+
+        // Filter by site if specified
+        if ($siteId) {
+            $query->andWhere(['a.siteId' => $siteId]);
+        }
 
         $results = $query->all();
         $topLinks = [];
@@ -1370,7 +1454,7 @@ class AnalyticsService extends Component
      * @param int $limit
      * @return array
      */
-    public function getAllRecentClicks(string $dateRange = 'last7days', int $limit = 20): array
+    public function getAllRecentClicks(string $dateRange = 'last7days', int $limit = 20, ?int $siteId = null): array
     {
         // Join with the site where the click happened (a.siteId), not the current CP site
         // This way Arabic clicks show Arabic title, English clicks show English title
@@ -1393,6 +1477,11 @@ class AnalyticsService extends Component
 
         // Apply date range filter
         $this->applyDateRangeFilter($query, $dateRange, 'a.dateCreated');
+
+        // Filter by site if specified
+        if ($siteId) {
+            $query->andWhere(['a.siteId' => $siteId]);
+        }
 
         $results = $query->all();
         $clicks = [];
@@ -2360,5 +2449,116 @@ class AnalyticsService extends Component
         }
 
         return $updated;
+    }
+
+    /**
+     * Export analytics data as JSON
+     *
+     * @param array $results Raw query results
+     * @param bool $geoEnabled Whether geo detection is enabled
+     * @return string JSON string
+     */
+    private function _exportAsJson(array $results, bool $geoEnabled): string
+    {
+        $data = [];
+        $settings = SmartLinks::$plugin->getSettings();
+        $includeDisabled = $settings->includeDisabledInExport ?? false;
+        $includeExpired = $settings->includeExpiredInExport ?? false;
+
+        foreach ($results as $row) {
+            // Get the link
+            $smartLink = SmartLink::find()
+                ->id($row['linkId'])
+                ->status(null)
+                ->one();
+
+            if (!$smartLink) {
+                continue;
+            }
+
+            // Get the actual status
+            $status = $smartLink->getStatus();
+
+            // Skip based on settings
+            if (!$includeDisabled && $status === SmartLink::STATUS_DISABLED) {
+                continue;
+            }
+
+            if (!$includeExpired && $status === SmartLink::STATUS_EXPIRED) {
+                continue;
+            }
+
+            $date = DateTimeHelper::toDateTime($row['dateCreated']);
+
+            // Get site name
+            $siteName = null;
+            if (!empty($row['siteId'])) {
+                $site = Craft::$app->getSites()->getSiteById($row['siteId']);
+                $siteName = $site ? $site->name : null;
+            }
+
+            // Parse metadata
+            $metadata = $row['metadata'] ? Json::decode($row['metadata']) : [];
+            $source = $metadata['source'] ?? 'direct';
+            $clickType = $metadata['clickType'] ?? 'redirect';
+            $buttonPlatform = $metadata['platform'] ?? null;
+            $targetUrl = '';
+
+            if ($clickType === 'button') {
+                $targetUrl = $metadata['buttonUrl'] ?? '';
+            } else {
+                $targetUrl = $metadata['redirectUrl'] ?? $metadata['buttonUrl'] ?? '';
+            }
+
+            $item = [
+                'date' => $date ? $date->format('Y-m-d') : null,
+                'time' => $date ? $date->format('H:i:s') : null,
+                'datetime' => $date ? $date->format('c') : null,
+                'smartLink' => [
+                    'id' => $smartLink->id,
+                    'title' => $smartLink->title,
+                    'slug' => $smartLink->slug,
+                    'status' => $status,
+                ],
+                'siteId' => $row['siteId'] ? (int)$row['siteId'] : null,
+                'siteName' => $siteName,
+                'type' => $clickType,
+                'buttonPlatform' => $buttonPlatform,
+                'source' => $source,
+                'destinationUrl' => $targetUrl,
+                'referrer' => $row['referrer'] ?? null,
+                'device' => [
+                    'type' => $row['deviceType'] ?? null,
+                    'brand' => $row['deviceBrand'] ?? null,
+                    'model' => $row['deviceModel'] ?? null,
+                ],
+                'os' => [
+                    'name' => $row['osName'] ?? null,
+                    'version' => $row['osVersion'] ?? null,
+                ],
+                'browser' => [
+                    'name' => $row['browser'] ?? null,
+                    'version' => $row['browserVersion'] ?? null,
+                ],
+                'language' => $row['language'] ?? null,
+                'userAgent' => $row['userAgent'] ?? null,
+            ];
+
+            // Add geo data if enabled
+            if ($geoEnabled) {
+                $item['location'] = [
+                    'country' => $row['country'] ?? null,
+                    'city' => $row['city'] ?? null,
+                ];
+            }
+
+            $data[] = $item;
+        }
+
+        return json_encode([
+            'exported' => date('c'),
+            'count' => count($data),
+            'data' => $data,
+        ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
     }
 }

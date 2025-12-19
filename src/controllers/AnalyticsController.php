@@ -54,12 +54,20 @@ class AnalyticsController extends Controller
             'title' => Craft::t('smart-links', 'Analytics'),
         ];
 
-        // Get date range
-        $dateRange = Craft::$app->getRequest()->getParam('dateRange', 'last7days');
+        // Get date range and site
+        $request = Craft::$app->getRequest();
+        $dateRange = $request->getParam('dateRange', 'last7days');
+        $siteId = $request->getParam('siteId');
+        $siteId = $siteId ? (int)$siteId : null;
+
         $variables['dateRange'] = $dateRange;
+        $variables['siteId'] = $siteId;
+
+        // Get all sites for site selector
+        $variables['sites'] = Craft::$app->getSites()->getAllSites();
 
         // Get analytics data
-        $variables['analyticsData'] = SmartLinks::$plugin->analytics->getAnalyticsSummary($dateRange);
+        $variables['analyticsData'] = SmartLinks::$plugin->analytics->getAnalyticsSummary($dateRange, null, $siteId);
 
         // Pass settings to template
         $variables['settings'] = SmartLinks::$plugin->getSettings();
@@ -86,12 +94,15 @@ class AnalyticsController extends Controller
             ]);
         }
 
-        $smartLinkId = Craft::$app->getRequest()->getParam('smartLinkId');
-        $dateRange = Craft::$app->getRequest()->getParam('dateRange', 'last7days');
-        $type = Craft::$app->getRequest()->getParam('type', 'summary');
+        $request = Craft::$app->getRequest();
+        $smartLinkId = $request->getParam('smartLinkId');
+        $dateRange = $request->getParam('dateRange', 'last7days');
+        $type = $request->getParam('type', 'summary');
+        $siteId = $request->getParam('siteId');
+        $siteId = $siteId ? (int)$siteId : null;
 
         // Log the request for debugging
-        $this->logInfo('Analytics getData called', ['type' => $type, 'dateRange' => $dateRange, 'smartLinkId' => $smartLinkId ?? null]);
+        $this->logInfo('Analytics getData called', ['type' => $type, 'dateRange' => $dateRange, 'smartLinkId' => $smartLinkId ?? null, 'siteId' => $siteId]);
 
         // If requesting data for a specific SmartLink, check if it has analytics enabled
         if ($smartLinkId) {
@@ -99,14 +110,14 @@ class AnalyticsController extends Controller
                 ->id($smartLinkId)
                 ->status(null)
                 ->one();
-            
+
             if (!$smartLink) {
                 return $this->asJson([
                     'success' => false,
                     'error' => 'Smart link not found',
                 ]);
             }
-            
+
             if (!($smartLink->trackAnalytics ?? true)) {
                 return $this->asJson([
                     'success' => false,
@@ -117,20 +128,20 @@ class AnalyticsController extends Controller
 
         try {
             $data = match ($type) {
-                'clicks' => SmartLinks::$plugin->analytics->getClicksData($smartLinkId, $dateRange),
-                'devices' => SmartLinks::$plugin->analytics->getDeviceBreakdown($smartLinkId, $dateRange),
-                'device-types' => SmartLinks::$plugin->analytics->getDeviceTypeBreakdown($smartLinkId, $dateRange),
-                'device-brands' => SmartLinks::$plugin->analytics->getDeviceBrandBreakdown($smartLinkId, $dateRange),
-                'platforms' => SmartLinks::$plugin->analytics->getPlatformBreakdown($smartLinkId, $dateRange),
-                'os-breakdown' => SmartLinks::$plugin->analytics->getOsBreakdown($smartLinkId, $dateRange),
-                'browsers' => SmartLinks::$plugin->analytics->getBrowserBreakdown($smartLinkId, $dateRange),
-                'countries' => SmartLinks::$plugin->analytics->getTopCountries($smartLinkId, $dateRange),
-                'all-countries' => SmartLinks::$plugin->analytics->getAllCountries($smartLinkId, $dateRange),
-                'all-cities' => SmartLinks::$plugin->analytics->getTopCities($smartLinkId, $dateRange, 50),
-                'languages' => SmartLinks::$plugin->analytics->getLanguageBreakdown($smartLinkId, $dateRange),
-                'hourly' => SmartLinks::$plugin->analytics->getHourlyAnalytics($smartLinkId, $dateRange),
-                'insights' => SmartLinks::$plugin->analytics->getInsights($dateRange),
-                default => SmartLinks::$plugin->analytics->getAnalyticsSummary($dateRange, $smartLinkId),
+                'clicks' => SmartLinks::$plugin->analytics->getClicksData($smartLinkId, $dateRange, $siteId),
+                'devices' => SmartLinks::$plugin->analytics->getDeviceBreakdown($smartLinkId, $dateRange, $siteId),
+                'device-types' => SmartLinks::$plugin->analytics->getDeviceTypeBreakdown($smartLinkId, $dateRange, $siteId),
+                'device-brands' => SmartLinks::$plugin->analytics->getDeviceBrandBreakdown($smartLinkId, $dateRange, $siteId),
+                'platforms' => SmartLinks::$plugin->analytics->getPlatformBreakdown($smartLinkId, $dateRange, $siteId),
+                'os-breakdown' => SmartLinks::$plugin->analytics->getOsBreakdown($smartLinkId, $dateRange, $siteId),
+                'browsers' => SmartLinks::$plugin->analytics->getBrowserBreakdown($smartLinkId, $dateRange, $siteId),
+                'countries' => SmartLinks::$plugin->analytics->getTopCountries($smartLinkId, $dateRange, 15, $siteId),
+                'all-countries' => SmartLinks::$plugin->analytics->getAllCountries($smartLinkId, $dateRange, $siteId),
+                'all-cities' => SmartLinks::$plugin->analytics->getTopCities($smartLinkId, $dateRange, 50, $siteId),
+                'languages' => SmartLinks::$plugin->analytics->getLanguageBreakdown($smartLinkId, $dateRange, $siteId),
+                'hourly' => SmartLinks::$plugin->analytics->getHourlyAnalytics($smartLinkId, $dateRange, $siteId),
+                'insights' => SmartLinks::$plugin->analytics->getInsights($dateRange, $siteId),
+                default => SmartLinks::$plugin->analytics->getAnalyticsSummary($dateRange, $smartLinkId, $siteId),
             };
 
             return $this->asJson([
@@ -239,9 +250,12 @@ class AnalyticsController extends Controller
             return $this->redirect('smart-links');
         }
 
-        $smartLinkId = Craft::$app->getRequest()->getParam('smartLinkId');
-        $dateRange = Craft::$app->getRequest()->getParam('dateRange', 'last7days');
-        $format = Craft::$app->getRequest()->getParam('format', 'csv');
+        $request = Craft::$app->getRequest();
+        $smartLinkId = $request->getParam('smartLinkId');
+        $dateRange = $request->getParam('dateRange', 'last7days');
+        $format = $request->getParam('format', 'csv');
+        $siteId = $request->getParam('siteId');
+        $siteId = $siteId ? (int)$siteId : null;
 
         // If exporting for a specific SmartLink, check if it has analytics enabled
         if ($smartLinkId) {
@@ -249,12 +263,12 @@ class AnalyticsController extends Controller
                 ->id($smartLinkId)
                 ->status(null)
                 ->one();
-            
+
             if (!$smartLink) {
                 Craft::$app->getSession()->setError('Smart link not found.');
                 return $this->redirect('smart-links');
             }
-            
+
             if (!($smartLink->trackAnalytics ?? true)) {
                 Craft::$app->getSession()->setError('Analytics tracking is disabled for this smart link.');
                 return $this->redirect('smart-links/smartlinks/' . $smartLinkId);
@@ -262,8 +276,8 @@ class AnalyticsController extends Controller
         }
 
         try {
-            $data = SmartLinks::$plugin->analytics->exportAnalytics($smartLinkId, $dateRange, $format);
-            
+            $data = SmartLinks::$plugin->analytics->exportAnalytics($smartLinkId, $dateRange, $format, $siteId);
+
             // Generate filename
             $settings = SmartLinks::$plugin->getSettings();
             $filenamePart = strtolower(str_replace(' ', '-', $settings->getPluralLowerDisplayName()));
@@ -279,9 +293,18 @@ class AnalyticsController extends Controller
                     $baseFilename = $singularPart . '-' . $cleanSlug . '-analytics';
                 }
             }
-            
-            $filename = $baseFilename . '-' . $dateRange . '-' . date('Y-m-d') . '.' . $format;
-            
+
+            // Get site name for filename
+            $sitePart = 'all';
+            if ($siteId) {
+                $site = Craft::$app->getSites()->getSiteById($siteId);
+                if ($site) {
+                    $sitePart = strtolower(preg_replace('/[^a-zA-Z0-9-_]/', '', str_replace(' ', '-', $site->name)));
+                }
+            }
+
+            $filename = $baseFilename . '-' . $sitePart . '-' . $dateRange . '-' . date('Y-m-d') . '.' . $format;
+
             return Craft::$app->getResponse()->sendContentAsFile(
                 $data,
                 $filename,
