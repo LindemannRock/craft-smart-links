@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.10.2](https://github.com/LindemannRock/craft-smart-links/compare/v5.10.1...v5.10.2) (2026-01-05)
+
+
+### Bug Fixes
+
+* add tab-content class to analytics sections for improved styling ([76de310](https://github.com/LindemannRock/craft-smart-links/commit/76de3103e3e2c0ca8b1f796cd010fcadd23f0fef))
+
 ## [5.10.1](https://github.com/LindemannRock/craft-smart-links/compare/v5.10.0...v5.10.1) (2025-12-19)
 
 
