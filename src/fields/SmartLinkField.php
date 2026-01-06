@@ -1,12 +1,12 @@
 <?php
 /**
- * Smart Links plugin for Craft CMS 5.x
+ * SmartLink Manager plugin for Craft CMS 5.x
  *
  * @link      https://lindemannrock.com
  * @copyright Copyright (c) 2025 LindemannRock
  */
 
-namespace lindemannrock\smartlinks\fields;
+namespace lindemannrock\smartlinkmanager\fields;
 
 use Craft;
 use craft\base\ElementInterface;
@@ -14,9 +14,9 @@ use craft\base\Field;
 use craft\base\PreviewableFieldInterface;
 use craft\elements\db\ElementQueryInterface;
 use GraphQL\Type\Definition\Type;
-use lindemannrock\smartlinks\elements\db\SmartLinkQuery;
-use lindemannrock\smartlinks\elements\SmartLink;
-use lindemannrock\smartlinks\SmartLinks;
+use lindemannrock\smartlinkmanager\elements\db\SmartLinkQuery;
+use lindemannrock\smartlinkmanager\elements\SmartLink;
+use lindemannrock\smartlinkmanager\SmartLinkManager;
 
 /**
  * Smart Link Field
@@ -50,7 +50,7 @@ class SmartLinkField extends Field implements PreviewableFieldInterface
      */
     public static function displayName(): string
     {
-        return SmartLinks::$plugin->getSettings()->getDisplayName();
+        return SmartLinkManager::$plugin->getSettings()->getDisplayName();
     }
 
     /**
@@ -74,7 +74,7 @@ class SmartLinkField extends Field implements PreviewableFieldInterface
      */
     public static function defaultSelectionLabel(): string
     {
-        return Craft::t('smart-links', 'Add a smart link');
+        return Craft::t('smartlink-manager', 'Add a smart link');
     }
 
     /**
@@ -90,7 +90,7 @@ class SmartLinkField extends Field implements PreviewableFieldInterface
      */
     public function getSettingsHtml(): ?string
     {
-        return Craft::$app->getView()->renderTemplate('smart-links/_components/fields/SmartLinkField/settings', [
+        return Craft::$app->getView()->renderTemplate('smartlink-manager/_components/fields/SmartLinkField/settings', [
             'field' => $this,
         ]);
     }
@@ -106,7 +106,7 @@ class SmartLinkField extends Field implements PreviewableFieldInterface
 
         $variables = $this->inputTemplateVariables($value, $element);
 
-        return Craft::$app->getView()->renderTemplate('smart-links/_components/fields/SmartLinkField/input', $variables);
+        return Craft::$app->getView()->renderTemplate('smartlink-manager/_components/fields/SmartLinkField/input', $variables);
     }
 
     /**
@@ -242,7 +242,7 @@ class SmartLinkField extends Field implements PreviewableFieldInterface
                 /** @var \craft\base\Element $element */
                 $element->addError(
                     $this->handle,
-                    Craft::t('smart-links', 'You can only select up to {limit} {limit, plural, =1{smart link} other{smart links}}.', [
+                    Craft::t('smartlink-manager', 'You can only select up to {limit} {limit, plural, =1{smart link} other{smart links}}.', [
                         'limit' => $this->limit,
                     ])
                 );
@@ -270,7 +270,7 @@ class SmartLinkField extends Field implements PreviewableFieldInterface
         $smartLinks = $value->limit(3)->all();
 
         if (empty($smartLinks)) {
-            return '<span class="light">' . Craft::t('smart-links', 'No smart links selected') . '</span>';
+            return '<span class="light">' . Craft::t('smartlink-manager', 'No smart links selected') . '</span>';
         }
 
         $html = '<div class="element small">';

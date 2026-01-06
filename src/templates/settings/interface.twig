@@ -1,20 +1,20 @@
-{% extends "smart-links/_layouts/settings" %}
-{% set title = "Interface Settings"|t('smart-links') %}
+{% extends "smartlink-manager/_layouts/settings" %}
+{% set title = "Interface Settings"|t('smartlink-manager') %}
 {% set fullPageForm = true %}
 {% set selectedSettingsItem = 'interface' %}
 
 {% set crumbs = [
     {
-        label: smartlinkHelper.fullName|t('smart-links'),
-        url: url('smart-links'),
+        label: smartlinkHelper.fullName|t('smartlink-manager'),
+        url: url('smartlink-manager'),
     },
     {
-        label: 'Settings'|t('smart-links'),
-        url: url('smart-links/settings'),
+        label: 'Settings'|t('smartlink-manager'),
+        url: url('smartlink-manager/settings'),
     },
     {
-        label: 'Interface'|t('smart-links'),
-        url: url('smart-links/settings/interface'),
+        label: 'Interface'|t('smartlink-manager'),
+        url: url('smartlink-manager/settings/interface'),
     },
 ] %}
 
@@ -23,21 +23,21 @@
 {% block content %}
 
     {% include 'lindemannrock-base/_components/ip-salt-error' with {
-        pluginHandle: 'smart-links',
-        envVarName: 'SMART_LINKS_IP_SALT'
+        pluginHandle: 'smartlink-manager',
+        envVarName: 'SMARTLINK_MANAGER_IP_SALT'
     } %}
 
     <form method="post" accept-charset="UTF-8">
-        {{ actionInput('smart-links/settings/save') }}
+        {{ actionInput('smartlink-manager/settings/save') }}
         {{ csrfInput() }}
-        {{ redirectInput('smart-links/settings/interface') }}
+        {{ redirectInput('smartlink-manager/settings/interface') }}
         {{ hiddenInput('section', 'interface') }}
 
-        <h2 style="margin-top: 0px;">{{ "Interface Settings"|t('smart-links') }}</h2>
+        <h2 style="margin-top: 0px;">{{ "Interface Settings"|t('smartlink-manager') }}</h2>
 
         {{ forms.textField({
-            label: "Items Per Page"|t('smart-links'),
-            instructions: "Number of {pluginName} to show per page"|t('smart-links', {pluginName: smartlinkHelper.pluralLowerDisplayName}),
+            label: "Items Per Page"|t('smartlink-manager'),
+            instructions: "Number of {pluginName} to show per page"|t('smartlink-manager', {pluginName: smartlinkHelper.pluralLowerDisplayName}),
             id: 'itemsPerPage',
             name: 'settings[itemsPerPage]',
             value: settings.itemsPerPage ?? 100,
@@ -47,12 +47,12 @@
             required: true,
             disabled: settings.isOverriddenByConfig('itemsPerPage'),
             warning: settings.isOverriddenByConfig('itemsPerPage') ?
-                "This is being overridden by the <code>itemsPerPage</code> setting in <code>config/smart-links.php</code>."|t('smart-links')|raw : null,
+                "This is being overridden by the <code>itemsPerPage</code> setting in <code>config/smartlink-manager.php</code>."|t('smartlink-manager')|raw : null,
             errors: settings.getErrors('itemsPerPage')
         }) }}
 
         <div class="buttons">
-            <button type="submit" class="btn submit">{{ "Save Settings"|t('smart-links') }}</button>
+            <button type="submit" class="btn submit">{{ "Save Settings"|t('smartlink-manager') }}</button>
         </div>
     </form>
 

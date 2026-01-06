@@ -1,21 +1,21 @@
 <?php
 /**
- * Smart Links plugin for Craft CMS 5.x
+ * SmartLink Manager plugin for Craft CMS 5.x
  *
  * @link      https://lindemannrock.com
  * @copyright Copyright (c) 2025 LindemannRock
  */
 
-namespace lindemannrock\smartlinks\services;
+namespace lindemannrock\smartlinkmanager\services;
 
 use Craft;
 use craft\base\Component;
 use DeviceDetector\DeviceDetector;
 use DeviceDetector\Parser\Client\Browser;
 use lindemannrock\logginglibrary\traits\LoggingTrait;
-use lindemannrock\smartlinks\elements\SmartLink;
-use lindemannrock\smartlinks\models\DeviceInfo;
-use lindemannrock\smartlinks\SmartLinks;
+use lindemannrock\smartlinkmanager\elements\SmartLink;
+use lindemannrock\smartlinkmanager\models\DeviceInfo;
+use lindemannrock\smartlinkmanager\SmartLinkManager;
 
 /**
  * Device Detection Service
@@ -37,7 +37,7 @@ class DeviceDetectionService extends Component
     public function init(): void
     {
         parent::init();
-        $this->setLoggingHandle('smart-links');
+        $this->setLoggingHandle('smartlink-manager');
     }
 
     /**
@@ -48,7 +48,7 @@ class DeviceDetectionService extends Component
      */
     public function detectDevice(?string $userAgent = null): DeviceInfo
     {
-        $settings = SmartLinks::$plugin->getSettings();
+        $settings = SmartLinkManager::$plugin->getSettings();
         
         // Try to get from cache if enabled
         if ($settings->cacheDeviceDetection && $userAgent) {
@@ -197,7 +197,7 @@ class DeviceDetectionService extends Component
      */
     public function detectLanguage(): string
     {
-        $settings = SmartLinks::$plugin->getSettings();
+        $settings = SmartLinkManager::$plugin->getSettings();
         $request = Craft::$app->getRequest();
         $detectedLang = null;
         
@@ -287,7 +287,7 @@ class DeviceDetectionService extends Component
         }
         
         // Get location from analytics service
-        $location = SmartLinks::$plugin->analytics->getLocationFromIp($ip);
+        $location = SmartLinkManager::$plugin->analytics->getLocationFromIp($ip);
         if ($location && isset($location['countryCode'])) {
             // Map common country codes to languages
             $countryToLang = [
@@ -411,7 +411,7 @@ class DeviceDetectionService extends Component
      */
     private function _getCachedDeviceInfo(string $userAgent): ?array
     {
-        $settings = SmartLinks::$plugin->getSettings();
+        $settings = SmartLinkManager::$plugin->getSettings();
         $cacheKey = 'smartlinks:device:' . md5($userAgent);
 
         // Use Redis/database cache if configured
@@ -421,7 +421,7 @@ class DeviceDetectionService extends Component
         }
 
         // Use file-based cache (default)
-        $cachePath = Craft::$app->path->getRuntimePath() . '/smart-links/cache/device/';
+        $cachePath = Craft::$app->path->getRuntimePath() . '/smartlink-manager/cache/device/';
         $cacheFile = $cachePath . md5($userAgent) . '.cache';
 
         if (!file_exists($cacheFile)) {
@@ -449,7 +449,7 @@ class DeviceDetectionService extends Component
      */
     private function _cacheDeviceInfo(string $userAgent, array $data, int $duration): void
     {
-        $settings = SmartLinks::$plugin->getSettings();
+        $settings = SmartLinkManager::$plugin->getSettings();
         $cacheKey = 'smartlinks:device:' . md5($userAgent);
 
         // Use Redis/database cache if configured
@@ -460,14 +460,14 @@ class DeviceDetectionService extends Component
             // Track key in set for selective deletion
             if ($cache instanceof \yii\redis\Cache) {
                 $redis = $cache->redis;
-                $redis->executeCommand('SADD', ['smartlinks-device-keys', $cacheKey]);
+                $redis->executeCommand('SADD', ['smartlinkmanager-device-keys', $cacheKey]);
             }
 
             return;
         }
 
         // Use file-based cache (default)
-        $cachePath = Craft::$app->path->getRuntimePath() . '/smart-links/cache/device/';
+        $cachePath = Craft::$app->path->getRuntimePath() . '/smartlink-manager/cache/device/';
 
         // Create directory if it doesn't exist
         if (!is_dir($cachePath)) {

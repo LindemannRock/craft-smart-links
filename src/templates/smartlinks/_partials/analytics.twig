@@ -17,21 +17,21 @@
                 </button>
                 <div class="menu">
                     <ul>
-                        <li><a href="#" data-range="today" class="date-range-option {{ dateRange == 'today' ? 'sel' : '' }}">{{ "Today"|t('smart-links') }}</a></li>
-                        <li><a href="#" data-range="yesterday" class="date-range-option {{ dateRange == 'yesterday' ? 'sel' : '' }}">{{ "Yesterday"|t('smart-links') }}</a></li>
-                        <li><a href="#" data-range="last7days" class="date-range-option {{ dateRange == 'last7days' ? 'sel' : '' }}">{{ "Last 7 days"|t('smart-links') }}</a></li>
-                        <li><a href="#" data-range="last30days" class="date-range-option {{ dateRange == 'last30days' ? 'sel' : '' }}">{{ "Last 30 days"|t('smart-links') }}</a></li>
-                        <li><a href="#" data-range="last90days" class="date-range-option {{ dateRange == 'last90days' ? 'sel' : '' }}">{{ "Last 90 days"|t('smart-links') }}</a></li>
-                        <li><a href="#" data-range="all" class="date-range-option {{ dateRange == 'all' ? 'sel' : '' }}">{{ "All time"|t('smart-links') }}</a></li>
+                        <li><a href="#" data-range="today" class="date-range-option {{ dateRange == 'today' ? 'sel' : '' }}">{{ "Today"|t('smartlink-manager') }}</a></li>
+                        <li><a href="#" data-range="yesterday" class="date-range-option {{ dateRange == 'yesterday' ? 'sel' : '' }}">{{ "Yesterday"|t('smartlink-manager') }}</a></li>
+                        <li><a href="#" data-range="last7days" class="date-range-option {{ dateRange == 'last7days' ? 'sel' : '' }}">{{ "Last 7 days"|t('smartlink-manager') }}</a></li>
+                        <li><a href="#" data-range="last30days" class="date-range-option {{ dateRange == 'last30days' ? 'sel' : '' }}">{{ "Last 30 days"|t('smartlink-manager') }}</a></li>
+                        <li><a href="#" data-range="last90days" class="date-range-option {{ dateRange == 'last90days' ? 'sel' : '' }}">{{ "Last 90 days"|t('smartlink-manager') }}</a></li>
+                        <li><a href="#" data-range="all" class="date-range-option {{ dateRange == 'all' ? 'sel' : '' }}">{{ "All time"|t('smartlink-manager') }}</a></li>
                     </ul>
                 </div>
             </div>
             <div class="flex-grow"></div>
             <div class="btngroup">
-                <button type="button" class="btn menubtn" data-icon="download">{{ "Export"|t('smart-links') }}</button>
+                <button type="button" class="btn menubtn" data-icon="download">{{ "Export"|t('smartlink-manager') }}</button>
                 <div class="menu" data-align="right">
                     <ul>
-                        <li><a href="#" class="export-analytics" data-format="csv">{{ "Export as CSV"|t('smart-links') }}</a></li>
+                        <li><a href="#" class="export-analytics" data-format="csv">{{ "Export as CSV"|t('smartlink-manager') }}</a></li>
                     </ul>
                 </div>
             </div>
@@ -39,7 +39,7 @@
     </div>
     
     <div id="analytics-content" data-smart-link-id="{{ smartLink.id }}">
-        {% include "smart-links/smartlinks/_partials/analytics-content" %}
+        {% include "smartlink-manager/smartlinks/_partials/analytics-content" %}
     </div>
 </div>
 
@@ -54,7 +54,7 @@ $(document).ready(function() {
         const currentRange = new URLSearchParams(window.location.search).get('range') || 'last7days';
         
         // Build export URL
-        const exportUrl = Craft.getActionUrl('smart-links/analytics/export', {
+        const exportUrl = Craft.getActionUrl('smartlink-manager/analytics/export', {
             smartLinkId: smartLinkId,
             dateRange: currentRange,
             format: format
@@ -78,12 +78,12 @@ $(document).ready(function() {
         
         // Update the button text
         const rangeLabels = {
-            'today': '{{ "Today"|t('smart-links')|e('js') }}',
-            'yesterday': '{{ "Yesterday"|t('smart-links')|e('js') }}',
-            'last7days': '{{ "Last 7 days"|t('smart-links')|e('js') }}',
-            'last30days': '{{ "Last 30 days"|t('smart-links')|e('js') }}',
-            'last90days': '{{ "Last 90 days"|t('smart-links')|e('js') }}',
-            'all': '{{ "All time"|t('smart-links')|e('js') }}'
+            'today': '{{ "Today"|t('smartlink-manager')|e('js') }}',
+            'yesterday': '{{ "Yesterday"|t('smartlink-manager')|e('js') }}',
+            'last7days': '{{ "Last 7 days"|t('smartlink-manager')|e('js') }}',
+            'last30days': '{{ "Last 30 days"|t('smartlink-manager')|e('js') }}',
+            'last90days': '{{ "Last 90 days"|t('smartlink-manager')|e('js') }}',
+            'all': '{{ "All time"|t('smartlink-manager')|e('js') }}'
         };
         
         // Update button text immediately
@@ -102,7 +102,7 @@ $(document).ready(function() {
         
         // Make AJAX request
         $.ajax({
-            url: Craft.getActionUrl('smart-links/analytics/get-analytics-data'),
+            url: Craft.getActionUrl('smartlink-manager/analytics/get-analytics-data'),
             type: 'GET',
             dataType: 'json',
             data: {
@@ -122,11 +122,11 @@ $(document).ready(function() {
                     // Force update the button text again in case it didn't stick
                     $('.analytics-header .menubtn span').text(rangeLabels[range] || range);
                 } else {
-                    Craft.cp.displayError(response.error || '{{ "Failed to load analytics data"|t('smart-links')|e('js') }}');
+                    Craft.cp.displayError(response.error || '{{ "Failed to load analytics data"|t('smartlink-manager')|e('js') }}');
                 }
             },
             error: function() {
-                Craft.cp.displayError('{{ "Failed to load analytics data"|t('smart-links')|e('js') }}');
+                Craft.cp.displayError('{{ "Failed to load analytics data"|t('smartlink-manager')|e('js') }}');
             },
             complete: function() {
                 $('#analytics-content').removeClass('loading').css('opacity', '1');

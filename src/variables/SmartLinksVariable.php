@@ -1,23 +1,23 @@
 <?php
 /**
- * Smart Links plugin for Craft CMS 5.x
+ * SmartLink Manager plugin for Craft CMS 5.x
  *
  * @link      https://lindemannrock.com
  * @copyright Copyright (c) 2025 LindemannRock
  */
 
-namespace lindemannrock\smartlinks\variables;
+namespace lindemannrock\smartlinkmanager\variables;
 
 use Craft;
-use lindemannrock\smartlinks\elements\db\SmartLinkQuery;
-use lindemannrock\smartlinks\elements\SmartLink;
-use lindemannrock\smartlinks\SmartLinks;
+use lindemannrock\smartlinkmanager\elements\db\SmartLinkQuery;
+use lindemannrock\smartlinkmanager\elements\SmartLink;
+use lindemannrock\smartlinkmanager\SmartLinkManager;
 
 /**
- * Smart Links Variable
+ * SmartLink Manager Variable
  *
- * @author    Al Hatab Foods
- * @package   SmartLinks
+ * @author    LindemannRock
+ * @package   SmartLinkManager
  * @since     1.0.0
  */
 class SmartLinksVariable
@@ -132,26 +132,26 @@ class SmartLinksVariable
      */
     public function getAnalytics(SmartLink $smartLink, array $criteria = []): array
     {
-        return SmartLinks::$plugin->analytics->getAnalytics($smartLink, $criteria);
+        return SmartLinkManager::$plugin->analytics->getAnalytics($smartLink, $criteria);
     }
 
     /**
      * Get the module instance
      *
-     * @return SmartLinks
+     * @return SmartLinkManager
      */
-    public function getModule(): SmartLinks
+    public function getModule(): SmartLinkManager
     {
-        return SmartLinks::$plugin;
+        return SmartLinkManager::$plugin;
     }
 
     /**
      * Get module settings
      *
-     * @return \lindemannrock\smartlinks\models\Settings
+     * @return \lindemannrock\smartlinkmanager\models\Settings
      */
-    public function getSettings(): \lindemannrock\smartlinks\models\Settings
+    public function getSettings(): \lindemannrock\smartlinkmanager\models\Settings
     {
-        return SmartLinks::$plugin->getSettings();
+        return SmartLinkManager::$plugin->getSettings();
     }
 }

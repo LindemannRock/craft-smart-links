@@ -1,15 +1,15 @@
 <?php
 /**
- * Smart Links plugin for Craft CMS 5.x
+ * SmartLink Manager plugin for Craft CMS 5.x
  *
  * @link      https://lindemannrock.com
  * @copyright Copyright (c) 2025 LindemannRock
  */
 
-namespace lindemannrock\smartlinks\events;
+namespace lindemannrock\smartlinkmanager\events;
 
-use lindemannrock\smartlinks\elements\SmartLink;
-use lindemannrock\smartlinks\models\DeviceInfo;
+use lindemannrock\smartlinkmanager\elements\SmartLink;
+use lindemannrock\smartlinkmanager\models\DeviceInfo;
 use yii\base\Event;
 
 /**

@@ -1,17 +1,17 @@
 <?php
 /**
- * Smart Links plugin for Craft CMS 5.x
+ * SmartLink Manager plugin for Craft CMS 5.x
  *
  * @link      https://lindemannrock.com
  * @copyright Copyright (c) 2025 LindemannRock
  */
 
-namespace lindemannrock\smartlinks\controllers;
+namespace lindemannrock\smartlinkmanager\controllers;
 
 use Craft;
 use craft\web\Controller;
 use lindemannrock\logginglibrary\traits\LoggingTrait;
-use lindemannrock\smartlinks\SmartLinks;
+use lindemannrock\smartlinkmanager\SmartLinkManager;
 use yii\web\Response;
 
 /**
@@ -33,7 +33,7 @@ class AnalyticsController extends Controller
     public function init(): void
     {
         parent::init();
-        $this->setLoggingHandle('smart-links');
+        $this->setLoggingHandle('smartlink-manager');
     }
 
     /**
@@ -43,15 +43,15 @@ class AnalyticsController extends Controller
      */
     public function actionIndex(): Response
     {
-        $this->requirePermission('smartLinks:viewAnalytics');
+        $this->requirePermission('smartLinkManager:viewAnalytics');
 
         // Check if analytics are globally enabled
-        if (!SmartLinks::$plugin->getSettings()->enableAnalytics) {
+        if (!SmartLinkManager::$plugin->getSettings()->enableAnalytics) {
             throw new \yii\web\ForbiddenHttpException('Analytics are disabled in plugin settings.');
         }
 
         $variables = [
-            'title' => Craft::t('smart-links', 'Analytics'),
+            'title' => Craft::t('smartlink-manager', 'Analytics'),
         ];
 
         // Get date range and site
@@ -64,18 +64,18 @@ class AnalyticsController extends Controller
         $variables['siteId'] = $siteId;
 
         // Get enabled sites for site selector (respects enabledSites setting)
-        $settings = SmartLinks::$plugin->getSettings();
+        $settings = SmartLinkManager::$plugin->getSettings();
         $enabledSiteIds = $settings->getEnabledSiteIds();
         $allSites = Craft::$app->getSites()->getAllSites();
         $variables['sites'] = array_filter($allSites, fn($site) => in_array($site->id, $enabledSiteIds));
 
         // Get analytics data
-        $variables['analyticsData'] = SmartLinks::$plugin->analytics->getAnalyticsSummary($dateRange, null, $siteId);
+        $variables['analyticsData'] = SmartLinkManager::$plugin->analytics->getAnalyticsSummary($dateRange, null, $siteId);
 
         // Pass settings to template
         $variables['settings'] = $settings;
 
-        return $this->renderTemplate('smart-links/analytics/index', $variables);
+        return $this->renderTemplate('smartlink-manager/analytics/index', $variables);
     }
 
     /**
@@ -90,7 +90,7 @@ class AnalyticsController extends Controller
         $this->requireLogin();
 
         // Check if analytics are globally enabled
-        if (!SmartLinks::$plugin->getSettings()->enableAnalytics) {
+        if (!SmartLinkManager::$plugin->getSettings()->enableAnalytics) {
             return $this->asJson([
                 'success' => false,
                 'error' => 'Analytics are disabled in plugin settings.',
@@ -109,7 +109,7 @@ class AnalyticsController extends Controller
 
         // If requesting data for a specific SmartLink, check if it has analytics enabled
         if ($smartLinkId) {
-            $smartLink = \lindemannrock\smartlinks\elements\SmartLink::find()
+            $smartLink = \lindemannrock\smartlinkmanager\elements\SmartLink::find()
                 ->id($smartLinkId)
                 ->status(null)
                 ->one();
@@ -131,20 +131,20 @@ class AnalyticsController extends Controller
 
         try {
             $data = match ($type) {
-                'clicks' => SmartLinks::$plugin->analytics->getClicksData($smartLinkId, $dateRange, $siteId),
-                'devices' => SmartLinks::$plugin->analytics->getDeviceBreakdown($smartLinkId, $dateRange, $siteId),
-                'device-types' => SmartLinks::$plugin->analytics->getDeviceTypeBreakdown($smartLinkId, $dateRange, $siteId),
-                'device-brands' => SmartLinks::$plugin->analytics->getDeviceBrandBreakdown($smartLinkId, $dateRange, $siteId),
-                'platforms' => SmartLinks::$plugin->analytics->getPlatformBreakdown($smartLinkId, $dateRange, $siteId),
-                'os-breakdown' => SmartLinks::$plugin->analytics->getOsBreakdown($smartLinkId, $dateRange, $siteId),
-                'browsers' => SmartLinks::$plugin->analytics->getBrowserBreakdown($smartLinkId, $dateRange, $siteId),
-                'countries' => SmartLinks::$plugin->analytics->getTopCountries($smartLinkId, $dateRange, 15, $siteId),
-                'all-countries' => SmartLinks::$plugin->analytics->getAllCountries($smartLinkId, $dateRange, $siteId),
-                'all-cities' => SmartLinks::$plugin->analytics->getTopCities($smartLinkId, $dateRange, 50, $siteId),
-                'languages' => SmartLinks::$plugin->analytics->getLanguageBreakdown($smartLinkId, $dateRange, $siteId),
-                'hourly' => SmartLinks::$plugin->analytics->getHourlyAnalytics($smartLinkId, $dateRange, $siteId),
-                'insights' => SmartLinks::$plugin->analytics->getInsights($dateRange, $siteId),
-                default => SmartLinks::$plugin->analytics->getAnalyticsSummary($dateRange, $smartLinkId, $siteId),
+                'clicks' => SmartLinkManager::$plugin->analytics->getClicksData($smartLinkId, $dateRange, $siteId),
+                'devices' => SmartLinkManager::$plugin->analytics->getDeviceBreakdown($smartLinkId, $dateRange, $siteId),
+                'device-types' => SmartLinkManager::$plugin->analytics->getDeviceTypeBreakdown($smartLinkId, $dateRange, $siteId),
+                'device-brands' => SmartLinkManager::$plugin->analytics->getDeviceBrandBreakdown($smartLinkId, $dateRange, $siteId),
+                'platforms' => SmartLinkManager::$plugin->analytics->getPlatformBreakdown($smartLinkId, $dateRange, $siteId),
+                'os-breakdown' => SmartLinkManager::$plugin->analytics->getOsBreakdown($smartLinkId, $dateRange, $siteId),
+                'browsers' => SmartLinkManager::$plugin->analytics->getBrowserBreakdown($smartLinkId, $dateRange, $siteId),
+                'countries' => SmartLinkManager::$plugin->analytics->getTopCountries($smartLinkId, $dateRange, 15, $siteId),
+                'all-countries' => SmartLinkManager::$plugin->analytics->getAllCountries($smartLinkId, $dateRange, $siteId),
+                'all-cities' => SmartLinkManager::$plugin->analytics->getTopCities($smartLinkId, $dateRange, 50, $siteId),
+                'languages' => SmartLinkManager::$plugin->analytics->getLanguageBreakdown($smartLinkId, $dateRange, $siteId),
+                'hourly' => SmartLinkManager::$plugin->analytics->getHourlyAnalytics($smartLinkId, $dateRange, $siteId),
+                'insights' => SmartLinkManager::$plugin->analytics->getInsights($dateRange, $siteId),
+                default => SmartLinkManager::$plugin->analytics->getAnalyticsSummary($dateRange, $smartLinkId, $siteId),
             };
 
             return $this->asJson([
@@ -171,7 +171,7 @@ class AnalyticsController extends Controller
         $this->requireAcceptsJson();
 
         // Check if analytics are globally enabled
-        if (!SmartLinks::$plugin->getSettings()->enableAnalytics) {
+        if (!SmartLinkManager::$plugin->getSettings()->enableAnalytics) {
             return $this->asJson([
                 'success' => false,
                 'error' => 'Analytics are disabled in plugin settings.',
@@ -190,7 +190,7 @@ class AnalyticsController extends Controller
 
         try {
             // Get the smart link (including disabled ones)
-            $smartLink = \lindemannrock\smartlinks\elements\SmartLink::find()
+            $smartLink = \lindemannrock\smartlinkmanager\elements\SmartLink::find()
                 ->id($smartLinkId)
                 ->status(null)
                 ->one();
@@ -211,18 +211,18 @@ class AnalyticsController extends Controller
             }
 
             // Get analytics service
-            $analyticsService = SmartLinks::$plugin->analytics;
+            $analyticsService = SmartLinkManager::$plugin->analytics;
 
             // Set the range parameter in the request so the template can access it
             $_GET['range'] = $range;
             Craft::$app->getRequest()->setQueryParams(array_merge(Craft::$app->getRequest()->getQueryParams(), ['range' => $range]));
             
             // Render only the content part for AJAX
-            $html = Craft::$app->getView()->renderTemplate('smart-links/smartlinks/_partials/analytics-content', [
+            $html = Craft::$app->getView()->renderTemplate('smartlink-manager/smartlinks/_partials/analytics-content', [
                 'smartLink' => $smartLink,
                 'analyticsService' => $analyticsService,
                 'dateRange' => $range,  // Pass the range directly
-                'settings' => SmartLinks::$plugin->getSettings(),
+                'settings' => SmartLinkManager::$plugin->getSettings(),
             ]);
 
             return $this->asJson([
@@ -245,12 +245,12 @@ class AnalyticsController extends Controller
      */
     public function actionExport(): Response
     {
-        $this->requirePermission('smartLinks:viewAnalytics');
+        $this->requirePermission('smartLinkManager:viewAnalytics');
 
         // Check if analytics are globally enabled
-        if (!SmartLinks::$plugin->getSettings()->enableAnalytics) {
+        if (!SmartLinkManager::$plugin->getSettings()->enableAnalytics) {
             Craft::$app->getSession()->setError('Analytics are disabled in plugin settings.');
-            return $this->redirect('smart-links');
+            return $this->redirect('smartlink-manager');
         }
 
         $request = Craft::$app->getRequest();
@@ -262,31 +262,31 @@ class AnalyticsController extends Controller
 
         // If exporting for a specific SmartLink, check if it has analytics enabled
         if ($smartLinkId) {
-            $smartLink = \lindemannrock\smartlinks\elements\SmartLink::find()
+            $smartLink = \lindemannrock\smartlinkmanager\elements\SmartLink::find()
                 ->id($smartLinkId)
                 ->status(null)
                 ->one();
 
             if (!$smartLink) {
                 Craft::$app->getSession()->setError('Smart link not found.');
-                return $this->redirect('smart-links');
+                return $this->redirect('smartlink-manager');
             }
 
             if (!($smartLink->trackAnalytics ?? true)) {
                 Craft::$app->getSession()->setError('Analytics tracking is disabled for this smart link.');
-                return $this->redirect('smart-links/smartlinks/' . $smartLinkId);
+                return $this->redirect('smartlink-manager/smartlinks/' . $smartLinkId);
             }
         }
 
         try {
-            $data = SmartLinks::$plugin->analytics->exportAnalytics($smartLinkId, $dateRange, $format, $siteId);
+            $data = SmartLinkManager::$plugin->analytics->exportAnalytics($smartLinkId, $dateRange, $format, $siteId);
 
             // Generate filename
-            $settings = SmartLinks::$plugin->getSettings();
+            $settings = SmartLinkManager::$plugin->getSettings();
             $filenamePart = strtolower(str_replace(' ', '-', $settings->getPluralLowerDisplayName()));
             $baseFilename = $filenamePart . '-analytics';
             if ($smartLinkId) {
-                $smartLink = \lindemannrock\smartlinks\elements\SmartLink::find()
+                $smartLink = \lindemannrock\smartlinkmanager\elements\SmartLink::find()
                     ->id($smartLinkId)
                     ->one();
                 if ($smartLink) {
@@ -320,9 +320,9 @@ class AnalyticsController extends Controller
 
             // Preserve the date range when redirecting back
             if ($smartLinkId) {
-                return $this->redirect('smart-links/smartlinks/' . $smartLinkId . '?range=' . $dateRange);
+                return $this->redirect('smartlink-manager/smartlinks/' . $smartLinkId . '?range=' . $dateRange);
             }
-            return $this->redirect('smart-links/analytics?dateRange=' . $dateRange);
+            return $this->redirect('smartlink-manager/analytics?dateRange=' . $dateRange);
         }
     }
 }

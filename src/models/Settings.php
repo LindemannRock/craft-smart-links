@@ -1,12 +1,12 @@
 <?php
 /**
- * Smart Links plugin for Craft CMS 5.x
+ * SmartLink Manager plugin for Craft CMS 5.x
  *
  * @link      https://lindemannrock.com
  * @copyright Copyright (c) 2025 LindemannRock
  */
 
-namespace lindemannrock\smartlinks\models;
+namespace lindemannrock\smartlinkmanager\models;
 
 use Craft;
 use craft\base\Model;
@@ -18,7 +18,7 @@ use lindemannrock\base\traits\SettingsPersistenceTrait;
 use lindemannrock\logginglibrary\traits\LoggingTrait;
 
 /**
- * Smart Links Settings Model
+ * SmartLink Manager Settings Model
  *
  * @since 1.0.0
  */
@@ -37,7 +37,7 @@ class Settings extends Model
     /**
      * @var string Plugin display name
      */
-    public string $pluginName = 'Smart Links';
+    public string $pluginName = 'SmartLink Manager';
     
     /**
      * @var bool Enable analytics tracking
@@ -221,7 +221,7 @@ class Settings extends Model
     public string $notFoundRedirectUrl = '/';
 
     /**
-     * @var array Site IDs where Smart Links should be enabled
+     * @var array Site IDs where SmartLink Manager should be enabled
      */
     public array $enabledSites = [];
 
@@ -258,23 +258,23 @@ class Settings extends Model
     /**
      * Database table name for settings persistence
      */
-    public static function tableName(): string
+    protected static function tableName(): string
     {
-        return '{{%smartlinks_settings}}';
+        return 'smartlinkmanager_settings';
     }
 
     /**
      * Plugin handle for config file lookup
      */
-    public static function pluginHandle(): string
+    protected static function pluginHandle(): string
     {
-        return 'smart-links';
+        return 'smartlink-manager';
     }
 
     /**
      * Boolean fields for type casting from database
      */
-    public static function booleanFields(): array
+    protected static function booleanFields(): array
     {
         return [
             'enableAnalytics',
@@ -292,7 +292,7 @@ class Settings extends Model
     /**
      * Integer fields for type casting from database
      */
-    public static function integerFields(): array
+    protected static function integerFields(): array
     {
         return [
             'analyticsRetention',
@@ -309,7 +309,7 @@ class Settings extends Model
     /**
      * Array fields for JSON serialization/deserialization
      */
-    public static function arrayFields(): array
+    protected static function jsonFields(): array
     {
         return [
             'enabledSites',
@@ -322,7 +322,7 @@ class Settings extends Model
     /**
      * Fields to exclude from database save (env/config only)
      */
-    public static function excludeFromSave(): array
+    protected static function excludeFromSave(): array
     {
         return ['ipHashSalt', 'defaultCountry', 'defaultCity'];
     }
@@ -333,19 +333,19 @@ class Settings extends Model
     public function init(): void
     {
         parent::init();
-        $this->setLoggingHandle('smart-links');
+        $this->setLoggingHandle('smartlink-manager');
 
         // Fallback to .env if ipHashSalt not set by config file
         if ($this->ipHashSalt === null) {
-            $this->ipHashSalt = App::env('SMART_LINKS_IP_SALT');
+            $this->ipHashSalt = App::env('SMARTLINK_MANAGER_IP_SALT');
         }
 
         // Load default location from .env if not set by config file
         if ($this->defaultCountry === null) {
-            $this->defaultCountry = App::env('SMART_LINKS_DEFAULT_COUNTRY');
+            $this->defaultCountry = App::env('SMARTLINK_MANAGER_DEFAULT_COUNTRY');
         }
         if ($this->defaultCity === null) {
-            $this->defaultCity = App::env('SMART_LINKS_DEFAULT_CITY');
+            $this->defaultCity = App::env('SMARTLINK_MANAGER_DEFAULT_CITY');
         }
     }
 
@@ -377,8 +377,8 @@ class Settings extends Model
             [['pluginName', 'slugPrefix', 'qrPrefix'], 'required'],
             [['pluginName'], 'string', 'max' => 255],
             [['slugPrefix', 'qrPrefix'], 'string', 'max' => 50],
-            [['slugPrefix'], 'match', 'pattern' => '/^[a-zA-Z0-9\-\_]+$/', 'message' => Craft::t('smart-links', 'Only letters, numbers, hyphens, and underscores are allowed.')],
-            [['qrPrefix'], 'match', 'pattern' => '/^[a-zA-Z0-9\-\_\/]+$/', 'message' => Craft::t('smart-links', 'Only letters, numbers, hyphens, underscores, and slashes are allowed.')],
+            [['slugPrefix'], 'match', 'pattern' => '/^[a-zA-Z0-9\-\_]+$/', 'message' => Craft::t('smartlink-manager', 'Only letters, numbers, hyphens, and underscores are allowed.')],
+            [['qrPrefix'], 'match', 'pattern' => '/^[a-zA-Z0-9\-\_\/]+$/', 'message' => Craft::t('smartlink-manager', 'Only letters, numbers, hyphens, underscores, and slashes are allowed.')],
             [['slugPrefix'], 'validateSlugPrefix'],
             [['qrPrefix'], 'validateQrPrefix'],
             [['enableAnalytics', 'enableGeoDetection', 'cacheDeviceDetection', 'includeDisabledInExport', 'includeExpiredInExport', 'anonymizeIpAddress'], 'boolean'],
@@ -403,7 +403,7 @@ class Settings extends Model
             // Require default logo when logo overlay is enabled
             [['defaultQrLogoId'], 'required', 'when' => function($model) {
                 return $model->enableQrLogo;
-            }, 'message' => Craft::t('smart-links', 'Default logo is required when logo overlay is enabled.')],
+            }, 'message' => Craft::t('smartlink-manager', 'Default logo is required when logo overlay is enabled.')],
             [['redirectTemplate', 'qrTemplate', 'notFoundRedirectUrl'], 'string'],
             [['languageDetectionMethod'], 'in', 'range' => ['browser', 'ip', 'both']],
             [['enabledSites'], 'each', 'rule' => ['integer']],
@@ -411,7 +411,7 @@ class Settings extends Model
             [['logLevel'], 'validateLogLevel'],
             [['enabledIntegrations', 'seomaticTrackingEvents'], 'each', 'rule' => ['string']],
             [['seomaticEventPrefix'], 'string', 'max' => 50],
-            [['seomaticEventPrefix'], 'match', 'pattern' => '/^[a-z0-9\_]+$/', 'message' => Craft::t('smart-links', 'Only lowercase letters, numbers, and underscores are allowed.')],
+            [['seomaticEventPrefix'], 'match', 'pattern' => '/^[a-z0-9\_]+$/', 'message' => Craft::t('smartlink-manager', 'Only lowercase letters, numbers, and underscores are allowed.')],
         ];
     }
 
@@ -438,6 +438,20 @@ class Settings extends Model
     }
 
     /**
+     * Set default QR logo ID from asset field (handles array input)
+     *
+     * @param int|array|null $value
+     */
+    public function setDefaultQrLogoId(int|array|null $value): void
+    {
+        if (is_array($value)) {
+            $this->defaultQrLogoId = !empty($value) ? (int) reset($value) : null;
+        } else {
+            $this->defaultQrLogoId = $value !== null ? (int) $value : null;
+        }
+    }
+
+    /**
      * Validate log level - debug requires devMode
      */
     public function validateLogLevel($attribute, $params, $validator)
@@ -457,13 +471,13 @@ class Settings extends Model
                 if (!Craft::$app->getRequest()->getIsConsoleRequest()) {
                     if (Craft::$app->getSession()->get('sl_debug_config_warning') === null) {
                         $this->logWarning('Log level "debug" from config file changed to "info" because devMode is disabled', [
-                            'configFile' => 'config/smart-links.php',
+                            'configFile' => 'config/smartlink-manager.php',
                         ]);
                         Craft::$app->getSession()->set('sl_debug_config_warning', true);
                     }
                 } else {
                     $this->logWarning('Log level "debug" from config file changed to "info" because devMode is disabled', [
-                        'configFile' => 'config/smart-links.php',
+                        'configFile' => 'config/smartlink-manager.php',
                     ]);
                 }
             } else {
@@ -515,7 +529,7 @@ class Settings extends Model
 
         if (!empty($conflicts)) {
             $suggestions = ['go', 'link', 'links', 'l'];
-            $this->addError($attribute, Craft::t('smart-links', 'Slug prefix "{prefix}" conflicts with: {conflicts}. Suggestions: {suggestions}', [
+            $this->addError($attribute, Craft::t('smartlink-manager', 'Slug prefix "{prefix}" conflicts with: {conflicts}. Suggestions: {suggestions}', [
                 'prefix' => $slugPrefix,
                 'conflicts' => implode(', ', $conflicts),
                 'suggestions' => implode(', ', $suggestions),
@@ -542,7 +556,7 @@ class Settings extends Model
 
         // Check against own slugPrefix
         if (!$isNested && $qrPrefix === $this->slugPrefix) {
-            $this->addError($attribute, Craft::t('smart-links', 'QR prefix cannot be the same as your slug prefix. Try: qr, code, qrc, or {slug}/qr', [
+            $this->addError($attribute, Craft::t('smartlink-manager', 'QR prefix cannot be the same as your slug prefix. Try: qr, code, qrc, or {slug}/qr', [
                 'slug' => $this->slugPrefix,
             ]));
             return;
@@ -552,7 +566,7 @@ class Settings extends Model
         if ($isNested) {
             $baseSegment = $segments[0];
             if ($baseSegment !== $this->slugPrefix) {
-                $this->addError($attribute, Craft::t('smart-links', 'Nested QR prefix must start with your slug prefix "{slug}". Use: {slug}/{qr} or use standalone like "qr"', [
+                $this->addError($attribute, Craft::t('smartlink-manager', 'Nested QR prefix must start with your slug prefix "{slug}". Use: {slug}/{qr} or use standalone like "qr"', [
                     'slug' => $this->slugPrefix,
                     'qr' => $segments[1] ?? 'qr',
                 ]));
@@ -592,7 +606,7 @@ class Settings extends Model
 
         if (!empty($conflicts)) {
             $suggestions = ['qr', 'qrc', 'code', $this->slugPrefix . '/qr'];
-            $this->addError($attribute, Craft::t('smart-links', 'QR prefix "{prefix}" conflicts with: {conflicts}. Suggestions: {suggestions}', [
+            $this->addError($attribute, Craft::t('smartlink-manager', 'QR prefix "{prefix}" conflicts with: {conflicts}. Suggestions: {suggestions}', [
                 'prefix' => $qrPrefix,
                 'conflicts' => implode(', ', $conflicts),
                 'suggestions' => implode(', ', $suggestions),
@@ -601,7 +615,7 @@ class Settings extends Model
     }
 
     /**
-     * Check if a site is enabled for Smart Links
+     * Check if a site is enabled for SmartLink Manager
      *
      * @param int $siteId
      * @return bool
@@ -641,44 +655,44 @@ class Settings extends Model
     public function attributeLabels(): array
     {
         return [
-            'pluginName' => Craft::t('smart-links', 'Plugin Name'),
-            'slugPrefix' => Craft::t('smart-links', 'Smart Link URL Prefix'),
-            'qrPrefix' => Craft::t('smart-links', 'QR Code URL Prefix'),
-            'enableAnalytics' => Craft::t('smart-links', 'Enable Analytics'),
-            'analyticsRetention' => Craft::t('smart-links', 'Analytics Retention (days)'),
-            'includeDisabledInExport' => Craft::t('smart-links', 'Include Disabled Links in Export'),
-            'includeExpiredInExport' => Craft::t('smart-links', 'Include Expired Links in Export'),
-            'defaultQrSize' => Craft::t('smart-links', 'Default QR Code Size'),
-            'defaultQrColor' => Craft::t('smart-links', 'Default QR Code Color'),
-            'defaultQrBgColor' => Craft::t('smart-links', 'Default QR Background Color'),
-            'defaultQrFormat' => Craft::t('smart-links', 'Default QR Code Format'),
-            'qrCodeCacheDuration' => Craft::t('smart-links', 'QR Code Cache Duration (seconds)'),
-            'cacheStorageMethod' => Craft::t('smart-links', 'Cache Storage Method'),
-            'defaultQrErrorCorrection' => Craft::t('smart-links', 'Error Correction Level'),
-            'defaultQrMargin' => Craft::t('smart-links', 'QR Code Margin'),
-            'qrModuleStyle' => Craft::t('smart-links', 'Module Style'),
-            'qrEyeStyle' => Craft::t('smart-links', 'Eye Style'),
-            'qrEyeColor' => Craft::t('smart-links', 'Eye Color'),
-            'enableQrLogo' => Craft::t('smart-links', 'Enable QR Code Logo'),
-            'qrLogoVolumeUid' => Craft::t('smart-links', 'Logo Volume'),
-            'imageVolumeUid' => Craft::t('smart-links', 'Image Volume'),
-            'defaultQrLogoId' => Craft::t('smart-links', 'Default Logo'),
-            'qrLogoSize' => Craft::t('smart-links', 'Logo Size (%)'),
-            'enableQrDownload' => Craft::t('smart-links', 'Enable QR Code Downloads'),
-            'qrDownloadFilename' => Craft::t('smart-links', 'Download Filename Pattern'),
-            'redirectTemplate' => Craft::t('smart-links', 'Custom Redirect Template'),
-            'qrTemplate' => Craft::t('smart-links', 'Custom QR Code Template'),
-            'enableGeoDetection' => Craft::t('smart-links', 'Enable Geographic Detection'),
-            'cacheDeviceDetection' => Craft::t('smart-links', 'Cache Device Detection'),
-            'deviceDetectionCacheDuration' => Craft::t('smart-links', 'Device Detection Cache Duration (seconds)'),
-            'languageDetectionMethod' => Craft::t('smart-links', 'Language Detection Method'),
-            'itemsPerPage' => Craft::t('smart-links', 'Items Per Page'),
-            'notFoundRedirectUrl' => Craft::t('smart-links', '404 Redirect URL'),
-            'enabledSites' => Craft::t('smart-links', 'Enabled Sites'),
-            'logLevel' => Craft::t('smart-links', 'Log Level'),
-            'enabledIntegrations' => Craft::t('smart-links', 'Enabled Integrations'),
-            'seomaticTrackingEvents' => Craft::t('smart-links', 'Tracking Events'),
-            'seomaticEventPrefix' => Craft::t('smart-links', 'Event Prefix'),
+            'pluginName' => Craft::t('smartlink-manager', 'Plugin Name'),
+            'slugPrefix' => Craft::t('smartlink-manager', 'Smart Link URL Prefix'),
+            'qrPrefix' => Craft::t('smartlink-manager', 'QR Code URL Prefix'),
+            'enableAnalytics' => Craft::t('smartlink-manager', 'Enable Analytics'),
+            'analyticsRetention' => Craft::t('smartlink-manager', 'Analytics Retention (days)'),
+            'includeDisabledInExport' => Craft::t('smartlink-manager', 'Include Disabled Links in Export'),
+            'includeExpiredInExport' => Craft::t('smartlink-manager', 'Include Expired Links in Export'),
+            'defaultQrSize' => Craft::t('smartlink-manager', 'Default QR Code Size'),
+            'defaultQrColor' => Craft::t('smartlink-manager', 'Default QR Code Color'),
+            'defaultQrBgColor' => Craft::t('smartlink-manager', 'Default QR Background Color'),
+            'defaultQrFormat' => Craft::t('smartlink-manager', 'Default QR Code Format'),
+            'qrCodeCacheDuration' => Craft::t('smartlink-manager', 'QR Code Cache Duration (seconds)'),
+            'cacheStorageMethod' => Craft::t('smartlink-manager', 'Cache Storage Method'),
+            'defaultQrErrorCorrection' => Craft::t('smartlink-manager', 'Error Correction Level'),
+            'defaultQrMargin' => Craft::t('smartlink-manager', 'QR Code Margin'),
+            'qrModuleStyle' => Craft::t('smartlink-manager', 'Module Style'),
+            'qrEyeStyle' => Craft::t('smartlink-manager', 'Eye Style'),
+            'qrEyeColor' => Craft::t('smartlink-manager', 'Eye Color'),
+            'enableQrLogo' => Craft::t('smartlink-manager', 'Enable QR Code Logo'),
+            'qrLogoVolumeUid' => Craft::t('smartlink-manager', 'Logo Volume'),
+            'imageVolumeUid' => Craft::t('smartlink-manager', 'Image Volume'),
+            'defaultQrLogoId' => Craft::t('smartlink-manager', 'Default Logo'),
+            'qrLogoSize' => Craft::t('smartlink-manager', 'Logo Size (%)'),
+            'enableQrDownload' => Craft::t('smartlink-manager', 'Enable QR Code Downloads'),
+            'qrDownloadFilename' => Craft::t('smartlink-manager', 'Download Filename Pattern'),
+            'redirectTemplate' => Craft::t('smartlink-manager', 'Custom Redirect Template'),
+            'qrTemplate' => Craft::t('smartlink-manager', 'Custom QR Code Template'),
+            'enableGeoDetection' => Craft::t('smartlink-manager', 'Enable Geographic Detection'),
+            'cacheDeviceDetection' => Craft::t('smartlink-manager', 'Cache Device Detection'),
+            'deviceDetectionCacheDuration' => Craft::t('smartlink-manager', 'Device Detection Cache Duration (seconds)'),
+            'languageDetectionMethod' => Craft::t('smartlink-manager', 'Language Detection Method'),
+            'itemsPerPage' => Craft::t('smartlink-manager', 'Items Per Page'),
+            'notFoundRedirectUrl' => Craft::t('smartlink-manager', '404 Redirect URL'),
+            'enabledSites' => Craft::t('smartlink-manager', 'Enabled Sites'),
+            'logLevel' => Craft::t('smartlink-manager', 'Log Level'),
+            'enabledIntegrations' => Craft::t('smartlink-manager', 'Enabled Integrations'),
+            'seomaticTrackingEvents' => Craft::t('smartlink-manager', 'Tracking Events'),
+            'seomaticEventPrefix' => Craft::t('smartlink-manager', 'Event Prefix'),
         ];
     }
 }

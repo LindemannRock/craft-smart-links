@@ -1,20 +1,20 @@
-{% extends "smart-links/_layouts/settings" %}
-{% set title = "Export Settings"|t('smart-links') %}
+{% extends "smartlink-manager/_layouts/settings" %}
+{% set title = "Export Settings"|t('smartlink-manager') %}
 {% set fullPageForm = true %}
 {% set selectedSettingsItem = 'export' %}
 
 {% set crumbs = [
     {
-        label: smartlinkHelper.fullName|t('smart-links'),
-        url: url('smart-links'),
+        label: smartlinkHelper.fullName|t('smartlink-manager'),
+        url: url('smartlink-manager'),
     },
     {
-        label: 'Settings'|t('smart-links'),
-        url: url('smart-links/settings'),
+        label: 'Settings'|t('smartlink-manager'),
+        url: url('smartlink-manager/settings'),
     },
     {
-        label: 'Export'|t('smart-links'),
-        url: url('smart-links/settings/export'),
+        label: 'Export'|t('smartlink-manager'),
+        url: url('smartlink-manager/settings/export'),
     },
 ] %}
 
@@ -23,42 +23,42 @@
 {% block content %}
 
     {% include 'lindemannrock-base/_components/ip-salt-error' with {
-        pluginHandle: 'smart-links',
-        envVarName: 'SMART_LINKS_IP_SALT'
+        pluginHandle: 'smartlink-manager',
+        envVarName: 'SMARTLINK_MANAGER_IP_SALT'
     } %}
 
     <form method="post" accept-charset="UTF-8">
-        {{ actionInput('smart-links/settings/save') }}
+        {{ actionInput('smartlink-manager/settings/save') }}
         {{ csrfInput() }}
-        {{ redirectInput('smart-links/settings/export') }}
+        {{ redirectInput('smartlink-manager/settings/export') }}
         {{ hiddenInput('section', 'export') }}
 
-        <h2 style="margin-top: 0px;">{{ "Analytics Export Options"|t('smart-links') }}</h2>
+        <h2 style="margin-top: 0px;">{{ "Analytics Export Options"|t('smartlink-manager') }}</h2>
 
         {{ forms.lightswitchField({
-            label: "Include Disabled {pluginName} in Export"|t('smart-links', {pluginName: smartlinkHelper.pluralDisplayName}),
-            instructions: "When enabled, analytics exports will include data from disabled {pluginName}"|t('smart-links', {pluginName: smartlinkHelper.pluralLowerDisplayName}),
+            label: "Include Disabled {pluginName} in Export"|t('smartlink-manager', {pluginName: smartlinkHelper.pluralDisplayName}),
+            instructions: "When enabled, analytics exports will include data from disabled {pluginName}"|t('smartlink-manager', {pluginName: smartlinkHelper.pluralLowerDisplayName}),
             id: 'includeDisabledInExport',
             name: 'settings[includeDisabledInExport]',
             on: settings.includeDisabledInExport ?? false,
             disabled: settings.isOverriddenByConfig('includeDisabledInExport'),
             warning: settings.isOverriddenByConfig('includeDisabledInExport') ?
-                "This is being overridden by the <code>includeDisabledInExport</code> setting in <code>config/smart-links.php</code>."|t('smart-links')|raw : null,
+                "This is being overridden by the <code>includeDisabledInExport</code> setting in <code>config/smartlink-manager.php</code>."|t('smartlink-manager')|raw : null,
         }) }}
 
         {{ forms.lightswitchField({
-            label: "Include Expired {pluginName} in Export"|t('smart-links', {pluginName: smartlinkHelper.pluralDisplayName}),
-            instructions: "When enabled, analytics exports will include data from expired {pluginName}"|t('smart-links', {pluginName: smartlinkHelper.pluralLowerDisplayName}),
+            label: "Include Expired {pluginName} in Export"|t('smartlink-manager', {pluginName: smartlinkHelper.pluralDisplayName}),
+            instructions: "When enabled, analytics exports will include data from expired {pluginName}"|t('smartlink-manager', {pluginName: smartlinkHelper.pluralLowerDisplayName}),
             id: 'includeExpiredInExport',
             name: 'settings[includeExpiredInExport]',
             on: settings.includeExpiredInExport ?? false,
             disabled: settings.isOverriddenByConfig('includeExpiredInExport'),
             warning: settings.isOverriddenByConfig('includeExpiredInExport') ?
-                "This is being overridden by the <code>includeExpiredInExport</code> setting in <code>config/smart-links.php</code>."|t('smart-links')|raw : null,
+                "This is being overridden by the <code>includeExpiredInExport</code> setting in <code>config/smartlink-manager.php</code>."|t('smartlink-manager')|raw : null,
         }) }}
 
         <div class="buttons">
-            <button type="submit" class="btn submit">{{ "Save Settings"|t('smart-links') }}</button>
+            <button type="submit" class="btn submit">{{ "Save Settings"|t('smartlink-manager') }}</button>
         </div>
     </form>
 

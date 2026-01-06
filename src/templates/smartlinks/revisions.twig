@@ -1,4 +1,4 @@
-{% extends "smart-links/_layouts/cp" %}
+{% extends "smartlink-manager/_layouts/cp" %}
 
 {% set selectedSubnavItem = 'links' %}
 {% set title = smartLink.title ~ " - " ~ "Revisions"|t('app') %}
@@ -14,7 +14,7 @@
     {% for site in craft.app.sites.getEditableSites() %}
         {% set siteMenuItems = siteMenuItems|merge([{
             label: site.name,
-            url: url('smart-links/smartlinks/' ~ smartLink.id ~ '/revisions', {site: site.handle}),
+            url: url('smartlink-manager/smartlinks/' ~ smartLink.id ~ '/revisions', {site: site.handle}),
             selected: site.id == smartLink.siteId
         }]) %}
     {% endfor %}
@@ -34,11 +34,11 @@
 {% set crumbs = crumbs|merge([
     {
         label: smartlinkHelper.fullName,
-        url: url('smart-links')
+        url: url('smartlink-manager')
     },
     {
         label: smartLink.title,
-        url: url('smart-links/smartlinks/' ~ smartLink.id)
+        url: url('smartlink-manager/smartlinks/' ~ smartLink.id)
     },
     {
         label: "Revisions"|t('app')
@@ -64,7 +64,7 @@
                         {% set revisionLabel = revision.revisionLabel %}
                         <tr data-id="{{ revision.id }}" tabindex="0">
                             <th data-title="{{ "Revision"|t('app') }}">
-                                <a href="{{ url('smart-links/smartlinks/' ~ revision.id, {site: smartLink.site.handle}) }}">{{ revisionLabel }}</a>
+                                <a href="{{ url('smartlink-manager/smartlinks/' ~ revision.id, {site: smartLink.site.handle}) }}">{{ revisionLabel }}</a>
                             </th>
                             <td data-title="{{ "Created at"|t('app') }}">{{ revision.dateCreated|timestamp('short', withPreposition=false) }}</td>
                             <td data-title="{{ "Created by"|t('app') }}">

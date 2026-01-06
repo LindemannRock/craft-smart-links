@@ -1,28 +1,28 @@
 <?php
 /**
- * Smart Links plugin for Craft CMS 5.x
+ * SmartLink Manager plugin for Craft CMS 5.x
  *
  * @link      https://lindemannrock.com
  * @copyright Copyright (c) 2025 LindemannRock
  */
 
-namespace lindemannrock\smartlinks\services;
+namespace lindemannrock\smartlinkmanager\services;
 
 use Craft;
 use craft\base\Component;
 use craft\helpers\UrlHelper;
 use lindemannrock\logginglibrary\traits\LoggingTrait;
-use lindemannrock\smartlinks\elements\SmartLink;
-use lindemannrock\smartlinks\events\SmartLinkEvent;
-use lindemannrock\smartlinks\models\DeviceInfo;
-use lindemannrock\smartlinks\records\SmartLinkRecord;
-use lindemannrock\smartlinks\SmartLinks;
+use lindemannrock\smartlinkmanager\elements\SmartLink;
+use lindemannrock\smartlinkmanager\events\SmartLinkEvent;
+use lindemannrock\smartlinkmanager\models\DeviceInfo;
+use lindemannrock\smartlinkmanager\records\SmartLinkRecord;
+use lindemannrock\smartlinkmanager\SmartLinkManager;
 use yii\base\Event;
 
 /**
- * Smart Links Service
+ * SmartLink Manager Service
  *
- * @property-read SmartLinks $module
+ * @property-read SmartLinkManager $module
  * @since 1.0.0
  */
 class SmartLinksService extends Component
@@ -35,7 +35,7 @@ class SmartLinksService extends Component
     public function init(): void
     {
         parent::init();
-        $this->setLoggingHandle('smart-links');
+        $this->setLoggingHandle('smartlink-manager');
     }
 
     // Events
@@ -201,7 +201,7 @@ class SmartLinksService extends Component
         $url = $smartLink->getRedirectUrl();
         $fullUrl = UrlHelper::siteUrl($url);
         
-        return SmartLinks::$plugin->qrCode->generateQrCode($fullUrl, $options);
+        return SmartLinkManager::$plugin->qrCode->generateQrCode($fullUrl, $options);
     }
 
     /**
@@ -216,7 +216,7 @@ class SmartLinksService extends Component
         $url = $smartLink->getRedirectUrl();
         $fullUrl = UrlHelper::siteUrl($url);
         
-        return SmartLinks::$plugin->qrCode->generateQrCodeDataUrl($fullUrl, $options);
+        return SmartLinkManager::$plugin->qrCode->generateQrCodeDataUrl($fullUrl, $options);
     }
 
     /**
@@ -340,7 +340,7 @@ class SmartLinksService extends Component
      */
     private function handleSlugChange(string $oldSlug, SmartLink $link): void
     {
-        $settings = SmartLinks::$plugin->getSettings();
+        $settings = SmartLinkManager::$plugin->getSettings();
 
         // Check if Redirect Manager integration is enabled
         $enabledIntegrations = $settings->enabledIntegrations ?? [];
@@ -359,7 +359,7 @@ class SmartLinksService extends Component
         $newUrl = '/' . $slugPrefix . '/' . $link->slug;
 
         // Check if Redirect Manager integration is available and enabled
-        $redirectIntegration = SmartLinks::$plugin->integration->getIntegration('redirect-manager');
+        $redirectIntegration = SmartLinkManager::$plugin->integration->getIntegration('redirect-manager');
         if (!$redirectIntegration || !$redirectIntegration->isAvailable() || !$redirectIntegration->isEnabled()) {
             $this->logDebug('Redirect Manager integration not available or not enabled');
             return;
@@ -379,7 +379,7 @@ class SmartLinksService extends Component
                 $newUrl,
                 null, // null = all sites
                 'smart-link-slug-change',
-                'smart-links'
+                'smartlink-manager'
             );
 
             if ($undoHandled) {
@@ -402,7 +402,7 @@ class SmartLinksService extends Component
                 'enabled' => true,
                 'priority' => 0,
                 'creationType' => 'smart-link-slug-change',
-                'sourcePlugin' => 'smart-links',
+                'sourcePlugin' => 'smartlink-manager',
             ], true); // Show notification
 
             if ($success) {

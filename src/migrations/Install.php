@@ -1,22 +1,22 @@
 <?php
 /**
- * Smart Links plugin for Craft CMS 5.x
+ * SmartLink Manager plugin for Craft CMS 5.x
  *
  * @link      https://lindemannrock.com
  * @copyright Copyright (c) 2025 LindemannRock
  */
 
-namespace lindemannrock\smartlinks\migrations;
+namespace lindemannrock\smartlinkmanager\migrations;
 
 use craft\db\Migration;
 use craft\helpers\Db;
 use craft\helpers\StringHelper;
 
 /**
- * Smart Links Install Migration
+ * SmartLink Manager Install Migration
  *
  * @author    LindemannRock
- * @package   SmartLinks
+ * @package   SmartLinkManager
  * @since     1.0.0
  */
 class Install extends Migration
@@ -26,9 +26,9 @@ class Install extends Migration
      */
     public function safeUp(): bool
     {
-        // Create the smartlinks table
-        if (!$this->db->tableExists('{{%smartlinks}}')) {
-            $this->createTable('{{%smartlinks}}', [
+        // Create the smartlinkmanager table
+        if (!$this->db->tableExists('{{%smartlinkmanager}}')) {
+            $this->createTable('{{%smartlinkmanager}}', [
                 'id' => $this->integer()->notNull(),
                 'title' => $this->string()->notNull(),
                 'slug' => $this->string()->notNull(),
@@ -54,22 +54,22 @@ class Install extends Migration
             ]);
 
             // Create indexes
-            $this->createIndex(null, '{{%smartlinks}}', ['slug'], true);
-            $this->createIndex(null, '{{%smartlinks}}', ['dateCreated']);
-            $this->createIndex(null, '{{%smartlinks}}', ['authorId']);
-            $this->createIndex(null, '{{%smartlinks}}', ['postDate']);
-            $this->createIndex(null, '{{%smartlinks}}', ['dateExpired']);
-            $this->createIndex(null, '{{%smartlinks}}', ['qrLogoId']);
+            $this->createIndex(null, '{{%smartlinkmanager}}', ['slug'], true);
+            $this->createIndex(null, '{{%smartlinkmanager}}', ['dateCreated']);
+            $this->createIndex(null, '{{%smartlinkmanager}}', ['authorId']);
+            $this->createIndex(null, '{{%smartlinkmanager}}', ['postDate']);
+            $this->createIndex(null, '{{%smartlinkmanager}}', ['dateExpired']);
+            $this->createIndex(null, '{{%smartlinkmanager}}', ['qrLogoId']);
 
             // Add foreign keys
-            $this->addForeignKey(null, '{{%smartlinks}}', ['id'], '{{%elements}}', ['id'], 'CASCADE');
-            $this->addForeignKey(null, '{{%smartlinks}}', ['authorId'], '{{%users}}', ['id'], 'SET NULL');
-            $this->addForeignKey(null, '{{%smartlinks}}', ['qrLogoId'], '{{%assets}}', ['id'], 'SET NULL');
+            $this->addForeignKey(null, '{{%smartlinkmanager}}', ['id'], '{{%elements}}', ['id'], 'CASCADE');
+            $this->addForeignKey(null, '{{%smartlinkmanager}}', ['authorId'], '{{%users}}', ['id'], 'SET NULL');
+            $this->addForeignKey(null, '{{%smartlinkmanager}}', ['qrLogoId'], '{{%assets}}', ['id'], 'SET NULL');
         }
 
-        // Create the smartlinks_content table for multi-site support
-        if (!$this->db->tableExists('{{%smartlinks_content}}')) {
-            $this->createTable('{{%smartlinks_content}}', [
+        // Create the smartlinkmanager_content table for multi-site support
+        if (!$this->db->tableExists('{{%smartlinkmanager_content}}')) {
+            $this->createTable('{{%smartlinkmanager_content}}', [
                 'id' => $this->primaryKey(),
                 'smartLinkId' => $this->integer()->notNull(),
                 'siteId' => $this->integer()->notNull(),
@@ -90,19 +90,19 @@ class Install extends Migration
             ]);
 
             // Create indexes
-            $this->createIndex(null, '{{%smartlinks_content}}', ['smartLinkId', 'siteId'], true);
-            $this->createIndex(null, '{{%smartlinks_content}}', ['siteId']);
-            $this->createIndex(null, '{{%smartlinks_content}}', ['imageId']);
+            $this->createIndex(null, '{{%smartlinkmanager_content}}', ['smartLinkId', 'siteId'], true);
+            $this->createIndex(null, '{{%smartlinkmanager_content}}', ['siteId']);
+            $this->createIndex(null, '{{%smartlinkmanager_content}}', ['imageId']);
 
             // Add foreign keys
-            $this->addForeignKey(null, '{{%smartlinks_content}}', ['smartLinkId'], '{{%smartlinks}}', ['id'], 'CASCADE');
-            $this->addForeignKey(null, '{{%smartlinks_content}}', ['siteId'], '{{%sites}}', ['id'], 'CASCADE');
-            $this->addForeignKey(null, '{{%smartlinks_content}}', ['imageId'], '{{%assets}}', ['id'], 'SET NULL');
+            $this->addForeignKey(null, '{{%smartlinkmanager_content}}', ['smartLinkId'], '{{%smartlinkmanager}}', ['id'], 'CASCADE');
+            $this->addForeignKey(null, '{{%smartlinkmanager_content}}', ['siteId'], '{{%sites}}', ['id'], 'CASCADE');
+            $this->addForeignKey(null, '{{%smartlinkmanager_content}}', ['imageId'], '{{%assets}}', ['id'], 'SET NULL');
         }
 
-        // Create the smartlinks_analytics table
-        if (!$this->db->tableExists('{{%smartlinks_analytics}}')) {
-            $this->createTable('{{%smartlinks_analytics}}', [
+        // Create the smartlinkmanager_analytics table
+        if (!$this->db->tableExists('{{%smartlinkmanager_analytics}}')) {
+            $this->createTable('{{%smartlinkmanager_analytics}}', [
                 'id' => $this->primaryKey(),
                 'linkId' => $this->integer()->notNull(),
                 'siteId' => $this->integer()->null(),
@@ -135,27 +135,27 @@ class Install extends Migration
             ]);
 
             // Create indexes for performance
-            $this->createIndex(null, '{{%smartlinks_analytics}}', ['linkId']);
-            $this->createIndex(null, '{{%smartlinks_analytics}}', ['siteId']);
-            $this->createIndex(null, '{{%smartlinks_analytics}}', ['deviceType']);
-            $this->createIndex(null, '{{%smartlinks_analytics}}', ['country']);
-            $this->createIndex(null, '{{%smartlinks_analytics}}', ['dateCreated']);
-            $this->createIndex(null, '{{%smartlinks_analytics}}', ['city']);
-            $this->createIndex(null, '{{%smartlinks_analytics}}', ['region']);
-            $this->createIndex(null, '{{%smartlinks_analytics}}', ['deviceBrand']);
-            $this->createIndex(null, '{{%smartlinks_analytics}}', ['osName']);
-            $this->createIndex(null, '{{%smartlinks_analytics}}', ['clientType']);
+            $this->createIndex(null, '{{%smartlinkmanager_analytics}}', ['linkId']);
+            $this->createIndex(null, '{{%smartlinkmanager_analytics}}', ['siteId']);
+            $this->createIndex(null, '{{%smartlinkmanager_analytics}}', ['deviceType']);
+            $this->createIndex(null, '{{%smartlinkmanager_analytics}}', ['country']);
+            $this->createIndex(null, '{{%smartlinkmanager_analytics}}', ['dateCreated']);
+            $this->createIndex(null, '{{%smartlinkmanager_analytics}}', ['city']);
+            $this->createIndex(null, '{{%smartlinkmanager_analytics}}', ['region']);
+            $this->createIndex(null, '{{%smartlinkmanager_analytics}}', ['deviceBrand']);
+            $this->createIndex(null, '{{%smartlinkmanager_analytics}}', ['osName']);
+            $this->createIndex(null, '{{%smartlinkmanager_analytics}}', ['clientType']);
 
             // Add foreign keys
-            $this->addForeignKey(null, '{{%smartlinks_analytics}}', ['linkId'], '{{%smartlinks}}', ['id'], 'CASCADE');
+            $this->addForeignKey(null, '{{%smartlinkmanager_analytics}}', ['linkId'], '{{%smartlinkmanager}}', ['id'], 'CASCADE');
         }
 
-        // Create the smartlinks_settings table
-        if (!$this->db->tableExists('{{%smartlinks_settings}}')) {
-            $this->createTable('{{%smartlinks_settings}}', [
+        // Create the smartlinkmanager_settings table
+        if (!$this->db->tableExists('{{%smartlinkmanager_settings}}')) {
+            $this->createTable('{{%smartlinkmanager_settings}}', [
                 'id' => $this->primaryKey(),
                 // Plugin settings
-                'pluginName' => $this->string(255)->notNull()->defaultValue('Smart Links'),
+                'pluginName' => $this->string(255)->notNull()->defaultValue('SmartLink Manager'),
                 // Site settings
                 'enabledSites' => $this->text()->null()->comment('JSON array of enabled site IDs'),
                 // Asset/Volume settings
@@ -214,15 +214,15 @@ class Install extends Migration
             ]);
 
             // Create indexes
-            $this->createIndex(null, '{{%smartlinks_settings}}', ['enableAnalytics']);
-            $this->createIndex(null, '{{%smartlinks_settings}}', ['enableGeoDetection']);
-            $this->createIndex(null, '{{%smartlinks_settings}}', ['cacheDeviceDetection']);
+            $this->createIndex(null, '{{%smartlinkmanager_settings}}', ['enableAnalytics']);
+            $this->createIndex(null, '{{%smartlinkmanager_settings}}', ['enableGeoDetection']);
+            $this->createIndex(null, '{{%smartlinkmanager_settings}}', ['cacheDeviceDetection']);
 
             // Add foreign key for logo
-            $this->addForeignKey(null, '{{%smartlinks_settings}}', ['defaultQrLogoId'], '{{%assets}}', ['id'], 'SET NULL');
+            $this->addForeignKey(null, '{{%smartlinkmanager_settings}}', ['defaultQrLogoId'], '{{%assets}}', ['id'], 'SET NULL');
 
             // Insert default settings row
-            $this->insert('{{%smartlinks_settings}}', [
+            $this->insert('{{%smartlinkmanager_settings}}', [
                 'dateCreated' => Db::prepareDateForDb(new \DateTime()),
                 'dateUpdated' => Db::prepareDateForDb(new \DateTime()),
                 'uid' => StringHelper::UUID(),
@@ -238,10 +238,10 @@ class Install extends Migration
     public function safeDown(): bool
     {
         // Drop tables in reverse order due to foreign key constraints
-        $this->dropTableIfExists('{{%smartlinks_analytics}}');
-        $this->dropTableIfExists('{{%smartlinks_content}}');
-        $this->dropTableIfExists('{{%smartlinks_settings}}');
-        $this->dropTableIfExists('{{%smartlinks}}');
+        $this->dropTableIfExists('{{%smartlinkmanager_analytics}}');
+        $this->dropTableIfExists('{{%smartlinkmanager_content}}');
+        $this->dropTableIfExists('{{%smartlinkmanager_settings}}');
+        $this->dropTableIfExists('{{%smartlinkmanager}}');
 
         return true;
     }

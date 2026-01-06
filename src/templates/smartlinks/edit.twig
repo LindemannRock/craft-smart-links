@@ -1,11 +1,11 @@
-{% extends "smart-links/_layouts/cp" %}
+{% extends "smartlink-manager/_layouts/cp" %}
 {% import "_includes/forms" as forms %}
-{% set plugin = craft.app.plugins.getPlugin('smart-links') %}
+{% set plugin = craft.app.plugins.getPlugin('smartlink-manager') %}
 
-{% set title = smartLink.id ? smartLink.title : "New {singularName}"|t('smart-links', {singularName: smartlinkHelper.displayName}) %}
+{% set title = smartLink.id ? smartLink.title : "New {singularName}"|t('smartlink-manager', {singularName: smartlinkHelper.displayName}) %}
 {% set fullPageForm = true %}
 {% set selectedSubnavItem = 'links' %}
-{% set saveShortcutRedirect = 'smart-links/smartlinks/{id}' %}
+{% set saveShortcutRedirect = 'smartlink-manager/smartlinks/{id}' %}
 {% set retainScrollOnSaveShortcut = true %}
 
 {% set tabs = {
@@ -33,7 +33,7 @@
 {% if craft.smartLinks.settings.enableAnalytics and smartLink.id and (smartLink.trackAnalytics ?? true) %}
     {% set tabs = tabs|merge({
         analytics: {
-            label: 'Analytics'|t('smart-links'),
+            label: 'Analytics'|t('smartlink-manager'),
             url: '#analytics',
         },
     }) %}
@@ -51,7 +51,7 @@
     {% for site in enabledSites %}
         {% set siteMenuItems = siteMenuItems|merge([{
             label: site.name,
-            url: smartLink.id ? url('smart-links/smartlinks/' ~ smartLink.id, {site: site.handle}) : url('smart-links/new', {site: site.handle}),
+            url: smartLink.id ? url('smartlink-manager/smartlinks/' ~ smartLink.id, {site: site.handle}) : url('smartlink-manager/new', {site: site.handle}),
             selected: site.id == smartLink.siteId
         }]) %}
     {% endfor %}
@@ -70,15 +70,15 @@
 {# Main navigation #}
 {% set crumbs = crumbs|merge([
     {
-        label: smartlinkHelper.fullName|t('smart-links'),
-        url: url('smart-links')
+        label: smartlinkHelper.fullName|t('smartlink-manager'),
+        url: url('smartlink-manager')
     }
 ]) %}
 
 {% if smartLink.id %}
     {% set crumbs = crumbs|merge([{
         label: smartLink.title,
-        url: url('smart-links/smartlinks/' ~ smartLink.id)
+        url: url('smartlink-manager/smartlinks/' ~ smartLink.id)
     }]) %}
 
 {% endif %}
@@ -104,12 +104,12 @@
                     {% if smartLink.qrCodeEnabled %}
                         <li>
                             <a role="option" tabindex="0" href="{{ smartLink.getQrCodeUrl() }}" target="_blank">
-                                {{ "QR Code Image"|t('smart-links') }}
+                                {{ "QR Code Image"|t('smartlink-manager') }}
                             </a>
                         </li>
                         <li>
                             <a role="option" tabindex="0" href="{{ smartLink.getQrCodeDisplayUrl() }}" target="_blank">
-                                {{ "QR Code Page"|t('smart-links') }}
+                                {{ "QR Code Page"|t('smartlink-manager') }}
                             </a>
                         </li>
                     {% endif %}
@@ -123,7 +123,7 @@
         <div class="menu">
             <ul role="listbox">
                 <li>
-                    <a class="formsubmit" role="option" tabindex="0" data-redirect="{{ url('smart-links/{id}', {site: currentSite.handle})|hash }}">
+                    <a class="formsubmit" role="option" tabindex="0" data-redirect="{{ url('smartlink-manager/{id}', {site: currentSite.handle})|hash }}">
                         <span class="label">{{ 'Save and continue editing'|t('app') }}</span>
                         <span class="shortcut" id="save-shortcut"></span>
                     </a>
@@ -136,7 +136,7 @@
         <div id="action-menu" class="menu menu--disclosure">
             <ul>
                 <li>
-                    <button class="menu-item error formsubmit" data-destructive data-action="smart-links/smart-links/delete" data-params='{"id":{{ smartLink.id }}}' data-confirm="{{ 'Are you sure you want to delete this entry?'|t('app') }}" data-redirect="{{ 'smart-links'|hash }}" data-headers='{"Accept":"application/json"}'>
+                    <button class="menu-item error formsubmit" data-destructive data-action="smartlink-manager/smartlink-manager/delete" data-params='{"id":{{ smartLink.id }}}' data-confirm="{{ 'Are you sure you want to delete this entry?'|t('app') }}" data-redirect="{{ 'smartlink-manager'|hash }}" data-headers='{"Accept":"application/json"}'>
                         <span class="icon">{{ svg('@app/icons/trash.svg') }}</span>
                         <span class="menu-item-label">{{ "Delete"|t('app') }}</span>
                     </button>
@@ -177,8 +177,8 @@
 {% endif %}
 
 {% block content %}
-    <input type="hidden" name="action" value="smart-links/smart-links/save">
-    {{ redirectInput('smart-links') }}
+    <input type="hidden" name="action" value="smartlink-manager/smartlinks/save">
+    {{ redirectInput('smartlink-manager') }}
     {% if smartLink.id %}
         <input type="hidden" name="smartLinkId" value="{{ smartLink.id }}">
         <input type="hidden" name="id" value="{{ smartLink.id }}">
@@ -188,7 +188,7 @@
     {% endif %}
 
         <div id="fields">
-        {% include "smart-links/smartlinks/_partials/fields" %}
+        {% include "smartlink-manager/smartlinks/_partials/fields" %}
     </div>
 
     {# Render field layout tabs #}
@@ -206,7 +206,7 @@
 
     {% if craft.smartLinks.settings.enableAnalytics and smartLink.id and (smartLink.trackAnalytics ?? true) %}
         <div id="analytics" class="hidden">
-            {% include "smart-links/smartlinks/_partials/analytics" with {
+            {% include "smartlink-manager/smartlinks/_partials/analytics" with {
                 smartLink: smartLink,
                 analyticsService: analyticsService ?? null,
                 settings: craft.smartLinks.settings
@@ -273,7 +273,7 @@
 
     {% if smartLink.id %}
         <fieldset>
-            <legend class="h6">{{ "{pluginName} URL"|t('smart-links', {pluginName: smartlinkHelper.displayName}) }}</legend>
+            <legend class="h6">{{ "{pluginName} URL"|t('smartlink-manager', {pluginName: smartlinkHelper.displayName}) }}</legend>
             <div class="meta" style="padding-inline: 0;">
                 <div class="flex" style="gap: 8px;">
                     <div class="textwrapper" style="flex-grow: 1;">
@@ -301,10 +301,10 @@
 
     {% if craft.smartLinks.settings.enableAnalytics %}
         <fieldset>
-            <legend class="h6">{{ "Analytics"|t('smart-links') }}</legend>
+            <legend class="h6">{{ "Analytics"|t('smartlink-manager') }}</legend>
             <div class="meta">
                 {{ forms.lightswitchField({
-                    label: "Track Analytics"|t('smart-links'),
+                    label: "Track Analytics"|t('smartlink-manager'),
                     id: 'trackAnalytics',
                     name: 'trackAnalytics',
                     on: smartLink.trackAnalytics ?? true
@@ -317,10 +317,10 @@
     {% endif %}
 
     <fieldset>
-        <legend class="h6">{{ "QR Code"|t('smart-links') }}</legend>
+        <legend class="h6">{{ "QR Code"|t('smartlink-manager') }}</legend>
         <div class="meta">
             {{ forms.lightswitchField({
-                label: "Enable QR Code"|t('smart-links'),
+                label: "Enable QR Code"|t('smartlink-manager'),
                 id: 'qrCodeEnabled',
                 name: 'qrCodeEnabled',
                 on: smartLink.qrCodeEnabled ?? true,
@@ -332,10 +332,10 @@
             {% if smartLink.id %}
                 <div class="field">
                     <div class="heading">
-                        <label>{{ "Preview"|t('smart-links') }}</label>
+                        <label>{{ "Preview"|t('smartlink-manager') }}</label>
                     </div>
                     <div class="input" style="text-align: center;">
-                        <a href="{{ smartLink.getQrCodeUrl() }}" target="_blank" title="{{ 'Click to view QR code image'|t('smart-links') }}">
+                        <a href="{{ smartLink.getQrCodeUrl() }}" target="_blank" title="{{ 'Click to view QR code image'|t('smartlink-manager') }}">
                             <img id="qr-preview"
                                  src="{{ smartLink.getQrCodeUrl({ size: 150 }) }}"
                                  alt="QR Code Preview"
@@ -346,7 +346,7 @@
             {% endif %}
 
             {{ forms.textField({
-                label: "Size"|t('smart-links'),
+                label: "Size"|t('smartlink-manager'),
                 id: 'qrCodeSize',
                 name: 'qrCodeSize',
                 value: smartLink.qrCodeSize ?? 256,
@@ -358,7 +358,7 @@
             }) }}
 
             {{ forms.colorField({
-                label: "Color"|t('smart-links'),
+                label: "Color"|t('smartlink-manager'),
                 id: 'qrCodeColor',
                 name: 'qrCodeColor',
                 value: smartLink.qrCodeColor ?: craft.smartLinks.settings.defaultQrColor,
@@ -366,7 +366,7 @@
             }) }}
 
             {{ forms.colorField({
-                label: "Background"|t('smart-links'),
+                label: "Background"|t('smartlink-manager'),
                 id: 'qrCodeBgColor',
                 name: 'qrCodeBgColor',
                 value: smartLink.qrCodeBgColor ?: craft.smartLinks.settings.defaultQrBgColor,
@@ -374,8 +374,8 @@
             }) }}
 
             {{ forms.colorField({
-                label: "Eye Color"|t('smart-links'),
-                instructions: "Color for position markers (leave empty to use main color)"|t('smart-links'),
+                label: "Eye Color"|t('smartlink-manager'),
+                instructions: "Color for position markers (leave empty to use main color)"|t('smartlink-manager'),
                 id: 'qrCodeEyeColor',
                 name: 'qrCodeEyeColor',
                 value: smartLink.qrCodeEyeColor ?: (craft.smartLinks.settings.qrEyeColor ?? ''),
@@ -384,13 +384,13 @@
 
             {% set defaultFormat = craft.smartLinks.settings.defaultQrFormat ?? 'png' %}
             {{ forms.selectField({
-                label: "Format"|t('smart-links'),
-                instructions: "Override the default QR code format"|t('smart-links'),
+                label: "Format"|t('smartlink-manager'),
+                instructions: "Override the default QR code format"|t('smartlink-manager'),
                 id: 'qrCodeFormat',
                 name: 'qrCodeFormat',
                 value: smartLink.qrCodeFormat ?? '',
                 options: [
-                    {label: 'Use Default (' ~ defaultFormat|upper ~ ')'|t('smart-links'), value: ''},
+                    {label: 'Use Default (' ~ defaultFormat|upper ~ ')'|t('smartlink-manager'), value: ''},
                     {label: 'PNG', value: 'png'},
                     {label: 'SVG', value: 'svg'},
                 ],
@@ -408,8 +408,8 @@
                 {% endif %}
 
                 {{ forms.elementSelectField({
-                    label: "Logo"|t('smart-links'),
-                    instructions: smartLink.qrLogoId ? "Override the default QR code logo"|t('smart-links') : "Using default logo from settings (click to override)"|t('smart-links'),
+                    label: "Logo"|t('smartlink-manager'),
+                    instructions: smartLink.qrLogoId ? "Override the default QR code logo"|t('smartlink-manager') : "Using default logo from settings (click to override)"|t('smartlink-manager'),
                     id: 'qrLogoId',
                     name: 'qrLogoId',
                     elementType: 'craft\\elements\\Asset',
@@ -425,43 +425,43 @@
 
             <div class="field" style="margin-top: 15px;">
                 <div class="heading">
-                    <label>{{ "Actions"|t('smart-links') }}</label>
+                    <label>{{ "Actions"|t('smartlink-manager') }}</label>
                 </div>
                 <div class="input">
                     <div class="btngroup">
-                        <button type="button" class="btn menubtn" data-icon="settings">{{ "QR Code Actions"|t('smart-links') }}</button>
+                        <button type="button" class="btn menubtn" data-icon="settings">{{ "QR Code Actions"|t('smartlink-manager') }}</button>
                         <div class="menu">
                             <ul>
                                 {% if craft.smartLinks.settings.enableQrDownload and smartLink.id %}
                                     <li>
-                                        <h6>{{ "Download QR Code"|t('smart-links') }}</h6>
+                                        <h6>{{ "Download QR Code"|t('smartlink-manager') }}</h6>
                                         <ul>
-                                            <li><a class="download-qr" data-size="256" href="#">{{ "Small (256px)"|t('smart-links') }}</a></li>
-                                            <li><a class="download-qr" data-size="512" href="#">{{ "Medium (512px)"|t('smart-links') }}</a></li>
-                                            <li><a class="download-qr" data-size="1024" href="#">{{ "Large (1024px)"|t('smart-links') }}</a></li>
-                                            <li><a class="download-qr" data-size="2048" href="#">{{ "Extra Large (2048px)"|t('smart-links') }}</a></li>
-                                            <li><a class="download-qr" data-size="custom" href="#">{{ "Custom Size..."|t('smart-links') }}</a></li>
+                                            <li><a class="download-qr" data-size="256" href="#">{{ "Small (256px)"|t('smartlink-manager') }}</a></li>
+                                            <li><a class="download-qr" data-size="512" href="#">{{ "Medium (512px)"|t('smartlink-manager') }}</a></li>
+                                            <li><a class="download-qr" data-size="1024" href="#">{{ "Large (1024px)"|t('smartlink-manager') }}</a></li>
+                                            <li><a class="download-qr" data-size="2048" href="#">{{ "Extra Large (2048px)"|t('smartlink-manager') }}</a></li>
+                                            <li><a class="download-qr" data-size="custom" href="#">{{ "Custom Size..."|t('smartlink-manager') }}</a></li>
                                         </ul>
                                     </li>
                                     <hr>
                                 {% endif %}
                                 <li>
-                                    <h6>{{ "View QR Code"|t('smart-links') }}</h6>
+                                    <h6>{{ "View QR Code"|t('smartlink-manager') }}</h6>
                                     <ul>
                                         <li>
                                             <a href="{{ smartLink.getQrCodeUrl() }}" target="_blank">
-                                                {{ "QR Code Image"|t('smart-links') }}
+                                                {{ "QR Code Image"|t('smartlink-manager') }}
                                             </a>
                                         </li>
                                         <li>
                                             <a href="{{ smartLink.getQrCodeDisplayUrl() }}" target="_blank">
-                                                {{ "QR Code Page"|t('smart-links') }}
+                                                {{ "QR Code Page"|t('smartlink-manager') }}
                                             </a>
                                         </li>
                                     </ul>
                                 </li>
                                 <hr>
-                                <li><a id="reset-qr-defaults" href="#">{{ "Reset to Defaults"|t('smart-links') }}</a></li>
+                                <li><a id="reset-qr-defaults" href="#">{{ "Reset to Defaults"|t('smartlink-manager') }}</a></li>
                             </ul>
                         </div>
                     </div>
@@ -497,7 +497,7 @@
             </div>
             {% if craft.smartLinks.settings.enableAnalytics and smartLink.id and (smartLink.trackAnalytics ?? true) %}
                 <div class="data">
-                    <dt class="heading">{{ "Interactions"|t('smart-links') }}</dt>
+                    <dt class="heading">{{ "Interactions"|t('smartlink-manager') }}</dt>
                     <dd class="value">{{ smartLink.clicks|number }}</dd>
                 </div>
             {% endif %}
@@ -541,7 +541,7 @@
             const eyeColorInput = document.getElementById('qrCodeEyeColor');
             const sizeInput = document.getElementById('qrCodeSize');
             const formatSelect = document.getElementById('qrCodeFormat');
-            const baseUrl = '{{ siteUrl((craft.app.plugins.getPlugin('smart-links').settings.qrPrefix ?: 'qr') ~ '/' ~ smartLink.slug) }}';
+            const baseUrl = '{{ siteUrl((craft.app.plugins.getPlugin('smartlink-manager').settings.qrPrefix ?: 'qr') ~ '/' ~ smartLink.slug) }}';
             let updateTimeout;
 
             function updateQrCode() {
@@ -791,12 +791,12 @@
 
         // Handle custom size
         if (size === 'custom') {
-            const customSize = prompt('{{ "Enter custom size (100-4096 pixels):"|t('smart-links')|e('js') }}', '1024');
+            const customSize = prompt('{{ "Enter custom size (100-4096 pixels):"|t('smartlink-manager')|e('js') }}', '1024');
             if (!customSize) return;
 
             size = parseInt(customSize);
             if (isNaN(size) || size < 100 || size > 4096) {
-                alert('{{ "Please enter a valid size between 100 and 4096 pixels"|t('smart-links')|e('js') }}');
+                alert('{{ "Please enter a valid size between 100 and 4096 pixels"|t('smartlink-manager')|e('js') }}');
                 return;
             }
         }
@@ -807,7 +807,7 @@
         const format = $('#qrCodeFormat').val() || '{{ craft.smartLinks.settings.defaultQrFormat ?? 'png' }}';
 
         // Build download URL
-        let downloadUrl = '{{ siteUrl((craft.app.plugins.getPlugin('smart-links').settings.qrPrefix ?: 'qr') ~ '/' ~ smartLink.slug) }}' +
+        let downloadUrl = '{{ siteUrl((craft.app.plugins.getPlugin('smartlink-manager').settings.qrPrefix ?: 'qr') ~ '/' ~ smartLink.slug) }}' +
             '?size=' + size +
             '&color=' + color +
             '&bg=' + bgColor +
@@ -834,7 +834,7 @@
     // Reset QR code settings to plugin defaults
     $('#reset-qr-defaults').on('click', function(e) {
         e.preventDefault();
-        if (!confirm('{{ "Reset QR code settings to plugin defaults?"|t('smart-links')|e('js') }}')) {
+        if (!confirm('{{ "Reset QR code settings to plugin defaults?"|t('smartlink-manager')|e('js') }}')) {
             return;
         }
 
@@ -875,7 +875,7 @@
             }
         }, 50);
 
-        Craft.cp.displayNotice('{{ "QR code settings reset to defaults"|t('smart-links')|e('js') }}');
+        Craft.cp.displayNotice('{{ "QR code settings reset to defaults"|t('smartlink-manager')|e('js') }}');
     });
 
     // Copy URL button
@@ -884,7 +884,7 @@
         if (urlInput) {
             urlInput.select();
             document.execCommand('copy');
-            Craft.cp.displayNotice('{{ "URL copied to clipboard"|t('smart-links')|e('js') }}');
+            Craft.cp.displayNotice('{{ "URL copied to clipboard"|t('smartlink-manager')|e('js') }}');
         }
     });
 
@@ -896,7 +896,7 @@
 
             // If turning OFF analytics tracking, show confirmation
             if (!isEnabled) {
-                if (!confirm('{{ "Are you sure you want to disable analytics tracking for this {singularName}? This {singularName} will no longer collect visitor data and interactions."|t('smart-links', {singularName: smartlinkHelper.lowerDisplayName})|e('js') }}')) {
+                if (!confirm('{{ "Are you sure you want to disable analytics tracking for this {singularName}? This {singularName} will no longer collect visitor data and interactions."|t('smartlink-manager', {singularName: smartlinkHelper.lowerDisplayName})|e('js') }}')) {
                     // User cancelled, turn the toggle back on
                     $toggle.addClass('on');
                     $toggle.find('input[type="hidden"]').val('1');

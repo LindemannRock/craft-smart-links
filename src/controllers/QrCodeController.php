@@ -1,18 +1,18 @@
 <?php
 /**
- * Smart Links plugin for Craft CMS 5.x
+ * SmartLink Manager plugin for Craft CMS 5.x
  *
  * @link      https://lindemannrock.com
  * @copyright Copyright (c) 2025 LindemannRock
  */
 
-namespace lindemannrock\smartlinks\controllers;
+namespace lindemannrock\smartlinkmanager\controllers;
 
 use Craft;
 use craft\web\Controller;
 use lindemannrock\logginglibrary\traits\LoggingTrait;
-use lindemannrock\smartlinks\elements\SmartLink;
-use lindemannrock\smartlinks\SmartLinks;
+use lindemannrock\smartlinkmanager\elements\SmartLink;
+use lindemannrock\smartlinkmanager\SmartLinkManager;
 use yii\web\NotFoundHttpException;
 use yii\web\Response;
 
@@ -36,7 +36,7 @@ class QrCodeController extends Controller
     public function init(): void
     {
         parent::init();
-        $this->setLoggingHandle('smart-links');
+        $this->setLoggingHandle('smartlink-manager');
     }
 
     /**
@@ -65,15 +65,15 @@ class QrCodeController extends Controller
 
         // If QR is disabled, redirect to 404 redirect URL (consistent with smart link behavior)
         if (!$smartLink->qrCodeEnabled) {
-            $settings = SmartLinks::$plugin->getSettings();
+            $settings = SmartLinkManager::$plugin->getSettings();
             $redirectUrl = $settings->notFoundRedirectUrl ?: '/';
             return $this->redirect($redirectUrl);
         }
 
         // Get parameters
         $request = Craft::$app->request;
-        $size = $request->getQueryParam('size', SmartLinks::$plugin->getSettings()->defaultQrSize);
-        $format = $request->getQueryParam('format', SmartLinks::$plugin->getSettings()->defaultQrFormat);
+        $size = $request->getQueryParam('size', SmartLinkManager::$plugin->getSettings()->defaultQrSize);
+        $format = $request->getQueryParam('format', SmartLinkManager::$plugin->getSettings()->defaultQrFormat);
         
         // Generate QR code data
         $options = [
@@ -108,7 +108,7 @@ class QrCodeController extends Controller
         $this->logInfo('Full URL for QR', ['fullUrl' => $fullUrl]);
 
         try {
-            $qrCode = SmartLinks::$plugin->qrCode->generateQrCode($fullUrl, $options);
+            $qrCode = SmartLinkManager::$plugin->qrCode->generateQrCode($fullUrl, $options);
             
             // Prepare template variables
             $templateVars = [
@@ -124,8 +124,8 @@ class QrCodeController extends Controller
             }
 
             // Get custom template path from settings
-            $settings = SmartLinks::$plugin->getSettings();
-            $template = $settings->qrTemplate ?: 'smart-links/qr';
+            $settings = SmartLinkManager::$plugin->getSettings();
+            $template = $settings->qrTemplate ?: 'smartlink-manager/qr';
 
             return $this->renderTemplate($template, $templateVars);
         } catch (\Exception $e) {
@@ -176,7 +176,7 @@ class QrCodeController extends Controller
 
             // If QR is disabled, redirect to 404 redirect URL (consistent with smart link behavior)
             if (!$smartLink->qrCodeEnabled) {
-                $settings = SmartLinks::$plugin->getSettings();
+                $settings = SmartLinkManager::$plugin->getSettings();
                 $redirectUrl = $settings->notFoundRedirectUrl ?: '/';
                 return $this->redirect($redirectUrl);
             }
@@ -218,10 +218,10 @@ class QrCodeController extends Controller
 
         // Generate QR code
         try {
-            $qrCode = SmartLinks::$plugin->qrCode->generateQrCode($fullUrl, $options);
+            $qrCode = SmartLinkManager::$plugin->qrCode->generateQrCode($fullUrl, $options);
 
             // Determine content type
-            $format = $options['format'] ?? SmartLinks::$plugin->getSettings()->defaultQrFormat;
+            $format = $options['format'] ?? SmartLinkManager::$plugin->getSettings()->defaultQrFormat;
             $contentType = $format === 'svg' ? 'image/svg+xml' : 'image/png';
 
             // Return response
@@ -232,7 +232,7 @@ class QrCodeController extends Controller
             
             // Handle download request
             if ($request->getQueryParam('download') && $smartLink) {
-                $settings = SmartLinks::$plugin->getSettings();
+                $settings = SmartLinkManager::$plugin->getSettings();
                 $filename = strtr($settings->qrDownloadFilename, [
                     '{slug}' => $smartLink->slug,
                     '{size}' => $options['size'] ?? $settings->defaultQrSize,

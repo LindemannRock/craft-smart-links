@@ -1,12 +1,12 @@
-{% set plugin = craft.app.plugins.getPlugin('smart-links') %}
+{% set plugin = craft.app.plugins.getPlugin('smartlink-manager') %}
 
 <div class="top-links-widget">
     {% if links|length > 0 %}
         <table class="data fullwidth">
             <thead>
                 <tr>
-                    <th>{{ "Link"|t('smart-links') }}</th>
-                    <th>{{ "Clicks"|t('smart-links') }}</th>
+                    <th>{{ "Link"|t('smartlink-manager') }}</th>
+                    <th>{{ "Clicks"|t('smartlink-manager') }}</th>
                     <th class="thin"></th>
                 </tr>
             </thead>
@@ -25,7 +25,7 @@
                             <span class="badge">{{ link.clicks|number }}</span>
                         </td>
                         <td class="thin actions-cell">
-                            <a href="{{ link.enabled ? siteUrl(craft.app.plugins.getPlugin('smart-links').settings.slugPrefix ~ '/' ~ link.slug) : '#' }}"
+                            <a href="{{ link.enabled ? siteUrl(craft.app.plugins.getPlugin('smartlink-manager').settings.slugPrefix ~ '/' ~ link.slug) : '#' }}"
                                target="_blank"
                                class="btn small {{ not link.enabled ? 'disabled' : '' }}"
                                title="{{ 'View'|t('app') }}"
@@ -39,12 +39,12 @@
         </table>
 
         <div class="widget-footer">
-            <a href="{{ cpUrl('smart-links/smartlinks') }}" class="go">{{ "View all {pluginName}"|t('smart-links', {pluginName: smartlinkHelper.pluralLowerDisplayName}) }}</a>
+            <a href="{{ cpUrl('smartlink-manager/smartlinks') }}" class="go">{{ "View all {pluginName}"|t('smartlink-manager', {pluginName: smartlinkHelper.pluralLowerDisplayName}) }}</a>
         </div>
     {% else %}
         <div class="zilch">
-            <p>{{ "No {pluginName} yet"|t('smart-links', {pluginName: smartlinkHelper.pluralLowerDisplayName}) }}</p>
-            <p class="light">{{ "Create your first {singularName} to see it here."|t('smart-links', {singularName: smartlinkHelper.lowerDisplayName}) }}</p>
+            <p>{{ "No {pluginName} yet"|t('smartlink-manager', {pluginName: smartlinkHelper.pluralLowerDisplayName}) }}</p>
+            <p class="light">{{ "Create your first {singularName} to see it here."|t('smartlink-manager', {singularName: smartlinkHelper.lowerDisplayName}) }}</p>
         </div>
     {% endif %}
 </div>

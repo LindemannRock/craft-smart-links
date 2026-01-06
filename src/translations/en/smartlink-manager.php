@@ -1,6 +1,6 @@
 <?php
 /**
- * Smart Links plugin for Craft CMS 5.x
+ * SmartLink Manager plugin for Craft CMS 5.x
  *
  * @link      https://lindemannrock.com
  * @copyright Copyright (c) 2025 LindemannRock
@@ -14,7 +14,7 @@
 
 return [
     // Plugin Meta
-    'Smart Links' => 'Smart Links',
+    'SmartLink Manager' => 'SmartLink Manager',
     '{name} plugin loaded' => '{name} plugin loaded',
 
     // Element Names
@@ -49,7 +49,7 @@ return [
     // Site Settings
     'Site Settings' => 'Site Settings',
     'Enabled Sites' => 'Enabled Sites',
-    'Select which sites Smart Links should be enabled for. Leave empty to enable for all sites.' => 'Select which sites Smart Links should be enabled for. Leave empty to enable for all sites.',
+    'Select which sites SmartLink Manager should be enabled for. Leave empty to enable for all sites.' => 'Select which sites SmartLink Manager should be enabled for. Leave empty to enable for all sites.',
 
     // URL Settings
     'URL Settings' => 'URL Settings',
@@ -58,8 +58,8 @@ return [
     'The URL prefix for smart links (e.g., \'go\' creates /go/your-link)' => 'The URL prefix for smart links (e.g., \'go\' creates /go/your-link)',
     'The URL prefix for QR code pages (e.g., \'qr\' creates /qr/your-link)' => 'The URL prefix for QR code pages (e.g., \'qr\' creates /qr/your-link)',
     'Only letters, numbers, hyphens, and underscores are allowed.' => 'Only letters, numbers, hyphens, and underscores are allowed.',
-    'This is being overridden by the <code>slugPrefix</code> setting in <code>config/smart-links.php</code>. Clear routes cache after changing this.' => 'This is being overridden by the <code>slugPrefix</code> setting in <code>config/smart-links.php</code>. Clear routes cache after changing this.',
-    'This is being overridden by the <code>qrPrefix</code> setting in <code>config/smart-links.php</code>. Clear routes cache after changing this.' => 'This is being overridden by the <code>qrPrefix</code> setting in <code>config/smart-links.php</code>. Clear routes cache after changing this.',
+    'This is being overridden by the <code>slugPrefix</code> setting in <code>config/smartlink-manager.php</code>. Clear routes cache after changing this.' => 'This is being overridden by the <code>slugPrefix</code> setting in <code>config/smartlink-manager.php</code>. Clear routes cache after changing this.',
+    'This is being overridden by the <code>qrPrefix</code> setting in <code>config/smartlink-manager.php</code>. Clear routes cache after changing this.' => 'This is being overridden by the <code>qrPrefix</code> setting in <code>config/smartlink-manager.php</code>. Clear routes cache after changing this.',
     'Clear routes cache after changing this (php craft clear-caches/compiled-templates).' => 'Clear routes cache after changing this (php craft clear-caches/compiled-templates).',
 
     // Smart Link Fields
@@ -188,7 +188,7 @@ return [
     'Asset Settings' => 'Asset Settings',
     'Image Volume' => 'Image Volume',
     'Smart Link Image Volume' => 'Smart Link Image Volume',
-    'Which asset volume should be used for Smart Link images' => 'Which asset volume should be used for Smart Link images',
+    'Which asset volume should be used for SmartLink Manager images' => 'Which asset volume should be used for SmartLink Manager images',
     'All asset volumes' => 'All asset volumes',
 
     // Analytics Settings
@@ -196,7 +196,7 @@ return [
     'Enable Analytics' => 'Enable Analytics',
     'Track Analytics' => 'Track Analytics',
     'Track clicks and visitor data for smart links' => 'Track clicks and visitor data for smart links',
-    'When enabled, Smart Links will track visitor interactions, device types, geographic data, and other analytics information.' => 'When enabled, Smart Links will track visitor interactions, device types, geographic data, and other analytics information.',
+    'When enabled, SmartLink Manager will track visitor interactions, device types, geographic data, and other analytics information.' => 'When enabled, SmartLink Manager will track visitor interactions, device types, geographic data, and other analytics information.',
     'Are you sure you want to disable analytics tracking for this smart link? This smart link will no longer collect visitor data and interactions.' => 'Are you sure you want to disable analytics tracking for this smart link? This smart link will no longer collect visitor data and interactions.',
     'Analytics Retention (days)' => 'Analytics Retention (days)',
     'Analytics Retention' => 'Analytics Retention',
@@ -237,18 +237,18 @@ return [
     'Analytics Export Options' => 'Analytics Export Options',
     'Export Settings' => 'Export Settings',
     'Include Disabled Links in Export' => 'Include Disabled Links in Export',
-    'Include Disabled Smart Links in Export' => 'Include Disabled Smart Links in Export',
+    'Include Disabled SmartLinks in Export' => 'Include Disabled SmartLinks in Export',
     'When enabled, analytics exports will include data from disabled smart links' => 'When enabled, analytics exports will include data from disabled smart links',
     'Include Expired Links in Export' => 'Include Expired Links in Export',
-    'Include Expired Smart Links in Export' => 'Include Expired Smart Links in Export',
+    'Include Expired SmartLinks in Export' => 'Include Expired SmartLinks in Export',
     'When enabled, analytics exports will include data from expired smart links' => 'When enabled, analytics exports will include data from expired smart links',
     'Export as CSV' => 'Export as CSV',
 
     // Redirect Settings
     'Custom Redirect Template' => 'Custom Redirect Template',
-    'Path to custom template in your templates/ folder (e.g., smart-links/redirect)' => 'Path to custom template in your templates/ folder (e.g., smart-links/redirect)',
+    'Path to custom template in your templates/ folder (e.g., smartlink-manager/redirect)' => 'Path to custom template in your templates/ folder (e.g., smartlink-manager/redirect)',
     'Custom QR Code Template' => 'Custom QR Code Template',
-    'Path to custom template in your templates/ folder (e.g., smart-links/qr)' => 'Path to custom template in your templates/ folder (e.g., smart-links/qr)',
+    'Path to custom template in your templates/ folder (e.g., smartlink-manager/qr)' => 'Path to custom template in your templates/ folder (e.g., smartlink-manager/qr)',
     'Redirect Settings' => 'Redirect Settings',
     'Redirect Behavior' => 'Redirect Behavior',
     '404 Redirect URL' => '404 Redirect URL',
@@ -266,7 +266,7 @@ return [
     'Advanced Settings' => 'Advanced Settings',
 
     // Analytics Dashboard
-    'Smart Links Overview' => 'Smart Links Overview',
+    'SmartLink Manager Overview' => 'SmartLink Manager Overview',
     'View Analytics' => 'View Analytics',
     'Traffic Overview' => 'Traffic Overview',
     'Total Links' => 'Total Links',
@@ -275,7 +275,7 @@ return [
     'total clicks' => 'total clicks',
     'Clicks' => 'Clicks',
     'Unique Visitors' => 'Unique Visitors',
-    'Top Smart Links' => 'Top Smart Links',
+    'Top SmartLinks' => 'Top SmartLinks',
     'Top Performing Links (Last 7 Days)' => 'Top Performing Links (Last 7 Days)',
     'Top Countries' => 'Top Countries',
     'Top Cities' => 'Top Cities',
@@ -341,7 +341,7 @@ return [
     // Actions
     'Actions' => 'Actions',
     'Save Settings' => 'Save Settings',
-    'Manage Smart Links' => 'Manage Smart Links',
+    'Manage SmartLinks' => 'Manage SmartLinks',
 
     // Messages
     'Loading...' => 'Loading...',
@@ -400,34 +400,34 @@ return [
     'Fathom, Matomo, and Plausible are shown above but do not receive events directly from {pluginName}' => 'Fathom, Matomo, and Plausible are shown above but do not receive events directly from {pluginName}',
 
     // Config Override Warnings
-    'This is being overridden by the <code>pluginName</code> setting in <code>config/smart-links.php</code>.' => 'This is being overridden by the <code>pluginName</code> setting in <code>config/smart-links.php</code>.',
-    'This is being overridden by the <code>enableAnalytics</code> setting in <code>config/smart-links.php</code>.' => 'This is being overridden by the <code>enableAnalytics</code> setting in <code>config/smart-links.php</code>.',
-    'This is being overridden by the <code>analyticsRetention</code> setting in <code>config/smart-links.php</code>.' => 'This is being overridden by the <code>analyticsRetention</code> setting in <code>config/smart-links.php</code>.',
-    'This is being overridden by the <code>includeDisabledInExport</code> setting in <code>config/smart-links.php</code>.' => 'This is being overridden by the <code>includeDisabledInExport</code> setting in <code>config/smart-links.php</code>.',
-    'This is being overridden by the <code>includeExpiredInExport</code> setting in <code>config/smart-links.php</code>.' => 'This is being overridden by the <code>includeExpiredInExport</code> setting in <code>config/smart-links.php</code>.',
-    'This is being overridden by the <code>defaultQrSize</code> setting in <code>config/smart-links.php</code>.' => 'This is being overridden by the <code>defaultQrSize</code> setting in <code>config/smart-links.php</code>.',
-    'This is being overridden by the <code>defaultQrColor</code> setting in <code>config/smart-links.php</code>.' => 'This is being overridden by the <code>defaultQrColor</code> setting in <code>config/smart-links.php</code>.',
-    'This is being overridden by the <code>defaultQrBgColor</code> setting in <code>config/smart-links.php</code>.' => 'This is being overridden by the <code>defaultQrBgColor</code> setting in <code>config/smart-links.php</code>.',
-    'This is being overridden by the <code>defaultQrFormat</code> setting in <code>config/smart-links.php</code>.' => 'This is being overridden by the <code>defaultQrFormat</code> setting in <code>config/smart-links.php</code>.',
-    'This is being overridden by the <code>qrCodeCacheDuration</code> setting in <code>config/smart-links.php</code>.' => 'This is being overridden by the <code>qrCodeCacheDuration</code> setting in <code>config/smart-links.php</code>.',
-    'This is being overridden by the <code>defaultQrErrorCorrection</code> setting in <code>config/smart-links.php</code>.' => 'This is being overridden by the <code>defaultQrErrorCorrection</code> setting in <code>config/smart-links.php</code>.',
-    'This is being overridden by the <code>defaultQrMargin</code> setting in <code>config/smart-links.php</code>.' => 'This is being overridden by the <code>defaultQrMargin</code> setting in <code>config/smart-links.php</code>.',
-    'This is being overridden by the <code>qrModuleStyle</code> setting in <code>config/smart-links.php</code>.' => 'This is being overridden by the <code>qrModuleStyle</code> setting in <code>config/smart-links.php</code>.',
-    'This is being overridden by the <code>qrEyeStyle</code> setting in <code>config/smart-links.php</code>.' => 'This is being overridden by the <code>qrEyeStyle</code> setting in <code>config/smart-links.php</code>.',
-    'This is being overridden by the <code>qrEyeColor</code> setting in <code>config/smart-links.php</code>.' => 'This is being overridden by the <code>qrEyeColor</code> setting in <code>config/smart-links.php</code>.',
-    'This is being overridden by the <code>enableQrLogo</code> setting in <code>config/smart-links.php</code>.' => 'This is being overridden by the <code>enableQrLogo</code> setting in <code>config/smart-links.php</code>.',
-    'This is being overridden by the <code>qrLogoVolumeUid</code> setting in <code>config/smart-links.php</code>.' => 'This is being overridden by the <code>qrLogoVolumeUid</code> setting in <code>config/smart-links.php</code>.',
-    'This is being overridden by the <code>imageVolumeUid</code> setting in <code>config/smart-links.php</code>.' => 'This is being overridden by the <code>imageVolumeUid</code> setting in <code>config/smart-links.php</code>.',
-    'This is being overridden by the <code>qrLogoSize</code> setting in <code>config/smart-links.php</code>.' => 'This is being overridden by the <code>qrLogoSize</code> setting in <code>config/smart-links.php</code>.',
-    'This is being overridden by the <code>enableQrDownload</code> setting in <code>config/smart-links.php</code>.' => 'This is being overridden by the <code>enableQrDownload</code> setting in <code>config/smart-links.php</code>.',
-    'This is being overridden by the <code>qrDownloadFilename</code> setting in <code>config/smart-links.php</code>.' => 'This is being overridden by the <code>qrDownloadFilename</code> setting in <code>config/smart-links.php</code>.',
-    'This is being overridden by the <code>redirectTemplate</code> setting in <code>config/smart-links.php</code>.' => 'This is being overridden by the <code>redirectTemplate</code> setting in <code>config/smart-links.php</code>.',
-    'This is being overridden by the <code>qrTemplate</code> setting in <code>config/smart-links.php</code>.' => 'This is being overridden by the <code>qrTemplate</code> setting in <code>config/smart-links.php</code>.',
-    'This is being overridden by the <code>enableGeoDetection</code> setting in <code>config/smart-links.php</code>.' => 'This is being overridden by the <code>enableGeoDetection</code> setting in <code>config/smart-links.php</code>.',
-    'This is being overridden by the <code>cacheDeviceDetection</code> setting in <code>config/smart-links.php</code>.' => 'This is being overridden by the <code>cacheDeviceDetection</code> setting in <code>config/smart-links.php</code>.',
-    'This is being overridden by the <code>deviceDetectionCacheDuration</code> setting in <code>config/smart-links.php</code>.' => 'This is being overridden by the <code>deviceDetectionCacheDuration</code> setting in <code>config/smart-links.php</code>.',
-    'This is being overridden by the <code>languageDetectionMethod</code> setting in <code>config/smart-links.php</code>.' => 'This is being overridden by the <code>languageDetectionMethod</code> setting in <code>config/smart-links.php</code>.',
-    'This is being overridden by the <code>itemsPerPage</code> setting in <code>config/smart-links.php</code>.' => 'This is being overridden by the <code>itemsPerPage</code> setting in <code>config/smart-links.php</code>.',
-    'This is being overridden by the <code>notFoundRedirectUrl</code> setting in <code>config/smart-links.php</code>.' => 'This is being overridden by the <code>notFoundRedirectUrl</code> setting in <code>config/smart-links.php</code>.',
-    'This is being overridden by the <code>enabledSites</code> setting in <code>config/smart-links.php</code>.' => 'This is being overridden by the <code>enabledSites</code> setting in <code>config/smart-links.php</code>.',
+    'This is being overridden by the <code>pluginName</code> setting in <code>config/smartlink-manager.php</code>.' => 'This is being overridden by the <code>pluginName</code> setting in <code>config/smartlink-manager.php</code>.',
+    'This is being overridden by the <code>enableAnalytics</code> setting in <code>config/smartlink-manager.php</code>.' => 'This is being overridden by the <code>enableAnalytics</code> setting in <code>config/smartlink-manager.php</code>.',
+    'This is being overridden by the <code>analyticsRetention</code> setting in <code>config/smartlink-manager.php</code>.' => 'This is being overridden by the <code>analyticsRetention</code> setting in <code>config/smartlink-manager.php</code>.',
+    'This is being overridden by the <code>includeDisabledInExport</code> setting in <code>config/smartlink-manager.php</code>.' => 'This is being overridden by the <code>includeDisabledInExport</code> setting in <code>config/smartlink-manager.php</code>.',
+    'This is being overridden by the <code>includeExpiredInExport</code> setting in <code>config/smartlink-manager.php</code>.' => 'This is being overridden by the <code>includeExpiredInExport</code> setting in <code>config/smartlink-manager.php</code>.',
+    'This is being overridden by the <code>defaultQrSize</code> setting in <code>config/smartlink-manager.php</code>.' => 'This is being overridden by the <code>defaultQrSize</code> setting in <code>config/smartlink-manager.php</code>.',
+    'This is being overridden by the <code>defaultQrColor</code> setting in <code>config/smartlink-manager.php</code>.' => 'This is being overridden by the <code>defaultQrColor</code> setting in <code>config/smartlink-manager.php</code>.',
+    'This is being overridden by the <code>defaultQrBgColor</code> setting in <code>config/smartlink-manager.php</code>.' => 'This is being overridden by the <code>defaultQrBgColor</code> setting in <code>config/smartlink-manager.php</code>.',
+    'This is being overridden by the <code>defaultQrFormat</code> setting in <code>config/smartlink-manager.php</code>.' => 'This is being overridden by the <code>defaultQrFormat</code> setting in <code>config/smartlink-manager.php</code>.',
+    'This is being overridden by the <code>qrCodeCacheDuration</code> setting in <code>config/smartlink-manager.php</code>.' => 'This is being overridden by the <code>qrCodeCacheDuration</code> setting in <code>config/smartlink-manager.php</code>.',
+    'This is being overridden by the <code>defaultQrErrorCorrection</code> setting in <code>config/smartlink-manager.php</code>.' => 'This is being overridden by the <code>defaultQrErrorCorrection</code> setting in <code>config/smartlink-manager.php</code>.',
+    'This is being overridden by the <code>defaultQrMargin</code> setting in <code>config/smartlink-manager.php</code>.' => 'This is being overridden by the <code>defaultQrMargin</code> setting in <code>config/smartlink-manager.php</code>.',
+    'This is being overridden by the <code>qrModuleStyle</code> setting in <code>config/smartlink-manager.php</code>.' => 'This is being overridden by the <code>qrModuleStyle</code> setting in <code>config/smartlink-manager.php</code>.',
+    'This is being overridden by the <code>qrEyeStyle</code> setting in <code>config/smartlink-manager.php</code>.' => 'This is being overridden by the <code>qrEyeStyle</code> setting in <code>config/smartlink-manager.php</code>.',
+    'This is being overridden by the <code>qrEyeColor</code> setting in <code>config/smartlink-manager.php</code>.' => 'This is being overridden by the <code>qrEyeColor</code> setting in <code>config/smartlink-manager.php</code>.',
+    'This is being overridden by the <code>enableQrLogo</code> setting in <code>config/smartlink-manager.php</code>.' => 'This is being overridden by the <code>enableQrLogo</code> setting in <code>config/smartlink-manager.php</code>.',
+    'This is being overridden by the <code>qrLogoVolumeUid</code> setting in <code>config/smartlink-manager.php</code>.' => 'This is being overridden by the <code>qrLogoVolumeUid</code> setting in <code>config/smartlink-manager.php</code>.',
+    'This is being overridden by the <code>imageVolumeUid</code> setting in <code>config/smartlink-manager.php</code>.' => 'This is being overridden by the <code>imageVolumeUid</code> setting in <code>config/smartlink-manager.php</code>.',
+    'This is being overridden by the <code>qrLogoSize</code> setting in <code>config/smartlink-manager.php</code>.' => 'This is being overridden by the <code>qrLogoSize</code> setting in <code>config/smartlink-manager.php</code>.',
+    'This is being overridden by the <code>enableQrDownload</code> setting in <code>config/smartlink-manager.php</code>.' => 'This is being overridden by the <code>enableQrDownload</code> setting in <code>config/smartlink-manager.php</code>.',
+    'This is being overridden by the <code>qrDownloadFilename</code> setting in <code>config/smartlink-manager.php</code>.' => 'This is being overridden by the <code>qrDownloadFilename</code> setting in <code>config/smartlink-manager.php</code>.',
+    'This is being overridden by the <code>redirectTemplate</code> setting in <code>config/smartlink-manager.php</code>.' => 'This is being overridden by the <code>redirectTemplate</code> setting in <code>config/smartlink-manager.php</code>.',
+    'This is being overridden by the <code>qrTemplate</code> setting in <code>config/smartlink-manager.php</code>.' => 'This is being overridden by the <code>qrTemplate</code> setting in <code>config/smartlink-manager.php</code>.',
+    'This is being overridden by the <code>enableGeoDetection</code> setting in <code>config/smartlink-manager.php</code>.' => 'This is being overridden by the <code>enableGeoDetection</code> setting in <code>config/smartlink-manager.php</code>.',
+    'This is being overridden by the <code>cacheDeviceDetection</code> setting in <code>config/smartlink-manager.php</code>.' => 'This is being overridden by the <code>cacheDeviceDetection</code> setting in <code>config/smartlink-manager.php</code>.',
+    'This is being overridden by the <code>deviceDetectionCacheDuration</code> setting in <code>config/smartlink-manager.php</code>.' => 'This is being overridden by the <code>deviceDetectionCacheDuration</code> setting in <code>config/smartlink-manager.php</code>.',
+    'This is being overridden by the <code>languageDetectionMethod</code> setting in <code>config/smartlink-manager.php</code>.' => 'This is being overridden by the <code>languageDetectionMethod</code> setting in <code>config/smartlink-manager.php</code>.',
+    'This is being overridden by the <code>itemsPerPage</code> setting in <code>config/smartlink-manager.php</code>.' => 'This is being overridden by the <code>itemsPerPage</code> setting in <code>config/smartlink-manager.php</code>.',
+    'This is being overridden by the <code>notFoundRedirectUrl</code> setting in <code>config/smartlink-manager.php</code>.' => 'This is being overridden by the <code>notFoundRedirectUrl</code> setting in <code>config/smartlink-manager.php</code>.',
+    'This is being overridden by the <code>enabledSites</code> setting in <code>config/smartlink-manager.php</code>.' => 'This is being overridden by the <code>enabledSites</code> setting in <code>config/smartlink-manager.php</code>.',
 ];

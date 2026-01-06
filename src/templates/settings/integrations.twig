@@ -1,20 +1,20 @@
-{% extends "smart-links/_layouts/settings" %}
-{% set title = "Integrations Settings"|t('smart-links') %}
+{% extends "smartlink-manager/_layouts/settings" %}
+{% set title = "Integrations Settings"|t('smartlink-manager') %}
 {% set fullPageForm = true %}
 {% set selectedSettingsItem = 'integrations' %}
 
 {% set crumbs = [
     {
-        label: smartlinkHelper.fullName|t('smart-links'),
-        url: url('smart-links'),
+        label: smartlinkHelper.fullName|t('smartlink-manager'),
+        url: url('smartlink-manager'),
     },
     {
-        label: 'Settings'|t('smart-links'),
-        url: url('smart-links/settings'),
+        label: 'Settings'|t('smartlink-manager'),
+        url: url('smartlink-manager/settings'),
     },
     {
-        label: 'Integrations'|t('smart-links'),
-        url: url('smart-links/settings/integrations'),
+        label: 'Integrations'|t('smartlink-manager'),
+        url: url('smartlink-manager/settings/integrations'),
     },
 ] %}
 
@@ -22,8 +22,8 @@
 
 {% block content %}
     {% include 'lindemannrock-base/_components/ip-salt-error' with {
-        pluginHandle: 'smart-links',
-        envVarName: 'SMART_LINKS_IP_SALT'
+        pluginHandle: 'smartlink-manager',
+        envVarName: 'SMARTLINK_MANAGER_IP_SALT'
     } %}
 
     <style>
@@ -33,18 +33,18 @@
         }
     </style>
     <form method="post" accept-charset="UTF-8">
-        {{ actionInput('smart-links/settings/save') }}
+        {{ actionInput('smartlink-manager/settings/save') }}
         {{ csrfInput() }}
-        {{ redirectInput('smart-links/settings/integrations') }}
+        {{ redirectInput('smartlink-manager/settings/integrations') }}
         {{ hiddenInput('section', 'integrations') }}
 
-        <h2 style="margin-top: 0px;">{{ "Third-Party Integrations"|t('smart-links') }}</h2>
+        <h2 style="margin-top: 0px;">{{ "Third-Party Integrations"|t('smartlink-manager') }}</h2>
 
         <div class="field">
-            <p class="light">{{ "Integrate {pluginName} with third-party analytics and tracking services to push click events to Google Tag Manager, Google Analytics, and other platforms."|t('smart-links', { pluginName: smartlinkHelper.fullName }) }}</p>
+            <p class="light">{{ "Integrate {pluginName} with third-party analytics and tracking services to push click events to Google Tag Manager, Google Analytics, and other platforms."|t('smartlink-manager', { pluginName: smartlinkHelper.fullName }) }}</p>
         </div>
 
-        {% set integrationStatuses = craft.app.plugins.getPlugin('smart-links').integration.getAllIntegrationStatuses() %}
+        {% set integrationStatuses = craft.app.plugins.getPlugin('smartlink-manager').integration.getAllIntegrationStatuses() %}
 
         {# SEOmatic Integration #}
         {% set seomaticStatus = integrationStatuses.seomatic ?? null %}
@@ -59,23 +59,23 @@
         <div class="integration-card" style="border: 1px solid #e3e5e8; border-radius: 4px; margin-bottom: 10px; background: white;">
             <div class="integration-header" style="padding: 15px; display: flex; justify-content: space-between; align-items: center; gap: 15px; background: {{ seomaticAvailable ? '#f7f7f7' : '#f9f9f9' }};">
                 <div style="flex: 1; min-width: 0;">
-                    <strong style="font-size: 15px; {{ not seomaticAvailable ? 'color: #999;' : '' }}">{{ "{pluginName} Integration"|t('smart-links', { pluginName: seomaticPluginName }) }}</strong>
+                    <strong style="font-size: 15px; {{ not seomaticAvailable ? 'color: #999;' : '' }}">{{ "{pluginName} Integration"|t('smartlink-manager', { pluginName: seomaticPluginName }) }}</strong>
                     <div style="display: flex; align-items: center; gap: 10px; margin-top: 5px;">
                         {% if seomaticAvailable %}
                             <span class="status on"></span>
-                            <span style="color: #28a745; font-size: 12px;">{{ "Installed & Active"|t('smart-links') }}</span>
+                            <span style="color: #28a745; font-size: 12px;">{{ "Installed & Active"|t('smartlink-manager') }}</span>
                         {% elseif seomaticInstalled %}
                             <span class="status"></span>
-                            <span style="color: #6c757d; font-size: 12px;">{{ "Installed but Disabled"|t('smart-links') }}</span>
+                            <span style="color: #6c757d; font-size: 12px;">{{ "Installed but Disabled"|t('smartlink-manager') }}</span>
                         {% else %}
                             <span class="status"></span>
                             <span style="color: #6c757d; font-size: 12px;">
-                                {{ "Not Installed"|t('smart-links') }}
-                                <a href="https://plugins.craftcms.com/seomatic" target="_blank" class="go" style="margin-left: 8px;">{{ "Install Plugin"|t('smart-links') }}</a>
+                                {{ "Not Installed"|t('smartlink-manager') }}
+                                <a href="https://plugins.craftcms.com/seomatic" target="_blank" class="go" style="margin-left: 8px;">{{ "Install Plugin"|t('smartlink-manager') }}</a>
                             </span>
                         {% endif %}
                     </div>
-                    <p class="light" style="margin: 8px 0 0 0; font-size: 12px;">{{ "Push {smartLinksName} click events to Google Tag Manager and analytics platforms for tracking redirects, button clicks, and QR code scans."|t('smart-links', { smartLinksName: smartlinkHelper.lowerDisplayName }) }}</p>
+                    <p class="light" style="margin: 8px 0 0 0; font-size: 12px;">{{ "Push {smartLinksName} click events to Google Tag Manager and analytics platforms for tracking redirects, button clicks, and QR code scans."|t('smartlink-manager', { smartLinksName: smartlinkHelper.lowerDisplayName }) }}</p>
                 </div>
                 <div style="flex-shrink: 0;">
                     {{ forms.lightswitchField({
@@ -92,7 +92,7 @@
                 <div id="seomatic-settings" class="{{ not seomaticEnabled ? 'hidden' }}" style="padding: 20px; border-top: 1px solid #e3e5e8;">
                     {% if settings.isOverriddenByConfig('enabledIntegrations') %}
                         <p class="warning" style="margin-bottom: 20px;">
-                            {{ "This is being overridden by the <code>enabledIntegrations</code> setting in <code>config/smart-links.php</code>."|t('smart-links')|raw }}
+                            {{ "This is being overridden by the <code>enabledIntegrations</code> setting in <code>config/smartlink-manager.php</code>."|t('smartlink-manager')|raw }}
                         </p>
                     {% endif %}
 
@@ -108,8 +108,8 @@
                     {% if hasDataLayerScripts %}
                         <div style="margin-bottom: 20px;">
                             <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
-                                <strong style="font-size: 13px;">{{ "Active Tracking Scripts"|t('smart-links') }}</strong>
-                                <span class="light" style="font-size: 11px;">{{ "Scripts receiving {pluginName} events"|t('smart-links', { pluginName: smartlinkHelper.fullName }) }}</span>
+                                <strong style="font-size: 13px;">{{ "Active Tracking Scripts"|t('smartlink-manager') }}</strong>
+                                <span class="light" style="font-size: 11px;">{{ "Scripts receiving {pluginName} events"|t('smartlink-manager', { pluginName: smartlinkHelper.fullName }) }}</span>
                             </div>
                             {% for handle in dataLayerScripts %}
                                 {% if seomaticStatus.scripts[handle] is defined %}
@@ -141,15 +141,15 @@
                     {% else %}
                         <div style="background: #fff9e6; border-left: 3px solid #f59e0b; padding: 12px 15px; margin-bottom: 20px; border-radius: 3px;">
                             <p style="margin: 0; font-size: 13px;">
-                                <strong>{{ "Note"|t('smart-links') }}:</strong>
-                                {{ "No tracking scripts are currently configured in {pluginName}. Events will be queued but not sent until you configure GTM or Google Analytics in {pluginName}."|t('smart-links', { pluginName: seomaticPluginName }) }}
+                                <strong>{{ "Note"|t('smartlink-manager') }}:</strong>
+                                {{ "No tracking scripts are currently configured in {pluginName}. Events will be queued but not sent until you configure GTM or Google Analytics in {pluginName}."|t('smartlink-manager', { pluginName: seomaticPluginName }) }}
                             </p>
                         </div>
                     {% endif %}
 
                     {# Configuration Section #}
                     <div style="background: #fafafa; border: 1px solid #e3e5e8; padding: 15px; border-radius: 4px; margin-bottom: 20px;">
-                        <h4 style="margin: 0 0 15px 0; font-size: 14px; font-weight: 600;">{{ "Configuration"|t('smart-links') }}</h4>
+                        <h4 style="margin: 0 0 15px 0; font-size: 14px; font-weight: 600;">{{ "Configuration"|t('smartlink-manager') }}</h4>
 
                         {# Event Type Selection - Lightswitch Toggles #}
                         {% set trackingEvents = settings.seomaticTrackingEvents ?? ['redirect', 'button_click', 'qr_scan'] %}
@@ -157,15 +157,15 @@
 
                         <div class="field">
                             <div class="heading">
-                                <label>{{ "Tracking Events"|t('smart-links') }}</label>
+                                <label>{{ "Tracking Events"|t('smartlink-manager') }}</label>
                                 <div class="instructions">
-                                    <p>{{ "Select which events to send to {pluginName}"|t('smart-links', { pluginName: seomaticPluginName }) }}</p>
+                                    <p>{{ "Select which events to send to {pluginName}"|t('smartlink-manager', { pluginName: seomaticPluginName }) }}</p>
                                 </div>
                             </div>
 
                             {% if isOverridden %}
                                 <p class="warning" style="margin-bottom: 15px;">
-                                    {{ "This is being overridden by the <code>seomaticTrackingEvents</code> setting in <code>config/smart-links.php</code>."|t('smart-links')|raw }}
+                                    {{ "This is being overridden by the <code>seomaticTrackingEvents</code> setting in <code>config/smartlink-manager.php</code>."|t('smartlink-manager')|raw }}
                                 </p>
                             {% endif %}
 
@@ -183,8 +183,8 @@
                                         }) }}
                                     </div>
                                     <div>
-                                        <strong>{{ "Auto-Redirects"|t('smart-links') }}</strong>
-                                        <span class="light" style="display: block; font-size: 12px; margin-top: 2px;">{{ "Mobile users automatically redirected"|t('smart-links') }}</span>
+                                        <strong>{{ "Auto-Redirects"|t('smartlink-manager') }}</strong>
+                                        <span class="light" style="display: block; font-size: 12px; margin-top: 2px;">{{ "Mobile users automatically redirected"|t('smartlink-manager') }}</span>
                                     </div>
                                 </div>
 
@@ -201,8 +201,8 @@
                                         }) }}
                                     </div>
                                     <div>
-                                        <strong>{{ "Button Clicks"|t('smart-links') }}</strong>
-                                        <span class="light" style="display: block; font-size: 12px; margin-top: 2px;">{{ "Manual platform selection on landing page"|t('smart-links') }}</span>
+                                        <strong>{{ "Button Clicks"|t('smartlink-manager') }}</strong>
+                                        <span class="light" style="display: block; font-size: 12px; margin-top: 2px;">{{ "Manual platform selection on landing page"|t('smartlink-manager') }}</span>
                                     </div>
                                 </div>
 
@@ -219,8 +219,8 @@
                                         }) }}
                                     </div>
                                     <div>
-                                        <strong>{{ "QR Code Scans"|t('smart-links') }}</strong>
-                                        <span class="light" style="display: block; font-size: 12px; margin-top: 2px;">{{ "QR code accessed via ?src=qr parameter"|t('smart-links') }}</span>
+                                        <strong>{{ "QR Code Scans"|t('smartlink-manager') }}</strong>
+                                        <span class="light" style="display: block; font-size: 12px; margin-top: 2px;">{{ "QR code accessed via ?src=qr parameter"|t('smartlink-manager') }}</span>
                                     </div>
                                 </div>
                             </div>
@@ -228,15 +228,15 @@
 
                         {# Event Prefix #}
                         {{ forms.textField({
-                            label: "Event Prefix"|t('smart-links'),
-                            instructions: "Prefix for event names (e.g., 'smart_links_redirect')"|t('smart-links'),
+                            label: "Event Prefix"|t('smartlink-manager'),
+                            instructions: "Prefix for event names (e.g., 'smart_links_redirect')"|t('smartlink-manager'),
                             id: 'seomaticEventPrefix',
                             name: 'settings[seomaticEventPrefix]',
                             value: settings.seomaticEventPrefix ?? 'smart_links',
                             placeholder: 'smart_links',
                             disabled: settings.isOverriddenByConfig('seomaticEventPrefix'),
                             warning: settings.isOverriddenByConfig('seomaticEventPrefix') ?
-                                "This is being overridden by the <code>seomaticEventPrefix</code> setting in <code>config/smart-links.php</code>."|t('smart-links')|raw : null,
+                                "This is being overridden by the <code>seomaticEventPrefix</code> setting in <code>config/smartlink-manager.php</code>."|t('smartlink-manager')|raw : null,
                             errors: (settings is defined and settings) ? settings.getErrors('seomaticEventPrefix') : []
                         }) }}
                     </div>
@@ -244,8 +244,8 @@
                     {# Event Structure Documentation - Collapsible #}
                     <details style="margin-bottom: 15px;">
                         <summary style="cursor: pointer; font-weight: 600; font-size: 13px; padding: 10px 0; user-select: none;">
-                            {{ "Event Data Structure"|t('smart-links') }}
-                            <span class="light" style="font-weight: normal; font-size: 12px; margin-left: 8px;">{{ "Click to view the data layer event format"|t('smart-links') }}</span>
+                            {{ "Event Data Structure"|t('smartlink-manager') }}
+                            <span class="light" style="font-weight: normal; font-size: 12px; margin-left: 8px;">{{ "Click to view the data layer event format"|t('smartlink-manager') }}</span>
                         </summary>
                         <div style="background: #f7f7f7; padding: 15px; border-radius: 4px; font-family: monospace; font-size: 11px; overflow-x: auto; margin-top: 10px;">
 <pre style="margin: 0; line-height: 1.5;">{
@@ -270,27 +270,27 @@
                     {# Help Text #}
                     <div style="background: #f0fdf4; border: 1px solid #86efac; padding: 12px 15px; border-radius: 3px;">
                         <p style="margin: 0 0 8px 0; font-size: 13px;">
-                            <strong>{{ "How Events Are Sent"|t('smart-links') }}:</strong>
+                            <strong>{{ "How Events Are Sent"|t('smartlink-manager') }}:</strong>
                         </p>
                         <ul style="margin: 0 0 12px 0; padding-left: 20px; font-size: 12px; line-height: 1.6;">
                             <li style="margin-bottom: 6px;">
-                                <strong>{{ "{pluginName} pushes events to GTM or GA4 dataLayer only"|t('smart-links', {pluginName: smartlinkHelper.fullName}) }}</strong><br>
-                                <span class="light">{{ "Only Google Tag Manager and Google Analytics 4 support the dataLayer format in SEOmatic"|t('smart-links') }}</span>
+                                <strong>{{ "{pluginName} pushes events to GTM or GA4 dataLayer only"|t('smartlink-manager', {pluginName: smartlinkHelper.fullName}) }}</strong><br>
+                                <span class="light">{{ "Only Google Tag Manager and Google Analytics 4 support the dataLayer format in SEOmatic"|t('smartlink-manager') }}</span>
                             </li>
                             <li style="margin-bottom: 6px;">
-                                <strong>{{ "Use GTM to forward to other platforms"|t('smart-links') }}</strong><br>
-                                <span class="light">{{ "Configure GTM triggers and tags to forward {pluginName} events to Facebook Pixel, LinkedIn, HubSpot, etc."|t('smart-links', {pluginName: smartlinkHelper.fullName}) }}</span>
+                                <strong>{{ "Use GTM to forward to other platforms"|t('smartlink-manager') }}</strong><br>
+                                <span class="light">{{ "Configure GTM triggers and tags to forward {pluginName} events to Facebook Pixel, LinkedIn, HubSpot, etc."|t('smartlink-manager', {pluginName: smartlinkHelper.fullName}) }}</span>
                             </li>
                             <li style="margin-bottom: 6px;">
-                                <strong>{{ "Other scripts are detected for reference only"|t('smart-links') }}</strong><br>
-                                <span class="light">{{ "Fathom, Matomo, and Plausible are shown above but do not receive events directly from {pluginName}"|t('smart-links', {pluginName: smartlinkHelper.fullName}) }}</span>
+                                <strong>{{ "Other scripts are detected for reference only"|t('smartlink-manager') }}</strong><br>
+                                <span class="light">{{ "Fathom, Matomo, and Plausible are shown above but do not receive events directly from {pluginName}"|t('smartlink-manager', {pluginName: smartlinkHelper.fullName}) }}</span>
                             </li>
                             <li>
-                                <span class="light">{{ "Events are only sent when analytics tracking is enabled both globally and per-link"|t('smart-links') }}</span>
+                                <span class="light">{{ "Events are only sent when analytics tracking is enabled both globally and per-link"|t('smartlink-manager') }}</span>
                             </li>
                         </ul>
                         <p style="margin: 0; font-size: 11px; color: #666;">
-                            <strong>{{ "Architecture"|t('smart-links') }}:</strong>
+                            <strong>{{ "Architecture"|t('smartlink-manager') }}:</strong>
                             {{ smartlinkHelper.fullName }} → GTM/GA4 dataLayer → GTM Triggers → Facebook/LinkedIn/HubSpot/etc.
                         </p>
                     </div>
@@ -311,23 +311,23 @@
         <div class="integration-card" style="border: 1px solid #e3e5e8; border-radius: 4px; margin-bottom: 10px; background: white;">
             <div class="integration-header" style="padding: 15px; display: flex; justify-content: space-between; align-items: center; gap: 15px; background: {{ rmAvailable ? '#f7f7f7' : '#f9f9f9' }};">
                 <div style="flex: 1; min-width: 0;">
-                    <strong style="font-size: 15px; {{ not rmAvailable ? 'color: #999;' : '' }}">{{ "{pluginName} Integration"|t('smart-links', { pluginName: rmPluginName }) }}</strong>
+                    <strong style="font-size: 15px; {{ not rmAvailable ? 'color: #999;' : '' }}">{{ "{pluginName} Integration"|t('smartlink-manager', { pluginName: rmPluginName }) }}</strong>
                     <div style="display: flex; align-items: center; gap: 10px; margin-top: 5px;">
                         {% if rmAvailable %}
                             <span class="status on"></span>
-                            <span style="color: #28a745; font-size: 12px;">{{ "Installed & Active"|t('smart-links') }}</span>
+                            <span style="color: #28a745; font-size: 12px;">{{ "Installed & Active"|t('smartlink-manager') }}</span>
                         {% elseif rmInstalled %}
                             <span class="status"></span>
-                            <span style="color: #6c757d; font-size: 12px;">{{ "Installed but Disabled"|t('smart-links') }}</span>
+                            <span style="color: #6c757d; font-size: 12px;">{{ "Installed but Disabled"|t('smartlink-manager') }}</span>
                         {% else %}
                             <span class="status"></span>
                             <span style="color: #6c757d; font-size: 12px;">
-                                {{ "Not Installed"|t('smart-links') }}
-                                <a href="https://github.com/LindemannRock/craft-redirect-manager" target="_blank" class="go" style="margin-left: 8px;">{{ "Install Plugin"|t('smart-links') }}</a>
+                                {{ "Not Installed"|t('smartlink-manager') }}
+                                <a href="https://github.com/LindemannRock/craft-redirect-manager" target="_blank" class="go" style="margin-left: 8px;">{{ "Install Plugin"|t('smartlink-manager') }}</a>
                             </span>
                         {% endif %}
                     </div>
-                    <p class="light" style="margin: 8px 0 0 0; font-size: 12px;">{{ "Create permanent redirect records when {pluginName} slugs change. Provides centralized redirect management and analytics tracking."|t('smart-links', {pluginName: smartlinkHelper.lowerDisplayName}) }}</p>
+                    <p class="light" style="margin: 8px 0 0 0; font-size: 12px;">{{ "Create permanent redirect records when {pluginName} slugs change. Provides centralized redirect management and analytics tracking."|t('smartlink-manager', {pluginName: smartlinkHelper.lowerDisplayName}) }}</p>
                 </div>
                 <div style="flex-shrink: 0;">
                     {{ forms.lightswitchField({
@@ -344,27 +344,27 @@
                 <div id="redirect-manager-settings" class="{{ not rmIntegrationEnabled ? 'hidden' }}" style="padding: 20px; border-top: 1px solid #e3e5e8;">
                     {% if settings.isOverriddenByConfig('enabledIntegrations') %}
                         <p class="warning" style="margin-bottom: 20px;">
-                            {{ "This is being overridden by the <code>enabledIntegrations</code> setting in <code>config/smart-links.php</code>."|t('smart-links')|raw }}
+                            {{ "This is being overridden by the <code>enabledIntegrations</code> setting in <code>config/smartlink-manager.php</code>."|t('smartlink-manager')|raw }}
                         </p>
                     {% endif %}
 
                     {# Configuration Section #}
                     <div style="background: #fafafa; border: 1px solid #e3e5e8; padding: 15px; border-radius: 4px; margin-bottom: 20px;">
-                        <h4 style="margin: 0 0 15px 0; font-size: 14px; font-weight: 600;">{{ "Configuration"|t('smart-links') }}</h4>
+                        <h4 style="margin: 0 0 15px 0; font-size: 14px; font-weight: 600;">{{ "Configuration"|t('smartlink-manager') }}</h4>
 
                         {% set isOverridden = settings.isOverriddenByConfig('redirectManagerEvents') %}
 
                         <div class="field">
                             <div class="heading">
-                                <label>{{ "Automatic Redirect Creation"|t('smart-links') }}</label>
+                                <label>{{ "Automatic Redirect Creation"|t('smartlink-manager') }}</label>
                                 <div class="instructions">
-                                    <p>{{ "Select which events should create permanent redirects in {pluginName}"|t('smart-links', { pluginName: rmPluginName }) }}</p>
+                                    <p>{{ "Select which events should create permanent redirects in {pluginName}"|t('smartlink-manager', { pluginName: rmPluginName }) }}</p>
                                 </div>
                             </div>
 
                             {% if isOverridden %}
                                 <p class="warning" style="margin-bottom: 15px;">
-                                    {{ "This is being overridden by the <code>redirectManagerEvents</code> setting in <code>config/smart-links.php</code>."|t('smart-links')|raw }}
+                                    {{ "This is being overridden by the <code>redirectManagerEvents</code> setting in <code>config/smartlink-manager.php</code>."|t('smartlink-manager')|raw }}
                                 </p>
                             {% endif %}
 
@@ -382,8 +382,8 @@
                                         }) }}
                                     </div>
                                     <div>
-                                        <strong>{{ "Slug Changes"|t('smart-links') }}</strong>
-                                        <span class="light" style="display: block; font-size: 12px; margin-top: 2px;">{{ "Change slug from <code>promo-2024</code> to <code>promo-2025</code> → Creates <code>/go/promo-2024</code> → <code>/go/promo-2025</code>"|t('smart-links')|raw }}</span>
+                                        <strong>{{ "Slug Changes"|t('smartlink-manager') }}</strong>
+                                        <span class="light" style="display: block; font-size: 12px; margin-top: 2px;">{{ "Change slug from <code>promo-2024</code> to <code>promo-2025</code> → Creates <code>/go/promo-2024</code> → <code>/go/promo-2025</code>"|t('smartlink-manager')|raw }}</span>
                                     </div>
                                 </div>
                             </div>
@@ -393,24 +393,24 @@
                     {# Help Text #}
                     <div style="background: #f0fdf4; border: 1px solid #86efac; padding: 12px 15px; border-radius: 3px;">
                         <p style="margin: 0 0 8px 0; font-size: 13px;">
-                            <strong>{{ "Benefits of This Integration"|t('smart-links') }}:</strong>
+                            <strong>{{ "Benefits of This Integration"|t('smartlink-manager') }}:</strong>
                         </p>
                         <ul style="margin: 0 0 0 0; padding-left: 20px; font-size: 12px; line-height: 1.6;">
                             <li style="margin-bottom: 6px;">
-                                <strong>{{ "Centralized Management"|t('smart-links') }}</strong> –
-                                {{ "View and manage all redirects ({pluginName} + regular pages) in one place"|t('smart-links', {pluginName: smartlinkHelper.pluralLowerDisplayName}) }}
+                                <strong>{{ "Centralized Management"|t('smartlink-manager') }}</strong> –
+                                {{ "View and manage all redirects ({pluginName} + regular pages) in one place"|t('smartlink-manager', {pluginName: smartlinkHelper.pluralLowerDisplayName}) }}
                             </li>
                             <li style="margin-bottom: 6px;">
-                                <strong>{{ "Analytics Tracking"|t('smart-links') }}</strong> –
-                                {{ "See how many people try to access deleted or changed {pluginName}, their devices, browsers, and countries"|t('smart-links', {pluginName: smartlinkHelper.pluralLowerDisplayName}) }}
+                                <strong>{{ "Analytics Tracking"|t('smartlink-manager') }}</strong> –
+                                {{ "See how many people try to access deleted or changed {pluginName}, their devices, browsers, and countries"|t('smartlink-manager', {pluginName: smartlinkHelper.pluralLowerDisplayName}) }}
                             </li>
                             <li style="margin-bottom: 6px;">
-                                <strong>{{ "Persistent Redirects"|t('smart-links') }}</strong> –
-                                {{ "Redirects persist even if {pluginName} is deleted, preventing broken links permanently"|t('smart-links', {pluginName: smartlinkHelper.lowerDisplayName}) }}
+                                <strong>{{ "Persistent Redirects"|t('smartlink-manager') }}</strong> –
+                                {{ "Redirects persist even if {pluginName} is deleted, preventing broken links permanently"|t('smartlink-manager', {pluginName: smartlinkHelper.lowerDisplayName}) }}
                             </li>
                             <li>
-                                <strong>{{ "Source Tracking"|t('smart-links') }}</strong> –
-                                {{ "{rmPluginName} shows which plugin created each redirect for better organization"|t('smart-links', {rmPluginName: rmPluginName}) }}
+                                <strong>{{ "Source Tracking"|t('smartlink-manager') }}</strong> –
+                                {{ "{rmPluginName} shows which plugin created each redirect for better organization"|t('smartlink-manager', {rmPluginName: rmPluginName}) }}
                             </li>
                         </ul>
                     </div>
@@ -482,7 +482,7 @@
         {% endjs %}
 
         <div class="buttons">
-            <button type="submit" class="btn submit">{{ "Save Settings"|t('smart-links') }}</button>
+            <button type="submit" class="btn submit">{{ "Save Settings"|t('smartlink-manager') }}</button>
         </div>
     </form>
 

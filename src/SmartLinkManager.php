@@ -1,6 +1,6 @@
 <?php
 /**
- * Smart Links plugin for Craft CMS 5.x
+ * SmartLink Manager plugin for Craft CMS 5.x
  *
  * Intelligent device detection and app store routing
  *
@@ -8,7 +8,7 @@
  * @copyright Copyright (c) 2025 LindemannRock
  */
 
-namespace lindemannrock\smartlinks;
+namespace lindemannrock\smartlinkmanager;
 
 use Craft;
 use craft\base\Model;
@@ -31,27 +31,27 @@ use craft\web\View;
 use lindemannrock\base\helpers\PluginHelper;
 use lindemannrock\logginglibrary\LoggingLibrary;
 use lindemannrock\logginglibrary\traits\LoggingTrait;
-use lindemannrock\smartlinks\elements\SmartLink;
-use lindemannrock\smartlinks\fields\SmartLinkField;
-use lindemannrock\smartlinks\integrations\SmartLinkType;
-use lindemannrock\smartlinks\jobs\CleanupAnalyticsJob;
-use lindemannrock\smartlinks\models\Settings;
-use lindemannrock\smartlinks\services\AnalyticsService;
-use lindemannrock\smartlinks\services\DeviceDetectionService;
-use lindemannrock\smartlinks\services\IntegrationService;
-use lindemannrock\smartlinks\services\QrCodeService;
-use lindemannrock\smartlinks\services\SmartLinksService;
-use lindemannrock\smartlinks\utilities\SmartLinksUtility;
-use lindemannrock\smartlinks\variables\SmartLinksVariable;
-use lindemannrock\smartlinks\widgets\AnalyticsSummaryWidget;
-use lindemannrock\smartlinks\widgets\TopLinksWidget;
+use lindemannrock\smartlinkmanager\elements\SmartLink;
+use lindemannrock\smartlinkmanager\fields\SmartLinkField;
+use lindemannrock\smartlinkmanager\integrations\SmartLinkType;
+use lindemannrock\smartlinkmanager\jobs\CleanupAnalyticsJob;
+use lindemannrock\smartlinkmanager\models\Settings;
+use lindemannrock\smartlinkmanager\services\AnalyticsService;
+use lindemannrock\smartlinkmanager\services\DeviceDetectionService;
+use lindemannrock\smartlinkmanager\services\IntegrationService;
+use lindemannrock\smartlinkmanager\services\QrCodeService;
+use lindemannrock\smartlinkmanager\services\SmartLinksService;
+use lindemannrock\smartlinkmanager\utilities\SmartLinksUtility;
+use lindemannrock\smartlinkmanager\variables\SmartLinksVariable;
+use lindemannrock\smartlinkmanager\widgets\AnalyticsSummaryWidget;
+use lindemannrock\smartlinkmanager\widgets\TopLinksWidget;
 use yii\base\Event;
 
 /**
- * Smart Links Plugin
+ * SmartLink Manager Plugin
  *
  * @author    LindemannRock
- * @package   SmartLinks
+ * @package   SmartLinkManager
  * @since     1.0.0
  *
  * @property-read SmartLinksService $smartLinks
@@ -62,14 +62,14 @@ use yii\base\Event;
  * @property-read Settings $settings
  * @method Settings getSettings()
  */
-class SmartLinks extends Plugin
+class SmartLinkManager extends Plugin
 {
     use LoggingTrait;
 
     /**
-     * @var SmartLinks|null Singleton plugin instance
+     * @var SmartLinkManager|null Singleton plugin instance
      */
-    public static ?SmartLinks $plugin = null;
+    public static ?SmartLinkManager $plugin = null;
 
     /**
      * @var string Plugin schema version for migrations
@@ -95,7 +95,7 @@ class SmartLinks extends Plugin
         self::$plugin = $this;
 
         // Bootstrap shared plugin functionality (Twig helper, logging nav)
-        PluginHelper::bootstrap($this, 'smartlinkHelper', ['smartLinks:viewLogs']);
+        PluginHelper::bootstrap($this, 'smartlinkHelper', ['smartLinkManager:viewLogs']);
         PluginHelper::applyPluginNameFromConfig($this);
 
         // Configure logging
@@ -105,7 +105,7 @@ class SmartLinks extends Plugin
             'pluginName' => $settings->getFullName(),
             'logLevel' => $settings->logLevel ?? 'error',
             'itemsPerPage' => $settings->itemsPerPage ?? 50,
-            'permissions' => ['smartLinks:viewLogs'],
+            'permissions' => ['smartLinkManager:viewLogs'],
         ]);
 
         // Register services
@@ -124,7 +124,7 @@ class SmartLinks extends Plugin
         $this->registerProjectConfigEventHandlers();
 
         // Register translations
-        Craft::$app->i18n->translations['smart-links'] = [
+        Craft::$app->i18n->translations['smartlink-manager'] = [
             'class' => \craft\i18n\PhpMessageSource::class,
             'sourceLanguage' => 'en',
             'basePath' => __DIR__ . '/translations',
@@ -137,7 +137,7 @@ class SmartLinks extends Plugin
             View::class,
             View::EVENT_REGISTER_CP_TEMPLATE_ROOTS,
             function(RegisterTemplateRootsEvent $event) {
-                $event->roots['smart-links'] = __DIR__ . '/templates';
+                $event->roots['smartlink-manager'] = __DIR__ . '/templates';
             }
         );
 
@@ -203,7 +203,7 @@ class SmartLinks extends Plugin
             UserPermissions::EVENT_REGISTER_PERMISSIONS,
             function(RegisterUserPermissionsEvent $event) {
                 $event->permissions[] = [
-                    'heading' => Craft::t('smart-links', 'Smart Links'),
+                    'heading' => Craft::t('smartlink-manager', 'SmartLink Manager'),
                     'permissions' => $this->getPluginPermissions(),
                 ];
             }
@@ -237,8 +237,8 @@ class SmartLinks extends Plugin
                 $displayName = $settings->getDisplayName();
 
                 $event->options[] = [
-                    'key' => 'smart-links-cache',
-                    'label' => Craft::t('smart-links', '{displayName} caches', ['displayName' => $displayName]),
+                    'key' => 'smartlink-manager-cache',
+                    'label' => Craft::t('smartlink-manager', '{displayName} caches', ['displayName' => $displayName]),
                     'action' => function() use ($settings) {
                         $cleared = 0;
 
@@ -249,8 +249,8 @@ class SmartLinks extends Plugin
                                 $redis = $cache->redis;
 
                                 // Get all keys from tracking sets
-                                $qrKeys = $redis->executeCommand('SMEMBERS', ['smartlinks-qr-keys']) ?: [];
-                                $deviceKeys = $redis->executeCommand('SMEMBERS', ['smartlinks-device-keys']) ?: [];
+                                $qrKeys = $redis->executeCommand('SMEMBERS', ['smartlinkmanager-qr-keys']) ?: [];
+                                $deviceKeys = $redis->executeCommand('SMEMBERS', ['smartlinkmanager-device-keys']) ?: [];
 
                                 // Delete QR cache keys using Craft's cache component
                                 foreach ($qrKeys as $key) {
@@ -263,12 +263,12 @@ class SmartLinks extends Plugin
                                 }
 
                                 // Clear the tracking sets
-                                $redis->executeCommand('DEL', ['smartlinks-qr-keys']);
-                                $redis->executeCommand('DEL', ['smartlinks-device-keys']);
+                                $redis->executeCommand('DEL', ['smartlinkmanager-qr-keys']);
+                                $redis->executeCommand('DEL', ['smartlinkmanager-device-keys']);
                             }
                         } else {
                             // Clear QR code file caches
-                            $qrPath = Craft::$app->path->getRuntimePath() . '/smart-links/cache/qr/';
+                            $qrPath = Craft::$app->path->getRuntimePath() . '/smartlink-manager/cache/qr/';
                             if (is_dir($qrPath)) {
                                 $files = glob($qrPath . '*.cache');
                                 foreach ($files as $file) {
@@ -279,7 +279,7 @@ class SmartLinks extends Plugin
                             }
 
                             // Clear device detection file caches
-                            $devicePath = Craft::$app->path->getRuntimePath() . '/smart-links/cache/device/';
+                            $devicePath = Craft::$app->path->getRuntimePath() . '/smartlink-manager/cache/device/';
                             if (is_dir($devicePath)) {
                                 $files = glob($devicePath . '*.cache');
                                 foreach ($files as $file) {
@@ -329,7 +329,7 @@ class SmartLinks extends Plugin
      */
     public function getCpNavItem(): ?array
     {
-        // Check if Smart Links is enabled for the current site
+        // Check if SmartLink Manager is enabled for the current site
         $currentSite = Craft::$app->getSites()->getCurrentSite();
         $settings = $this->getSettings();
 
@@ -348,14 +348,14 @@ class SmartLinks extends Plugin
             $item['subnav'] = [
                 'links' => [
                     'label' => 'Links',
-                    'url' => 'smart-links',
+                    'url' => 'smartlink-manager',
                 ],
             ];
 
-            if (Craft::$app->getUser()->checkPermission('smartLinks:viewAnalytics') && $this->getSettings()->enableAnalytics) {
+            if (Craft::$app->getUser()->checkPermission('smartLinkManager:viewAnalytics') && $this->getSettings()->enableAnalytics) {
                 $item['subnav']['analytics'] = [
-                    'label' => Craft::t('smart-links', 'Analytics'),
-                    'url' => 'smart-links/analytics',
+                    'label' => Craft::t('smartlink-manager', 'Analytics'),
+                    'url' => 'smartlink-manager/analytics',
                 ];
             }
 
@@ -363,14 +363,14 @@ class SmartLinks extends Plugin
             if (Craft::$app->getPlugins()->isPluginInstalled('logging-library') &&
                 Craft::$app->getPlugins()->isPluginEnabled('logging-library')) {
                 $item = LoggingLibrary::addLogsNav($item, $this->handle, [
-                    'smartLinks:viewLogs',
+                    'smartLinkManager:viewLogs',
                 ]);
             }
 
-            if (Craft::$app->getUser()->checkPermission('smartLinks:manageSettings')) {
+            if (Craft::$app->getUser()->checkPermission('smartLinkManager:manageSettings')) {
                 $item['subnav']['settings'] = [
-                    'label' => Craft::t('smart-links', 'Settings'),
-                    'url' => 'smart-links/settings',
+                    'label' => Craft::t('smartlink-manager', 'Settings'),
+                    'url' => 'smartlink-manager/settings',
                 ];
             }
         }
@@ -399,7 +399,7 @@ class SmartLinks extends Plugin
         if ($settings) {
             // Override with config file values using Craft's native multi-environment handling
             // This properly merges '*' with environment-specific configs (e.g., 'production')
-            $config = Craft::$app->getConfig()->getConfigFromFile('smart-links');
+            $config = Craft::$app->getConfig()->getConfigFromFile('smartlink-manager');
             if (!empty($config) && is_array($config)) {
                 foreach ($config as $key => $value) {
                     if (property_exists($settings, $key)) {
@@ -413,7 +413,7 @@ class SmartLinks extends Plugin
     }
 
     /**
-     * Get sites where Smart Links is enabled
+     * Get sites where SmartLink Manager is enabled
      *
      * @return array
      */
@@ -434,7 +434,7 @@ class SmartLinks extends Plugin
      */
     public function getSettingsResponse(): mixed
     {
-        return Craft::$app->controller->redirect('smart-links/settings');
+        return Craft::$app->controller->redirect('smartlink-manager/settings');
     }
 
     /**
@@ -443,33 +443,33 @@ class SmartLinks extends Plugin
     private function getCpUrlRules(): array
     {
         return [
-            // Smart Links routes
-            'smart-links' => ['template' => 'smart-links/smartlinks/index'],
-            'smart-links/smartlinks' => ['template' => 'smart-links/smartlinks/index'],
-            'smart-links/new' => 'smart-links/smart-links/edit',
-            'smart-links/smartlinks/new' => 'smart-links/smart-links/edit',
-            'smart-links/<smartLinkId:\d+>' => 'smart-links/smart-links/edit',
-            'smart-links/smartlinks/<smartLinkId:\d+>' => 'smart-links/smart-links/edit',
-            'smart-links/analytics' => 'smart-links/analytics/index',
-            'smart-links/analytics/<linkId:\d+>' => 'smart-links/analytics/link',
-            'smart-links/settings' => 'smart-links/settings/index',
-            'smart-links/settings/general' => 'smart-links/settings/general',
-            'smart-links/settings/analytics' => 'smart-links/settings/analytics',
-            'smart-links/settings/integrations' => 'smart-links/settings/integrations',
-            'smart-links/settings/export' => 'smart-links/settings/export',
-            'smart-links/settings/qr-code' => 'smart-links/settings/qr-code',
-            'smart-links/settings/behavior' => 'smart-links/settings/behavior',
-            'smart-links/settings/interface' => 'smart-links/settings/interface',
-            'smart-links/settings/cache' => 'smart-links/settings/cache',
-            'smart-links/settings/field-layout' => 'smart-links/settings/field-layout',
-            'smart-links/settings/save' => 'smart-links/settings/save',
-            'smart-links/settings/save-field-layout' => 'smart-links/settings/save-field-layout',
-            'smart-links/settings/cleanup-analytics' => 'smart-links/settings/cleanup-analytics',
+            // SmartLink Manager routes
+            'smartlink-manager' => ['template' => 'smartlink-manager/smartlinks/index'],
+            'smartlink-manager/smartlinks' => ['template' => 'smartlink-manager/smartlinks/index'],
+            'smartlink-manager/new' => 'smartlink-manager/smartlinks/edit',
+            'smartlink-manager/smartlinks/new' => 'smartlink-manager/smartlinks/edit',
+            'smartlink-manager/<smartLinkId:\d+>' => 'smartlink-manager/smartlinks/edit',
+            'smartlink-manager/smartlinks/<smartLinkId:\d+>' => 'smartlink-manager/smartlinks/edit',
+            'smartlink-manager/analytics' => 'smartlink-manager/analytics/index',
+            'smartlink-manager/analytics/<linkId:\d+>' => 'smartlink-manager/analytics/link',
+            'smartlink-manager/settings' => 'smartlink-manager/settings/index',
+            'smartlink-manager/settings/general' => 'smartlink-manager/settings/general',
+            'smartlink-manager/settings/analytics' => 'smartlink-manager/settings/analytics',
+            'smartlink-manager/settings/integrations' => 'smartlink-manager/settings/integrations',
+            'smartlink-manager/settings/export' => 'smartlink-manager/settings/export',
+            'smartlink-manager/settings/qr-code' => 'smartlink-manager/settings/qr-code',
+            'smartlink-manager/settings/behavior' => 'smartlink-manager/settings/behavior',
+            'smartlink-manager/settings/interface' => 'smartlink-manager/settings/interface',
+            'smartlink-manager/settings/cache' => 'smartlink-manager/settings/cache',
+            'smartlink-manager/settings/field-layout' => 'smartlink-manager/settings/field-layout',
+            'smartlink-manager/settings/save' => 'smartlink-manager/settings/save',
+            'smartlink-manager/settings/save-field-layout' => 'smartlink-manager/settings/save-field-layout',
+            'smartlink-manager/settings/cleanup-analytics' => 'smartlink-manager/settings/cleanup-analytics',
             // QR Code generation for preview
-            'smart-links/qr-code/generate' => 'smart-links/qr-code/generate',
+            'smartlink-manager/qr-code/generate' => 'smartlink-manager/qr-code/generate',
             // Logging routes
-            'smart-links/logs' => 'logging-library/logs/index',
-            'smart-links/logs/download' => 'logging-library/logs/download',
+            'smartlink-manager/logs' => 'logging-library/logs/index',
+            'smartlink-manager/logs/download' => 'logging-library/logs/download',
         ];
     }
 
@@ -483,10 +483,10 @@ class SmartLinks extends Plugin
         $qrPrefix = $settings->qrPrefix ?? 'qr';
 
         return [
-            $slugPrefix . '/<slug:[a-zA-Z0-9\-\_]+>' => 'smart-links/redirect/index',
-            $qrPrefix . '/<slug:[a-zA-Z0-9\-\_]+>' => 'smart-links/qr-code/generate',
-            $qrPrefix . '/<slug:[a-zA-Z0-9\-\_]+>/view' => 'smart-links/qr-code/display',
-            'smart-links/qr-code/generate' => 'smart-links/qr-code/generate',
+            $slugPrefix . '/<slug:[a-zA-Z0-9\-\_]+>' => 'smartlink-manager/redirect/index',
+            $qrPrefix . '/<slug:[a-zA-Z0-9\-\_]+>' => 'smartlink-manager/qr-code/generate',
+            $qrPrefix . '/<slug:[a-zA-Z0-9\-\_]+>/view' => 'smartlink-manager/qr-code/display',
+            'smartlink-manager/qr-code/generate' => 'smartlink-manager/qr-code/generate',
         ];
     }
 
@@ -496,26 +496,26 @@ class SmartLinks extends Plugin
     private function getPluginPermissions(): array
     {
         return [
-            'smartLinks:viewLinks' => [
-                'label' => Craft::t('smart-links', 'View smart links'),
+            'smartLinkManager:viewLinks' => [
+                'label' => Craft::t('smartlink-manager', 'View smart links'),
             ],
-            'smartLinks:createLinks' => [
-                'label' => Craft::t('smart-links', 'Create smart links'),
+            'smartLinkManager:createLinks' => [
+                'label' => Craft::t('smartlink-manager', 'Create smart links'),
             ],
-            'smartLinks:editLinks' => [
-                'label' => Craft::t('smart-links', 'Edit smart links'),
+            'smartLinkManager:editLinks' => [
+                'label' => Craft::t('smartlink-manager', 'Edit smart links'),
             ],
-            'smartLinks:deleteLinks' => [
-                'label' => Craft::t('smart-links', 'Delete smart links'),
+            'smartLinkManager:deleteLinks' => [
+                'label' => Craft::t('smartlink-manager', 'Delete smart links'),
             ],
-            'smartLinks:viewAnalytics' => [
-                'label' => Craft::t('smart-links', 'View analytics'),
+            'smartLinkManager:viewAnalytics' => [
+                'label' => Craft::t('smartlink-manager', 'View analytics'),
             ],
-            'smartLinks:viewLogs' => [
-                'label' => Craft::t('smart-links', 'View logs'),
+            'smartLinkManager:viewLogs' => [
+                'label' => Craft::t('smartlink-manager', 'View logs'),
             ],
-            'smartLinks:manageSettings' => [
-                'label' => Craft::t('smart-links', 'Manage settings'),
+            'smartLinkManager:manageSettings' => [
+                'label' => Craft::t('smartlink-manager', 'Manage settings'),
             ],
         ];
     }
@@ -534,7 +534,7 @@ class SmartLinks extends Plugin
             // Check if a cleanup job is already scheduled (within next 24 hours)
             $existingJob = (new \craft\db\Query())
                 ->from('{{%queue}}')
-                ->where(['like', 'job', 'smartlinks'])
+                ->where(['like', 'job', 'smartlinkmanager'])
                 ->andWhere(['like', 'job', 'CleanupAnalyticsJob'])
                 ->andWhere(['<=', 'timePushed', time() + 86400]) // Within next 24 hours
                 ->exists();
@@ -563,9 +563,9 @@ class SmartLinks extends Plugin
     {
         // Listen for project config changes to field layouts
         Craft::$app->getProjectConfig()
-            ->onAdd('smart-links.fieldLayouts.{uid}', [$this, 'handleChangedFieldLayout'])
-            ->onUpdate('smart-links.fieldLayouts.{uid}', [$this, 'handleChangedFieldLayout'])
-            ->onRemove('smart-links.fieldLayouts.{uid}', [$this, 'handleDeletedFieldLayout']);
+            ->onAdd('smartlink-manager.fieldLayouts.{uid}', [$this, 'handleChangedFieldLayout'])
+            ->onUpdate('smartlink-manager.fieldLayouts.{uid}', [$this, 'handleChangedFieldLayout'])
+            ->onRemove('smartlink-manager.fieldLayouts.{uid}', [$this, 'handleDeletedFieldLayout']);
     }
 
     /**
@@ -582,11 +582,11 @@ class SmartLinks extends Plugin
 
         $fieldLayout = \craft\models\FieldLayout::createFromConfig($data);
         $fieldLayout->uid = $uid;
-        $fieldLayout->type = \lindemannrock\smartlinks\elements\SmartLink::class;
+        $fieldLayout->type = \lindemannrock\smartlinkmanager\elements\SmartLink::class;
 
         Craft::$app->getFields()->saveLayout($fieldLayout, false);
 
-        $this->logInfo('Applied Smart Links field layout from project config', ['uid' => $uid]);
+        $this->logInfo('Applied SmartLink Manager field layout from project config', ['uid' => $uid]);
     }
 
     /**

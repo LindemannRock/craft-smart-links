@@ -1,20 +1,20 @@
-{% extends "smart-links/_layouts/settings" %}
-{% set title = "General Settings"|t('smart-links') %}
+{% extends "smartlink-manager/_layouts/settings" %}
+{% set title = "General Settings"|t('smartlink-manager') %}
 {% set fullPageForm = true %}
 {% set selectedSettingsItem = 'general' %}
 
 {% set crumbs = [
     {
-        label: smartlinkHelper.fullName|t('smart-links'),
-        url: url('smart-links'),
+        label: smartlinkHelper.fullName|t('smartlink-manager'),
+        url: url('smartlink-manager'),
     },
     {
-        label: 'Settings'|t('smart-links'),
-        url: url('smart-links/settings'),
+        label: 'Settings'|t('smartlink-manager'),
+        url: url('smartlink-manager/settings'),
     },
     {
-        label: 'General'|t('smart-links'),
-        url: url('smart-links/settings/general'),
+        label: 'General'|t('smartlink-manager'),
+        url: url('smartlink-manager/settings/general'),
     },
 ] %}
 
@@ -23,32 +23,32 @@
 {% block content %}
 
     {% include 'lindemannrock-base/_components/ip-salt-error' with {
-        pluginHandle: 'smart-links',
-        envVarName: 'SMART_LINKS_IP_SALT'
+        pluginHandle: 'smartlink-manager',
+        envVarName: 'SMARTLINK_MANAGER_IP_SALT'
     } %}
 
     <form method="post" accept-charset="UTF-8">
-        {{ actionInput('smart-links/settings/save') }}
+        {{ actionInput('smartlink-manager/settings/save') }}
         {{ csrfInput() }}
-        {{ redirectInput('smart-links/settings/general') }}
+        {{ redirectInput('smartlink-manager/settings/general') }}
         {{ hiddenInput('section', 'general') }}
 
-        <h2 style="margin-top: 0px;">{{ "Plugin Settings"|t('smart-links') }}</h2>
+        <h2 style="margin-top: 0px;">{{ "Plugin Settings"|t('smartlink-manager') }}</h2>
 
         {{ forms.textField({
-            label: "Plugin Name"|t('smart-links'),
-            instructions: "The name of the plugin as it appears in the Control Panel menu"|t('smart-links'),
+            label: "Plugin Name"|t('smartlink-manager'),
+            instructions: "The name of the plugin as it appears in the Control Panel menu"|t('smartlink-manager'),
             id: 'pluginName',
             name: 'settings[pluginName]',
             value: settings.pluginName,
             disabled: settings.isOverriddenByConfig('pluginName'),
             warning: settings.isOverriddenByConfig('pluginName') ?
-                "This is being overridden by the <code>pluginName</code> setting in <code>config/smart-links.php</code>."|t('smart-links')|raw : null,
+                "This is being overridden by the <code>pluginName</code> setting in <code>config/smartlink-manager.php</code>."|t('smartlink-manager')|raw : null,
         }) }}
 
         <hr>
 
-        <h2>{{ "Site Settings"|t('smart-links') }}</h2>
+        <h2>{{ "Site Settings"|t('smartlink-manager') }}</h2>
 
         {# Site selection checkboxes #}
         {% set siteOptions = [] %}
@@ -60,21 +60,21 @@
         {% endfor %}
 
         {{ forms.checkboxGroupField({
-            label: "Enabled Sites"|t('smart-links'),
-            instructions: "Select which sites {pluginName} should be enabled for. Leave empty to enable for all sites."|t('smart-links', {pluginName: smartlinkHelper.fullName}),
+            label: "Enabled Sites"|t('smartlink-manager'),
+            instructions: "Select which sites {pluginName} should be enabled for. Leave empty to enable for all sites."|t('smartlink-manager', {pluginName: smartlinkHelper.fullName}),
             id: 'enabledSites',
             name: 'settings[enabledSites]',
             options: siteOptions,
             values: settings.enabledSites ?? [],
             disabled: settings.isOverriddenByConfig('enabledSites'),
             warning: settings.isOverriddenByConfig('enabledSites') ?
-                "This is being overridden by the <code>enabledSites</code> setting in <code>config/smart-links.php</code>."|t('smart-links')|raw : null,
+                "This is being overridden by the <code>enabledSites</code> setting in <code>config/smartlink-manager.php</code>."|t('smartlink-manager')|raw : null,
         }) }}
 
 
         <hr>
 
-        <h2>{{ "URL Settings"|t('smart-links') }}</h2>
+        <h2>{{ "URL Settings"|t('smartlink-manager') }}</h2>
 
         {% set redirectPlugin = craft.app.plugins.getPlugin('redirect-manager') %}
         {% set redirectActive = redirectPlugin and craft.app.plugins.isPluginEnabled('redirect-manager') %}
@@ -82,22 +82,22 @@
 
         {% set slugTip = redirectActive
             ? "Changing will break existing URLs. To migrate, create wildcard redirect in " ~ redirectPluginName ~ ": Source '/old/*' → Destination '/new/$1' (Match Type: Wildcard)"
-            : "Changing the URL prefix will break all existing {pluginName}. Only change this before creating your first {singularName}."|t('smart-links', {pluginName: smartlinkHelper.pluralLowerDisplayName, singularName: smartlinkHelper.lowerDisplayName})
+            : "Changing the URL prefix will break all existing {pluginName}. Only change this before creating your first {singularName}."|t('smartlink-manager', {pluginName: smartlinkHelper.pluralLowerDisplayName, singularName: smartlinkHelper.lowerDisplayName})
         %}
 
         {{ forms.textField({
-            label: "{singularName} URL Prefix"|t('smart-links', {singularName: smartlinkHelper.displayName}),
-            instructions: "The URL prefix for {pluginName} (e.g., 'go' creates /go/your-link)"|t('smart-links', {pluginName: smartlinkHelper.pluralLowerDisplayName}),
+            label: "{singularName} URL Prefix"|t('smartlink-manager', {singularName: smartlinkHelper.displayName}),
+            instructions: "The URL prefix for {pluginName} (e.g., 'go' creates /go/your-link)"|t('smartlink-manager', {pluginName: smartlinkHelper.pluralLowerDisplayName}),
             id: 'slugPrefix',
             name: 'settings[slugPrefix]',
             value: settings.slugPrefix ?? 'go',
             errors: settings.getErrors('slugPrefix'),
             placeholder: 'go',
             required: true,
-            tip: slugTip|t('smart-links'),
+            tip: slugTip|t('smartlink-manager'),
             disabled: settings.isOverriddenByConfig('slugPrefix'),
             warning: settings.isOverriddenByConfig('slugPrefix') ?
-                "This is being overridden by the <code>slugPrefix</code> setting in <code>config/smart-links.php</code>."|t('smart-links')|raw : null,
+                "This is being overridden by the <code>slugPrefix</code> setting in <code>config/smartlink-manager.php</code>."|t('smartlink-manager')|raw : null,
         }) }}
 
         {% set qrTip = redirectActive
@@ -137,56 +137,56 @@
         {% endif %}
 
         {{ forms.textField({
-            label: "QR Code URL Prefix"|t('smart-links'),
-            instructions: "The URL prefix for QR code pages (e.g., 'qr' creates /qr/your-link/view or 'go/qr' creates /go/qr/your-link/view)"|t('smart-links'),
+            label: "QR Code URL Prefix"|t('smartlink-manager'),
+            instructions: "The URL prefix for QR code pages (e.g., 'qr' creates /qr/your-link/view or 'go/qr' creates /go/qr/your-link/view)"|t('smartlink-manager'),
             id: 'qrPrefix',
             name: 'settings[qrPrefix]',
             value: qrPrefixValue,
             errors: settings.getErrors('qrPrefix'),
             placeholder: settings.slugPrefix ~ '/qr',
             required: true,
-            tip: qrTip|t('smart-links'),
+            tip: qrTip|t('smartlink-manager'),
             disabled: settings.isOverriddenByConfig('qrPrefix'),
             warning: settings.isOverriddenByConfig('qrPrefix') ?
-                "This is being overridden by the <code>qrPrefix</code> setting in <code>config/smart-links.php</code>."|t('smart-links')|raw : null,
+                "This is being overridden by the <code>qrPrefix</code> setting in <code>config/smartlink-manager.php</code>."|t('smartlink-manager')|raw : null,
         }) }}
 
         <hr>
 
-        <h2>{{ "Template Settings"|t('smart-links') }}</h2>
+        <h2>{{ "Template Settings"|t('smartlink-manager') }}</h2>
 
         {{ forms.textField({
-            label: "Redirect Template"|t('smart-links'),
-            instructions: "Path to your Redirect template in your templates/ folder (e.g., smart-links/redirect)"|t('smart-links'),
+            label: "Redirect Template"|t('smartlink-manager'),
+            instructions: "Path to your Redirect template in your templates/ folder (e.g., smartlink-manager/redirect)"|t('smartlink-manager'),
             id: 'redirectTemplate',
             name: 'settings[redirectTemplate]',
             value: settings.redirectTemplate ?? '',
-            placeholder: 'smart-links/redirect',
-            tip: "Copy reference template from <code>plugins/smart-links/src/templates/redirect.twig</code> to <code>templates/smart-links/redirect.twig</code>"|t('smart-links')|raw,
+            placeholder: 'smartlink-manager/redirect',
+            tip: "Copy reference template from <code>plugins/smartlink-manager/src/templates/redirect.twig</code> to <code>templates/smartlink-manager/redirect.twig</code>"|t('smartlink-manager')|raw,
             disabled: settings.isOverriddenByConfig('redirectTemplate'),
             warning: settings.isOverriddenByConfig('redirectTemplate') ?
-                "This is being overridden by the <code>redirectTemplate</code> setting in <code>config/smart-links.php</code>."|t('smart-links')|raw : null,
+                "This is being overridden by the <code>redirectTemplate</code> setting in <code>config/smartlink-manager.php</code>."|t('smartlink-manager')|raw : null,
         }) }}
 
         {{ forms.textField({
-            label: "QR Code Template"|t('smart-links'),
-            instructions: "Path to your QR Code template in your templates/ folder (e.g., smart-links/qr)"|t('smart-links'),
+            label: "QR Code Template"|t('smartlink-manager'),
+            instructions: "Path to your QR Code template in your templates/ folder (e.g., smartlink-manager/qr)"|t('smartlink-manager'),
             id: 'qrTemplate',
             name: 'settings[qrTemplate]',
             value: settings.qrTemplate ?? '',
-            placeholder: 'smart-links/qr',
-            tip: "Copy reference template from <code>plugins/smart-links/src/templates/qr.twig</code> to <code>templates/smart-links/qr.twig</code>"|t('smart-links')|raw,
+            placeholder: 'smartlink-manager/qr',
+            tip: "Copy reference template from <code>plugins/smartlink-manager/src/templates/qr.twig</code> to <code>templates/smartlink-manager/qr.twig</code>"|t('smartlink-manager')|raw,
             disabled: settings.isOverriddenByConfig('qrTemplate'),
             warning: settings.isOverriddenByConfig('qrTemplate') ?
-                "This is being overridden by the <code>qrTemplate</code> setting in <code>config/smart-links.php</code>."|t('smart-links')|raw : null,
+                "This is being overridden by the <code>qrTemplate</code> setting in <code>config/smartlink-manager.php</code>."|t('smartlink-manager')|raw : null,
         }) }}
 
         <hr>
 
-        <h2>{{ "Asset Settings"|t('smart-links') }}</h2>
+        <h2>{{ "Asset Settings"|t('smartlink-manager') }}</h2>
 
         {# Asset volume selection dropdown for Smart Link images #}
-        {% set volumeOptions = [{label: 'All asset volumes'|t('smart-links'), value: ''}] %}
+        {% set volumeOptions = [{label: 'All asset volumes'|t('smartlink-manager'), value: ''}] %}
         {% for volume in craft.app.volumes.getAllVolumes() %}
             {% set volumeOptions = volumeOptions|merge([{
                 label: volume.name,
@@ -195,49 +195,49 @@
         {% endfor %}
 
         {{ forms.selectField({
-            label: "{singularName} Image Volume"|t('smart-links', {singularName: smartlinkHelper.displayName}),
-            instructions: "Which asset volume should be used for {singularName} images"|t('smart-links', {singularName: smartlinkHelper.displayName}),
+            label: "{singularName} Image Volume"|t('smartlink-manager', {singularName: smartlinkHelper.displayName}),
+            instructions: "Which asset volume should be used for {singularName} images"|t('smartlink-manager', {singularName: smartlinkHelper.displayName}),
             id: 'imageVolumeUid',
             name: 'settings[imageVolumeUid]',
             options: volumeOptions,
             value: settings.imageVolumeUid ?? '',
             disabled: settings.isOverriddenByConfig('imageVolumeUid'),
             warning: settings.isOverriddenByConfig('imageVolumeUid') ?
-                "This is being overridden by the <code>imageVolumeUid</code> setting in <code>config/smart-links.php</code>."|t('smart-links')|raw : null,
+                "This is being overridden by the <code>imageVolumeUid</code> setting in <code>config/smartlink-manager.php</code>."|t('smartlink-manager')|raw : null,
         }) }}
 
         <hr>
 
-        <h2>{{ "Logging Settings"|t('smart-links') }}</h2>
+        <h2>{{ "Logging Settings"|t('smartlink-manager') }}</h2>
 
         {% set logOptions = [
-            {value: 'error', label: 'Error (Critical errors only)'|t('smart-links')},
-            {value: 'warning', label: 'Warning (Errors and warnings)'|t('smart-links')},
-            {value: 'info', label: 'Info (General information)'|t('smart-links')},
+            {value: 'error', label: 'Error (Critical errors only)'|t('smartlink-manager')},
+            {value: 'warning', label: 'Warning (Errors and warnings)'|t('smartlink-manager')},
+            {value: 'info', label: 'Info (General information)'|t('smartlink-manager')},
         ] %}
 
         {% if craft.app.config.general.devMode %}
             {% set logOptions = logOptions|merge([
-                {value: 'debug', label: 'Debug (Detailed debugging)'|t('smart-links')}
+                {value: 'debug', label: 'Debug (Detailed debugging)'|t('smartlink-manager')}
             ]) %}
         {% endif %}
 
         {{ forms.selectField({
-            label: "Log Level"|t('smart-links'),
+            label: "Log Level"|t('smartlink-manager'),
             instructions: craft.app.config.general.devMode ?
-                "Choose what types of messages to log. Debug level requires devMode to be enabled."|t('smart-links') :
-                "Choose what types of messages to log. Debug level requires devMode to be enabled."|t('smart-links'),
+                "Choose what types of messages to log. Debug level requires devMode to be enabled."|t('smartlink-manager') :
+                "Choose what types of messages to log. Debug level requires devMode to be enabled."|t('smartlink-manager'),
             id: 'logLevel',
             name: 'settings[logLevel]',
             value: settings.logLevel,
             options: logOptions,
             disabled: settings.isOverriddenByConfig('logLevel'),
             warning: settings.isOverriddenByConfig('logLevel') ?
-                "This is being overridden by the <code>logLevel</code> setting in <code>config/smart-links.php</code>."|t('smart-links')|raw : null,
+                "This is being overridden by the <code>logLevel</code> setting in <code>config/smartlink-manager.php</code>."|t('smartlink-manager')|raw : null,
         }) }}
 
         <div class="buttons">
-            <button type="submit" class="btn submit">{{ "Save Settings"|t('smart-links') }}</button>
+            <button type="submit" class="btn submit">{{ "Save Settings"|t('smartlink-manager') }}</button>
         </div>
     </form>
 

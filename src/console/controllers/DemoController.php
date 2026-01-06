@@ -1,17 +1,17 @@
 <?php
 /**
- * Smart Links plugin for Craft CMS 5.x
+ * SmartLink Manager plugin for Craft CMS 5.x
  *
  * @link      https://lindemannrock.com
  * @copyright Copyright (c) 2025 LindemannRock
  */
 
-namespace lindemannrock\smartlinks\console\controllers;
+namespace lindemannrock\smartlinkmanager\console\controllers;
 
 use craft\console\Controller;
 use craft\helpers\Console;
-use lindemannrock\smartlinks\elements\SmartLink;
-use lindemannrock\smartlinks\SmartLinks;
+use lindemannrock\smartlinkmanager\elements\SmartLink;
+use lindemannrock\smartlinkmanager\SmartLinkManager;
 
 /**
  * Demo Controller for testing
@@ -39,7 +39,7 @@ class DemoController extends Controller
         $this->stdout("Adding demo QR code click for: {$smartLink->title}\n", Console::FG_YELLOW);
         
         // Create device info for a typical QR scan from iPhone
-        $deviceInfo = new \lindemannrock\smartlinks\models\DeviceInfo([
+        $deviceInfo = new \lindemannrock\smartlinkmanager\models\DeviceInfo([
             'deviceType' => 'smartphone',
             'brand' => 'Apple',
             'model' => 'iPhone 14',
@@ -56,7 +56,7 @@ class DemoController extends Controller
         ]);
         
         // Save analytics directly
-        SmartLinks::$plugin->analytics->saveAnalytics(
+        SmartLinkManager::$plugin->analytics->saveAnalytics(
             $smartLink->id,
             $deviceInfo->toArray(),
             [
@@ -69,7 +69,7 @@ class DemoController extends Controller
         );
         
         $this->stdout("✅ Demo QR code click added successfully!\n", Console::FG_GREEN);
-        $this->stdout("Go to Smart Links > {$smartLink->title} > Analytics tab to see it\n");
+        $this->stdout("Go to SmartLink Manager > {$smartLink->title} > Analytics tab to see it\n");
         
         return self::EXIT_CODE_NORMAL;
     }

@@ -1,28 +1,28 @@
 <?php
 /**
- * Smart Links plugin for Craft CMS 5.x
+ * SmartLink Manager plugin for Craft CMS 5.x
  *
  * @link      https://lindemannrock.com
  * @copyright Copyright (c) 2025 LindemannRock
  */
 
-namespace lindemannrock\smartlinks\controllers;
+namespace lindemannrock\smartlinkmanager\controllers;
 
 use Craft;
 use craft\base\Element;
 use craft\helpers\DateTimeHelper;
 use craft\web\Controller;
 use lindemannrock\logginglibrary\traits\LoggingTrait;
-use lindemannrock\smartlinks\elements\SmartLink;
-use lindemannrock\smartlinks\SmartLinks;
+use lindemannrock\smartlinkmanager\elements\SmartLink;
+use lindemannrock\smartlinkmanager\SmartLinkManager;
 use yii\web\Response;
 
 /**
- * Smart Links Controller
+ * Smartlinks Controller
  *
  * @since 1.0.0
  */
-class SmartLinksController extends Controller
+class SmartlinksController extends Controller
 {
     use LoggingTrait;
     /**
@@ -36,7 +36,7 @@ class SmartLinksController extends Controller
     public function init(): void
     {
         parent::init();
-        $this->setLoggingHandle('smart-links');
+        $this->setLoggingHandle('smartlink-manager');
     }
 
     /**
@@ -48,7 +48,7 @@ class SmartLinksController extends Controller
      */
     public function actionEdit(?int $smartLinkId = null, ?SmartLink $smartLink = null): Response
     {
-        $this->requirePermission('smartLinks:viewLinks');
+        $this->requirePermission('smartLinkManager:viewLinks');
 
         $variables = [
             'smartLinkId' => $smartLinkId,
@@ -66,10 +66,10 @@ class SmartLinksController extends Controller
             $site = Craft::$app->getSites()->getCurrentSite();
         }
 
-        // Check if Smart Links is enabled for this site
-        $settings = SmartLinks::getInstance()->getSettings();
+        // Check if SmartLink Manager is enabled for this site
+        $settings = SmartLinkManager::getInstance()->getSettings();
         if (!$settings->isSiteEnabled($site->id)) {
-            throw new \yii\web\ForbiddenHttpException('Smart Links is not enabled for this site.');
+            throw new \yii\web\ForbiddenHttpException('SmartLink Manager is not enabled for this site.');
         }
 
         // Get the smart link
@@ -89,51 +89,51 @@ class SmartLinksController extends Controller
                 
                 // Don't allow editing trashed elements
                 if ($smartLink->trashed) {
-                    Craft::$app->getSession()->setError(Craft::t('smart-links', 'Cannot edit trashed smart links.'));
-                    return $this->redirect('smart-links');
+                    Craft::$app->getSession()->setError(Craft::t('smartlink-manager', 'Cannot edit trashed smart links.'));
+                    return $this->redirect('smartlink-manager');
                 }
             }
 
-            $this->requirePermission('smartLinks:editLinks');
+            $this->requirePermission('smartLinkManager:editLinks');
             
             // Set the title
             $variables['title'] = $smartLink->title;
         } else {
-            $this->requirePermission('smartLinks:createLinks');
+            $this->requirePermission('smartLinkManager:createLinks');
 
             if ($smartLink === null) {
                 $smartLink = new SmartLink();
                 $smartLink->siteId = $site->id;
                 
                 // Set default QR code values from settings
-                $settings = SmartLinks::$plugin->getSettings();
+                $settings = SmartLinkManager::$plugin->getSettings();
                 $smartLink->qrCodeSize = $settings->defaultQrSize;
                 $smartLink->qrCodeColor = $settings->defaultQrColor;
                 $smartLink->qrCodeBgColor = $settings->defaultQrBgColor;
             }
 
-            $variables['title'] = Craft::t('smart-links', 'Create a new smart link');
+            $variables['title'] = Craft::t('smartlink-manager', 'Create a new smart link');
         }
 
         $variables['smartLink'] = $smartLink;
         $variables['fullPageForm'] = true;
-        $variables['saveShortcutRedirect'] = 'smart-links/smartlinks/{id}';
-        $variables['continueEditingUrl'] = 'smart-links/smartlinks/{id}';
+        $variables['saveShortcutRedirect'] = 'smartlink-manager/smartlinks/{id}';
+        $variables['continueEditingUrl'] = 'smartlink-manager/smartlinks/{id}';
 
         // Breadcrumbs
         $variables['crumbs'] = [
             [
-                'label' => SmartLinks::$plugin->getSettings()->pluginName,
-                'url' => 'smart-links',
+                'label' => SmartLinkManager::$plugin->getSettings()->pluginName,
+                'url' => 'smartlink-manager',
             ],
         ];
 
         // Set the base CP edit URL
-        $variables['baseCpEditUrl'] = 'smart-links/smartlinks/{id}';
+        $variables['baseCpEditUrl'] = 'smartlink-manager/smartlinks/{id}';
         
         // Pass analytics service to the template
         // Always pass analytics service if the smart link exists and analytics is enabled
-        $plugin = SmartLinks::getInstance();
+        $plugin = SmartLinkManager::getInstance();
         if ($smartLink->id && $plugin && $plugin->getSettings()->enableAnalytics) {
             $variables['analyticsService'] = $plugin->analytics;
         }
@@ -141,7 +141,7 @@ class SmartLinksController extends Controller
         // Pass enabled sites for site switcher
         $variables['enabledSites'] = $plugin->getEnabledSites();
 
-        return $this->renderTemplate('smart-links/smartlinks/edit', $variables);
+        return $this->renderTemplate('smartlink-manager/smartlinks/edit', $variables);
     }
 
     /**
@@ -162,15 +162,15 @@ class SmartLinksController extends Controller
 
             // Get the smart link
             if ($smartLinkId) {
-                $smartLink = SmartLinks::$plugin->smartLinks->getSmartLinkById($smartLinkId, $siteId);
+                $smartLink = SmartLinkManager::$plugin->smartLinks->getSmartLinkById($smartLinkId, $siteId);
 
                 if (!$smartLink) {
                     throw new \yii\web\NotFoundHttpException('Smart link not found');
                 }
 
-                $this->requirePermission('smartLinks:editLinks');
+                $this->requirePermission('smartLinkManager:editLinks');
             } else {
-                $this->requirePermission('smartLinks:createLinks');
+                $this->requirePermission('smartLinkManager:createLinks');
                 $smartLink = new SmartLink();
                 $smartLink->siteId = $siteId ?? Craft::$app->getSites()->getPrimarySite()->id;
             }
@@ -252,24 +252,24 @@ class SmartLinksController extends Controller
             }
 
             // Save it
-            if (!SmartLinks::$plugin->smartLinks->saveSmartLink($smartLink)) {
+            if (!SmartLinkManager::$plugin->smartLinks->saveSmartLink($smartLink)) {
                 $this->logError('Smart link save failed', ['errors' => $smartLink->getErrors()]);
                 // If it's an AJAX request, return JSON response
                 if ($this->request->getAcceptsJson()) {
                     return $this->asModelFailure(
                     $smartLink,
-                    Craft::t('smart-links', 'Couldn\'t save smart link.'),
+                    Craft::t('smartlink-manager', 'Couldn\'t save smart link.'),
                     'smartLink'
                 );
                 }
 
                 // Otherwise, set error flash and re-render the template
-                Craft::$app->getSession()->setError(Craft::t('smart-links', 'Couldn\'t save smart link.'));
+                Craft::$app->getSession()->setError(Craft::t('smartlink-manager', 'Couldn\'t save smart link.'));
 
                 // Set route params so Craft can re-render the template with errors
                 Craft::$app->getUrlManager()->setRouteParams([
                 'smartLink' => $smartLink,
-                'title' => $smartLink->id ? $smartLink->title : Craft::t('smart-links', 'New smart link'),
+                'title' => $smartLink->id ? $smartLink->title : Craft::t('smartlink-manager', 'New smart link'),
             ]);
 
                 return null;
@@ -288,7 +288,7 @@ class SmartLinksController extends Controller
 
             return $this->asModelSuccess(
             $smartLink,
-            Craft::t('smart-links', 'Smart link saved.'),
+            Craft::t('smartlink-manager', 'Smart link saved.'),
             'smartLink'
         );
         } catch (\Exception $e) {
@@ -297,11 +297,11 @@ class SmartLinksController extends Controller
             // Return error response
             Craft::$app->getSession()->setError('Error saving smart link: ' . $e->getMessage());
 
-            $plugin = SmartLinks::getInstance();
+            $plugin = SmartLinkManager::getInstance();
 
-            return $this->renderTemplate('smart-links/smartlinks/edit', [
+            return $this->renderTemplate('smartlink-manager/smartlinks/edit', [
                 'smartLink' => $smartLink ?? new SmartLink(),
-                'title' => Craft::t('smart-links', 'New smart link'),
+                'title' => Craft::t('smartlink-manager', 'New smart link'),
                 'enabledSites' => $plugin->getEnabledSites(),
                 'analyticsService' => $plugin->analytics,
             ]);
@@ -316,20 +316,20 @@ class SmartLinksController extends Controller
     public function actionDelete(): Response
     {
         $this->requirePostRequest();
-        $this->requirePermission('smartLinks:deleteLinks');
+        $this->requirePermission('smartLinkManager:deleteLinks');
 
         $smartLinkId = Craft::$app->getRequest()->getRequiredBodyParam('id');
-        $smartLink = SmartLinks::$plugin->smartLinks->getSmartLinkById($smartLinkId);
+        $smartLink = SmartLinkManager::$plugin->smartLinks->getSmartLinkById($smartLinkId);
 
         if (!$smartLink) {
             throw new \yii\web\NotFoundHttpException('Smart link not found');
         }
 
-        if (!SmartLinks::$plugin->smartLinks->deleteSmartLink($smartLink)) {
-            return $this->asFailure(Craft::t('smart-links', 'Couldn\'t delete smart link.'));
+        if (!SmartLinkManager::$plugin->smartLinks->deleteSmartLink($smartLink)) {
+            return $this->asFailure(Craft::t('smartlink-manager', 'Couldn\'t delete smart link.'));
         }
 
-        return $this->asSuccess(Craft::t('smart-links', 'Smart link deleted.'));
+        return $this->asSuccess(Craft::t('smartlink-manager', 'Smart link deleted.'));
     }
 
 
@@ -342,7 +342,7 @@ class SmartLinksController extends Controller
     {
         $this->requirePostRequest();
         $this->requireAcceptsJson();
-        $this->requirePermission('smartLinks:editLinks');
+        $this->requirePermission('smartLinkManager:editLinks');
 
         $smartLinkId = Craft::$app->getRequest()->getRequiredBodyParam('id');
         
@@ -359,10 +359,10 @@ class SmartLinksController extends Controller
 
         // Restore the element
         if (!Craft::$app->elements->restoreElement($smartLink)) {
-            return $this->asFailure(Craft::t('smart-links', 'Couldn\'t restore smart link.'));
+            return $this->asFailure(Craft::t('smartlink-manager', 'Couldn\'t restore smart link.'));
         }
 
-        return $this->asSuccess(Craft::t('smart-links', 'Smart link restored.'));
+        return $this->asSuccess(Craft::t('smartlink-manager', 'Smart link restored.'));
     }
 
     /**
@@ -374,7 +374,7 @@ class SmartLinksController extends Controller
     {
         $this->requirePostRequest();
         $this->requireAcceptsJson();
-        $this->requirePermission('smartLinks:deleteLinks');
+        $this->requirePermission('smartLinkManager:deleteLinks');
 
         $smartLinkId = Craft::$app->getRequest()->getRequiredBodyParam('id');
         
@@ -391,10 +391,10 @@ class SmartLinksController extends Controller
 
         // Permanently delete the element
         if (!Craft::$app->elements->deleteElement($smartLink, true)) {
-            return $this->asFailure(Craft::t('smart-links', 'Couldn\'t delete smart link permanently.'));
+            return $this->asFailure(Craft::t('smartlink-manager', 'Couldn\'t delete smart link permanently.'));
         }
 
-        return $this->asSuccess(Craft::t('smart-links', 'Smart link permanently deleted.'));
+        return $this->asSuccess(Craft::t('smartlink-manager', 'Smart link permanently deleted.'));
     }
 
     /**
@@ -405,13 +405,13 @@ class SmartLinksController extends Controller
     public function actionGetDetails(): Response
     {
         $this->requireAcceptsJson();
-        $this->requirePermission('accessPlugin-smart-links');
+        $this->requirePermission('accessPlugin-smartlink-manager');
 
         $smartLinkId = Craft::$app->getRequest()->getRequiredParam('id');
-        $smartLink = SmartLinks::$plugin->smartLinks->getSmartLinkById($smartLinkId);
+        $smartLink = SmartLinkManager::$plugin->smartLinks->getSmartLinkById($smartLinkId);
 
         if (!$smartLink) {
-            return $this->asFailure(Craft::t('smart-links', 'Smart link not found'));
+            return $this->asFailure(Craft::t('smartlink-manager', 'Smart link not found'));
         }
 
         return $this->asJson([
@@ -438,13 +438,13 @@ class SmartLinksController extends Controller
     public function actionGenerateQrCode(): Response
     {
         $this->requireAcceptsJson();
-        $this->requirePermission('accessPlugin-smart-links');
+        $this->requirePermission('accessPlugin-smartlink-manager');
 
         $smartLinkId = Craft::$app->getRequest()->getRequiredParam('id');
-        $smartLink = SmartLinks::$plugin->smartLinks->getSmartLinkById($smartLinkId);
+        $smartLink = SmartLinkManager::$plugin->smartLinks->getSmartLinkById($smartLinkId);
 
         if (!$smartLink) {
-            return $this->asFailure(Craft::t('smart-links', 'Smart link not found'));
+            return $this->asFailure(Craft::t('smartlink-manager', 'Smart link not found'));
         }
 
         $options = [
@@ -453,7 +453,7 @@ class SmartLinksController extends Controller
         ];
 
         try {
-            $qrCodeDataUrl = SmartLinks::$plugin->smartLinks->generateQrCodeDataUrl($smartLink, $options);
+            $qrCodeDataUrl = SmartLinkManager::$plugin->smartLinks->generateQrCodeDataUrl($smartLink, $options);
             
             return $this->asJson([
                 'success' => true,
@@ -472,7 +472,7 @@ class SmartLinksController extends Controller
      */
     public function actionRevisions(int $smartLinkId): Response
     {
-        $this->requirePermission('smartLinks:viewLinks');
+        $this->requirePermission('smartLinkManager:viewLinks');
 
         // Get the site
         $site = Craft::$app->getRequest()->getQueryParam('site');
@@ -496,7 +496,7 @@ class SmartLinksController extends Controller
             throw new \yii\web\NotFoundHttpException('Smart link not found');
         }
 
-        return $this->renderTemplate('smart-links/smartlinks/revisions', [
+        return $this->renderTemplate('smartlink-manager/smartlinks/revisions', [
             'smartLink' => $smartLink,
         ]);
     }

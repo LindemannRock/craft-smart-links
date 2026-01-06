@@ -7,8 +7,8 @@
 
 
 {{ forms.textField({
-    label: "Title"|t('smart-links'),
-    instructions: "The title of this {singularName}"|t('smart-links', {singularName: smartlinkHelper.lowerDisplayName}),
+    label: "Title"|t('smartlink-manager'),
+    instructions: "The title of this {singularName}"|t('smartlink-manager', {singularName: smartlinkHelper.lowerDisplayName}),
     id: 'title',
     name: 'title',
     value: smartLink.title ?? '',
@@ -23,8 +23,8 @@
 }) }}
 
 {{ forms.textareaField({
-    label: "Description"|t('smart-links'),
-    instructions: "A brief description of this {singularName}"|t('smart-links', {singularName: smartlinkHelper.lowerDisplayName}),
+    label: "Description"|t('smartlink-manager'),
+    instructions: "A brief description of this {singularName}"|t('smartlink-manager', {singularName: smartlinkHelper.lowerDisplayName}),
     id: 'description',
     name: 'description',
     value: smartLink.description ?? '',
@@ -42,8 +42,8 @@
 {% set selectedImage = smartLink.imageId ? craft.assets.id(smartLink.imageId).one() : null %}
 
 {{ forms.elementSelectField({
-    label: "Image"|t('smart-links'),
-    instructions: "Select an image for this {singularName}"|t('smart-links', {singularName: smartlinkHelper.lowerDisplayName}),
+    label: "Image"|t('smartlink-manager'),
+    instructions: "Select an image for this {singularName}"|t('smartlink-manager', {singularName: smartlinkHelper.lowerDisplayName}),
     id: 'imageId',
     name: 'imageId',
     elementType: 'craft\\elements\\Asset',
@@ -59,8 +59,8 @@
 }) }}
 
 {{ forms.selectField({
-    label: "Image Size"|t('smart-links'),
-    instructions: "Select the size for the {singularName} image"|t('smart-links', {singularName: smartlinkHelper.lowerDisplayName}),
+    label: "Image Size"|t('smartlink-manager'),
+    instructions: "Select the size for the {singularName} image"|t('smartlink-manager', {singularName: smartlinkHelper.lowerDisplayName}),
     id: 'imageSize',
     name: 'imageSize',
     value: smartLink.imageSize ?? 'xl',
@@ -77,17 +77,17 @@
 
 <hr>
 
-<h2>{{ "App Store URLs"|t('smart-links') }}</h2>
+<h2>{{ "App Store URLs"|t('smartlink-manager') }}</h2>
 
 <div class="field">
     <div class="instructions">
-        <p>{{ "Enter the store URLs for each platform. The system will automatically redirect users to the appropriate store based on their device."|t('smart-links') }}</p>
+        <p>{{ "Enter the store URLs for each platform. The system will automatically redirect users to the appropriate store based on their device."|t('smartlink-manager') }}</p>
     </div>
 </div>
 
 {{ forms.textField({
-    label: "iOS URL"|t('smart-links'),
-    instructions: "App Store URL for iOS devices"|t('smart-links'),
+    label: "iOS URL"|t('smartlink-manager'),
+    instructions: "App Store URL for iOS devices"|t('smartlink-manager'),
     id: 'iosUrl',
     name: 'iosUrl',
     value: smartLink.iosUrl ?? '',
@@ -99,8 +99,8 @@
 }) }}
 
 {{ forms.textField({
-    label: "Android URL"|t('smart-links'),
-    instructions: "Google Play Store URL for Android devices"|t('smart-links'),
+    label: "Android URL"|t('smartlink-manager'),
+    instructions: "Google Play Store URL for Android devices"|t('smartlink-manager'),
     id: 'androidUrl',
     name: 'androidUrl',
     value: smartLink.androidUrl ?? '',
@@ -112,8 +112,8 @@
 }) }}
 
 {{ forms.textField({
-    label: "Huawei URL"|t('smart-links'),
-    instructions: "AppGallery URL for Huawei devices"|t('smart-links'),
+    label: "Huawei URL"|t('smartlink-manager'),
+    instructions: "AppGallery URL for Huawei devices"|t('smartlink-manager'),
     id: 'huaweiUrl',
     name: 'huaweiUrl',
     value: smartLink.huaweiUrl ?? '',
@@ -125,8 +125,8 @@
 }) }}
 
 {{ forms.textField({
-    label: "Amazon URL"|t('smart-links'),
-    instructions: "Amazon Appstore URL"|t('smart-links'),
+    label: "Amazon URL"|t('smartlink-manager'),
+    instructions: "Amazon Appstore URL"|t('smartlink-manager'),
     id: 'amazonUrl',
     name: 'amazonUrl',
     value: smartLink.amazonUrl ?? '',
@@ -138,8 +138,8 @@
 }) }}
 
 {{ forms.textField({
-    label: "Windows URL"|t('smart-links'),
-    instructions: "Microsoft Store URL for Windows devices"|t('smart-links'),
+    label: "Windows URL"|t('smartlink-manager'),
+    instructions: "Microsoft Store URL for Windows devices"|t('smartlink-manager'),
     id: 'windowsUrl',
     name: 'windowsUrl',
     value: smartLink.windowsUrl ?? '',
@@ -151,8 +151,8 @@
 }) }}
 
 {{ forms.textField({
-    label: "Mac URL"|t('smart-links'),
-    instructions: "Mac App Store URL"|t('smart-links'),
+    label: "Mac URL"|t('smartlink-manager'),
+    instructions: "Mac App Store URL"|t('smartlink-manager'),
     id: 'macUrl',
     name: 'macUrl',
     value: smartLink.macUrl ?? '',
@@ -166,8 +166,8 @@
 <hr>
 
 {{ forms.textField({
-    label: "Fallback URL"|t('smart-links'),
-    instructions: "The URL to redirect to when no platform-specific URL is available"|t('smart-links'),
+    label: "Fallback URL"|t('smartlink-manager'),
+    instructions: "The URL to redirect to when no platform-specific URL is available"|t('smartlink-manager'),
     id: 'fallbackUrl',
     name: 'fallbackUrl',
     value: smartLink.fallbackUrl ?? '',
@@ -181,11 +181,11 @@
 
 <hr>
 
-<h2>{{ "Display Settings"|t('smart-links') }}</h2>
+<h2>{{ "Display Settings"|t('smartlink-manager') }}</h2>
 
 {{ forms.lightswitchField({
-    label: "Hide Title on Landing Pages"|t('smart-links'),
-    instructions: "Hide the {singularName} title on both redirect and QR code landing pages"|t('smart-links', {singularName: smartlinkHelper.lowerDisplayName}),
+    label: "Hide Title on Landing Pages"|t('smartlink-manager'),
+    instructions: "Hide the {singularName} title on both redirect and QR code landing pages"|t('smartlink-manager', {singularName: smartlinkHelper.lowerDisplayName}),
     id: 'hideTitle',
     name: 'hideTitle',
     on: smartLink.hideTitle ?? false,
@@ -194,11 +194,11 @@
 
 <hr>
 
-<h2>{{ "Advanced Settings"|t('smart-links') }}</h2>
+<h2>{{ "Advanced Settings"|t('smartlink-manager') }}</h2>
 
 {{ forms.lightswitchField({
-    label: "Language Detection"|t('smart-links'),
-    instructions: "Enable automatic language detection to redirect users based on their browser or location"|t('smart-links'),
+    label: "Language Detection"|t('smartlink-manager'),
+    instructions: "Enable automatic language detection to redirect users based on their browser or location"|t('smartlink-manager'),
     id: 'languageDetection',
     name: 'languageDetection',
     on: smartLink.languageDetection ?? false,
@@ -206,8 +206,8 @@
 }) }}
 
 {{ forms.textField({
-    label: "Icon"|t('smart-links'),
-    instructions: "Icon identifier or URL for this {singularName}"|t('smart-links', {singularName: smartlinkHelper.lowerDisplayName}),
+    label: "Icon"|t('smartlink-manager'),
+    instructions: "Icon identifier or URL for this {singularName}"|t('smartlink-manager', {singularName: smartlinkHelper.lowerDisplayName}),
     id: 'icon',
     name: 'icon',
     value: smartLink.icon ?? '',

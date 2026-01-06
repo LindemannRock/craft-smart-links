@@ -1,20 +1,20 @@
-{% extends "smart-links/_layouts/settings" %}
-{% set title = "Behavior Settings"|t('smart-links') %}
+{% extends "smartlink-manager/_layouts/settings" %}
+{% set title = "Behavior Settings"|t('smartlink-manager') %}
 {% set fullPageForm = true %}
 {% set selectedSettingsItem = 'behavior' %}
 
 {% set crumbs = [
     {
-        label: smartlinkHelper.fullName|t('smart-links'),
-        url: url('smart-links'),
+        label: smartlinkHelper.fullName|t('smartlink-manager'),
+        url: url('smartlink-manager'),
     },
     {
-        label: 'Settings'|t('smart-links'),
-        url: url('smart-links/settings'),
+        label: 'Settings'|t('smartlink-manager'),
+        url: url('smartlink-manager/settings'),
     },
     {
-        label: 'Behavior'|t('smart-links'),
-        url: url('smart-links/settings/behavior'),
+        label: 'Behavior'|t('smartlink-manager'),
+        url: url('smartlink-manager/settings/behavior'),
     },
 ] %}
 
@@ -23,21 +23,21 @@
 {% block content %}
 
     {% include 'lindemannrock-base/_components/ip-salt-error' with {
-        pluginHandle: 'smart-links',
-        envVarName: 'SMART_LINKS_IP_SALT'
+        pluginHandle: 'smartlink-manager',
+        envVarName: 'SMARTLINK_MANAGER_IP_SALT'
     } %}
 
     <form method="post" accept-charset="UTF-8">
-        {{ actionInput('smart-links/settings/save') }}
+        {{ actionInput('smartlink-manager/settings/save') }}
         {{ csrfInput() }}
-        {{ redirectInput('smart-links/settings/behavior') }}
+        {{ redirectInput('smartlink-manager/settings/behavior') }}
         {{ hiddenInput('section', 'behavior') }}
 
-        <h2 style="margin-top: 0px;">{{ "Redirect Behavior"|t('smart-links') }}</h2>
+        <h2 style="margin-top: 0px;">{{ "Redirect Behavior"|t('smartlink-manager') }}</h2>
 
         {{ forms.selectField({
-            label: "Language Detection Method"|t('smart-links'),
-            instructions: "How to detect user language preference"|t('smart-links'),
+            label: "Language Detection Method"|t('smartlink-manager'),
+            instructions: "How to detect user language preference"|t('smartlink-manager'),
             id: 'languageDetectionMethod',
             name: 'settings[languageDetectionMethod]',
             value: settings.languageDetectionMethod ?? 'browser',
@@ -48,24 +48,24 @@
             ],
             disabled: settings.isOverriddenByConfig('languageDetectionMethod'),
             warning: settings.isOverriddenByConfig('languageDetectionMethod') ?
-                "This is being overridden by the <code>languageDetectionMethod</code> setting in <code>config/smart-links.php</code>."|t('smart-links')|raw : null,
+                "This is being overridden by the <code>languageDetectionMethod</code> setting in <code>config/smartlink-manager.php</code>."|t('smartlink-manager')|raw : null,
         }) }}
 
         {{ forms.textField({
-            label: "404 Redirect URL"|t('smart-links'),
-            instructions: "Where to redirect when a {singularName} is not found or disabled"|t('smart-links', {singularName: smartlinkHelper.lowerDisplayName}),
+            label: "404 Redirect URL"|t('smartlink-manager'),
+            instructions: "Where to redirect when a {singularName} is not found or disabled"|t('smartlink-manager', {singularName: smartlinkHelper.lowerDisplayName}),
             id: 'notFoundRedirectUrl',
             name: 'settings[notFoundRedirectUrl]',
             value: settings.notFoundRedirectUrl ?? '/',
             placeholder: '/',
-            tip: 'Can be a relative path (/) or full URL (https://example.com)'|t('smart-links'),
+            tip: 'Can be a relative path (/) or full URL (https://example.com)'|t('smartlink-manager'),
             disabled: settings.isOverriddenByConfig('notFoundRedirectUrl'),
             warning: settings.isOverriddenByConfig('notFoundRedirectUrl') ?
-                "This is being overridden by the <code>notFoundRedirectUrl</code> setting in <code>config/smart-links.php</code>."|t('smart-links')|raw : null,
+                "This is being overridden by the <code>notFoundRedirectUrl</code> setting in <code>config/smartlink-manager.php</code>."|t('smartlink-manager')|raw : null,
         }) }}
 
         <div class="buttons">
-            <button type="submit" class="btn submit">{{ "Save Settings"|t('smart-links') }}</button>
+            <button type="submit" class="btn submit">{{ "Save Settings"|t('smartlink-manager') }}</button>
         </div>
     </form>
 
