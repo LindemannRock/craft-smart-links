@@ -1,5 +1,17 @@
 # Changelog
 
+## [5.11.0](https://github.com/LindemannRock/craft-smart-links/compare/v5.10.2...v5.11.0) (2026-01-06)
+
+
+### Features
+
+* migrate to shared base plugin ([06fe2f9](https://github.com/LindemannRock/craft-smart-links/commit/06fe2f9d7fc03765c64358a09c801d48970dbf88))
+
+
+### Bug Fixes
+
+* change URL fields to text type for better data handling ([96c8087](https://github.com/LindemannRock/craft-smart-links/commit/96c80871af95f9a0d494d6f9975c0841857a20fa))
+
 ## [5.10.2](https://github.com/LindemannRock/craft-smart-links/compare/v5.10.1...v5.10.2) (2026-01-05)
 
 
