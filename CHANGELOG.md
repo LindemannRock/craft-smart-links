@@ -1,5 +1,13 @@
 # Changelog
 
+## [5.12.0](https://github.com/LindemannRock/craft-smartlink-manager/compare/v5.11.1...v5.12.0) (2026-01-06)
+
+
+### Features
+
+* rename plugin from Smart Links to SmartLink Manager ([e87e641](https://github.com/LindemannRock/craft-smartlink-manager/commit/e87e64115d6f485f4a986485ec772bd525224cc8))
+* rename plugin from Smart Links to SmartLink Manager ([0b0633a](https://github.com/LindemannRock/craft-smartlink-manager/commit/0b0633aeda093828b6db4c5c28c3e203cfe32a2b))
+
 ## [5.11.1](https://github.com/LindemannRock/craft-smartlink-manager/compare/v5.11.0...v5.11.1) (2026-01-06)
 
 
