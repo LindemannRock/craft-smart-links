@@ -1,16 +1,16 @@
 <?php
 /**
- * Smart Links plugin for Craft CMS 5.x
+ * SmartLink Manager plugin for Craft CMS 5.x
  *
  * @link      https://lindemannrock.com
  * @copyright Copyright (c) 2025 LindemannRock
  */
 
-namespace lindemannrock\smartlinks\elements\db;
+namespace lindemannrock\smartlinkmanager\elements\db;
 
 use craft\elements\db\ElementQuery;
 use craft\helpers\Db;
-use lindemannrock\smartlinks\elements\SmartLink;
+use lindemannrock\smartlinkmanager\elements\SmartLink;
 
 /**
  * SmartLinkQuery represents a SELECT SQL statement for smart links.
@@ -97,19 +97,19 @@ class SmartLinkQuery extends ElementQuery
             SmartLink::STATUS_ENABLED => [
                 'and',
                 ['elements.enabled' => true, 'elements_sites.enabled' => true],
-                ['<=', 'smartlinks.postDate', $currentTimeDb],
-                ['or', ['smartlinks.dateExpired' => null], ['>', 'smartlinks.dateExpired', $currentTimeDb]],
+                ['<=', 'smartlinkmanager.postDate', $currentTimeDb],
+                ['or', ['smartlinkmanager.dateExpired' => null], ['>', 'smartlinkmanager.dateExpired', $currentTimeDb]],
             ],
             SmartLink::STATUS_PENDING => [
                 'and',
                 ['elements.enabled' => true, 'elements_sites.enabled' => true],
-                ['>', 'smartlinks.postDate', $currentTimeDb],
+                ['>', 'smartlinkmanager.postDate', $currentTimeDb],
             ],
             SmartLink::STATUS_EXPIRED => [
                 'and',
                 ['elements.enabled' => true, 'elements_sites.enabled' => true],
-                ['not', ['smartlinks.dateExpired' => null]],
-                ['<=', 'smartlinks.dateExpired', $currentTimeDb],
+                ['not', ['smartlinkmanager.dateExpired' => null]],
+                ['<=', 'smartlinkmanager.dateExpired', $currentTimeDb],
             ],
             default => parent::statusCondition($status),
         };
@@ -122,45 +122,45 @@ class SmartLinkQuery extends ElementQuery
             return false;
         }
 
-        // Join in the smartlinks table
-        $this->joinElementTable('smartlinks');
+        // Join in the smartlinkmanager table
+        $this->joinElementTable('smartlinkmanager');
 
         // Select the columns from main table (non-translatable fields)
         $this->query->select([
-            'smartlinks.title',
-            'smartlinks.slug',
-            'smartlinks.icon',
-            'smartlinks.authorId',
-            'smartlinks.postDate',
-            'smartlinks.dateExpired',
-            'smartlinks.trackAnalytics',
-            'smartlinks.hideTitle',
-            'smartlinks.qrCodeEnabled',
-            'smartlinks.qrCodeSize',
-            'smartlinks.qrCodeColor',
-            'smartlinks.qrCodeBgColor',
-            'smartlinks.qrCodeFormat',
-            'smartlinks.qrCodeEyeColor',
-            'smartlinks.qrLogoId',
-            'smartlinks.languageDetection',
-            'smartlinks.metadata',
+            'smartlinkmanager.title',
+            'smartlinkmanager.slug',
+            'smartlinkmanager.icon',
+            'smartlinkmanager.authorId',
+            'smartlinkmanager.postDate',
+            'smartlinkmanager.dateExpired',
+            'smartlinkmanager.trackAnalytics',
+            'smartlinkmanager.hideTitle',
+            'smartlinkmanager.qrCodeEnabled',
+            'smartlinkmanager.qrCodeSize',
+            'smartlinkmanager.qrCodeColor',
+            'smartlinkmanager.qrCodeBgColor',
+            'smartlinkmanager.qrCodeFormat',
+            'smartlinkmanager.qrCodeEyeColor',
+            'smartlinkmanager.qrLogoId',
+            'smartlinkmanager.languageDetection',
+            'smartlinkmanager.metadata',
             // Ensure we get the enabled status from elements_sites
             'elements_sites.enabled',
         ]);
 
         if ($this->_smartLinkSlug !== null) {
-            $this->subQuery->andWhere(Db::parseParam('smartlinks.slug', $this->_smartLinkSlug));
+            $this->subQuery->andWhere(Db::parseParam('smartlinkmanager.slug', $this->_smartLinkSlug));
         }
 
         // Note: The enabled/disabled status is handled by Craft's ElementQuery
-        // through the elements_sites.enabled column, not smartlinks.active
+        // through the elements_sites.enabled column, not smartlinkmanager.active
 
         if ($this->trackAnalytics !== null) {
-            $this->subQuery->andWhere(Db::parseParam('smartlinks.trackAnalytics', is_bool($this->trackAnalytics) ? (int)$this->trackAnalytics : $this->trackAnalytics));
+            $this->subQuery->andWhere(Db::parseParam('smartlinkmanager.trackAnalytics', is_bool($this->trackAnalytics) ? (int)$this->trackAnalytics : $this->trackAnalytics));
         }
 
         if ($this->qrCodeEnabled !== null) {
-            $this->subQuery->andWhere(Db::parseParam('smartlinks.qrCodeEnabled', is_bool($this->qrCodeEnabled) ? (int)$this->qrCodeEnabled : $this->qrCodeEnabled));
+            $this->subQuery->andWhere(Db::parseParam('smartlinkmanager.qrCodeEnabled', is_bool($this->qrCodeEnabled) ? (int)$this->qrCodeEnabled : $this->qrCodeEnabled));
         }
 
         return true;

@@ -1,6 +1,6 @@
 <?php
 /**
- * Smart Links plugin for Craft CMS 5.x
+ * SmartLink Manager plugin for Craft CMS 5.x
  *
  * @link      https://lindemannrock.com
  * @copyright Copyright (c) 2025 LindemannRock
@@ -14,7 +14,7 @@
 
 return [
     // Plugin Meta
-    'Smart Links' => 'الروابط الذكية',
+    'SmartLink Manager' => 'مدير الروابط الذكية',
     '{name} plugin loaded' => 'تم تحميل إضافة {name}',
 
     // Element Names
@@ -49,7 +49,7 @@ return [
     // Site Settings
     'Site Settings' => 'إعدادات الموقع',
     'Enabled Sites' => 'المواقع المُفعلة',
-    'Select which sites Smart Links should be enabled for. Leave empty to enable for all sites.' => 'اختر المواقع التي يجب تفعيل الروابط الذكية فيها. اتركها فارغة للتفعيل في جميع المواقع.',
+    'Select which sites SmartLink Manager should be enabled for. Leave empty to enable for all sites.' => 'اختر المواقع التي يجب تفعيل مدير الروابط الذكية فيها. اتركها فارغة للتفعيل في جميع المواقع.',
 
     // URL Settings
     'URL Settings' => 'إعدادات عنوان URL',
@@ -58,8 +58,8 @@ return [
     'The URL prefix for smart links (e.g., \'go\' creates /go/your-link)' => 'بادئة عنوان URL للروابط الذكية (مثلاً، \'go\' تنشئ /go/your-link)',
     'The URL prefix for QR code pages (e.g., \'qr\' creates /qr/your-link)' => 'بادئة عنوان URL لصفحات رمز QR (مثلاً، \'qr\' تنشئ /qr/your-link)',
     'Only letters, numbers, hyphens, and underscores are allowed.' => 'يُسمح فقط بالحروف والأرقام والشُرط والشُرط السفلية.',
-    'This is being overridden by the <code>slugPrefix</code> setting in <code>config/smart-links.php</code>. Clear routes cache after changing this.' => 'يتم تجاوز هذا الإعداد بواسطة إعداد <code>slugPrefix</code> في <code>config/smart-links.php</code>. امسح ذاكرة التخزين المؤقت للمسارات بعد تغيير هذا.',
-    'This is being overridden by the <code>qrPrefix</code> setting in <code>config/smart-links.php</code>. Clear routes cache after changing this.' => 'يتم تجاوز هذا الإعداد بواسطة إعداد <code>qrPrefix</code> في <code>config/smart-links.php</code>. امسح ذاكرة التخزين المؤقت للمسارات بعد تغيير هذا.',
+    'This is being overridden by the <code>slugPrefix</code> setting in <code>config/smartlink-manager.php</code>. Clear routes cache after changing this.' => 'يتم تجاوز هذا الإعداد بواسطة إعداد <code>slugPrefix</code> في <code>config/smartlink-manager.php</code>. امسح ذاكرة التخزين المؤقت للمسارات بعد تغيير هذا.',
+    'This is being overridden by the <code>qrPrefix</code> setting in <code>config/smartlink-manager.php</code>. Clear routes cache after changing this.' => 'يتم تجاوز هذا الإعداد بواسطة إعداد <code>qrPrefix</code> في <code>config/smartlink-manager.php</code>. امسح ذاكرة التخزين المؤقت للمسارات بعد تغيير هذا.',
     'Clear routes cache after changing this (php craft clear-caches/compiled-templates).' => 'امسح ذاكرة التخزين المؤقت للمسارات بعد تغيير هذا (php craft clear-caches/compiled-templates).',
 
     // Smart Link Fields
@@ -188,7 +188,7 @@ return [
     'Asset Settings' => 'إعدادات الملفات',
     'Image Volume' => 'مجلد الصور',
     'Smart Link Image Volume' => 'مجلد صور الروابط الذكية',
-    'Which asset volume should be used for Smart Link images' => 'أي مجلد ملفات يجب استخدامه لصور الروابط الذكية',
+    'Which asset volume should be used for SmartLink Manager images' => 'أي مجلد ملفات يجب استخدامه لصور مدير الروابط الذكية',
     'All asset volumes' => 'جميع مجلدات الملفات',
 
     // Analytics Settings
@@ -196,7 +196,7 @@ return [
     'Enable Analytics' => 'تفعيل التحليلات',
     'Track Analytics' => 'تتبع التحليلات',
     'Track clicks and visitor data for smart links' => 'تتبع النقرات وبيانات الزوار للروابط الذكية',
-    'When enabled, Smart Links will track visitor interactions, device types, geographic data, and other analytics information.' => 'عند التفعيل، ستتتبع الروابط الذكية تفاعلات الزوار وأنواع الأجهزة والبيانات الجغرافية ومعلومات تحليلية أخرى.',
+    'When enabled, SmartLink Manager will track visitor interactions, device types, geographic data, and other analytics information.' => 'عند التفعيل، سيتتبع مدير الروابط الذكية تفاعلات الزوار وأنواع الأجهزة والبيانات الجغرافية ومعلومات تحليلية أخرى.',
     'Are you sure you want to disable analytics tracking for this smart link? This smart link will no longer collect visitor data and interactions.' => 'هل أنت متأكد من تعطيل تتبع التحليلات لهذا الرابط الذكي؟ لن يعود هذا الرابط يجمع بيانات الزوار والتفاعلات.',
     'Analytics Retention (days)' => 'الاحتفاظ بالتحليلات (بالأيام)',
     'Analytics Retention' => 'الاحتفاظ بالتحليلات',
@@ -237,18 +237,18 @@ return [
     'Analytics Export Options' => 'خيارات تصدير التحليلات',
     'Export Settings' => 'إعدادات التصدير',
     'Include Disabled Links in Export' => 'تضمين الروابط المعطلة في التصدير',
-    'Include Disabled Smart Links in Export' => 'تضمين الروابط الذكية المعطلة في التصدير',
+    'Include Disabled SmartLinks in Export' => 'تضمين الروابط الذكية المعطلة في التصدير',
     'When enabled, analytics exports will include data from disabled smart links' => 'عند التفعيل، ستتضمن صادرات التحليلات بيانات من الروابط الذكية المعطلة',
     'Include Expired Links in Export' => 'تضمين الروابط المنتهية في التصدير',
-    'Include Expired Smart Links in Export' => 'تضمين الروابط الذكية المنتهية في التصدير',
+    'Include Expired SmartLinks in Export' => 'تضمين الروابط الذكية المنتهية في التصدير',
     'When enabled, analytics exports will include data from expired smart links' => 'عند التفعيل، ستتضمن صادرات التحليلات بيانات من الروابط الذكية المنتهية',
     'Export as CSV' => 'تصدير كملف CSV',
 
     // Redirect Settings
     'Custom Redirect Template' => 'قالب إعادة توجيه مخصص',
-    'Path to custom template in your templates/ folder (e.g., smart-links/redirect)' => 'مسار القالب المخصص في مجلد templates/ (مثال: smart-links/redirect)',
+    'Path to custom template in your templates/ folder (e.g., smartlink-manager/redirect)' => 'مسار القالب المخصص في مجلد templates/ (مثال: smartlink-manager/redirect)',
     'Custom QR Code Template' => 'قالب رمز الاستجابة السريعة المخصص',
-    'Path to custom template in your templates/ folder (e.g., smart-links/qr)' => 'مسار القالب المخصص في مجلد templates/ (مثال: smart-links/qr)',
+    'Path to custom template in your templates/ folder (e.g., smartlink-manager/qr)' => 'مسار القالب المخصص في مجلد templates/ (مثال: smartlink-manager/qr)',
     'Redirect Settings' => 'إعدادات إعادة التوجيه',
     'Redirect Behavior' => 'سلوك إعادة التوجيه',
     '404 Redirect URL' => 'رابط إعادة توجيه 404',
@@ -266,7 +266,7 @@ return [
     'Advanced Settings' => 'إعدادات متقدمة',
 
     // Analytics Dashboard
-    'Smart Links Overview' => 'نظرة عامة على الروابط الذكية',
+    'SmartLink Manager Overview' => 'نظرة عامة على مدير الروابط الذكية',
     'View Analytics' => 'عرض التحليلات',
     'Traffic Overview' => 'نظرة عامة على الزيارات',
     'Total Links' => 'إجمالي الروابط',
@@ -275,7 +275,7 @@ return [
     'total clicks' => 'إجمالي النقرات',
     'Clicks' => 'النقرات',
     'Unique Visitors' => 'الزوار الفريدون',
-    'Top Smart Links' => 'أفضل الروابط الذكية',
+    'Top SmartLinks' => 'أفضل الروابط الذكية',
     'Top Performing Links (Last 7 Days)' => 'الروابط الأكثر أداءً (آخر 7 أيام)',
     'Top Countries' => 'أفضل الدول',
     'Top Cities' => 'أفضل المدن',
@@ -341,7 +341,7 @@ return [
     // Actions
     'Actions' => 'الإجراءات',
     'Save Settings' => 'حفظ الإعدادات',
-    'Manage Smart Links' => 'إدارة الروابط الذكية',
+    'Manage SmartLinks' => 'إدارة الروابط الذكية',
 
     // Messages
     'Loading...' => 'جاري التحميل...',
@@ -400,34 +400,34 @@ return [
     'Fathom, Matomo, and Plausible are shown above but do not receive events directly from {pluginName}' => 'يتم عرض Fathom و Matomo و Plausible أعلاه ولكنها لا تستقبل الأحداث مباشرة من {pluginName}',
 
     // Config Override Warnings
-    'This is being overridden by the <code>pluginName</code> setting in <code>config/smart-links.php</code>.' => 'يتم تجاوز هذا بواسطة إعداد <code>pluginName</code> في <code>config/smart-links.php</code>.',
-    'This is being overridden by the <code>enableAnalytics</code> setting in <code>config/smart-links.php</code>.' => 'يتم تجاوز هذا بواسطة إعداد <code>enableAnalytics</code> في <code>config/smart-links.php</code>.',
-    'This is being overridden by the <code>analyticsRetention</code> setting in <code>config/smart-links.php</code>.' => 'يتم تجاوز هذا بواسطة إعداد <code>analyticsRetention</code> في <code>config/smart-links.php</code>.',
-    'This is being overridden by the <code>includeDisabledInExport</code> setting in <code>config/smart-links.php</code>.' => 'يتم تجاوز هذا بواسطة إعداد <code>includeDisabledInExport</code> في <code>config/smart-links.php</code>.',
-    'This is being overridden by the <code>includeExpiredInExport</code> setting in <code>config/smart-links.php</code>.' => 'يتم تجاوز هذا بواسطة إعداد <code>includeExpiredInExport</code> في <code>config/smart-links.php</code>.',
-    'This is being overridden by the <code>defaultQrSize</code> setting in <code>config/smart-links.php</code>.' => 'يتم تجاوز هذا بواسطة إعداد <code>defaultQrSize</code> في <code>config/smart-links.php</code>.',
-    'This is being overridden by the <code>defaultQrColor</code> setting in <code>config/smart-links.php</code>.' => 'يتم تجاوز هذا بواسطة إعداد <code>defaultQrColor</code> في <code>config/smart-links.php</code>.',
-    'This is being overridden by the <code>defaultQrBgColor</code> setting in <code>config/smart-links.php</code>.' => 'يتم تجاوز هذا بواسطة إعداد <code>defaultQrBgColor</code> في <code>config/smart-links.php</code>.',
-    'This is being overridden by the <code>defaultQrFormat</code> setting in <code>config/smart-links.php</code>.' => 'يتم تجاوز هذا بواسطة إعداد <code>defaultQrFormat</code> في <code>config/smart-links.php</code>.',
-    'This is being overridden by the <code>qrCodeCacheDuration</code> setting in <code>config/smart-links.php</code>.' => 'يتم تجاوز هذا بواسطة إعداد <code>qrCodeCacheDuration</code> في <code>config/smart-links.php</code>.',
-    'This is being overridden by the <code>defaultQrErrorCorrection</code> setting in <code>config/smart-links.php</code>.' => 'يتم تجاوز هذا بواسطة إعداد <code>defaultQrErrorCorrection</code> في <code>config/smart-links.php</code>.',
-    'This is being overridden by the <code>defaultQrMargin</code> setting in <code>config/smart-links.php</code>.' => 'يتم تجاوز هذا بواسطة إعداد <code>defaultQrMargin</code> في <code>config/smart-links.php</code>.',
-    'This is being overridden by the <code>qrModuleStyle</code> setting in <code>config/smart-links.php</code>.' => 'يتم تجاوز هذا بواسطة إعداد <code>qrModuleStyle</code> في <code>config/smart-links.php</code>.',
-    'This is being overridden by the <code>qrEyeStyle</code> setting in <code>config/smart-links.php</code>.' => 'يتم تجاوز هذا بواسطة إعداد <code>qrEyeStyle</code> في <code>config/smart-links.php</code>.',
-    'This is being overridden by the <code>qrEyeColor</code> setting in <code>config/smart-links.php</code>.' => 'يتم تجاوز هذا بواسطة إعداد <code>qrEyeColor</code> في <code>config/smart-links.php</code>.',
-    'This is being overridden by the <code>enableQrLogo</code> setting in <code>config/smart-links.php</code>.' => 'يتم تجاوز هذا بواسطة إعداد <code>enableQrLogo</code> في <code>config/smart-links.php</code>.',
-    'This is being overridden by the <code>qrLogoVolumeUid</code> setting in <code>config/smart-links.php</code>.' => 'يتم تجاوز هذا بواسطة إعداد <code>qrLogoVolumeUid</code> في <code>config/smart-links.php</code>.',
-    'This is being overridden by the <code>imageVolumeUid</code> setting in <code>config/smart-links.php</code>.' => 'يتم تجاوز هذا بواسطة إعداد <code>imageVolumeUid</code> في <code>config/smart-links.php</code>.',
-    'This is being overridden by the <code>qrLogoSize</code> setting in <code>config/smart-links.php</code>.' => 'يتم تجاوز هذا بواسطة إعداد <code>qrLogoSize</code> في <code>config/smart-links.php</code>.',
-    'This is being overridden by the <code>enableQrDownload</code> setting in <code>config/smart-links.php</code>.' => 'يتم تجاوز هذا بواسطة إعداد <code>enableQrDownload</code> في <code>config/smart-links.php</code>.',
-    'This is being overridden by the <code>qrDownloadFilename</code> setting in <code>config/smart-links.php</code>.' => 'يتم تجاوز هذا بواسطة إعداد <code>qrDownloadFilename</code> في <code>config/smart-links.php</code>.',
-    'This is being overridden by the <code>redirectTemplate</code> setting in <code>config/smart-links.php</code>.' => 'يتم تجاوز هذا بواسطة إعداد <code>redirectTemplate</code> في <code>config/smart-links.php</code>.',
-    'This is being overridden by the <code>qrTemplate</code> setting in <code>config/smart-links.php</code>.' => 'يتم تجاوز هذا بواسطة إعداد <code>qrTemplate</code> في <code>config/smart-links.php</code>.',
-    'This is being overridden by the <code>enableGeoDetection</code> setting in <code>config/smart-links.php</code>.' => 'يتم تجاوز هذا بواسطة إعداد <code>enableGeoDetection</code> في <code>config/smart-links.php</code>.',
-    'This is being overridden by the <code>cacheDeviceDetection</code> setting in <code>config/smart-links.php</code>.' => 'يتم تجاوز هذا بواسطة إعداد <code>cacheDeviceDetection</code> في <code>config/smart-links.php</code>.',
-    'This is being overridden by the <code>deviceDetectionCacheDuration</code> setting in <code>config/smart-links.php</code>.' => 'يتم تجاوز هذا بواسطة إعداد <code>deviceDetectionCacheDuration</code> في <code>config/smart-links.php</code>.',
-    'This is being overridden by the <code>languageDetectionMethod</code> setting in <code>config/smart-links.php</code>.' => 'يتم تجاوز هذا بواسطة إعداد <code>languageDetectionMethod</code> في <code>config/smart-links.php</code>.',
-    'This is being overridden by the <code>itemsPerPage</code> setting in <code>config/smart-links.php</code>.' => 'يتم تجاوز هذا بواسطة إعداد <code>itemsPerPage</code> في <code>config/smart-links.php</code>.',
-    'This is being overridden by the <code>notFoundRedirectUrl</code> setting in <code>config/smart-links.php</code>.' => 'يتم تجاوز هذا بواسطة إعداد <code>notFoundRedirectUrl</code> في <code>config/smart-links.php</code>.',
-    'This is being overridden by the <code>enabledSites</code> setting in <code>config/smart-links.php</code>.' => 'يتم تجاوز هذا بواسطة إعداد <code>enabledSites</code> في <code>config/smart-links.php</code>.',
+    'This is being overridden by the <code>pluginName</code> setting in <code>config/smartlink-manager.php</code>.' => 'يتم تجاوز هذا بواسطة إعداد <code>pluginName</code> في <code>config/smartlink-manager.php</code>.',
+    'This is being overridden by the <code>enableAnalytics</code> setting in <code>config/smartlink-manager.php</code>.' => 'يتم تجاوز هذا بواسطة إعداد <code>enableAnalytics</code> في <code>config/smartlink-manager.php</code>.',
+    'This is being overridden by the <code>analyticsRetention</code> setting in <code>config/smartlink-manager.php</code>.' => 'يتم تجاوز هذا بواسطة إعداد <code>analyticsRetention</code> في <code>config/smartlink-manager.php</code>.',
+    'This is being overridden by the <code>includeDisabledInExport</code> setting in <code>config/smartlink-manager.php</code>.' => 'يتم تجاوز هذا بواسطة إعداد <code>includeDisabledInExport</code> في <code>config/smartlink-manager.php</code>.',
+    'This is being overridden by the <code>includeExpiredInExport</code> setting in <code>config/smartlink-manager.php</code>.' => 'يتم تجاوز هذا بواسطة إعداد <code>includeExpiredInExport</code> في <code>config/smartlink-manager.php</code>.',
+    'This is being overridden by the <code>defaultQrSize</code> setting in <code>config/smartlink-manager.php</code>.' => 'يتم تجاوز هذا بواسطة إعداد <code>defaultQrSize</code> في <code>config/smartlink-manager.php</code>.',
+    'This is being overridden by the <code>defaultQrColor</code> setting in <code>config/smartlink-manager.php</code>.' => 'يتم تجاوز هذا بواسطة إعداد <code>defaultQrColor</code> في <code>config/smartlink-manager.php</code>.',
+    'This is being overridden by the <code>defaultQrBgColor</code> setting in <code>config/smartlink-manager.php</code>.' => 'يتم تجاوز هذا بواسطة إعداد <code>defaultQrBgColor</code> في <code>config/smartlink-manager.php</code>.',
+    'This is being overridden by the <code>defaultQrFormat</code> setting in <code>config/smartlink-manager.php</code>.' => 'يتم تجاوز هذا بواسطة إعداد <code>defaultQrFormat</code> في <code>config/smartlink-manager.php</code>.',
+    'This is being overridden by the <code>qrCodeCacheDuration</code> setting in <code>config/smartlink-manager.php</code>.' => 'يتم تجاوز هذا بواسطة إعداد <code>qrCodeCacheDuration</code> في <code>config/smartlink-manager.php</code>.',
+    'This is being overridden by the <code>defaultQrErrorCorrection</code> setting in <code>config/smartlink-manager.php</code>.' => 'يتم تجاوز هذا بواسطة إعداد <code>defaultQrErrorCorrection</code> في <code>config/smartlink-manager.php</code>.',
+    'This is being overridden by the <code>defaultQrMargin</code> setting in <code>config/smartlink-manager.php</code>.' => 'يتم تجاوز هذا بواسطة إعداد <code>defaultQrMargin</code> في <code>config/smartlink-manager.php</code>.',
+    'This is being overridden by the <code>qrModuleStyle</code> setting in <code>config/smartlink-manager.php</code>.' => 'يتم تجاوز هذا بواسطة إعداد <code>qrModuleStyle</code> في <code>config/smartlink-manager.php</code>.',
+    'This is being overridden by the <code>qrEyeStyle</code> setting in <code>config/smartlink-manager.php</code>.' => 'يتم تجاوز هذا بواسطة إعداد <code>qrEyeStyle</code> في <code>config/smartlink-manager.php</code>.',
+    'This is being overridden by the <code>qrEyeColor</code> setting in <code>config/smartlink-manager.php</code>.' => 'يتم تجاوز هذا بواسطة إعداد <code>qrEyeColor</code> في <code>config/smartlink-manager.php</code>.',
+    'This is being overridden by the <code>enableQrLogo</code> setting in <code>config/smartlink-manager.php</code>.' => 'يتم تجاوز هذا بواسطة إعداد <code>enableQrLogo</code> في <code>config/smartlink-manager.php</code>.',
+    'This is being overridden by the <code>qrLogoVolumeUid</code> setting in <code>config/smartlink-manager.php</code>.' => 'يتم تجاوز هذا بواسطة إعداد <code>qrLogoVolumeUid</code> في <code>config/smartlink-manager.php</code>.',
+    'This is being overridden by the <code>imageVolumeUid</code> setting in <code>config/smartlink-manager.php</code>.' => 'يتم تجاوز هذا بواسطة إعداد <code>imageVolumeUid</code> في <code>config/smartlink-manager.php</code>.',
+    'This is being overridden by the <code>qrLogoSize</code> setting in <code>config/smartlink-manager.php</code>.' => 'يتم تجاوز هذا بواسطة إعداد <code>qrLogoSize</code> في <code>config/smartlink-manager.php</code>.',
+    'This is being overridden by the <code>enableQrDownload</code> setting in <code>config/smartlink-manager.php</code>.' => 'يتم تجاوز هذا بواسطة إعداد <code>enableQrDownload</code> في <code>config/smartlink-manager.php</code>.',
+    'This is being overridden by the <code>qrDownloadFilename</code> setting in <code>config/smartlink-manager.php</code>.' => 'يتم تجاوز هذا بواسطة إعداد <code>qrDownloadFilename</code> في <code>config/smartlink-manager.php</code>.',
+    'This is being overridden by the <code>redirectTemplate</code> setting in <code>config/smartlink-manager.php</code>.' => 'يتم تجاوز هذا بواسطة إعداد <code>redirectTemplate</code> في <code>config/smartlink-manager.php</code>.',
+    'This is being overridden by the <code>qrTemplate</code> setting in <code>config/smartlink-manager.php</code>.' => 'يتم تجاوز هذا بواسطة إعداد <code>qrTemplate</code> في <code>config/smartlink-manager.php</code>.',
+    'This is being overridden by the <code>enableGeoDetection</code> setting in <code>config/smartlink-manager.php</code>.' => 'يتم تجاوز هذا بواسطة إعداد <code>enableGeoDetection</code> في <code>config/smartlink-manager.php</code>.',
+    'This is being overridden by the <code>cacheDeviceDetection</code> setting in <code>config/smartlink-manager.php</code>.' => 'يتم تجاوز هذا بواسطة إعداد <code>cacheDeviceDetection</code> في <code>config/smartlink-manager.php</code>.',
+    'This is being overridden by the <code>deviceDetectionCacheDuration</code> setting in <code>config/smartlink-manager.php</code>.' => 'يتم تجاوز هذا بواسطة إعداد <code>deviceDetectionCacheDuration</code> في <code>config/smartlink-manager.php</code>.',
+    'This is being overridden by the <code>languageDetectionMethod</code> setting in <code>config/smartlink-manager.php</code>.' => 'يتم تجاوز هذا بواسطة إعداد <code>languageDetectionMethod</code> في <code>config/smartlink-manager.php</code>.',
+    'This is being overridden by the <code>itemsPerPage</code> setting in <code>config/smartlink-manager.php</code>.' => 'يتم تجاوز هذا بواسطة إعداد <code>itemsPerPage</code> في <code>config/smartlink-manager.php</code>.',
+    'This is being overridden by the <code>notFoundRedirectUrl</code> setting in <code>config/smartlink-manager.php</code>.' => 'يتم تجاوز هذا بواسطة إعداد <code>notFoundRedirectUrl</code> في <code>config/smartlink-manager.php</code>.',
+    'This is being overridden by the <code>enabledSites</code> setting in <code>config/smartlink-manager.php</code>.' => 'يتم تجاوز هذا بواسطة إعداد <code>enabledSites</code> في <code>config/smartlink-manager.php</code>.',
 ];

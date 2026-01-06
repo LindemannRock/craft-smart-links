@@ -1,7 +1,7 @@
 {% extends "_layouts/elementindex" %}
-{% set plugin = craft.app.plugins.getPlugin('smart-links') %}
-{% set title = smartlinkHelper.fullName|t('smart-links') %}
-{% set elementType = 'lindemannrock\\smartlinks\\elements\\SmartLink' %}
+{% set plugin = craft.app.plugins.getPlugin('smartlink-manager') %}
+{% set title = smartlinkHelper.fullName|t('smartlink-manager') %}
+{% set elementType = 'lindemannrock\\smartlinkmanager\\elements\\SmartLink' %}
 {% set selectedSubnavItem = 'links' %}
 {% set showSiteMenu = false %}
 
@@ -21,7 +21,7 @@
     {% for site in plugin.getEnabledSites() %}
         {% set siteMenuItems = siteMenuItems|merge([{
             label: site.name,
-            url: url('smart-links', {site: site.handle}),
+            url: url('smartlink-manager', {site: site.handle}),
             selected: site.handle == selectedSiteHandle
         }]) %}
     {% endfor %}
@@ -38,13 +38,13 @@
 {% endif %}
 
 {% set crumbs = crumbs|merge([
-    { label: smartlinkHelper.fullName|t('smart-links'), url: url('smart-links') }
+    { label: smartlinkHelper.fullName|t('smartlink-manager'), url: url('smartlink-manager') }
 ]) %}
 
 {% block actionButton %}
-    {% if currentUser.can('smartLinks:createLinks') %}
+    {% if currentUser.can('smartLinkManager:createLinks') %}
         <div class="btngroup">
-            <a href="{{ url('smart-links/new') }}" class="btn submit add icon">{{ 'New {name}'|t('smart-links', {name: smartlinkHelper.lowerDisplayName}) }}</a>
+            <a href="{{ url('smartlink-manager/new') }}" class="btn submit add icon">{{ 'New {name}'|t('smartlink-manager', {name: smartlinkHelper.lowerDisplayName}) }}</a>
         </div>
     {% endif %}
 {% endblock %}

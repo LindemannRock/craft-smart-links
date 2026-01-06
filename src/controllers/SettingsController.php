@@ -1,21 +1,21 @@
 <?php
 /**
- * Smart Links plugin for Craft CMS 5.x
+ * SmartLink Manager plugin for Craft CMS 5.x
  *
  * @link      https://lindemannrock.com
  * @copyright Copyright (c) 2025 LindemannRock
  */
 
-namespace lindemannrock\smartlinks\controllers;
+namespace lindemannrock\smartlinkmanager\controllers;
 
 use Craft;
 use craft\helpers\Json;
 use craft\web\Controller;
 use lindemannrock\logginglibrary\traits\LoggingTrait;
-use lindemannrock\smartlinks\elements\SmartLink;
-use lindemannrock\smartlinks\jobs\CleanupAnalyticsJob;
-use lindemannrock\smartlinks\models\Settings;
-use lindemannrock\smartlinks\SmartLinks;
+use lindemannrock\smartlinkmanager\elements\SmartLink;
+use lindemannrock\smartlinkmanager\jobs\CleanupAnalyticsJob;
+use lindemannrock\smartlinkmanager\models\Settings;
+use lindemannrock\smartlinkmanager\SmartLinkManager;
 use yii\web\ForbiddenHttpException;
 use yii\web\Response;
 
@@ -44,7 +44,7 @@ class SettingsController extends Controller
     public function init(): void
     {
         parent::init();
-        $this->setLoggingHandle('smart-links');
+        $this->setLoggingHandle('smartlink-manager');
     }
 
     /**
@@ -52,7 +52,7 @@ class SettingsController extends Controller
      */
     public function beforeAction($action): bool
     {
-        $this->requirePermission('smartLinks:settings');
+        $this->requirePermission('smartLinkManager:settings');
 
         // Only field layouts respect allowAdminChanges (system config)
         // All other settings are operational and should always be editable
@@ -73,7 +73,7 @@ class SettingsController extends Controller
      */
     public function actionIndex(): Response
     {
-        return $this->redirect('smart-links/settings/general');
+        return $this->redirect('smartlink-manager/settings/general');
     }
 
     /**
@@ -83,11 +83,11 @@ class SettingsController extends Controller
      */
     public function actionDebug(): Response
     {
-        $this->requirePermission('smartLinks:settings');
+        $this->requirePermission('smartLinkManager:settings');
 
         // Test database query directly
         $row = (new \craft\db\Query())
-            ->from('{{%smartlinks_settings}}')
+            ->from('{{%smartlinkmanager_settings}}')
             ->where(['id' => 1])
             ->one();
 
@@ -108,7 +108,7 @@ class SettingsController extends Controller
     public function actionGeneral(): Response
     {
         // Get settings from plugin (includes config overrides)
-        $plugin = SmartLinks::getInstance();
+        $plugin = SmartLinkManager::getInstance();
         $settings = $plugin->getSettings();
 
         // Debug: Make absolutely sure we have a settings object
@@ -118,7 +118,7 @@ class SettingsController extends Controller
 
         // Minimal test
         try {
-            return $this->renderTemplate('smart-links/settings/general', [
+            return $this->renderTemplate('smartlink-manager/settings/general', [
                 'settings' => $settings,
                 'plugin' => $plugin,
                 'readOnly' => $this->readOnly,
@@ -136,10 +136,10 @@ class SettingsController extends Controller
     public function actionAnalytics(): Response
     {
         // Get settings from plugin (includes config overrides)
-        $plugin = SmartLinks::getInstance();
+        $plugin = SmartLinkManager::getInstance();
         $settings = $plugin->getSettings();
 
-        return $this->renderTemplate('smart-links/settings/analytics', [
+        return $this->renderTemplate('smartlink-manager/settings/analytics', [
             'settings' => $settings,
             'readOnly' => $this->readOnly,
         ]);
@@ -153,10 +153,10 @@ class SettingsController extends Controller
     public function actionIntegrations(): Response
     {
         // Get settings from plugin (includes config overrides)
-        $plugin = SmartLinks::getInstance();
+        $plugin = SmartLinkManager::getInstance();
         $settings = $plugin->getSettings();
 
-        return $this->renderTemplate('smart-links/settings/integrations', [
+        return $this->renderTemplate('smartlink-manager/settings/integrations', [
             'settings' => $settings,
             'readOnly' => $this->readOnly,
         ]);
@@ -170,10 +170,10 @@ class SettingsController extends Controller
     public function actionExport(): Response
     {
         // Get settings from plugin (includes config overrides)
-        $plugin = SmartLinks::getInstance();
+        $plugin = SmartLinkManager::getInstance();
         $settings = $plugin->getSettings();
 
-        return $this->renderTemplate('smart-links/settings/export', [
+        return $this->renderTemplate('smartlink-manager/settings/export', [
             'settings' => $settings,
             'readOnly' => $this->readOnly,
         ]);
@@ -187,10 +187,10 @@ class SettingsController extends Controller
     public function actionQrCode(): Response
     {
         // Get settings from plugin (includes config overrides)
-        $plugin = SmartLinks::getInstance();
+        $plugin = SmartLinkManager::getInstance();
         $settings = $plugin->getSettings();
 
-        return $this->renderTemplate('smart-links/settings/qr-code', [
+        return $this->renderTemplate('smartlink-manager/settings/qr-code', [
             'settings' => $settings,
             'readOnly' => $this->readOnly,
         ]);
@@ -204,10 +204,10 @@ class SettingsController extends Controller
     public function actionBehavior(): Response
     {
         // Get settings from plugin (includes config overrides)
-        $plugin = SmartLinks::getInstance();
+        $plugin = SmartLinkManager::getInstance();
         $settings = $plugin->getSettings();
 
-        return $this->renderTemplate('smart-links/settings/behavior', [
+        return $this->renderTemplate('smartlink-manager/settings/behavior', [
             'settings' => $settings,
             'readOnly' => $this->readOnly,
         ]);
@@ -221,10 +221,10 @@ class SettingsController extends Controller
     public function actionInterface(): Response
     {
         // Get settings from plugin (includes config overrides)
-        $plugin = SmartLinks::getInstance();
+        $plugin = SmartLinkManager::getInstance();
         $settings = $plugin->getSettings();
 
-        return $this->renderTemplate('smart-links/settings/interface', [
+        return $this->renderTemplate('smartlink-manager/settings/interface', [
             'settings' => $settings,
             'readOnly' => $this->readOnly,
         ]);
@@ -238,10 +238,10 @@ class SettingsController extends Controller
     public function actionCache(): Response
     {
         // Get settings from plugin (includes config overrides)
-        $plugin = SmartLinks::getInstance();
+        $plugin = SmartLinkManager::getInstance();
         $settings = $plugin->getSettings();
 
-        return $this->renderTemplate('smart-links/settings/cache', [
+        return $this->renderTemplate('smartlink-manager/settings/cache', [
             'settings' => $settings,
             'readOnly' => $this->readOnly,
         ]);
@@ -254,8 +254,8 @@ class SettingsController extends Controller
      */
     public function actionFieldLayout(): Response
     {
-        // Try new format first (smart-links.fieldLayouts)
-        $fieldLayouts = Craft::$app->getProjectConfig()->get('smart-links.fieldLayouts') ?? [];
+        // Try new format first (smartlink-manager.fieldLayouts)
+        $fieldLayouts = Craft::$app->getProjectConfig()->get('smartlink-manager.fieldLayouts') ?? [];
 
         $fieldLayout = null;
 
@@ -265,9 +265,9 @@ class SettingsController extends Controller
             $fieldLayout = Craft::$app->getFields()->getLayoutByUid($fieldLayoutUid);
         }
 
-        // Backwards compatibility: try old format (smart-links.fieldLayout with just UID)
+        // Backwards compatibility: try old format (smartlink-manager.fieldLayout with just UID)
         if (!$fieldLayout) {
-            $oldUid = Craft::$app->getProjectConfig()->get('smart-links.fieldLayout');
+            $oldUid = Craft::$app->getProjectConfig()->get('smartlink-manager.fieldLayout');
             if ($oldUid) {
                 $fieldLayout = Craft::$app->getFields()->getLayoutByUid($oldUid);
             }
@@ -275,13 +275,13 @@ class SettingsController extends Controller
 
         // Fallback: try to get by type (in case it exists in database)
         if (!$fieldLayout) {
-            $fieldLayout = Craft::$app->getFields()->getLayoutByType(\lindemannrock\smartlinks\elements\SmartLink::class);
+            $fieldLayout = Craft::$app->getFields()->getLayoutByType(\lindemannrock\smartlinkmanager\elements\SmartLink::class);
         }
 
         if (!$fieldLayout) {
             // Create a new field layout if none exists
             $fieldLayout = new \craft\models\FieldLayout([
-                'type' => \lindemannrock\smartlinks\elements\SmartLink::class,
+                'type' => \lindemannrock\smartlinkmanager\elements\SmartLink::class,
             ]);
 
             // Save the empty field layout so it has an ID (needed for designer to work)
@@ -292,9 +292,9 @@ class SettingsController extends Controller
                 $fieldLayoutConfig = $fieldLayout->getConfig();
                 if ($fieldLayoutConfig) {
                     Craft::$app->getProjectConfig()->set(
-                        "smart-links.fieldLayouts.{$fieldLayout->uid}",
+                        "smartlink-manager.fieldLayouts.{$fieldLayout->uid}",
                         $fieldLayoutConfig,
-                        "Create Smart Links field layout"
+                        "Create SmartLink Manager field layout"
                     );
                 }
             }
@@ -320,7 +320,7 @@ class SettingsController extends Controller
             'readOnly' => $this->readOnly,
         ]);
 
-        return $this->renderTemplate('smart-links/settings/field-layout', $variables);
+        return $this->renderTemplate('smartlink-manager/settings/field-layout', $variables);
     }
 
     /**
@@ -331,13 +331,13 @@ class SettingsController extends Controller
     public function actionSaveFieldLayout(): ?Response
     {
         $this->requirePostRequest();
-        $this->requirePermission('smartLinks:settings');
+        $this->requirePermission('smartLinkManager:settings');
 
         $fieldLayout = Craft::$app->getFields()->assembleLayoutFromPost();
-        $fieldLayout->type = \lindemannrock\smartlinks\elements\SmartLink::class;
+        $fieldLayout->type = \lindemannrock\smartlinkmanager\elements\SmartLink::class;
 
         if (!Craft::$app->getFields()->saveLayout($fieldLayout)) {
-            Craft::$app->getSession()->setError(Craft::t('smart-links', 'Couldn\'t save field layout.'));
+            Craft::$app->getSession()->setError(Craft::t('smartlink-manager', 'Couldn\'t save field layout.'));
             return null;
         }
 
@@ -345,18 +345,18 @@ class SettingsController extends Controller
         $fieldLayoutConfig = $fieldLayout->getConfig();
         if ($fieldLayoutConfig) {
             Craft::$app->getProjectConfig()->set(
-                "smart-links.fieldLayouts.{$fieldLayout->uid}",
+                "smartlink-manager.fieldLayouts.{$fieldLayout->uid}",
                 $fieldLayoutConfig,
-                "Save Smart Links field layout"
+                "Save SmartLink Manager field layout"
             );
 
             // Remove old format if it exists (migration)
-            if (Craft::$app->getProjectConfig()->get('smart-links.fieldLayout')) {
-                Craft::$app->getProjectConfig()->remove('smart-links.fieldLayout');
+            if (Craft::$app->getProjectConfig()->get('smartlink-manager.fieldLayout')) {
+                Craft::$app->getProjectConfig()->remove('smartlink-manager.fieldLayout');
             }
         }
 
-        Craft::$app->getSession()->setNotice(Craft::t('smart-links', 'Field layout saved.'));
+        Craft::$app->getSession()->setNotice(Craft::t('smartlink-manager', 'Field layout saved.'));
         return $this->redirectToPostedUrl();
     }
 
@@ -368,12 +368,12 @@ class SettingsController extends Controller
     public function actionSave(): ?Response
     {
         // Basic debug - write to file
-        file_put_contents('/tmp/smart-links-debug.log', date('Y-m-d H:i:s') . " - Save action called\n", FILE_APPEND);
+        file_put_contents('/tmp/smartlink-manager-debug.log', date('Y-m-d H:i:s') . " - Save action called\n", FILE_APPEND);
 
         $this->requirePostRequest();
 
         // Check permission first
-        $this->requirePermission('smartLinks:settings');
+        $this->requirePermission('smartLinkManager:settings');
 
         // No need to check allowAdminChanges since settings are stored in database
         // not in project config
@@ -469,12 +469,12 @@ class SettingsController extends Controller
             $this->logError('Settings validation failed', ['errors' => $settings->getErrors()]);
 
             // Standard Craft way: Pass errors back to template
-            Craft::$app->getSession()->setError(Craft::t('smart-links', 'Couldn\'t save settings.'));
+            Craft::$app->getSession()->setError(Craft::t('smartlink-manager', 'Couldn\'t save settings.'));
 
             // Re-render the template with errors
             // Get the section from the request to render the correct template
             $section = Craft::$app->getRequest()->getBodyParam('section', 'general');
-            $template = "smart-links/settings/{$section}";
+            $template = "smartlink-manager/settings/{$section}";
 
             return $this->renderTemplate($template, [
                 'settings' => $settings,
@@ -484,19 +484,19 @@ class SettingsController extends Controller
         // Save settings to database
         if ($settings->saveToDatabase()) {
             // Update the plugin's cached settings if plugin is available
-            $plugin = SmartLinks::getInstance();
+            $plugin = SmartLinkManager::getInstance();
             if ($plugin) {
                 // setSettings expects an array, not an object
                 $plugin->setSettings($settings->getAttributes());
             }
 
-            Craft::$app->getSession()->setNotice(Craft::t('smart-links', 'Settings saved.'));
+            Craft::$app->getSession()->setNotice(Craft::t('smartlink-manager', 'Settings saved.'));
         } else {
-            Craft::$app->getSession()->setError(Craft::t('smart-links', 'Couldn\'t save settings.'));
+            Craft::$app->getSession()->setError(Craft::t('smartlink-manager', 'Couldn\'t save settings.'));
 
             // Get the section to re-render the correct template with errors
             $section = $this->request->getBodyParam('section', 'general');
-            $template = "smart-links/settings/{$section}";
+            $template = "smartlink-manager/settings/{$section}";
 
             return $this->renderTemplate($template, [
                 'settings' => $settings,
@@ -529,7 +529,7 @@ class SettingsController extends Controller
 
             return $this->asJson([
                 'success' => true,
-                'message' => Craft::t('smart-links', 'Analytics cleanup job has been queued. It will run in the background.'),
+                'message' => Craft::t('smartlink-manager', 'Analytics cleanup job has been queued. It will run in the background.'),
             ]);
         } catch (\Exception $e) {
             return $this->asJson([
@@ -550,7 +550,7 @@ class SettingsController extends Controller
         $this->requireAcceptsJson();
 
         try {
-            $settings = SmartLinks::$plugin->getSettings();
+            $settings = SmartLinkManager::$plugin->getSettings();
             $cleared = 0;
 
             if ($settings->cacheStorageMethod === 'redis') {
@@ -560,7 +560,7 @@ class SettingsController extends Controller
                     $redis = $cache->redis;
 
                     // Get all QR cache keys from tracking set
-                    $keys = $redis->executeCommand('SMEMBERS', ['smartlinks-qr-keys']) ?: [];
+                    $keys = $redis->executeCommand('SMEMBERS', ['smartlinkmanager-qr-keys']) ?: [];
 
                     // Delete QR cache keys using Craft's cache component
                     foreach ($keys as $key) {
@@ -568,11 +568,11 @@ class SettingsController extends Controller
                     }
 
                     // Clear the tracking set
-                    $redis->executeCommand('DEL', ['smartlinks-qr-keys']);
+                    $redis->executeCommand('DEL', ['smartlinkmanager-qr-keys']);
                 }
             } else {
                 // Clear file cache
-                $cachePath = Craft::$app->path->getRuntimePath() . '/smart-links/cache/qr/';
+                $cachePath = Craft::$app->path->getRuntimePath() . '/smartlink-manager/cache/qr/';
                 if (is_dir($cachePath)) {
                     $files = glob($cachePath . '*.cache');
                     foreach ($files as $file) {
@@ -584,8 +584,8 @@ class SettingsController extends Controller
             }
 
             $message = $settings->cacheStorageMethod === 'redis'
-                ? Craft::t('smart-links', 'QR code cache cleared successfully.')
-                : Craft::t('smart-links', 'Cleared {count} QR code caches.', ['count' => $cleared]);
+                ? Craft::t('smartlink-manager', 'QR code cache cleared successfully.')
+                : Craft::t('smartlink-manager', 'Cleared {count} QR code caches.', ['count' => $cleared]);
 
             return $this->asJson([
                 'success' => true,
@@ -610,7 +610,7 @@ class SettingsController extends Controller
         $this->requireAcceptsJson();
 
         try {
-            $settings = SmartLinks::$plugin->getSettings();
+            $settings = SmartLinkManager::$plugin->getSettings();
             $cleared = 0;
 
             if ($settings->cacheStorageMethod === 'redis') {
@@ -620,7 +620,7 @@ class SettingsController extends Controller
                     $redis = $cache->redis;
 
                     // Get all device cache keys from tracking set
-                    $keys = $redis->executeCommand('SMEMBERS', ['smartlinks-device-keys']) ?: [];
+                    $keys = $redis->executeCommand('SMEMBERS', ['smartlinkmanager-device-keys']) ?: [];
 
                     // Delete device cache keys using Craft's cache component
                     foreach ($keys as $key) {
@@ -628,11 +628,11 @@ class SettingsController extends Controller
                     }
 
                     // Clear the tracking set
-                    $redis->executeCommand('DEL', ['smartlinks-device-keys']);
+                    $redis->executeCommand('DEL', ['smartlinkmanager-device-keys']);
                 }
             } else {
                 // Clear file cache
-                $cachePath = Craft::$app->path->getRuntimePath() . '/smart-links/cache/device/';
+                $cachePath = Craft::$app->path->getRuntimePath() . '/smartlink-manager/cache/device/';
                 if (is_dir($cachePath)) {
                     $files = glob($cachePath . '*.cache');
                     foreach ($files as $file) {
@@ -644,8 +644,8 @@ class SettingsController extends Controller
             }
 
             $message = $settings->cacheStorageMethod === 'redis'
-                ? Craft::t('smart-links', 'Device cache cleared successfully.')
-                : Craft::t('smart-links', 'Cleared {count} device detection caches.', ['count' => $cleared]);
+                ? Craft::t('smartlink-manager', 'Device cache cleared successfully.')
+                : Craft::t('smartlink-manager', 'Cleared {count} device detection caches.', ['count' => $cleared]);
 
             return $this->asJson([
                 'success' => true,
@@ -660,7 +660,7 @@ class SettingsController extends Controller
     }
 
     /**
-     * Clear all Smart Links caches
+     * Clear all SmartLink Manager caches
      *
      * @return Response
      */
@@ -670,7 +670,7 @@ class SettingsController extends Controller
         $this->requireAcceptsJson();
 
         try {
-            $settings = SmartLinks::$plugin->getSettings();
+            $settings = SmartLinkManager::$plugin->getSettings();
             $totalCleared = 0;
 
             if ($settings->cacheStorageMethod === 'redis') {
@@ -680,7 +680,7 @@ class SettingsController extends Controller
                     $redis = $cache->redis;
 
                     // Get all QR cache keys from tracking set
-                    $qrKeys = $redis->executeCommand('SMEMBERS', ['smartlinks-qr-keys']) ?: [];
+                    $qrKeys = $redis->executeCommand('SMEMBERS', ['smartlinkmanager-qr-keys']) ?: [];
 
                     // Delete QR cache keys using Craft's cache component
                     foreach ($qrKeys as $key) {
@@ -688,7 +688,7 @@ class SettingsController extends Controller
                     }
 
                     // Get all device cache keys from tracking set
-                    $deviceKeys = $redis->executeCommand('SMEMBERS', ['smartlinks-device-keys']) ?: [];
+                    $deviceKeys = $redis->executeCommand('SMEMBERS', ['smartlinkmanager-device-keys']) ?: [];
 
                     // Delete device cache keys using Craft's cache component
                     foreach ($deviceKeys as $key) {
@@ -696,12 +696,12 @@ class SettingsController extends Controller
                     }
 
                     // Clear the tracking sets
-                    $redis->executeCommand('DEL', ['smartlinks-qr-keys']);
-                    $redis->executeCommand('DEL', ['smartlinks-device-keys']);
+                    $redis->executeCommand('DEL', ['smartlinkmanager-qr-keys']);
+                    $redis->executeCommand('DEL', ['smartlinkmanager-device-keys']);
                 }
             } else {
                 // Clear QR code file caches
-                $qrPath = Craft::$app->path->getRuntimePath() . '/smart-links/cache/qr/';
+                $qrPath = Craft::$app->path->getRuntimePath() . '/smartlink-manager/cache/qr/';
                 if (is_dir($qrPath)) {
                     $files = glob($qrPath . '*.cache');
                     foreach ($files as $file) {
@@ -712,7 +712,7 @@ class SettingsController extends Controller
                 }
 
                 // Clear device detection file caches
-                $devicePath = Craft::$app->path->getRuntimePath() . '/smart-links/cache/device/';
+                $devicePath = Craft::$app->path->getRuntimePath() . '/smartlink-manager/cache/device/';
                 if (is_dir($devicePath)) {
                     $files = glob($devicePath . '*.cache');
                     foreach ($files as $file) {
@@ -724,8 +724,8 @@ class SettingsController extends Controller
             }
 
             $message = $settings->cacheStorageMethod === 'redis'
-                ? Craft::t('smart-links', 'All caches cleared successfully.')
-                : Craft::t('smart-links', 'Cleared {count} cache entries.', ['count' => $totalCleared]);
+                ? Craft::t('smartlink-manager', 'All caches cleared successfully.')
+                : Craft::t('smartlink-manager', 'Cleared {count} cache entries.', ['count' => $totalCleared]);
 
             return $this->asJson([
                 'success' => true,
@@ -753,19 +753,19 @@ class SettingsController extends Controller
         if (!Craft::$app->getUser()->getIsAdmin()) {
             return $this->asJson([
                 'success' => false,
-                'error' => Craft::t('smart-links', 'Only administrators can clear analytics data.'),
+                'error' => Craft::t('smartlink-manager', 'Only administrators can clear analytics data.'),
             ]);
         }
 
         try {
             // Get count before deleting
             $count = (new \craft\db\Query())
-                ->from('{{%smartlinks_analytics}}')
+                ->from('{{%smartlinkmanager_analytics}}')
                 ->count();
 
             // Delete all analytics records
             Craft::$app->db->createCommand()
-                ->delete('{{%smartlinks_analytics}}')
+                ->delete('{{%smartlinkmanager_analytics}}')
                 ->execute();
 
             // Reset click counts in metadata on all smart links
@@ -775,7 +775,7 @@ class SettingsController extends Controller
                 $metadata['clicks'] = 0;
                 $metadata['lastClick'] = null;
                 Craft::$app->db->createCommand()
-                    ->update('{{%smartlinks}}', [
+                    ->update('{{%smartlinkmanager}}', [
                         'metadata' => Json::encode($metadata),
                     ], ['id' => $smartLink->id])
                     ->execute();
@@ -783,7 +783,7 @@ class SettingsController extends Controller
 
             return $this->asJson([
                 'success' => true,
-                'message' => Craft::t('smart-links', 'Cleared {count} analytics records and reset all click counts.', ['count' => $count]),
+                'message' => Craft::t('smartlink-manager', 'Cleared {count} analytics records and reset all click counts.', ['count' => $count]),
             ]);
         } catch (\Exception $e) {
             return $this->asJson([
@@ -807,16 +807,16 @@ class SettingsController extends Controller
         if (!Craft::$app->getUser()->getIsAdmin()) {
             return $this->asJson([
                 'success' => false,
-                'error' => Craft::t('smart-links', 'Only administrators can clean up analytics data.'),
+                'error' => Craft::t('smartlink-manager', 'Only administrators can clean up analytics data.'),
             ]);
         }
 
         try {
-            $updated = SmartLinks::$plugin->analytics->cleanupPlatformValues();
+            $updated = SmartLinkManager::$plugin->analytics->cleanupPlatformValues();
 
             return $this->asJson([
                 'success' => true,
-                'message' => Craft::t('smart-links', 'Cleaned up {count} analytics records with invalid platform values.', ['count' => $updated]),
+                'message' => Craft::t('smartlink-manager', 'Cleaned up {count} analytics records with invalid platform values.', ['count' => $updated]),
             ]);
         } catch (\Exception $e) {
             return $this->asJson([

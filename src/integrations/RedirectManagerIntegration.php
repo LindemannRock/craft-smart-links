@@ -1,15 +1,15 @@
 <?php
 /**
- * Smart Links plugin for Craft CMS 5.x
+ * SmartLink Manager plugin for Craft CMS 5.x
  *
  * @link      https://lindemannrock.com
  * @copyright Copyright (c) 2025 LindemannRock
  */
 
-namespace lindemannrock\smartlinks\integrations;
+namespace lindemannrock\smartlinkmanager\integrations;
 
 use Craft;
-use lindemannrock\smartlinks\SmartLinks;
+use lindemannrock\smartlinkmanager\SmartLinkManager;
 
 /**
  * Redirect Manager Integration
@@ -77,7 +77,7 @@ class RedirectManagerIntegration extends BaseIntegration
      */
     public function getStatus(): array
     {
-        $settings = SmartLinks::getInstance()->getSettings();
+        $settings = SmartLinkManager::getInstance()->getSettings();
         $redirectManagerEvents = $settings->redirectManagerEvents ?? [];
 
         return [
@@ -86,8 +86,8 @@ class RedirectManagerIntegration extends BaseIntegration
             'available' => $this->isAvailable(),
             'enabled' => $this->isEnabled(),
             'events' => $redirectManagerEvents,
-            'description' => Craft::t('smart-links', 'Creates permanent redirects when {pluginName} slugs change or links are deleted', [
-                'pluginName' => SmartLinks::$plugin->getSettings()->getLowerDisplayName(),
+            'description' => Craft::t('smartlink-manager', 'Creates permanent redirects when {pluginName} slugs change or links are deleted', [
+                'pluginName' => SmartLinkManager::$plugin->getSettings()->getLowerDisplayName(),
             ]),
         ];
     }

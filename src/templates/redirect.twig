@@ -81,69 +81,69 @@
 				{% if smartLink.description %}
 					<p class="text-gray-600 mb-8 leading-relaxed">{{ smartLink.description }}</p>
 					{% else %}
-					{# <p class="text-gray-600 mb-8 leading-relaxed">{{ "Download our app for the best experience"|t('smart-links') }}</p> #}
+					{# <p class="text-gray-600 mb-8 leading-relaxed">{{ "Download our app for the best experience"|t('smartlink-manager') }}</p> #}
 				{% endif %}
 
 				{# App store buttons #}
 				<div class="flex flex-wrap gap-3 mb-8">
 					{% if smartLink.iosUrl %}
-						<a href="{{ actionUrl('smart-links/redirect/go', {slug: smartLink.slug, platform: 'ios', site: smartLink.site.handle}) }}" class="flex-1 min-w-[140px] px-5 py-4 border border-gray-200  no-underline text-gray-700 text-sm font-medium transition-all duration-200 flex items-center justify-center gap-2 hover:bg-gray-50 hover:border-gray-300 ">
+						<a href="{{ actionUrl('smartlink-manager/redirect/go', {slug: smartLink.slug, platform: 'ios', site: smartLink.site.handle}) }}" class="flex-1 min-w-[140px] px-5 py-4 border border-gray-200  no-underline text-gray-700 text-sm font-medium transition-all duration-200 flex items-center justify-center gap-2 hover:bg-gray-50 hover:border-gray-300 ">
 							<svg class="w-5 h-5" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
 								<path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
 							</svg>
-							{{ 'App Store'|t('smart-links') }}
+							{{ 'App Store'|t('smartlink-manager') }}
 						</a>
 					{% endif %}
 
 					{% if smartLink.androidUrl %}
-						<a href="{{ actionUrl('smart-links/redirect/go', {slug: smartLink.slug, platform: 'android', site: smartLink.site.handle}) }}" class="flex-1 min-w-[140px] px-5 py-4 border border-gray-200  no-underline text-gray-700 text-sm font-medium transition-all duration-200 flex items-center justify-center gap-2 hover:bg-gray-50 hover:border-gray-300 ">
+						<a href="{{ actionUrl('smartlink-manager/redirect/go', {slug: smartLink.slug, platform: 'android', site: smartLink.site.handle}) }}" class="flex-1 min-w-[140px] px-5 py-4 border border-gray-200  no-underline text-gray-700 text-sm font-medium transition-all duration-200 flex items-center justify-center gap-2 hover:bg-gray-50 hover:border-gray-300 ">
 							<svg class="w-5 h-5" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
 								<path d="M3 20.5v-17c0-.83.67-1.5 1.5-1.5h1c.83 0 1.5.67 1.5 1.5v17c0 .83-.67 1.5-1.5 1.5h-1c-.83 0-1.5-.67-1.5-1.5zM16.5 2h1c.83 0 1.5.67 1.5 1.5v17c0 .83-.67 1.5-1.5 1.5h-1c-.83 0-1.5-.67-1.5-1.5v-17c0-.83.67-1.5 1.5-1.5zM7 8.5c0-.83.67-1.5 1.5-1.5h1c.83 0 1.5.67 1.5 1.5v12c0 .83-.67 1.5-1.5 1.5h-1c-.83 0-1.5-.67-1.5-1.5v-12zm4-6.5c0-.83.67-1.5 1.5-1.5h1c.83 0 1.5.67 1.5 1.5v18c0 .83-.67 1.5-1.5 1.5h-1c-.83 0-1.5-.67-1.5-1.5V2z"/>
 							</svg>
-							{{ 'Google Play'|t('smart-links') }}
+							{{ 'Google Play'|t('smartlink-manager') }}
 						</a>
 					{% endif %}
 
 					{% if smartLink.huaweiUrl %}
-						<a href="{{ actionUrl('smart-links/redirect/go', {slug: smartLink.slug, platform: 'huawei', site: smartLink.site.handle}) }}" class="flex-1 min-w-[140px] px-5 py-4 border border-gray-200  no-underline text-gray-700 text-sm font-medium transition-all duration-200 flex items-center justify-center gap-2 hover:bg-gray-50 hover:border-gray-300 ">
-							{{ 'AppGallery'|t('smart-links') }}
+						<a href="{{ actionUrl('smartlink-manager/redirect/go', {slug: smartLink.slug, platform: 'huawei', site: smartLink.site.handle}) }}" class="flex-1 min-w-[140px] px-5 py-4 border border-gray-200  no-underline text-gray-700 text-sm font-medium transition-all duration-200 flex items-center justify-center gap-2 hover:bg-gray-50 hover:border-gray-300 ">
+							{{ 'AppGallery'|t('smartlink-manager') }}
 						</a>
 					{% endif %}
 
 					{% if smartLink.amazonUrl %}
-						<a href="{{ actionUrl('smart-links/redirect/go', {slug: smartLink.slug, platform: 'amazon', site: smartLink.site.handle}) }}" class="flex-1 min-w-[140px] px-5 py-4 border border-gray-200  no-underline text-gray-700 text-sm font-medium transition-all duration-200 flex items-center justify-center gap-2 hover:bg-gray-50 hover:border-gray-300 ">
-							{{ 'Amazon'|t('smart-links') }}
+						<a href="{{ actionUrl('smartlink-manager/redirect/go', {slug: smartLink.slug, platform: 'amazon', site: smartLink.site.handle}) }}" class="flex-1 min-w-[140px] px-5 py-4 border border-gray-200  no-underline text-gray-700 text-sm font-medium transition-all duration-200 flex items-center justify-center gap-2 hover:bg-gray-50 hover:border-gray-300 ">
+							{{ 'Amazon'|t('smartlink-manager') }}
 						</a>
 					{% endif %}
 
 					{% if smartLink.windowsUrl %}
-						<a href="{{ actionUrl('smart-links/redirect/go', {slug: smartLink.slug, platform: 'windows', site: smartLink.site.handle}) }}" class="flex-1 min-w-[140px] px-5 py-4 border border-gray-200  no-underline text-gray-700 text-sm font-medium transition-all duration-200 flex items-center justify-center gap-2 hover:bg-gray-50 hover:border-gray-300 ">
-							{{ 'Windows Store'|t('smart-links') }}
+						<a href="{{ actionUrl('smartlink-manager/redirect/go', {slug: smartLink.slug, platform: 'windows', site: smartLink.site.handle}) }}" class="flex-1 min-w-[140px] px-5 py-4 border border-gray-200  no-underline text-gray-700 text-sm font-medium transition-all duration-200 flex items-center justify-center gap-2 hover:bg-gray-50 hover:border-gray-300 ">
+							{{ 'Windows Store'|t('smartlink-manager') }}
 						</a>
 					{% endif %}
 
 					{% if smartLink.macUrl %}
-						<a href="{{ actionUrl('smart-links/redirect/go', {slug: smartLink.slug, platform: 'mac', site: smartLink.site.handle}) }}" class="flex-1 min-w-[140px] px-5 py-4 border border-gray-200  no-underline text-gray-700 text-sm font-medium transition-all duration-200 flex items-center justify-center gap-2 hover:bg-gray-50 hover:border-gray-300 ">
-							{{ 'Mac App Store'|t('smart-links') }}
+						<a href="{{ actionUrl('smartlink-manager/redirect/go', {slug: smartLink.slug, platform: 'mac', site: smartLink.site.handle}) }}" class="flex-1 min-w-[140px] px-5 py-4 border border-gray-200  no-underline text-gray-700 text-sm font-medium transition-all duration-200 flex items-center justify-center gap-2 hover:bg-gray-50 hover:border-gray-300 ">
+							{{ 'Mac App Store'|t('smartlink-manager') }}
 						</a>
 					{% endif %}
 				</div>
 
 				{# Fallback button #}
-				<a href="{{ actionUrl('smart-links/redirect/go', {slug: smartLink.slug, platform: 'fallback', site: smartLink.site.handle}) }}" class="inline-block px-8 py-4 bg-brand text-white no-underline  font-semibold text-base transition-all duration-200 hover:bg-brand-primary-dark ">
-					{{ 'Continue to Website'|t('smart-links') }}
+				<a href="{{ actionUrl('smartlink-manager/redirect/go', {slug: smartLink.slug, platform: 'fallback', site: smartLink.site.handle}) }}" class="inline-block px-8 py-4 bg-brand text-white no-underline  font-semibold text-base transition-all duration-200 hover:bg-brand-primary-dark ">
+					{{ 'Continue to Website'|t('smartlink-manager') }}
 				</a>
 
 				{# QR Code section #}
 				{% if smartLink.qrCodeEnabled %}
 					<div class="mt-12 pt-12 border-t border-gray-200">
-						{# <h2 class="text-xl font-semibold mb-6 text-gray-900">{{ "Scan to Download"|t('smart-links') }}</h2> #}
+						{# <h2 class="text-xl font-semibold mb-6 text-gray-900">{{ "Scan to Download"|t('smartlink-manager') }}</h2> #}
 
 						<div class="">
 							<img src="{{ smartLink.getQrCodeUrl() }}" alt="QR Code" width="180" height="180" class="mx-auto">
 						</div>
 
-						{# <p class="text-sm text-gray-600">{{ "Scan this QR code with your phone to download the app"|t('smart-links') }}</p> #}
+						{# <p class="text-sm text-gray-600">{{ "Scan this QR code with your phone to download the app"|t('smartlink-manager') }}</p> #}
 					</div>
 				{% endif %}
 			</div>

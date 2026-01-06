@@ -1,18 +1,18 @@
 <?php
 /**
- * Smart Links plugin for Craft CMS 5.x
+ * SmartLink Manager plugin for Craft CMS 5.x
  *
  * @link      https://lindemannrock.com
  * @copyright Copyright (c) 2025 LindemannRock
  */
 
-namespace lindemannrock\smartlinks\controllers;
+namespace lindemannrock\smartlinkmanager\controllers;
 
 use Craft;
 use craft\web\Controller;
 use lindemannrock\logginglibrary\traits\LoggingTrait;
-use lindemannrock\smartlinks\elements\SmartLink;
-use lindemannrock\smartlinks\SmartLinks;
+use lindemannrock\smartlinkmanager\elements\SmartLink;
+use lindemannrock\smartlinkmanager\SmartLinkManager;
 use yii\web\Response;
 
 /**
@@ -36,7 +36,7 @@ class RedirectController extends Controller
     public function init(): void
     {
         parent::init();
-        $this->setLoggingHandle('smart-links');
+        $this->setLoggingHandle('smartlink-manager');
     }
 
     /**
@@ -62,7 +62,7 @@ class RedirectController extends Controller
             $url = Craft::$app->getRequest()->getUrl();
 
             // Check Redirect Manager for matching redirect (if installed)
-            $redirect = $this->handleRedirect404($url, 'smart-links', [
+            $redirect = $this->handleRedirect404($url, 'smartlink-manager', [
                 'type' => 'smart-link-not-found',
                 'slug' => $slug,
             ]);
@@ -78,7 +78,7 @@ class RedirectController extends Controller
             }
 
             // Fallback to configured URL
-            $settings = SmartLinks::$plugin->getSettings();
+            $settings = SmartLinkManager::$plugin->getSettings();
             $redirectUrl = $settings->notFoundRedirectUrl ?: '/';
 
             // Handle relative URLs
@@ -93,7 +93,7 @@ class RedirectController extends Controller
         if ($smartLink->getStatus() === SmartLink::STATUS_DISABLED) {
             $this->logInfo('Smart link disabled', ['slug' => $slug]);
             // Redirect to not found
-            $settings = SmartLinks::$plugin->getSettings();
+            $settings = SmartLinkManager::$plugin->getSettings();
             $redirectUrl = $settings->notFoundRedirectUrl ?: '/';
             return $this->redirect($redirectUrl);
         }
@@ -102,7 +102,7 @@ class RedirectController extends Controller
         if ($smartLink->getStatus() === SmartLink::STATUS_EXPIRED) {
             $this->logInfo('Smart link expired', ['slug' => $slug]);
             // Redirect to not found
-            $settings = SmartLinks::$plugin->getSettings();
+            $settings = SmartLinkManager::$plugin->getSettings();
             $redirectUrl = $settings->notFoundRedirectUrl ?: '/';
             return $this->redirect($redirectUrl);
         }
@@ -111,22 +111,22 @@ class RedirectController extends Controller
         if ($smartLink->getStatus() === SmartLink::STATUS_PENDING) {
             $this->logInfo('Smart link pending', ['slug' => $slug]);
             // Redirect to not found
-            $settings = SmartLinks::$plugin->getSettings();
+            $settings = SmartLinkManager::$plugin->getSettings();
             $redirectUrl = $settings->notFoundRedirectUrl ?: '/';
             return $this->redirect($redirectUrl);
         }
 
         // Get device info and language for template display
-        $deviceInfo = SmartLinks::$plugin->deviceDetection->detectDevice();
-        $language = SmartLinks::$plugin->deviceDetection->detectLanguage();
+        $deviceInfo = SmartLinkManager::$plugin->deviceDetection->detectDevice();
+        $language = SmartLinkManager::$plugin->deviceDetection->detectLanguage();
 
         // Set cache headers - this page can be fully cached
         $response = Craft::$app->getResponse();
         $response->headers->set('Cache-Control', 'public, max-age=3600'); // Cache for 1 hour
 
         // Render the template - all links will point to action URLs for tracking
-        $settings = SmartLinks::$plugin->getSettings();
-        $template = $settings->redirectTemplate ?: 'smart-links/redirect';
+        $settings = SmartLinkManager::$plugin->getSettings();
+        $template = $settings->redirectTemplate ?: 'smartlink-manager/redirect';
 
         return $this->renderTemplate($template, [
             'smartLink' => $smartLink,
@@ -173,7 +173,7 @@ class RedirectController extends Controller
             ->one();
 
         if (!$smartLink) {
-            $settings = SmartLinks::$plugin->getSettings();
+            $settings = SmartLinkManager::$plugin->getSettings();
             $redirectUrl = $settings->notFoundRedirectUrl ?: '/';
             return $this->redirect($redirectUrl);
         }
@@ -181,7 +181,7 @@ class RedirectController extends Controller
         // Check if smart link is disabled
         if ($smartLink->getStatus() === SmartLink::STATUS_DISABLED) {
             $this->logInfo('Smart link disabled', ['slug' => $slug]);
-            $settings = SmartLinks::$plugin->getSettings();
+            $settings = SmartLinkManager::$plugin->getSettings();
             $redirectUrl = $settings->notFoundRedirectUrl ?: '/';
             return $this->redirect($redirectUrl);
         }
@@ -190,7 +190,7 @@ class RedirectController extends Controller
         if ($smartLink->getStatus() === SmartLink::STATUS_EXPIRED) {
             $this->logInfo('Smart link expired', ['slug' => $slug]);
             // Redirect to not found
-            $settings = SmartLinks::$plugin->getSettings();
+            $settings = SmartLinkManager::$plugin->getSettings();
             $redirectUrl = $settings->notFoundRedirectUrl ?: '/';
             return $this->redirect($redirectUrl);
         }
@@ -198,14 +198,14 @@ class RedirectController extends Controller
         // Check if smart link is pending
         if ($smartLink->getStatus() === SmartLink::STATUS_PENDING) {
             $this->logInfo('Smart link pending', ['slug' => $slug]);
-            $settings = SmartLinks::$plugin->getSettings();
+            $settings = SmartLinkManager::$plugin->getSettings();
             $redirectUrl = $settings->notFoundRedirectUrl ?: '/';
             return $this->redirect($redirectUrl);
         }
 
         // Get device info for tracking
-        $deviceInfo = SmartLinks::$plugin->deviceDetection->detectDevice();
-        $language = SmartLinks::$plugin->deviceDetection->detectLanguage();
+        $deviceInfo = SmartLinkManager::$plugin->deviceDetection->detectDevice();
+        $language = SmartLinkManager::$plugin->deviceDetection->detectLanguage();
 
         // Get source parameter for QR tracking
         $source = Craft::$app->getRequest()->getParam('src', 'direct');
@@ -216,7 +216,7 @@ class RedirectController extends Controller
 
         if ($platform === 'auto') {
             // Auto-detect platform and redirect (for mobile auto-redirect)
-            $destinationUrl = SmartLinks::$plugin->deviceDetection->getRedirectUrl(
+            $destinationUrl = SmartLinkManager::$plugin->deviceDetection->getRedirectUrl(
                 $smartLink,
                 $deviceInfo,
                 $language
@@ -237,7 +237,7 @@ class RedirectController extends Controller
         }
 
         // Track the click if analytics are enabled
-        if ($smartLink->trackAnalytics && SmartLinks::$plugin->getSettings()->enableAnalytics) {
+        if ($smartLink->trackAnalytics && SmartLinkManager::$plugin->getSettings()->enableAnalytics) {
             // Normalize platform value to match DeviceInfo valid values
             $normalizedPlatform = match ($platform) {
                 'mac' => 'macos',
@@ -250,7 +250,7 @@ class RedirectController extends Controller
                 $normalizedPlatform = $deviceInfo->platform ?? 'other';
             }
 
-            SmartLinks::$plugin->analytics->trackClick(
+            SmartLinkManager::$plugin->analytics->trackClick(
                 $smartLink,
                 $deviceInfo,
                 [
@@ -267,7 +267,7 @@ class RedirectController extends Controller
             // Log SEOmatic event tracking for monitoring (actual tracking happens client-side in templates)
             // Client-side JavaScript in redirect.twig/qr.twig pushes events to GTM dataLayer BEFORE redirects
             // Only log if SEOmatic integration is enabled
-            $seomatic = SmartLinks::$plugin->integration->getIntegration('seomatic');
+            $seomatic = SmartLinkManager::$plugin->integration->getIntegration('seomatic');
             if ($seomatic && $seomatic->isAvailable() && $seomatic->isEnabled()) {
                 $this->logInfo("SEOmatic client-side tracking: {$clickType} event for '{$smartLink->slug}'", [
                     'event_type' => $clickType === 'redirect' ? 'redirect' : 'button_click',
@@ -300,7 +300,7 @@ class RedirectController extends Controller
         $this->response->setNoCacheHeaders();
 
         // Detect device using the plugin's device detection service
-        $deviceInfo = SmartLinks::$plugin->deviceDetection->detectDevice();
+        $deviceInfo = SmartLinkManager::$plugin->deviceDetection->detectDevice();
 
         return $this->asJson([
             'csrfToken' => Craft::$app->request->getCsrfToken(),
@@ -313,14 +313,14 @@ class RedirectController extends Controller
      * Handle 404 through Redirect Manager if available
      *
      * @param string $url The URL that wasn't found
-     * @param string $source Source identifier (e.g., 'smart-links')
+     * @param string $source Source identifier (e.g., 'smartlink-manager')
      * @param array $context Additional context data
      * @return array|null Redirect data or null if no redirect found
      */
     private function handleRedirect404(string $url, string $source, array $context = []): ?array
     {
         // Use the integration to check availability and enabled status
-        $integration = SmartLinks::$plugin->integration->getIntegration('redirect-manager');
+        $integration = SmartLinkManager::$plugin->integration->getIntegration('redirect-manager');
         if (!$integration || !$integration->isAvailable() || !$integration->isEnabled()) {
             return null;
         }

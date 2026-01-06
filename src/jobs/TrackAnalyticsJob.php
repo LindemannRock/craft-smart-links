@@ -1,17 +1,17 @@
 <?php
 /**
- * Smart Links plugin for Craft CMS 5.x
+ * SmartLink Manager plugin for Craft CMS 5.x
  *
  * @link      https://lindemannrock.com
  * @copyright Copyright (c) 2025 LindemannRock
  */
 
-namespace lindemannrock\smartlinks\jobs;
+namespace lindemannrock\smartlinkmanager\jobs;
 
 use Craft;
 use craft\queue\BaseJob;
 use lindemannrock\logginglibrary\traits\LoggingTrait;
-use lindemannrock\smartlinks\SmartLinks;
+use lindemannrock\smartlinkmanager\SmartLinkManager;
 
 /**
  * Track Analytics Job
@@ -43,7 +43,7 @@ class TrackAnalyticsJob extends BaseJob
     public function init(): void
     {
         parent::init();
-        $this->setLoggingHandle('smart-links');
+        $this->setLoggingHandle('smartlink-manager');
     }
 
     /**
@@ -52,7 +52,7 @@ class TrackAnalyticsJob extends BaseJob
     public function execute($queue): void
     {
         // Save analytics (IP is already in metadata from the service)
-        $result = SmartLinks::$plugin->analytics->saveAnalytics(
+        $result = SmartLinkManager::$plugin->analytics->saveAnalytics(
             $this->linkId,
             $this->deviceInfo,
             $this->metadata
@@ -68,8 +68,8 @@ class TrackAnalyticsJob extends BaseJob
      */
     protected function defaultDescription(): ?string
     {
-        return Craft::t('smart-links', 'Tracking analytics for {pluginName} {id}', [
-            'pluginName' => SmartLinks::$plugin->getSettings()->getLowerDisplayName(),
+        return Craft::t('smartlink-manager', 'Tracking analytics for {pluginName} {id}', [
+            'pluginName' => SmartLinkManager::$plugin->getSettings()->getLowerDisplayName(),
             'id' => $this->linkId,
         ]);
     }

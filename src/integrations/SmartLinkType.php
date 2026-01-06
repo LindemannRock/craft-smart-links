@@ -1,12 +1,12 @@
 <?php
 /**
- * Smart Links plugin for Craft CMS 5.x
+ * SmartLink Manager plugin for Craft CMS 5.x
  *
  * @link      https://lindemannrock.com
  * @copyright Copyright (c) 2025 LindemannRock
  */
 
-namespace lindemannrock\smartlinks\integrations;
+namespace lindemannrock\smartlinkmanager\integrations;
 
 use Craft;
 use craft\base\ElementInterface;
@@ -14,8 +14,8 @@ use craft\fields\Link;
 use craft\fields\linktypes\BaseElementLinkType;
 use craft\helpers\Cp;
 use craft\helpers\Html;
-use lindemannrock\smartlinks\elements\SmartLink;
-use lindemannrock\smartlinks\SmartLinks;
+use lindemannrock\smartlinkmanager\elements\SmartLink;
+use lindemannrock\smartlinkmanager\SmartLinkManager;
 
 /**
  * Smart Link Type for Link Field
@@ -29,7 +29,7 @@ class SmartLinkType extends BaseElementLinkType
      */
     public static function displayName(): string
     {
-        return SmartLinks::$plugin->getSettings()->getDisplayName();
+        return SmartLinkManager::$plugin->getSettings()->getDisplayName();
     }
 
     /**
@@ -72,7 +72,7 @@ class SmartLinkType extends BaseElementLinkType
         }
 
         // Check if smart links are enabled for this site
-        $settings = SmartLinks::$plugin->getSettings();
+        $settings = SmartLinkManager::$plugin->getSettings();
         $enabledSites = $settings->enabledSites ?? [];
         $siteEnabled = empty($enabledSites) || in_array($siteId, $enabledSites);
 
@@ -96,11 +96,11 @@ class SmartLinkType extends BaseElementLinkType
 
         // If site is not enabled, show warning
         if (!$siteEnabled) {
-            $pluginName = SmartLinks::$plugin->getSettings()->getFullName();
+            $pluginName = SmartLinkManager::$plugin->getSettings()->getFullName();
             return Html::tag('div',
-                Html::tag('p', Craft::t('smart-links', '{pluginName} is not enabled for site "{site}". Enable it in plugin settings to use {pluginNameLower} here.', [
+                Html::tag('p', Craft::t('smartlink-manager', '{pluginName} is not enabled for site "{site}". Enable it in plugin settings to use {pluginNameLower} here.', [
                     'pluginName' => $pluginName,
-                    'pluginNameLower' => SmartLinks::$plugin->getSettings()->getPluralLowerDisplayName(),
+                    'pluginNameLower' => SmartLinkManager::$plugin->getSettings()->getPluralLowerDisplayName(),
                     'site' => $currentSite->name,
                 ]), ['class' => 'warning']),
                 ['class' => 'field']
@@ -220,8 +220,8 @@ class SmartLinkType extends BaseElementLinkType
         // Parse the value to get the element ID
         $matches = [];
         if (!preg_match('/^{smartLink:(\d+)(@(\d+))?:url}$/', $value, $matches)) {
-            $error = Craft::t('smart-links', 'Invalid {pluginName} format.', [
-                'pluginName' => SmartLinks::$plugin->getSettings()->getLowerDisplayName(),
+            $error = Craft::t('smartlink-manager', 'Invalid {pluginName} format.', [
+                'pluginName' => SmartLinkManager::$plugin->getSettings()->getLowerDisplayName(),
             ]);
             return false;
         }
@@ -238,8 +238,8 @@ class SmartLinkType extends BaseElementLinkType
             ->one();
 
         if (!$smartLink) {
-            $error = Craft::t('smart-links', '{pluginName} not found.', [
-                'pluginName' => SmartLinks::$plugin->getSettings()->getDisplayName(),
+            $error = Craft::t('smartlink-manager', '{pluginName} not found.', [
+                'pluginName' => SmartLinkManager::$plugin->getSettings()->getDisplayName(),
             ]);
             return false;
         }
@@ -276,7 +276,7 @@ class SmartLinkType extends BaseElementLinkType
         $currentSiteId = $this->detectCurrentSiteId();
 
         // Check if smart links are enabled for the current site
-        $settings = SmartLinks::$plugin->getSettings();
+        $settings = SmartLinkManager::$plugin->getSettings();
         $enabledSites = $settings->enabledSites ?? [];
         $siteEnabled = empty($enabledSites) || in_array($currentSiteId, $enabledSites);
 

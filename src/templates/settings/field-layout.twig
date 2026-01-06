@@ -1,7 +1,7 @@
-{% extends "smart-links/_layouts/settings" %}
+{% extends "smartlink-manager/_layouts/settings" %}
 {% import '_includes/forms.twig' as forms %}
 
-{% set title = 'Field Layout'|t('smart-links') %}
+{% set title = 'Field Layout'|t('smartlink-manager') %}
 {% set selectedSettingsItem = 'field-layout' %}
 {% set fullPageForm = not (readOnly ?? false) %}
 {% if readOnly ?? false %}
@@ -10,19 +10,19 @@
 
 {% block content %}
     {% include 'lindemannrock-base/_components/ip-salt-error' with {
-        pluginHandle: 'smart-links',
-        envVarName: 'SMART_LINKS_IP_SALT'
+        pluginHandle: 'smartlink-manager',
+        envVarName: 'SMARTLINK_MANAGER_IP_SALT'
     } %}
 
     {% if not (readOnly ?? false) %}
-        {{ actionInput('smart-links/settings/save-field-layout') }}
-        {{ redirectInput('smart-links/settings/field-layout') }}
+        {{ actionInput('smartlink-manager/settings/save-field-layout') }}
+        {{ redirectInput('smartlink-manager/settings/field-layout') }}
     {% endif %}
 
 
     <div class="field">
         <p class="readable">
-            {{ 'Add custom fields to {singularName} elements. Any fields you add here will appear in the {singularName} edit screen.'|t('smart-links', {singularName: smartlinkHelper.displayName}) }}
+            {{ 'Add custom fields to {singularName} elements. Any fields you add here will appear in the {singularName} edit screen.'|t('smartlink-manager', {singularName: smartlinkHelper.displayName}) }}
         </p>
     </div>
 
@@ -32,7 +32,7 @@
             disabled: readOnly ?? false,
         }) }}
     {% else %}
-        <p class="notice">{{ 'No field layout available.'|t('smart-links') }}</p>
+        <p class="notice">{{ 'No field layout available.'|t('smartlink-manager') }}</p>
     {% endif %}
 
 {% include 'lindemannrock-base/_components/plugin-credit' %}

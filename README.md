@@ -1,10 +1,10 @@
-# Smart Links Plugin for Craft CMS
+# SmartLink Manager Plugin for Craft CMS
 
-[![Latest Version](https://img.shields.io/packagist/v/lindemannrock/craft-smart-links.svg)](https://packagist.org/packages/lindemannrock/craft-smart-links)
+[![Latest Version](https://img.shields.io/packagist/v/lindemannrock/craft-smartlink-manager.svg)](https://packagist.org/packages/lindemannrock/craft-smartlink-manager)
 [![Craft CMS](https://img.shields.io/badge/Craft%20CMS-5.0+-orange.svg)](https://craftcms.com/)
 [![PHP](https://img.shields.io/badge/PHP-8.2+-blue.svg)](https://php.net/)
 [![Logging Library](https://img.shields.io/badge/Logging%20Library-5.0+-green.svg)](https://github.com/LindemannRock/craft-logging-library)
-[![License](https://img.shields.io/packagist/l/lindemannrock/craft-smart-links.svg)](LICENSE)
+[![License](https://img.shields.io/packagist/l/lindemannrock/craft-smartlink-manager.svg)](LICENSE)
 
 Intelligent URL shortening and redirect management plugin for Craft CMS 5.x with device detection, QR codes, and analytics.
 
@@ -53,11 +53,11 @@ cd /path/to/project
 ```
 
 ```bash
-composer require lindemannrock/craft-smart-links
+composer require lindemannrock/craft-smartlink-manager
 ```
 
 ```bash
-./craft plugin/install smart-links
+./craft plugin/install smartlink-manager
 ```
 
 ### Using DDEV
@@ -67,23 +67,23 @@ cd /path/to/project
 ```
 
 ```bash
-ddev composer require lindemannrock/craft-smart-links
+ddev composer require lindemannrock/craft-smartlink-manager
 ```
 
 ```bash
-ddev craft plugin/install smart-links
+ddev craft plugin/install smartlink-manager
 ```
 
 ### Via Control Panel
 
-In the Control Panel, go to Settings → Plugins and click "Install" for Smart Links.
+In the Control Panel, go to Settings → Plugins and click "Install" for SmartLink Manager.
 
 ### ⚠️ Required Post-Install Step
 
 **IMPORTANT:** After installation, you MUST generate the IP hash salt for analytics to work:
 
 ```bash
-php craft smart-links/security/generate-salt
+php craft smartlink-manager/security/generate-salt
 ```
 
 **What happens if you skip this:**
@@ -94,9 +94,9 @@ php craft smart-links/security/generate-salt
 **Quick Start:**
 ```bash
 # After plugin installation:
-php craft smart-links/security/generate-salt
+php craft smartlink-manager/security/generate-salt
 
-# The command will automatically add SMART_LINKS_IP_SALT to your .env file
+# The command will automatically add SMARTLINK_MANAGER_IP_SALT to your .env file
 # Copy this value to staging/production .env files manually
 ```
 
@@ -104,7 +104,7 @@ php craft smart-links/security/generate-salt
 
 ### Settings
 
-Navigate to **Settings → Smart Links** in the control panel to configure:
+Navigate to **Settings → SmartLink Manager** in the control panel to configure:
 
 - **Enable Analytics**: Global toggle to enable/disable all analytics functionality (disables all tracking and hides analytics UI when off)
 - **Analytics Retention**: How many days to keep analytics data (0 for unlimited)
@@ -115,17 +115,17 @@ Navigate to **Settings → Smart Links** in the control panel to configure:
 
 ### Config File
 
-Create a `config/smart-links.php` file to override default settings:
+Create a `config/smartlink-manager.php` file to override default settings:
 
 ```bash
-cp vendor/lindemannrock/craft-smart-links/src/config.php config/smart-links.php
+cp vendor/lindemannrock/craft-smartlink-manager/src/config.php config/smartlink-manager.php
 ```
 
 ```php
 <?php
 return [
     // Plugin Settings
-    'pluginName' => 'Smart Links',
+    'pluginName' => 'SmartLink Manager',
 
     // Logging Settings
     'logLevel' => 'error', // error, warning, info, or debug (debug requires devMode)
@@ -165,8 +165,8 @@ return [
     'deviceDetectionCacheDuration' => 3600, // seconds
 
     // Template Settings
-    'redirectTemplate' => null, // e.g., 'smart-links/redirect'
-    'qrTemplate' => null, // e.g., 'smart-links/qr'
+    'redirectTemplate' => null, // e.g., 'smartlink-manager/redirect'
+    'qrTemplate' => null, // e.g., 'smartlink-manager/qr'
 
     // Language & Redirect Settings
     'languageDetectionMethod' => 'browser', // 'browser', 'ip', or 'both'
@@ -204,7 +204,7 @@ See [Configuration Documentation](docs/CONFIGURATION.md) for all available optio
 
 ### Production Environments
 
-Smart Links treats content and operational settings differently from system configuration:
+SmartLink Manager treats content and operational settings differently from system configuration:
 
 **Always Editable (regardless of `allowAdminChanges`):**
 - ✅ Creating and editing smart links
@@ -218,20 +218,20 @@ This design allows you to manage your smart links and operational settings in pr
 
 ## Multi-Site Management
 
-Smart Links supports restricting functionality to specific sites in multi-site installations.
+SmartLink Manager supports restricting functionality to specific sites in multi-site installations.
 
 ### Site Selection
 
-Configure which sites Smart Links should be enabled for:
+Configure which sites SmartLink Manager should be enabled for:
 
 **Via Control Panel:**
-- Go to **Settings → Plugins → Smart Links → General**
-- Check the sites where Smart Links should be available
+- Go to **Settings → Plugins → SmartLink Manager → General**
+- Check the sites where SmartLink Manager should be available
 - Leave empty to enable for all sites
 
 **Via Configuration File:**
 ```php
-// config/smart-links.php
+// config/smartlink-manager.php
 return [
     'enabledSites' => [1, 2], // Only enable for sites 1 and 2
 
@@ -246,20 +246,20 @@ return [
 ```
 
 **Behavior:**
-- **CP Navigation**: Smart Links only appears in sidebar for enabled sites
+- **CP Navigation**: SmartLink Manager only appears in sidebar for enabled sites
 - **Site Switcher**: Only enabled sites appear in the site dropdown
 - **Access Control**: Direct access to disabled sites returns 403 Forbidden
 - **Backwards Compatibility**: Empty selection enables all sites
 
 **Important Notes:**
-- If the primary site is not included in `enabledSites`, Smart Links will not appear in the main CP navigation at all, as the navigation uses the primary site context. Ensure you include your primary site ID if you want Smart Links accessible from the main menu.
-- You can still access Smart Links on enabled non-primary sites via direct URLs, but the main navigation will be hidden.
+- If the primary site is not included in `enabledSites`, SmartLink Manager will not appear in the main CP navigation at all, as the navigation uses the primary site context. Ensure you include your primary site ID if you want SmartLink Manager accessible from the main menu.
+- You can still access SmartLink Manager on enabled non-primary sites via direct URLs, but the main navigation will be hidden.
 
 ## Usage
 
-### Creating Smart Links
+### Creating SmartLinks
 
-1. Navigate to **Smart Links** in the control panel
+1. Navigate to **SmartLink Manager** in the control panel
 2. Click **"New smart link"**
 3. Fill in the required fields:
    - **Name**: Internal reference name
@@ -309,10 +309,10 @@ In templates:
 
 ### Analytics
 
-Smart Links provides comprehensive analytics dashboard with interaction tracking:
+SmartLink Manager provides comprehensive analytics dashboard with interaction tracking:
 
 #### Main Analytics View
-Navigate to **Smart Links → Analytics** to see:
+Navigate to **SmartLink Manager → Analytics** to see:
 - Total interactions (auto-redirects and button clicks)
 - Active links and links used percentage
 - Daily interaction trends chart organized by sections:
@@ -320,7 +320,7 @@ Navigate to **Smart Links → Analytics** to see:
   - **Device & Platform Analytics**: Separate charts for device types and operating systems
   - **Geographic Distribution**: Top countries and cities side by side
   - **Usage Patterns**: Peak hours and behavioral insights
-- **Top Smart Links** table showing:
+- **Top SmartLinks** table showing:
   - Total interactions count
   - Last interaction timestamp and type (redirect or button click)
   - Last destination URL (truncated to 25 characters)
@@ -352,25 +352,25 @@ Navigate to **Smart Links → Analytics** to see:
 
 #### IP Privacy Protection
 
-Smart Links uses salted SHA256 hashing for IP addresses to prevent rainbow table attacks and protect visitor privacy:
+SmartLink Manager uses salted SHA256 hashing for IP addresses to prevent rainbow table attacks and protect visitor privacy:
 
 **Setup (Local/Dev Environment Only):**
 1. Generate a salt in your local/dev environment:
    ```bash
-   php craft smart-links/security/generate-salt
+   php craft smartlink-manager/security/generate-salt
    ```
-   This automatically adds `SMART_LINKS_IP_SALT` to your `.env` file.
+   This automatically adds `SMARTLINK_MANAGER_IP_SALT` to your `.env` file.
 
 2. **Copy the salt to staging/production:**
    - Open your local `.env` file
-   - Copy the `SMART_LINKS_IP_SALT` value
+   - Copy the `SMARTLINK_MANAGER_IP_SALT` value
    - Manually add it to staging and production `.env` files
    - **DO NOT** regenerate the salt in staging/production
 
    Example:
    ```bash
    # Local .env
-   SMART_LINKS_IP_SALT="0dffabe583a420819eba489d4c54f81aca4d6d8260f8188833a619127fab2646"
+   SMARTLINK_MANAGER_IP_SALT="0dffabe583a420819eba489d4c54f81aca4d6d8260f8188833a619127fab2646"
 
    # Copy this EXACT value to:
    # - staging/.env
@@ -379,7 +379,7 @@ Smart Links uses salted SHA256 hashing for IP addresses to prevent rainbow table
 
 **How It Works:**
 - Plugin automatically reads salt from `.env` (no config file needed!)
-- Config file can override if needed: `'ipHashSalt' => App::env('SMART_LINKS_IP_SALT')`
+- Config file can override if needed: `'ipHashSalt' => App::env('SMARTLINK_MANAGER_IP_SALT')`
 - If no salt found, error banner shown in settings
 
 **Critical Requirements:**
@@ -411,12 +411,12 @@ For **maximum privacy**, you can enable IP address anonymization. This masks IPs
 - Even if salt leaks, attackers only get subnet information
 
 **Enable via Settings:**
-1. Go to **Settings → Smart Links → Analytics**
+1. Go to **Settings → SmartLink Manager → Analytics**
 2. Enable **Anonymize IP Addresses**
 
 **Or via Config:**
 ```php
-// config/smart-links.php
+// config/smartlink-manager.php
 return [
     'anonymizeIpAddress' => true,
 ];
@@ -446,15 +446,15 @@ return [
 
 ### Third-Party Integrations
 
-Smart Links can integrate with third-party plugins to enhance functionality with analytics tracking and centralized redirect management.
+SmartLink Manager can integrate with third-party plugins to enhance functionality with analytics tracking and centralized redirect management.
 
 #### Redirect Manager Integration
 
-When [Redirect Manager](https://github.com/LindemannRock/craft-redirect-manager) is installed, Smart Links can automatically create permanent redirects when smart link slugs change.
+When [Redirect Manager](https://github.com/LindemannRock/craft-redirect-manager) is installed, SmartLink Manager can automatically create permanent redirects when smart link slugs change.
 
 **Setup:**
 1. Install Redirect Manager plugin
-2. Navigate to **Settings → Smart Links → Integrations**
+2. Navigate to **Settings → SmartLink Manager → Integrations**
 3. Enable **Redirect Manager Integration**
 4. Slug changes will automatically create redirects (e.g., `/go/promo-2024` → `/go/promo-2025`)
 5. Save settings
@@ -468,7 +468,7 @@ When [Redirect Manager](https://github.com/LindemannRock/craft-redirect-manager)
 
 **Configuration:**
 ```php
-// config/smart-links.php
+// config/smartlink-manager.php
 return [
     'enabledIntegrations' => ['redirect-manager'],
     'redirectManagerEvents' => ['slug-change'],
@@ -477,11 +477,11 @@ return [
 
 #### SEOmatic Integration
 
-When [SEOmatic](https://plugins.craftcms.com/seomatic) is installed, Smart Links can push click events to Google Tag Manager's data layer for tracking in GTM and Google Analytics.
+When [SEOmatic](https://plugins.craftcms.com/seomatic) is installed, SmartLink Manager can push click events to Google Tag Manager's data layer for tracking in GTM and Google Analytics.
 
 **Setup:**
 1. Install and configure SEOmatic plugin with GTM or Google Analytics
-2. Navigate to **Settings → Smart Links → Analytics**
+2. Navigate to **Settings → SmartLink Manager → Analytics**
 3. Scroll to **Third-Party Integrations** section
 4. Enable **SEOmatic Integration**
 5. Select which events to track (redirects, button clicks, QR scans)
@@ -522,11 +522,11 @@ Create triggers in Google Tag Manager to listen for these events:
 
 1. **Trigger Type**: Custom Event
 2. **Event Name**: `smart_links_redirect` (or your custom prefix)
-3. **Use regex matching** to catch all Smart Links events: `smart_links_.*`
+3. **Use regex matching** to catch all SmartLink Manager events: `smart_links_.*`
 
 **GA4 Event Example:**
 
-Forward Smart Links events to Google Analytics 4:
+Forward SmartLink Manager events to Google Analytics 4:
 
 ```
 Event Name: smart_link_click
@@ -540,7 +540,7 @@ Parameters:
 **Configuration via Config File:**
 
 ```php
-// config/smart-links.php
+// config/smartlink-manager.php
 return [
     'enabledIntegrations' => ['seomatic'],
     'seomaticTrackingEvents' => ['redirect', 'button_click', 'qr_scan'],
@@ -552,7 +552,7 @@ return [
 - Events are only sent when analytics tracking is enabled (globally and per-link)
 - Requires SEOmatic plugin to be installed and enabled
 - GTM or Google Analytics must be configured in SEOmatic
-- Events include all analytics data Smart Links already tracks
+- Events include all analytics data SmartLink Manager already tracks
 - No additional external API calls or performance impact
 
 **Template Usage:**
@@ -560,7 +560,7 @@ return [
 Add the tracking method to your templates to enable client-side event tracking:
 
 ```twig
-{# templates/smart-links/redirect.twig #}
+{# templates/smartlink-manager/redirect.twig #}
 <!DOCTYPE html>
 <html>
 <head>
@@ -577,7 +577,7 @@ Add the tracking method to your templates to enable client-side event tracking:
 
 For QR code templates:
 ```twig
-{# templates/smart-links/qr.twig #}
+{# templates/smartlink-manager/qr.twig #}
 {{ smartLink.renderSeomaticTracking('qr_scan') }}
 ```
 
@@ -620,7 +620,7 @@ Each smart link has its own settings:
 - Confirmation prompt when disabling
 - Respects global analytics setting
 
-### Trashed Smart Links
+### Trashed SmartLinks
 
 When smart links are trashed:
 - They are no longer accessible via their URLs
@@ -632,13 +632,13 @@ When smart links are trashed:
 
 ### Template Requirements
 
-**Smart Links requires custom templates** for the redirect landing page and QR code display. These templates must be created in your project's `templates/` directory.
+**SmartLink Manager requires custom templates** for the redirect landing page and QR code display. These templates must be created in your project's `templates/` directory.
 
 #### Default Template Paths
 
 When `redirectTemplate` and `qrTemplate` are not configured (set to `null`), the plugin looks for:
-- **Redirect landing page:** `templates/smart-links/redirect.twig`
-- **QR code display:** `templates/smart-links/qr.twig`
+- **Redirect landing page:** `templates/smartlink-manager/redirect.twig`
+- **QR code display:** `templates/smartlink-manager/qr.twig`
 
 **Important:** If these templates don't exist, visitors will see a "Unable to find template" error when accessing your smart links.
 
@@ -648,11 +648,11 @@ The plugin includes example templates you can copy to get started:
 
 ```bash
 # Create templates directory
-mkdir -p templates/smart-links
+mkdir -p templates/smartlink-manager
 
 # Copy example templates
-cp vendor/lindemannrock/smart-links/src/templates/redirect.twig templates/smart-links/
-cp vendor/lindemannrock/smart-links/src/templates/qr.twig templates/smart-links/
+cp vendor/lindemannrock/craft-smartlink-manager/src/templates/redirect.twig templates/smartlink-manager/
+cp vendor/lindemannrock/craft-smartlink-manager/src/templates/qr.twig templates/smartlink-manager/
 
 # Customize the templates to match your site's design
 ```
@@ -663,7 +663,7 @@ You can use different template paths by configuring them:
 
 **Via Config File:**
 ```php
-// config/smart-links.php
+// config/smartlink-manager.php
 return [
     'redirectTemplate' => 'my-custom/landing', // Path relative to templates/
     'qrTemplate' => 'my-custom/qr-display',    // Path relative to templates/
@@ -676,7 +676,7 @@ Settings → QR Code → Custom QR Code Template
 
 **Basic Template Example:**
 ```twig
-{# templates/smart-links/redirect.twig #}
+{# templates/smartlink-manager/redirect.twig #}
 <!DOCTYPE html>
 <html>
 <head>
@@ -688,14 +688,14 @@ Settings → QR Code → Custom QR Code Template
     <script>
         // Client-side mobile detection for auto-redirect (works with cached pages)
         (function() {
-            fetch('{{ actionUrl('smart-links/redirect/refresh-csrf')|raw }}', {
+            fetch('{{ actionUrl('smartlink-manager/redirect/refresh-csrf')|raw }}', {
                 credentials: 'same-origin',
                 cache: 'no-store'
             })
             .then(r => r.json())
             .then(data => {
                 if (data.isMobile) {
-                    window.location.replace('{{ actionUrl('smart-links/redirect/go', {slug: smartLink.slug, platform: 'auto'})|raw }}');
+                    window.location.replace('{{ actionUrl('smartlink-manager/redirect/go', {slug: smartLink.slug, platform: 'auto'})|raw }}');
                 }
             })
             .catch(err => {
@@ -709,15 +709,15 @@ Settings → QR Code → Custom QR Code Template
 
     {# Platform-specific buttons that track clicks via redirect controller #}
     {% if smartLink.iosUrl %}
-        <a href="{{ actionUrl('smart-links/redirect/go', {slug: smartLink.slug, platform: 'ios', site: smartLink.site.handle}) }}">Download on App Store</a>
+        <a href="{{ actionUrl('smartlink-manager/redirect/go', {slug: smartLink.slug, platform: 'ios', site: smartLink.site.handle}) }}">Download on App Store</a>
     {% endif %}
 
     {% if smartLink.androidUrl %}
-        <a href="{{ actionUrl('smart-links/redirect/go', {slug: smartLink.slug, platform: 'android', site: smartLink.site.handle}) }}">Get it on Google Play</a>
+        <a href="{{ actionUrl('smartlink-manager/redirect/go', {slug: smartLink.slug, platform: 'android', site: smartLink.site.handle}) }}">Get it on Google Play</a>
     {% endif %}
 
     {# Fallback button #}
-    <a href="{{ actionUrl('smart-links/redirect/go', {slug: smartLink.slug, platform: 'fallback', site: smartLink.site.handle}) }}">Continue to Website</a>
+    <a href="{{ actionUrl('smartlink-manager/redirect/go', {slug: smartLink.slug, platform: 'fallback', site: smartLink.site.handle}) }}">Continue to Website</a>
 
     {# QR Code #}
     {% if smartLink.qrCodeEnabled %}
@@ -731,7 +731,7 @@ Settings → QR Code → Custom QR Code Template
 
 The tracking system uses the redirect controller to log all interactions:
 - **Mobile auto-redirects**: JavaScript detects mobile and redirects via `platform: 'auto'`
-- **Button clicks**: All buttons use `actionUrl('smart-links/redirect/go')` which tracks before redirecting
+- **Button clicks**: All buttons use `actionUrl('smartlink-manager/redirect/go')` which tracks before redirecting
 - **QR code scans**: QR codes include `?src=qr` parameter for source tracking
 - **Works with CDN caching**: Device detection happens client-side via uncached endpoint
 - **Desktop page loads**: Not tracked unless a button is clicked
@@ -748,7 +748,7 @@ Create a custom QR code display page:
 
 **Template Example:**
 ```twig
-{# templates/smart-links/qr.twig #}
+{# templates/smartlink-manager/qr.twig #}
 <!DOCTYPE html>
 <html lang="{{ currentSite.language }}">
 <head>
@@ -921,14 +921,14 @@ Event::on(
 
 ```bash
 # Generate secure salt for IP hashing (required for analytics)
-./craft smart-links/security/generate-salt
+./craft smartlink-manager/security/generate-salt
 ```
 
 **Note:** Analytics backfill commands (`update-countries`, `update-cities`) were removed in v5.0.2+. Geo-location now happens at tracking time only.
 
 ## Logging
 
-Smart Links uses the [LindemannRock Logging Library](https://github.com/LindemannRock/craft-logging-library) for centralized logging.
+SmartLink Manager uses the [LindemannRock Logging Library](https://github.com/LindemannRock/craft-logging-library) for centralized logging.
 
 ### Log Levels
 - **Error**: Critical errors only (default)
@@ -938,7 +938,7 @@ Smart Links uses the [LindemannRock Logging Library](https://github.com/Lindeman
 
 ### Configuration
 ```php
-// config/smart-links.php
+// config/smartlink-manager.php
 return [
     'logLevel' => 'error', // error, warning, info, or debug
 ];
@@ -947,14 +947,14 @@ return [
 **Note:** Debug level requires Craft's `devMode` to be enabled. If set to debug with devMode disabled, it automatically falls back to info level.
 
 ### Log Files
-- **Location**: `storage/logs/smart-links-YYYY-MM-DD.log`
+- **Location**: `storage/logs/smartlink-manager-YYYY-MM-DD.log`
 - **Retention**: 30 days (automatic cleanup via Logging Library)
 - **Format**: Structured JSON logs with context data
-- **Web Interface**: View and filter logs in CP at Smart Links → Logs
+- **Web Interface**: View and filter logs in CP at SmartLink Manager → Logs
 
 ### Log Management
 Access logs through the Control Panel:
-1. Navigate to Smart Links → Logs
+1. Navigate to SmartLink Manager → Logs
 2. Filter by date, level, or search terms
 3. Download log files for external analysis
 4. View file sizes and entry counts
@@ -979,22 +979,22 @@ See [docs/LOGGING.md](docs/LOGGING.md) for detailed logging documentation.
 ### How Mobile Redirects Work
 Mobile users will briefly see the landing page before being automatically redirected:
 1. All users (mobile and desktop) see the landing page with JavaScript
-2. JavaScript fetches fresh device detection from `/smart-links/redirect/refresh-csrf` (uncached endpoint)
-3. If mobile device is detected, JavaScript redirects via `actionUrl('smart-links/redirect/go', {platform: 'auto'})`
+2. JavaScript fetches fresh device detection from `/smartlink-manager/redirect/refresh-csrf` (uncached endpoint)
+3. If mobile device is detected, JavaScript redirects via `actionUrl('smartlink-manager/redirect/go', {platform: 'auto'})`
 4. Desktop users stay on the landing page with platform buttons
 
 This client-side approach ensures tracking works correctly even when pages are cached by CDN (Servd, Cloudflare).
 
 **Troubleshooting:**
 - Ensure mobile detection script is in your template (fetches from `refresh-csrf` endpoint)
-- Ensure `/smart-links/redirect/refresh-csrf` endpoint is not being cached
+- Ensure `/smartlink-manager/redirect/refresh-csrf` endpoint is not being cached
 - Check browser console for errors
 - The brief landing page flash is normal and necessary for tracking to work with page caching
 
 ### Analytics Not Tracking
 - Confirm analytics is enabled globally in Settings → General
 - Verify per-link analytics is enabled for the smart link
-- Ensure buttons use `actionUrl('smart-links/redirect/go')` instead of direct URLs
+- Ensure buttons use `actionUrl('smartlink-manager/redirect/go')` instead of direct URLs
 - Check browser isn't blocking JavaScript
 - Check browser console for errors
 - Desktop page loads without `?src=qr` parameter are intentionally NOT tracked
@@ -1004,7 +1004,7 @@ When running locally (DDEV, localhost), analytics will **default to Dubai, UAE**
 
 **Option 1: Config File** (recommended for project-wide default)
 ```php
-// config/smart-links.php
+// config/smartlink-manager.php
 return [
     'defaultCountry' => 'US',
     'defaultCity' => 'New York',
@@ -1014,8 +1014,8 @@ return [
 **Option 2: Environment Variable** (recommended for per-environment control)
 ```bash
 # .env
-SMART_LINKS_DEFAULT_COUNTRY=US
-SMART_LINKS_DEFAULT_CITY=New York
+SMARTLINK_MANAGER_DEFAULT_COUNTRY=US
+SMARTLINK_MANAGER_DEFAULT_CITY=New York
 ```
 
 **Fallback Priority:**
@@ -1048,8 +1048,8 @@ Multi-site support is coming soon. Future features will include:
 
 ## Support
 
-- **Documentation**: [https://github.com/LindemannRock/craft-smart-links](https://github.com/LindemannRock/craft-smart-links)
-- **Issues**: [https://github.com/LindemannRock/craft-smart-links/issues](https://github.com/LindemannRock/craft-smart-links/issues)
+- **Documentation**: [https://github.com/LindemannRock/craft-smartlink-manager](https://github.com/LindemannRock/craft-smartlink-manager)
+- **Issues**: [https://github.com/LindemannRock/craft-smartlink-manager/issues](https://github.com/LindemannRock/craft-smartlink-manager/issues)
 - **Email**: [support@lindemannrock.com](mailto:support@lindemannrock.com)
 
 ## License

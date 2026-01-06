@@ -1,11 +1,11 @@
 <?php
 /**
- * Smart Links config.php
+ * SmartLink Manager config.php
  *
- * This file exists only as a template for the Smart Links settings.
+ * This file exists only as a template for the SmartLink Manager settings.
  * It does nothing on its own.
  *
- * Don't edit this file, instead copy it to 'craft/config' as 'smart-links.php'
+ * Don't edit this file, instead copy it to 'craft/config' as 'smartlink-manager.php'
  * and make your changes there to override default settings.
  *
  * Once copied to 'craft/config', this file will be multi-environment aware as
@@ -26,12 +26,12 @@ return [
         // Configuration for basic plugin behavior, URLs, templates, and sites
 
         // Plugin Settings
-        'pluginName' => 'Smart Links',
+        'pluginName' => 'SmartLink Manager',
 
         // IP Privacy Protection
-        // Generate salt with: php craft smart-links/security/generate-salt
-        // Store in .env as: SMART_LINKS_IP_SALT="your-64-char-salt"
-        'ipHashSalt' => App::env('SMART_LINKS_IP_SALT'),
+        // Generate salt with: php craft smartlink-manager/security/generate-salt
+        // Store in .env as: SMARTLINK_MANAGER_IP_SALT="your-64-char-salt"
+        'ipHashSalt' => App::env('SMARTLINK_MANAGER_IP_SALT'),
 
         // URL Settings
         'slugPrefix' => 'go',              // URL prefix for smart links (e.g., 'go' creates /go/your-link)
@@ -42,7 +42,7 @@ return [
         'qrTemplate' => null,              // Custom QR code display page template path
 
         // Site Settings
-        'enabledSites' => [],              // Array of site IDs where Smart Links should be enabled (empty = all sites)
+        'enabledSites' => [],              // Array of site IDs where SmartLink Manager should be enabled (empty = all sites)
 
         // Asset Settings
         // 'imageVolumeUid' => null,       // Asset volume UID for Smart Link images
@@ -104,8 +104,8 @@ return [
 
         // Default location for local development
         // Used when IP address is private/local (127.0.0.1, 192.168.x.x, etc.)
-        // 'defaultCountry' => App::env('SMART_LINKS_DEFAULT_COUNTRY') ?: 'AE', // 2-letter country code (US, GB, AE, etc.)
-        // 'defaultCity' => App::env('SMART_LINKS_DEFAULT_CITY') ?: 'Dubai', // Must match a city in the predefined locations list
+        // 'defaultCountry' => App::env('SMARTLINK_MANAGER_DEFAULT_COUNTRY') ?: 'AE', // 2-letter country code (US, GB, AE, etc.)
+        // 'defaultCity' => App::env('SMARTLINK_MANAGER_DEFAULT_CITY') ?: 'Dubai', // Must match a city in the predefined locations list
 
 
         // ========================================

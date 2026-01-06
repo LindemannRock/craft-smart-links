@@ -1,12 +1,12 @@
 <?php
 /**
- * Smart Links plugin for Craft CMS 5.x
+ * SmartLink Manager plugin for Craft CMS 5.x
  *
  * @link      https://lindemannrock.com
  * @copyright Copyright (c) 2025 LindemannRock
  */
 
-namespace lindemannrock\smartlinks\jobs;
+namespace lindemannrock\smartlinkmanager\jobs;
 
 use Craft;
 use craft\db\Query;
@@ -14,7 +14,7 @@ use craft\helpers\DateTimeHelper;
 use craft\helpers\Db;
 use craft\queue\BaseJob;
 use lindemannrock\logginglibrary\traits\LoggingTrait;
-use lindemannrock\smartlinks\SmartLinks;
+use lindemannrock\smartlinkmanager\SmartLinkManager;
 
 /**
  * Cleanup old analytics data based on retention settings
@@ -41,7 +41,7 @@ class CleanupAnalyticsJob extends BaseJob
     public function init(): void
     {
         parent::init();
-        $this->setLoggingHandle('smart-links');
+        $this->setLoggingHandle('smartlink-manager');
 
         // Calculate and set next run time if not already set
         if ($this->reschedule && !$this->nextRunTime) {
@@ -58,8 +58,8 @@ class CleanupAnalyticsJob extends BaseJob
      */
     public function getDescription(): ?string
     {
-        $pluginName = SmartLinks::$plugin->getSettings()->getDisplayName();
-        $description = Craft::t('smart-links', '{pluginName}: Cleaning up old analytics', ['pluginName' => $pluginName]);
+        $pluginName = SmartLinkManager::$plugin->getSettings()->getDisplayName();
+        $description = Craft::t('smartlink-manager', '{pluginName}: Cleaning up old analytics', ['pluginName' => $pluginName]);
 
         if ($this->nextRunTime) {
             $description .= " ({$this->nextRunTime})";
@@ -73,7 +73,7 @@ class CleanupAnalyticsJob extends BaseJob
      */
     public function execute($queue): void
     {
-        $settings = SmartLinks::$plugin->getSettings();
+        $settings = SmartLinkManager::$plugin->getSettings();
         $retentionDays = $settings->analyticsRetention;
 
         // If retention is 0, keep forever
@@ -88,7 +88,7 @@ class CleanupAnalyticsJob extends BaseJob
 
         // Get count of records to delete for progress tracking
         $totalRecords = (new Query())
-            ->from('{{%smartlinks_analytics}}')
+            ->from('{{%smartlinkmanager_analytics}}')
             ->where(['<', 'dateCreated', $cutoffDateString])
             ->count();
 
@@ -100,7 +100,7 @@ class CleanupAnalyticsJob extends BaseJob
             return;
         }
 
-        $this->setProgress($queue, 0, Craft::t('smart-links', 'Deleting {count} old analytics records', [
+        $this->setProgress($queue, 0, Craft::t('smartlink-manager', 'Deleting {count} old analytics records', [
             'count' => $totalRecords,
         ]));
 
@@ -112,7 +112,7 @@ class CleanupAnalyticsJob extends BaseJob
             // Get batch of old record IDs
             $oldRecordIds = (new Query())
                 ->select(['id'])
-                ->from('{{%smartlinks_analytics}}')
+                ->from('{{%smartlinkmanager_analytics}}')
                 ->where(['<', 'dateCreated', $cutoffDateString])
                 ->limit($batchSize)
                 ->column();
@@ -123,12 +123,12 @@ class CleanupAnalyticsJob extends BaseJob
 
             // Delete batch
             Craft::$app->getDb()->createCommand()
-                ->delete('{{%smartlinks_analytics}}', ['id' => $oldRecordIds])
+                ->delete('{{%smartlinkmanager_analytics}}', ['id' => $oldRecordIds])
                 ->execute();
 
             $deleted += count($oldRecordIds);
 
-            $this->setProgress($queue, $deleted / $totalRecords, Craft::t('smart-links', 'Deleted {deleted} of {total} records', [
+            $this->setProgress($queue, $deleted / $totalRecords, Craft::t('smartlink-manager', 'Deleted {deleted} of {total} records', [
                 'deleted' => $deleted,
                 'total' => $totalRecords,
             ]));
@@ -147,7 +147,7 @@ class CleanupAnalyticsJob extends BaseJob
      */
     private function scheduleNextCleanup(): void
     {
-        $settings = SmartLinks::$plugin->getSettings();
+        $settings = SmartLinkManager::$plugin->getSettings();
 
         // Only reschedule if analytics is enabled and retention is set
         if (!$settings->enableAnalytics || $settings->analyticsRetention <= 0) {

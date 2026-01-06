@@ -1,12 +1,12 @@
 <?php
 /**
- * Smart Links plugin for Craft CMS 5.x
+ * SmartLink Manager plugin for Craft CMS 5.x
  *
  * @link      https://lindemannrock.com
  * @copyright Copyright (c) 2025 LindemannRock
  */
 
-namespace lindemannrock\smartlinks\elements;
+namespace lindemannrock\smartlinkmanager\elements;
 
 use Craft;
 use craft\base\Element;
@@ -22,10 +22,10 @@ use craft\helpers\UrlHelper;
 use craft\models\FieldLayout;
 use craft\validators\UniqueValidator;
 use lindemannrock\logginglibrary\traits\LoggingTrait;
-use lindemannrock\smartlinks\elements\db\SmartLinkQuery;
-use lindemannrock\smartlinks\records\SmartLinkContentRecord;
-use lindemannrock\smartlinks\records\SmartLinkRecord;
-use lindemannrock\smartlinks\SmartLinks;
+use lindemannrock\smartlinkmanager\elements\db\SmartLinkQuery;
+use lindemannrock\smartlinkmanager\records\SmartLinkContentRecord;
+use lindemannrock\smartlinkmanager\records\SmartLinkRecord;
+use lindemannrock\smartlinkmanager\SmartLinkManager;
 use yii\validators\RequiredValidator;
 use yii\validators\UrlValidator;
 
@@ -230,7 +230,7 @@ class SmartLink extends Element
      */
     public static function displayName(): string
     {
-        return SmartLinks::$plugin->getSettings()->getDisplayName();
+        return SmartLinkManager::$plugin->getSettings()->getDisplayName();
     }
 
     /**
@@ -238,7 +238,7 @@ class SmartLink extends Element
      */
     public static function lowerDisplayName(): string
     {
-        return SmartLinks::$plugin->getSettings()->getLowerDisplayName();
+        return SmartLinkManager::$plugin->getSettings()->getLowerDisplayName();
     }
 
     /**
@@ -246,7 +246,7 @@ class SmartLink extends Element
      */
     public static function pluralDisplayName(): string
     {
-        return SmartLinks::$plugin->getSettings()->getPluralDisplayName();
+        return SmartLinkManager::$plugin->getSettings()->getPluralDisplayName();
     }
 
     /**
@@ -254,7 +254,7 @@ class SmartLink extends Element
      */
     public static function pluralLowerDisplayName(): string
     {
-        return SmartLinks::$plugin->getSettings()->getPluralLowerDisplayName();
+        return SmartLinkManager::$plugin->getSettings()->getPluralLowerDisplayName();
     }
 
     /**
@@ -362,7 +362,7 @@ class SmartLink extends Element
      */
     public static function supportedSites(): array
     {
-        $settings = SmartLinks::getInstance()->getSettings();
+        $settings = SmartLinkManager::getInstance()->getSettings();
         $enabledSiteIds = $settings->getEnabledSiteIds();
 
 
@@ -380,8 +380,8 @@ class SmartLink extends Element
         return [
             [
                 'key' => '*',
-                'label' => Craft::t('smart-links', 'All {pluginName}', [
-                    'pluginName' => SmartLinks::$plugin->getSettings()->getPluralDisplayName(),
+                'label' => Craft::t('smartlink-manager', 'All {pluginName}', [
+                    'pluginName' => SmartLinkManager::$plugin->getSettings()->getPluralDisplayName(),
                 ]),
                 'criteria' => [],
                 'defaultSort' => ['dateCreated', 'desc'],
@@ -402,8 +402,8 @@ class SmartLink extends Element
         // Delete
         $actions[] = Craft::$app->elements->createAction([
             'type' => Delete::class,
-            'confirmationMessage' => Craft::t('smart-links', 'Are you sure you want to delete the selected smart links?'),
-            'successMessage' => Craft::t('smart-links', 'Smart links deleted.'),
+            'confirmationMessage' => Craft::t('smartlink-manager', 'Are you sure you want to delete the selected smart links?'),
+            'successMessage' => Craft::t('smartlink-manager', 'Smart links deleted.'),
         ]);
 
         // Duplicate
@@ -412,9 +412,9 @@ class SmartLink extends Element
         // Restore
         $actions[] = Craft::$app->elements->createAction([
             'type' => Restore::class,
-            'successMessage' => Craft::t('smart-links', 'Smart links restored.'),
-            'partialSuccessMessage' => Craft::t('smart-links', 'Some smart links restored.'),
-            'failMessage' => Craft::t('smart-links', 'Smart links not restored.'),
+            'successMessage' => Craft::t('smartlink-manager', 'Smart links restored.'),
+            'partialSuccessMessage' => Craft::t('smartlink-manager', 'Some smart links restored.'),
+            'failMessage' => Craft::t('smartlink-manager', 'Smart links not restored.'),
         ]);
 
         return $actions;
@@ -434,17 +434,17 @@ class SmartLink extends Element
     protected static function defineSortOptions(): array
     {
         return [
-            'title' => Craft::t('smart-links', 'Title'),
-            'slug' => Craft::t('smart-links', 'Slug'),
+            'title' => Craft::t('smartlink-manager', 'Title'),
+            'slug' => Craft::t('smartlink-manager', 'Slug'),
             [
                 'label' => Craft::t('app', 'Post Date'),
-                'orderBy' => 'smartlinks.postDate',
+                'orderBy' => 'smartlinkmanager.postDate',
                 'attribute' => 'postDate',
                 'defaultDir' => 'desc',
             ],
             [
                 'label' => Craft::t('app', 'Expiry Date'),
-                'orderBy' => 'smartlinks.dateExpired',
+                'orderBy' => 'smartlinkmanager.dateExpired',
                 'attribute' => 'dateExpired',
                 'defaultDir' => 'asc',
             ],
@@ -474,12 +474,12 @@ class SmartLink extends Element
     protected static function defineTableAttributes(): array
     {
         return [
-            'title' => ['label' => Craft::t('smart-links', 'Title')],
-            'slug' => ['label' => Craft::t('smart-links', 'Slug')],
+            'title' => ['label' => Craft::t('smartlink-manager', 'Title')],
+            'slug' => ['label' => Craft::t('smartlink-manager', 'Slug')],
             'status' => ['label' => Craft::t('app', 'Status')],
             'postDate' => ['label' => Craft::t('app', 'Post Date')],
             'dateExpired' => ['label' => Craft::t('app', 'Expiry Date')],
-            'clicks' => ['label' => Craft::t('smart-links', 'Interactions')],
+            'clicks' => ['label' => Craft::t('smartlink-manager', 'Interactions')],
             'dateCreated' => ['label' => Craft::t('app', 'Date Created')],
             'dateUpdated' => ['label' => Craft::t('app', 'Date Updated')],
         ];
@@ -519,7 +519,7 @@ class SmartLink extends Element
     {
         if ($this->_clicks === null) {
             $this->_clicks = (int) (new \craft\db\Query())
-                ->from('{{%smartlinks_analytics}}')
+                ->from('{{%smartlinkmanager_analytics}}')
                 ->where(['linkId' => $this->id])
                 ->count();
         }
@@ -617,7 +617,7 @@ class SmartLink extends Element
         parent::init();
 
         // Set logging handle for LoggingTrait
-        $this->setLoggingHandle('smart-links');
+        $this->setLoggingHandle('smartlink-manager');
 
         // If we have an ID but no content loaded yet, load it now
         if ($this->id && $this->siteId && $this->fallbackUrl === null) {
@@ -725,7 +725,7 @@ class SmartLink extends Element
     public function getFieldLayout(): ?FieldLayout
     {
         // Get field layouts from project config
-        $fieldLayouts = Craft::$app->getProjectConfig()->get('smart-links.fieldLayouts') ?? [];
+        $fieldLayouts = Craft::$app->getProjectConfig()->get('smartlink-manager.fieldLayouts') ?? [];
 
         if (!empty($fieldLayouts)) {
             // Get the first (and only) field layout
@@ -745,7 +745,7 @@ class SmartLink extends Element
      */
     public function canView(User $user): bool
     {
-        return $user->can('smartLinks:viewLinks');
+        return $user->can('smartLinkManager:viewLinks');
     }
 
     /**
@@ -754,10 +754,10 @@ class SmartLink extends Element
     public function canSave(User $user): bool
     {
         if (!$this->id) {
-            return $user->can('smartLinks:createLinks');
+            return $user->can('smartLinkManager:createLinks');
         }
 
-        return $user->can('smartLinks:editLinks');
+        return $user->can('smartLinkManager:editLinks');
     }
 
     /**
@@ -765,7 +765,7 @@ class SmartLink extends Element
      */
     public function canDelete(User $user): bool
     {
-        return $user->can('smartLinks:deleteLinks');
+        return $user->can('smartLinkManager:deleteLinks');
     }
 
     /**
@@ -773,7 +773,7 @@ class SmartLink extends Element
      */
     public function canDuplicate(User $user): bool
     {
-        return $user->can('smartLinks:createLinks');
+        return $user->can('smartLinkManager:createLinks');
     }
     
     /**
@@ -808,7 +808,7 @@ class SmartLink extends Element
     {
         return [
             [
-                'label' => Craft::t('smart-links', 'Redirect Page'),
+                'label' => Craft::t('smartlink-manager', 'Redirect Page'),
                 'url' => $this->getRedirectUrl(),
             ],
         ];
@@ -820,7 +820,7 @@ class SmartLink extends Element
     public function getRedirectUrl(): string
     {
         // Get the slug prefix from settings
-        $settings = SmartLinks::$plugin->getSettings();
+        $settings = SmartLinkManager::$plugin->getSettings();
         $slugPrefix = $settings->slugPrefix ?? 'go';
 
         // Generate URL for the element's site (respects CP site switcher)
@@ -850,7 +850,7 @@ class SmartLink extends Element
     public function getQrCodeUrl(array $options = []): string
     {
         // Get the current default format from settings
-        $settings = SmartLinks::$plugin->getSettings();
+        $settings = SmartLinkManager::$plugin->getSettings();
         
         $params = array_merge([
             'size' => $this->qrCodeSize,
@@ -883,7 +883,7 @@ class SmartLink extends Element
     public function getQrCodeDisplayUrl(array $options = []): string
     {
         // Get the same parameters as getQrCodeUrl to ensure consistency
-        $settings = SmartLinks::$plugin->getSettings();
+        $settings = SmartLinkManager::$plugin->getSettings();
         
         $params = array_merge([
             'size' => $this->qrCodeSize,
@@ -911,7 +911,7 @@ class SmartLink extends Element
     public function getQrCodeDataUri(array $options = []): string
     {
         // Get settings for fallback values
-        $settings = SmartLinks::$plugin->getSettings();
+        $settings = SmartLinkManager::$plugin->getSettings();
 
         if (!$this->qrCodeEnabled) {
             return '';
@@ -930,7 +930,7 @@ class SmartLink extends Element
             'logo' => $logoId,
         ], $options);
 
-        return SmartLinks::$plugin->qrCode->generateQrCodeDataUrl($this->getRedirectUrl(), $qrOptions);
+        return SmartLinkManager::$plugin->qrCode->generateQrCodeDataUrl($this->getRedirectUrl(), $qrOptions);
     }
 
     /**
@@ -942,7 +942,7 @@ class SmartLink extends Element
     public function getQrCode(array $options = []): string
     {
         // Get settings for fallback values
-        $settings = SmartLinks::$plugin->getSettings();
+        $settings = SmartLinkManager::$plugin->getSettings();
 
         if (!$this->qrCodeEnabled) {
             return '';
@@ -961,7 +961,7 @@ class SmartLink extends Element
             'logo' => $logoId,
         ], $options);
 
-        return SmartLinks::$plugin->qrCode->generateQrCode($this->getRedirectUrl(), $qrOptions);
+        return SmartLinkManager::$plugin->qrCode->generateQrCode($this->getRedirectUrl(), $qrOptions);
     }
 
     /**
@@ -969,7 +969,7 @@ class SmartLink extends Element
      */
     public function getAnalyticsData(array $criteria = []): array
     {
-        return SmartLinks::$plugin->analytics->getAnalytics($this, $criteria);
+        return SmartLinkManager::$plugin->analytics->getAnalytics($this, $criteria);
     }
 
     /**
@@ -980,7 +980,7 @@ class SmartLink extends Element
      */
     public function renderSeomaticTracking(string $eventType = 'qr_scan'): ?\Twig\Markup
     {
-        return SmartLinks::$plugin->integration->renderSeomaticTracking($this, $eventType);
+        return SmartLinkManager::$plugin->integration->renderSeomaticTracking($this, $eventType);
     }
 
     /**
@@ -1012,7 +1012,7 @@ class SmartLink extends Element
      */
     protected function cpEditUrl(): ?string
     {
-        return sprintf('smart-links/%s', $this->getCanonicalId());
+        return sprintf('smartlink-manager/%s', $this->getCanonicalId());
     }
     
     /**
@@ -1020,7 +1020,7 @@ class SmartLink extends Element
      */
     protected static function defineIndexUrl(?string $source = null, ?string $siteHandle = null): ?string
     {
-        return 'smart-links';
+        return 'smartlink-manager';
     }
     
     
@@ -1033,7 +1033,7 @@ class SmartLink extends Element
         $rules = parent::defineRules();
 
         $rules[] = [['title', 'slug', 'fallbackUrl'], RequiredValidator::class];
-        $rules[] = [['slug'], 'match', 'pattern' => '/^[a-zA-Z0-9_\-]+$/', 'message' => Craft::t('smart-links', '{attribute} should only contain letters, numbers, underscores, and hyphens.')];
+        $rules[] = [['slug'], 'match', 'pattern' => '/^[a-zA-Z0-9_\-]+$/', 'message' => Craft::t('smartlink-manager', '{attribute} should only contain letters, numbers, underscores, and hyphens.')];
         
         // Handle slug uniqueness
         $rules[] = [
@@ -1115,7 +1115,7 @@ class SmartLink extends Element
                 while (true) {
                     // Check ALL elements regardless of status (enabled, disabled, pending, expired, trashed)
                     $exists = (new \craft\db\Query())
-                        ->from('{{%smartlinks}}')
+                        ->from('{{%smartlinkmanager}}')
                         ->where(['slug' => $testSlug])
                         ->exists();
                     
@@ -1204,7 +1204,7 @@ class SmartLink extends Element
                     while (true) {
                         // Check ALL elements regardless of status (enabled, disabled, pending, expired, trashed)
                         $exists = (new \craft\db\Query())
-                            ->from('{{%smartlinks}}')
+                            ->from('{{%smartlinkmanager}}')
                             ->where(['slug' => $testSlug])
                             ->exists();
                         
@@ -1259,7 +1259,7 @@ class SmartLink extends Element
         $this->enabled = true;
 
         // Don't save QR settings that match global defaults - only save custom values
-        $settings = SmartLinks::$plugin->getSettings();
+        $settings = SmartLinkManager::$plugin->getSettings();
 
         // Normalize and compare colors (strip # and check if empty or matches default)
         $normalizeColor = fn($color) => $color ? strtolower(ltrim($color, '#')) : '';
@@ -1404,7 +1404,7 @@ class SmartLink extends Element
         }
 
         // Delete analytics data
-        SmartLinks::$plugin->analytics->deleteAnalyticsForLink($this);
+        SmartLinkManager::$plugin->analytics->deleteAnalyticsForLink($this);
 
         return true;
     }

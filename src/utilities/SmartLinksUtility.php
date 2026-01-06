@@ -1,20 +1,20 @@
 <?php
 /**
- * Smart Links plugin for Craft CMS 5.x
+ * SmartLink Manager plugin for Craft CMS 5.x
  *
  * @link      https://lindemannrock.com
  * @copyright Copyright (c) 2025 LindemannRock
  */
 
-namespace lindemannrock\smartlinks\utilities;
+namespace lindemannrock\smartlinkmanager\utilities;
 
 use Craft;
 use craft\base\Utility;
 use craft\db\Query;
-use lindemannrock\smartlinks\SmartLinks;
+use lindemannrock\smartlinkmanager\SmartLinkManager;
 
 /**
- * Smart Links Utility
+ * SmartLink Manager Utility
  *
  * @since 1.0.0
  */
@@ -25,7 +25,7 @@ class SmartLinksUtility extends Utility
      */
     public static function displayName(): string
     {
-        $pluginName = SmartLinks::getInstance()->getSettings()->pluginName;
+        $pluginName = SmartLinkManager::getInstance()->getSettings()->pluginName;
         return $pluginName;
     }
 
@@ -34,7 +34,7 @@ class SmartLinksUtility extends Utility
      */
     public static function id(): string
     {
-        return 'smart-links';
+        return 'smartlink-manager';
     }
 
     /**
@@ -50,18 +50,18 @@ class SmartLinksUtility extends Utility
      */
     public static function contentHtml(): string
     {
-        $smartLinks = SmartLinks::$plugin;
+        $smartLinks = SmartLinkManager::$plugin;
 
         // Get basic stats (include all statuses)
-        $totalLinks = \lindemannrock\smartlinks\elements\SmartLink::find()->status(null)->count();
-        $activeLinks = \lindemannrock\smartlinks\elements\SmartLink::find()->status('enabled')->count();
-        $pendingLinks = \lindemannrock\smartlinks\elements\SmartLink::find()->status('pending')->count();
-        $expiredLinks = \lindemannrock\smartlinks\elements\SmartLink::find()->status('expired')->count();
-        $disabledLinks = \lindemannrock\smartlinks\elements\SmartLink::find()->status('disabled')->count();
+        $totalLinks = \lindemannrock\smartlinkmanager\elements\SmartLink::find()->status(null)->count();
+        $activeLinks = \lindemannrock\smartlinkmanager\elements\SmartLink::find()->status('enabled')->count();
+        $pendingLinks = \lindemannrock\smartlinkmanager\elements\SmartLink::find()->status('pending')->count();
+        $expiredLinks = \lindemannrock\smartlinkmanager\elements\SmartLink::find()->status('expired')->count();
+        $disabledLinks = \lindemannrock\smartlinkmanager\elements\SmartLink::find()->status('disabled')->count();
 
         // Get click stats from analytics table
         $totalClicks = (int) (new Query())
-            ->from('{{%smartlinks_analytics}}')
+            ->from('{{%smartlinkmanager_analytics}}')
             ->count();
 
         // Get recent analytics (last 7 days)
@@ -69,26 +69,26 @@ class SmartLinksUtility extends Utility
 
         // Get QR code stats
         $qrScans = (int) (new Query())
-            ->from('{{%smartlinks_analytics}}')
+            ->from('{{%smartlinkmanager_analytics}}')
             ->where("JSON_UNQUOTE(JSON_EXTRACT(metadata, '$.source')) = 'qr'")
             ->count();
 
         // Get auto redirects (clickType = redirect)
         $autoRedirects = (int) (new Query())
-            ->from('{{%smartlinks_analytics}}')
+            ->from('{{%smartlinkmanager_analytics}}')
             ->where("JSON_UNQUOTE(JSON_EXTRACT(metadata, '$.clickType')) = 'redirect'")
             ->count();
 
         // Get button clicks (clickType = button)
         $buttonClicks = (int) (new Query())
-            ->from('{{%smartlinks_analytics}}')
+            ->from('{{%smartlinkmanager_analytics}}')
             ->where("JSON_UNQUOTE(JSON_EXTRACT(metadata, '$.clickType')) = 'button'")
             ->count();
 
         // Get platform breakdown from JSON metadata
         $platformStats = (new Query())
             ->select(["JSON_UNQUOTE(JSON_EXTRACT(metadata, '$.platform')) as platform", 'COUNT(*) as count'])
-            ->from('{{%smartlinks_analytics}}')
+            ->from('{{%smartlinkmanager_analytics}}')
             ->groupBy('platform')
             ->orderBy(['count' => SORT_DESC])
             ->all();
@@ -96,7 +96,7 @@ class SmartLinksUtility extends Utility
         // Get click type breakdown from JSON metadata
         $clickTypes = (new Query())
             ->select(["JSON_UNQUOTE(JSON_EXTRACT(metadata, '$.clickType')) as clickType", 'COUNT(*) as count'])
-            ->from('{{%smartlinks_analytics}}')
+            ->from('{{%smartlinkmanager_analytics}}')
             ->groupBy('clickType')
             ->all();
 
@@ -106,7 +106,7 @@ class SmartLinksUtility extends Utility
                 'DATE(dateCreated) as date',
                 'COUNT(*) as clicks',
             ])
-            ->from('{{%smartlinks_analytics}}')
+            ->from('{{%smartlinkmanager_analytics}}')
             ->where(['>=', 'dateCreated', (new \DateTime('-14 days'))->format('Y-m-d H:i:s')])
             ->groupBy('DATE(dateCreated)')
             ->orderBy(['date' => SORT_ASC])
@@ -123,14 +123,14 @@ class SmartLinksUtility extends Utility
 
         // Only count files when using file storage (Redis counts are not displayed)
         if ($settings->cacheStorageMethod === 'file') {
-            $qrCachePath = Craft::$app->path->getRuntimePath() . '/smart-links/cache/qr/';
-            $deviceCachePath = Craft::$app->path->getRuntimePath() . '/smart-links/cache/device/';
+            $qrCachePath = Craft::$app->path->getRuntimePath() . '/smartlink-manager/cache/qr/';
+            $deviceCachePath = Craft::$app->path->getRuntimePath() . '/smartlink-manager/cache/device/';
 
             $qrCacheFiles = is_dir($qrCachePath) ? count(glob($qrCachePath . '*.cache')) : 0;
             $deviceCacheFiles = is_dir($deviceCachePath) ? count(glob($deviceCachePath . '*.cache')) : 0;
         }
 
-        return Craft::$app->getView()->renderTemplate('smart-links/utilities/index', [
+        return Craft::$app->getView()->renderTemplate('smartlink-manager/utilities/index', [
             'totalLinks' => $totalLinks,
             'activeLinks' => $activeLinks,
             'pendingLinks' => $pendingLinks,

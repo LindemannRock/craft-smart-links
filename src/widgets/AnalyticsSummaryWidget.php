@@ -1,19 +1,19 @@
 <?php
 /**
- * Smart Links plugin for Craft CMS 5.x
+ * SmartLink Manager plugin for Craft CMS 5.x
  *
  * @link      https://lindemannrock.com
  * @copyright Copyright (c) 2025 LindemannRock
  */
 
-namespace lindemannrock\smartlinks\widgets;
+namespace lindemannrock\smartlinkmanager\widgets;
 
 use Craft;
 use craft\base\Widget;
-use lindemannrock\smartlinks\SmartLinks;
+use lindemannrock\smartlinkmanager\SmartLinkManager;
 
 /**
- * Smart Links Analytics Summary Widget
+ * SmartLink Manager Analytics Summary Widget
  *
  * @since 1.0.0
  */
@@ -40,8 +40,8 @@ class AnalyticsSummaryWidget extends Widget
      */
     public static function displayName(): string
     {
-        $pluginName = SmartLinks::$plugin->getSettings()->getFullName();
-        return Craft::t('smart-links', '{pluginName} - Analytics', ['pluginName' => $pluginName]);
+        $pluginName = SmartLinkManager::$plugin->getSettings()->getFullName();
+        return Craft::t('smartlink-manager', '{pluginName} - Analytics', ['pluginName' => $pluginName]);
     }
 
     /**
@@ -65,8 +65,8 @@ class AnalyticsSummaryWidget extends Widget
      */
     public function getTitle(): ?string
     {
-        $pluginName = SmartLinks::$plugin->getSettings()->getFullName();
-        return Craft::t('smart-links', '{pluginName} - Analytics', ['pluginName' => $pluginName]);
+        $pluginName = SmartLinkManager::$plugin->getSettings()->getFullName();
+        return Craft::t('smartlink-manager', '{pluginName} - Analytics', ['pluginName' => $pluginName]);
     }
 
     /**
@@ -75,15 +75,15 @@ class AnalyticsSummaryWidget extends Widget
     public function getSubtitle(): ?string
     {
         $labels = [
-            'today' => Craft::t('smart-links', 'Today'),
-            'yesterday' => Craft::t('smart-links', 'Yesterday'),
-            'last7days' => Craft::t('smart-links', 'Last 7 days'),
-            'last30days' => Craft::t('smart-links', 'Last 30 days'),
-            'last90days' => Craft::t('smart-links', 'Last 90 days'),
-            'all' => Craft::t('smart-links', 'All time'),
+            'today' => Craft::t('smartlink-manager', 'Today'),
+            'yesterday' => Craft::t('smartlink-manager', 'Yesterday'),
+            'last7days' => Craft::t('smartlink-manager', 'Last 7 days'),
+            'last30days' => Craft::t('smartlink-manager', 'Last 30 days'),
+            'last90days' => Craft::t('smartlink-manager', 'Last 90 days'),
+            'all' => Craft::t('smartlink-manager', 'All time'),
         ];
 
-        return $labels[$this->dateRange] ?? Craft::t('smart-links', 'Last 7 days');
+        return $labels[$this->dateRange] ?? Craft::t('smartlink-manager', 'Last 7 days');
     }
 
     /**
@@ -91,7 +91,7 @@ class AnalyticsSummaryWidget extends Widget
      */
     public function getSettingsHtml(): ?string
     {
-        return Craft::$app->getView()->renderTemplate('smart-links/widgets/analytics-summary/settings', [
+        return Craft::$app->getView()->renderTemplate('smartlink-manager/widgets/analytics-summary/settings', [
             'widget' => $this,
         ]);
     }
@@ -102,14 +102,14 @@ class AnalyticsSummaryWidget extends Widget
     public function getBodyHtml(): ?string
     {
         // Check if analytics are enabled
-        if (!SmartLinks::$plugin->getSettings()->enableAnalytics) {
-            return '<p class="light">' . Craft::t('smart-links', 'Analytics are disabled in plugin settings.') . '</p>';
+        if (!SmartLinkManager::$plugin->getSettings()->enableAnalytics) {
+            return '<p class="light">' . Craft::t('smartlink-manager', 'Analytics are disabled in plugin settings.') . '</p>';
         }
 
         // Get analytics data
-        $analyticsData = SmartLinks::$plugin->analytics->getAnalyticsSummary($this->dateRange);
+        $analyticsData = SmartLinkManager::$plugin->analytics->getAnalyticsSummary($this->dateRange);
 
-        return Craft::$app->getView()->renderTemplate('smart-links/widgets/analytics-summary/body', [
+        return Craft::$app->getView()->renderTemplate('smartlink-manager/widgets/analytics-summary/body', [
             'widget' => $this,
             'data' => $analyticsData,
         ]);

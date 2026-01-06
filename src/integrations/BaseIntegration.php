@@ -1,16 +1,16 @@
 <?php
 /**
- * Smart Links plugin for Craft CMS 5.x
+ * SmartLink Manager plugin for Craft CMS 5.x
  *
  * @link      https://lindemannrock.com
  * @copyright Copyright (c) 2025 LindemannRock
  */
 
-namespace lindemannrock\smartlinks\integrations;
+namespace lindemannrock\smartlinkmanager\integrations;
 
 use Craft;
 use lindemannrock\logginglibrary\traits\LoggingTrait;
-use lindemannrock\smartlinks\SmartLinks;
+use lindemannrock\smartlinkmanager\SmartLinkManager;
 
 /**
  * Base Integration
@@ -70,7 +70,7 @@ abstract class BaseIntegration implements IntegrationInterface
      */
     public function isEnabled(): bool
     {
-        $settings = SmartLinks::getInstance()->getSettings();
+        $settings = SmartLinkManager::getInstance()->getSettings();
 
         // Check if analytics is globally enabled
         if (!$settings->enableAnalytics) {
@@ -122,7 +122,7 @@ abstract class BaseIntegration implements IntegrationInterface
      */
     protected function formatEventData(string $eventType, array $data): array
     {
-        $settings = SmartLinks::getInstance()->getSettings();
+        $settings = SmartLinkManager::getInstance()->getSettings();
         $eventPrefix = $settings->seomaticEventPrefix ?? 'smart_links';
 
         // Build base event structure
@@ -185,7 +185,7 @@ abstract class BaseIntegration implements IntegrationInterface
      */
     protected function shouldTrackEvent(string $eventType): bool
     {
-        $settings = SmartLinks::getInstance()->getSettings();
+        $settings = SmartLinkManager::getInstance()->getSettings();
         $trackingEvents = $settings->seomaticTrackingEvents ?? [];
 
         return in_array($eventType, $trackingEvents, true);

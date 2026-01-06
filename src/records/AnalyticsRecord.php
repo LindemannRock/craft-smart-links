@@ -1,12 +1,12 @@
 <?php
 /**
- * Smart Links plugin for Craft CMS 5.x
+ * SmartLink Manager plugin for Craft CMS 5.x
  *
  * @link      https://lindemannrock.com
  * @copyright Copyright (c) 2025 LindemannRock
  */
 
-namespace lindemannrock\smartlinks\records;
+namespace lindemannrock\smartlinkmanager\records;
 
 use craft\db\ActiveRecord;
 use yii\db\ActiveQueryInterface;
@@ -34,7 +34,7 @@ class AnalyticsRecord extends ActiveRecord
      */
     public static function tableName(): string
     {
-        return '{{%smartlinks_analytics}}';
+        return '{{%smartlinkmanager_analytics}}';
     }
 
     /**

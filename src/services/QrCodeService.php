@@ -1,12 +1,12 @@
 <?php
 /**
- * Smart Links plugin for Craft CMS 5.x
+ * SmartLink Manager plugin for Craft CMS 5.x
  *
  * @link      https://lindemannrock.com
  * @copyright Copyright (c) 2025 LindemannRock
  */
 
-namespace lindemannrock\smartlinks\services;
+namespace lindemannrock\smartlinkmanager\services;
 
 use BaconQrCode\Renderer\Color\Rgb;
 use BaconQrCode\Renderer\Eye\ModuleEye;
@@ -25,7 +25,7 @@ use Craft;
 use craft\base\Component;
 use craft\elements\Asset;
 use lindemannrock\logginglibrary\traits\LoggingTrait;
-use lindemannrock\smartlinks\SmartLinks;
+use lindemannrock\smartlinkmanager\SmartLinkManager;
 
 /**
  * QR Code Service
@@ -42,7 +42,7 @@ class QrCodeService extends Component
     public function init(): void
     {
         parent::init();
-        $this->setLoggingHandle('smart-links');
+        $this->setLoggingHandle('smartlink-manager');
     }
 
     /**
@@ -54,7 +54,7 @@ class QrCodeService extends Component
      */
     public function generateQrCode(string $url, array $options = []): string
     {
-        $settings = SmartLinks::$plugin->getSettings();
+        $settings = SmartLinkManager::$plugin->getSettings();
         
         // Merge options with defaults
         $size = $options['size'] ?? $settings->defaultQrSize;
@@ -99,7 +99,7 @@ class QrCodeService extends Component
      */
     public function generateQrCodeDataUrl(string $url, array $options = []): string
     {
-        $format = $options['format'] ?? SmartLinks::$plugin->getSettings()->defaultQrFormat;
+        $format = $options['format'] ?? SmartLinkManager::$plugin->getSettings()->defaultQrFormat;
         $qrCode = $this->generateQrCode($url, $options);
         
         $mimeType = $format === 'svg' ? 'image/svg+xml' : 'image/png';
@@ -417,7 +417,7 @@ class QrCodeService extends Component
      */
     private function _getCachedQrCode(string $cacheKey): ?string
     {
-        $settings = SmartLinks::$plugin->getSettings();
+        $settings = SmartLinkManager::$plugin->getSettings();
 
         // Use Redis/database cache if configured
         if ($settings->cacheStorageMethod === 'redis') {
@@ -426,7 +426,7 @@ class QrCodeService extends Component
         }
 
         // Use file-based cache (default)
-        $cachePath = Craft::$app->path->getRuntimePath() . '/smart-links/cache/qr/';
+        $cachePath = Craft::$app->path->getRuntimePath() . '/smartlink-manager/cache/qr/';
         $cacheFile = $cachePath . md5($cacheKey) . '.cache';
 
         if (!file_exists($cacheFile)) {
@@ -453,7 +453,7 @@ class QrCodeService extends Component
      */
     private function _cacheQrCode(string $cacheKey, string $data, int $duration): void
     {
-        $settings = SmartLinks::$plugin->getSettings();
+        $settings = SmartLinkManager::$plugin->getSettings();
 
         // Use Redis/database cache if configured
         if ($settings->cacheStorageMethod === 'redis') {
@@ -463,14 +463,14 @@ class QrCodeService extends Component
             // Track key in set for selective deletion
             if ($cache instanceof \yii\redis\Cache) {
                 $redis = $cache->redis;
-                $redis->executeCommand('SADD', ['smartlinks-qr-keys', $cacheKey]);
+                $redis->executeCommand('SADD', ['smartlinkmanager-qr-keys', $cacheKey]);
             }
 
             return;
         }
 
         // Use file-based cache (default)
-        $cachePath = Craft::$app->path->getRuntimePath() . '/smart-links/cache/qr/';
+        $cachePath = Craft::$app->path->getRuntimePath() . '/smartlink-manager/cache/qr/';
 
         // Create directory if it doesn't exist
         if (!is_dir($cachePath)) {

@@ -1,12 +1,12 @@
 <?php
 /**
- * Smart Links plugin for Craft CMS 5.x
+ * SmartLink Manager plugin for Craft CMS 5.x
  *
  * @link      https://lindemannrock.com
  * @copyright Copyright (c) 2025 LindemannRock
  */
 
-namespace lindemannrock\smartlinks\integrations;
+namespace lindemannrock\smartlinkmanager\integrations;
 
 use Craft;
 use craft\helpers\App;
@@ -16,7 +16,7 @@ use yii\base\Event;
 /**
  * SEOmatic Integration
  *
- * Integrates Smart Links with SEOmatic's tracking scripts
+ * Integrates SmartLink Manager with SEOmatic's tracking scripts
  * Pushes click events to Google Tag Manager data layer and Google Analytics
  *
  * @since 1.1.0
@@ -42,7 +42,7 @@ class SeomaticIntegration extends BaseIntegration
         $this->name = 'SEOmatic';
 
         // Set logging handle for LoggingTrait
-        $this->setLoggingHandle('smart-links');
+        $this->setLoggingHandle('smartlink-manager');
     }
 
     /**
@@ -558,7 +558,7 @@ class SeomaticIntegration extends BaseIntegration
             $status['scripts'] = $scriptsFound;
 
             // Get configuration from settings
-            $settings = \lindemannrock\smartlinks\SmartLinks::getInstance()->getSettings();
+            $settings = \lindemannrock\smartlinkmanager\SmartLinkManager::getInstance()->getSettings();
             $status['configuration'] = [
                 'eventPrefix' => $settings->seomaticEventPrefix ?? 'smart_links',
                 'trackingEvents' => $settings->seomaticTrackingEvents ?? [],

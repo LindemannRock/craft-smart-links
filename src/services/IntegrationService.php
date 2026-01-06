@@ -1,13 +1,13 @@
 <?php
 
-namespace lindemannrock\smartlinks\services;
+namespace lindemannrock\smartlinkmanager\services;
 
 use Craft;
 use craft\base\Component;
 use lindemannrock\logginglibrary\traits\LoggingTrait;
-use lindemannrock\smartlinks\integrations\IntegrationInterface;
-use lindemannrock\smartlinks\integrations\RedirectManagerIntegration;
-use lindemannrock\smartlinks\integrations\SeomaticIntegration;
+use lindemannrock\smartlinkmanager\integrations\IntegrationInterface;
+use lindemannrock\smartlinkmanager\integrations\RedirectManagerIntegration;
+use lindemannrock\smartlinkmanager\integrations\SeomaticIntegration;
 
 /**
  * Integration Service
@@ -300,7 +300,7 @@ class IntegrationService extends Component
     /**
      * Render SEOmatic tracking script
      *
-     * @param \lindemannrock\smartlinks\elements\SmartLink $smartLink
+     * @param \lindemannrock\smartlinkmanager\elements\SmartLink $smartLink
      * @param string $eventType Event type: 'qr_scan' or 'redirect'
      * @return \Twig\Markup|null HTML script tag or null if SEOmatic is not enabled
      */
@@ -319,7 +319,7 @@ class IntegrationService extends Component
         try {
             $view->setTemplateMode(\craft\web\View::TEMPLATE_MODE_CP);
 
-            $html = $view->renderTemplate('smart-links/_integrations/seomatic', [
+            $html = $view->renderTemplate('smartlink-manager/_integrations/seomatic', [
                 'smartLink' => $smartLink,
                 'eventType' => $eventType,
             ]);

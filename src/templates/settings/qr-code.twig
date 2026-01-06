@@ -1,20 +1,20 @@
-{% extends "smart-links/_layouts/settings" %}
-{% set title = "QR Code Settings"|t('smart-links') %}
+{% extends "smartlink-manager/_layouts/settings" %}
+{% set title = "QR Code Settings"|t('smartlink-manager') %}
 {% set fullPageForm = true %}
 {% set selectedSettingsItem = 'qr-code' %}
 
 {% set crumbs = [
     {
-        label: smartlinkHelper.fullName|t('smart-links'),
-        url: url('smart-links'),
+        label: smartlinkHelper.fullName|t('smartlink-manager'),
+        url: url('smartlink-manager'),
     },
     {
-        label: 'Settings'|t('smart-links'),
-        url: url('smart-links/settings'),
+        label: 'Settings'|t('smartlink-manager'),
+        url: url('smartlink-manager/settings'),
     },
     {
-        label: 'QR Code'|t('smart-links'),
-        url: url('smart-links/settings/qr-code'),
+        label: 'QR Code'|t('smartlink-manager'),
+        url: url('smartlink-manager/settings/qr-code'),
     },
 ] %}
 
@@ -22,8 +22,8 @@
 
 {% block content %}
     {% include 'lindemannrock-base/_components/ip-salt-error' with {
-        pluginHandle: 'smart-links',
-        envVarName: 'SMART_LINKS_IP_SALT'
+        pluginHandle: 'smartlink-manager',
+        envVarName: 'SMARTLINK_MANAGER_IP_SALT'
     } %}
 
     {% if settings is defined and settings.hasErrors() %}
@@ -60,8 +60,8 @@
 
     <div class="qr-preview-floating">
         <div class="qr-preview-header">
-            <span>{{ "Live Preview"|t('smart-links') }}</span>
-            <button type="button" class="qr-preview-toggle" aria-label="{{ 'Toggle preview'|t('smart-links') }}">
+            <span>{{ "Live Preview"|t('smartlink-manager') }}</span>
+            <button type="button" class="qr-preview-toggle" aria-label="{{ 'Toggle preview'|t('smartlink-manager') }}">
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
                     <path d="M3 5h10l-5 5z"/>
                 </svg>
@@ -72,30 +72,30 @@
                 <div id="qr-preview-image">
                     <img id="qr-preview" src="" alt="QR Code Preview" style="display: none;">
                     <div id="qr-preview-loading">
-                        {{ "Loading..."|t('smart-links') }}
+                        {{ "Loading..."|t('smartlink-manager') }}
                     </div>
                 </div>
                 <div id="qr-preview-error" style="display: none;">
-                    {{ "Error"|t('smart-links') }}
+                    {{ "Error"|t('smartlink-manager') }}
                 </div>
             </div>
             <div id="qr-preview-warning" style="display: none;">
-                <small class="warning-text">{{ "Logo requires PNG format"|t('smart-links') }}</small>
+                <small class="warning-text">{{ "Logo requires PNG format"|t('smartlink-manager') }}</small>
             </div>
         </div>
     </div>
 
     <form method="post" accept-charset="UTF-8">
-        {{ actionInput('smart-links/settings/save') }}
+        {{ actionInput('smartlink-manager/settings/save') }}
         {{ csrfInput() }}
-        {{ redirectInput('smart-links/settings/qr-code') }}
+        {{ redirectInput('smartlink-manager/settings/qr-code') }}
         {{ hiddenInput('section', 'qr-code') }}
 
-        <h2 style="margin-top: 0px;">{{ "Appearance & Style"|t('smart-links') }}</h2>
+        <h2 style="margin-top: 0px;">{{ "Appearance & Style"|t('smartlink-manager') }}</h2>
 
         {{ forms.textField({
-            label: "Size"|t('smart-links'),
-            instructions: "Default size in pixels for generated QR codes"|t('smart-links'),
+            label: "Size"|t('smartlink-manager'),
+            instructions: "Default size in pixels for generated QR codes"|t('smartlink-manager'),
             id: 'defaultQrCodeSize',
             name: 'settings[defaultQrSize]',
             value: settings.defaultQrSize ?? 256,
@@ -104,12 +104,12 @@
             max: 1000,
             disabled: settings.isOverriddenByConfig('defaultQrSize'),
             warning: settings.isOverriddenByConfig('defaultQrSize') ?
-                "This is being overridden by the <code>defaultQrSize</code> setting in <code>config/smart-links.php</code>."|t('smart-links')|raw : null,
+                "This is being overridden by the <code>defaultQrSize</code> setting in <code>config/smartlink-manager.php</code>."|t('smartlink-manager')|raw : null,
         }) }}
 
         {{ forms.selectField({
-            label: "Format"|t('smart-links'),
-            instructions: "Default format for generated QR codes"|t('smart-links'),
+            label: "Format"|t('smartlink-manager'),
+            instructions: "Default format for generated QR codes"|t('smartlink-manager'),
             id: 'defaultQrFormat',
             name: 'settings[defaultQrFormat]',
             value: settings.defaultQrFormat ?? 'png',
@@ -119,32 +119,32 @@
             ],
             disabled: settings.isOverriddenByConfig('defaultQrFormat'),
             warning: settings.isOverriddenByConfig('defaultQrFormat') ?
-                "This is being overridden by the <code>defaultQrFormat</code> setting in <code>config/smart-links.php</code>."|t('smart-links')|raw : null,
+                "This is being overridden by the <code>defaultQrFormat</code> setting in <code>config/smartlink-manager.php</code>."|t('smartlink-manager')|raw : null,
         }) }}
 
         {{ forms.colorField({
-            label: "QR Code Color"|t('smart-links'),
+            label: "QR Code Color"|t('smartlink-manager'),
             id: 'defaultQrCodeColor',
             name: 'settings[defaultQrColor]',
             value: settings.defaultQrColor ?? '#000000',
             disabled: settings.isOverriddenByConfig('defaultQrColor'),
             warning: settings.isOverriddenByConfig('defaultQrColor') ?
-                "This is being overridden by the <code>defaultQrColor</code> setting in <code>config/smart-links.php</code>."|t('smart-links')|raw : null,
+                "This is being overridden by the <code>defaultQrColor</code> setting in <code>config/smartlink-manager.php</code>."|t('smartlink-manager')|raw : null,
         }) }}
 
         {{ forms.colorField({
-            label: "Background Color"|t('smart-links'),
+            label: "Background Color"|t('smartlink-manager'),
             id: 'defaultQrCodeBgColor',
             name: 'settings[defaultQrBgColor]',
             value: settings.defaultQrBgColor ?? '#FFFFFF',
             disabled: settings.isOverriddenByConfig('defaultQrBgColor'),
             warning: settings.isOverriddenByConfig('defaultQrBgColor') ?
-                "This is being overridden by the <code>defaultQrBgColor</code> setting in <code>config/smart-links.php</code>."|t('smart-links')|raw : null,
+                "This is being overridden by the <code>defaultQrBgColor</code> setting in <code>config/smartlink-manager.php</code>."|t('smartlink-manager')|raw : null,
         }) }}
 
         {{ forms.textField({
-            label: "Margin Size"|t('smart-links'),
-            instructions: "White space around QR code (0-10 modules)"|t('smart-links'),
+            label: "Margin Size"|t('smartlink-manager'),
+            instructions: "White space around QR code (0-10 modules)"|t('smartlink-manager'),
             id: 'defaultQrMargin',
             name: 'settings[defaultQrMargin]',
             value: settings.defaultQrMargin ?? 4,
@@ -153,12 +153,12 @@
             max: 10,
             disabled: settings.isOverriddenByConfig('defaultQrMargin'),
             warning: settings.isOverriddenByConfig('defaultQrMargin') ?
-                "This is being overridden by the <code>defaultQrMargin</code> setting in <code>config/smart-links.php</code>."|t('smart-links')|raw : null,
+                "This is being overridden by the <code>defaultQrMargin</code> setting in <code>config/smartlink-manager.php</code>."|t('smartlink-manager')|raw : null,
         }) }}
 
         {{ forms.selectField({
-            label: "Module Style"|t('smart-links'),
-            instructions: "Shape of the QR code modules"|t('smart-links'),
+            label: "Module Style"|t('smartlink-manager'),
+            instructions: "Shape of the QR code modules"|t('smartlink-manager'),
             id: 'qrModuleStyle',
             name: 'settings[qrModuleStyle]',
             value: settings.qrModuleStyle ?? 'square',
@@ -169,12 +169,12 @@
             ],
             disabled: settings.isOverriddenByConfig('qrModuleStyle'),
             warning: settings.isOverriddenByConfig('qrModuleStyle') ?
-                "This is being overridden by the <code>qrModuleStyle</code> setting in <code>config/smart-links.php</code>."|t('smart-links')|raw : null,
+                "This is being overridden by the <code>qrModuleStyle</code> setting in <code>config/smartlink-manager.php</code>."|t('smartlink-manager')|raw : null,
         }) }}
 
         {{ forms.selectField({
-            label: "Eye Style"|t('smart-links'),
-            instructions: "Shape of the position markers (corners)"|t('smart-links'),
+            label: "Eye Style"|t('smartlink-manager'),
+            instructions: "Shape of the position markers (corners)"|t('smartlink-manager'),
             id: 'qrEyeStyle',
             name: 'settings[qrEyeStyle]',
             value: settings.qrEyeStyle ?? 'square',
@@ -185,40 +185,40 @@
             ],
             disabled: settings.isOverriddenByConfig('qrEyeStyle'),
             warning: settings.isOverriddenByConfig('qrEyeStyle') ?
-                "This is being overridden by the <code>qrEyeStyle</code> setting in <code>config/smart-links.php</code>."|t('smart-links')|raw : null,
+                "This is being overridden by the <code>qrEyeStyle</code> setting in <code>config/smartlink-manager.php</code>."|t('smartlink-manager')|raw : null,
         }) }}
 
         {{ forms.colorField({
-            label: "Eye Color"|t('smart-links'),
-            instructions: "Color for position markers (leave empty to use main color)"|t('smart-links'),
+            label: "Eye Color"|t('smartlink-manager'),
+            instructions: "Color for position markers (leave empty to use main color)"|t('smartlink-manager'),
             id: 'qrEyeColor',
             name: 'settings[qrEyeColor]',
             value: settings.qrEyeColor ?? '',
             disabled: settings.isOverriddenByConfig('qrEyeColor'),
             warning: settings.isOverriddenByConfig('qrEyeColor') ?
-                "This is being overridden by the <code>qrEyeColor</code> setting in <code>config/smart-links.php</code>."|t('smart-links')|raw : null,
+                "This is being overridden by the <code>qrEyeColor</code> setting in <code>config/smartlink-manager.php</code>."|t('smartlink-manager')|raw : null,
         }) }}
 
         <hr>
 
-        <h2>{{ "Logo Settings"|t('smart-links') }}</h2>
+        <h2>{{ "Logo Settings"|t('smartlink-manager') }}</h2>
 
         {{ forms.lightswitchField({
-            label: "Enable Logo Overlay"|t('smart-links'),
-            instructions: "Add a logo in the center of QR codes"|t('smart-links'),
+            label: "Enable Logo Overlay"|t('smartlink-manager'),
+            instructions: "Add a logo in the center of QR codes"|t('smartlink-manager'),
             id: 'enableQrLogo',
             name: 'settings[enableQrLogo]',
             on: settings.enableQrLogo ?? false,
             toggle: 'logo-settings',
             disabled: settings.isOverriddenByConfig('enableQrLogo'),
             warning: settings.isOverriddenByConfig('enableQrLogo') ?
-                "This is being overridden by the <code>enableQrLogo</code> setting in <code>config/smart-links.php</code>."|t('smart-links')|raw :
-                "Logo overlay only works with PNG format. SVG format does not support logos."|t('smart-links'),
+                "This is being overridden by the <code>enableQrLogo</code> setting in <code>config/smartlink-manager.php</code>."|t('smartlink-manager')|raw :
+                "Logo overlay only works with PNG format. SVG format does not support logos."|t('smartlink-manager'),
         }) }}
 
         <div id="logo-settings" class="{{ not (settings.enableQrLogo ?? false) ? 'hidden' }}">
             {# Asset volume selection dropdown #}
-            {% set volumeOptions = [{label: 'All asset volumes'|t('smart-links'), value: ''}] %}
+            {% set volumeOptions = [{label: 'All asset volumes'|t('smartlink-manager'), value: ''}] %}
             {% for volume in craft.app.volumes.getAllVolumes() %}
                 {% set volumeOptions = volumeOptions|merge([{
                     label: volume.name,
@@ -227,23 +227,23 @@
             {% endfor %}
 
             {{ forms.selectField({
-                label: "Logo Asset Volume"|t('smart-links'),
-                instructions: "Which asset volume contains QR code logos. Save settings after changing this to update the logo selection below."|t('smart-links'),
+                label: "Logo Asset Volume"|t('smartlink-manager'),
+                instructions: "Which asset volume contains QR code logos. Save settings after changing this to update the logo selection below."|t('smartlink-manager'),
                 id: 'qrLogoVolumeUid',
                 name: 'settings[qrLogoVolumeUid]',
                 options: volumeOptions,
                 value: settings.qrLogoVolumeUid ?? '',
                 disabled: settings.isOverriddenByConfig('qrLogoVolumeUid'),
                 warning: settings.isOverriddenByConfig('qrLogoVolumeUid') ?
-                    "This is being overridden by the <code>qrLogoVolumeUid</code> setting in <code>config/smart-links.php</code>."|t('smart-links')|raw :
-                    (settings.qrLogoVolumeUid and craft.app.request.getBodyParam('settings[qrLogoVolumeUid]') and settings.qrLogoVolumeUid != craft.app.request.getBodyParam('settings[qrLogoVolumeUid]') ? 'Please save to apply the volume change'|t('smart-links') : null)
+                    "This is being overridden by the <code>qrLogoVolumeUid</code> setting in <code>config/smartlink-manager.php</code>."|t('smartlink-manager')|raw :
+                    (settings.qrLogoVolumeUid and craft.app.request.getBodyParam('settings[qrLogoVolumeUid]') and settings.qrLogoVolumeUid != craft.app.request.getBodyParam('settings[qrLogoVolumeUid]') ? 'Please save to apply the volume change'|t('smartlink-manager') : null)
             }) }}
 
             {# Default logo asset selection #}
             {% set logoSources = settings.qrLogoVolumeUid ? ['volume:' ~ settings.qrLogoVolumeUid] : '*' %}
             {{ forms.elementSelectField({
-                label: "Default Logo"|t('smart-links'),
-                instructions: "Default logo to use for QR codes (can be overridden per smart link)"|t('smart-links'),
+                label: "Default Logo"|t('smartlink-manager'),
+                instructions: "Default logo to use for QR codes (can be overridden per smart link)"|t('smartlink-manager'),
                 id: 'defaultQrLogoId',
                 name: 'settings[defaultQrLogoId]',
                 elementType: 'craft\\elements\\Asset',
@@ -259,8 +259,8 @@
 
 
             {{ forms.textField({
-                label: "Logo Size"|t('smart-links'),
-                instructions: "Logo size as percentage of QR code (10-30%)"|t('smart-links'),
+                label: "Logo Size"|t('smartlink-manager'),
+                instructions: "Logo size as percentage of QR code (10-30%)"|t('smartlink-manager'),
                 id: 'qrLogoSize',
                 name: 'settings[qrLogoSize]',
                 value: settings.qrLogoSize ?? 20,
@@ -269,17 +269,17 @@
                 max: 30,
                 disabled: settings.isOverriddenByConfig('qrLogoSize'),
                 warning: settings.isOverriddenByConfig('qrLogoSize') ?
-                    "This is being overridden by the <code>qrLogoSize</code> setting in <code>config/smart-links.php</code>."|t('smart-links')|raw : null,
+                    "This is being overridden by the <code>qrLogoSize</code> setting in <code>config/smartlink-manager.php</code>."|t('smartlink-manager')|raw : null,
             }) }}
         </div>
 
         <hr>
 
-        <h2>{{ "Technical Options"|t('smart-links') }}</h2>
+        <h2>{{ "Technical Options"|t('smartlink-manager') }}</h2>
 
         {{ forms.selectField({
-            label: "Error Correction Level"|t('smart-links'),
-            instructions: "Higher levels work better if QR code is damaged but create denser patterns"|t('smart-links'),
+            label: "Error Correction Level"|t('smartlink-manager'),
+            instructions: "Higher levels work better if QR code is damaged but create denser patterns"|t('smartlink-manager'),
             id: 'defaultQrErrorCorrection',
             name: 'settings[defaultQrErrorCorrection]',
             value: settings.defaultQrErrorCorrection ?? 'M',
@@ -291,52 +291,52 @@
             ],
             disabled: settings.isOverriddenByConfig('defaultQrErrorCorrection'),
             warning: settings.isOverriddenByConfig('defaultQrErrorCorrection') ?
-                "This is being overridden by the <code>defaultQrErrorCorrection</code> setting in <code>config/smart-links.php</code>."|t('smart-links')|raw : null,
+                "This is being overridden by the <code>defaultQrErrorCorrection</code> setting in <code>config/smartlink-manager.php</code>."|t('smartlink-manager')|raw : null,
         }) }}
 
         <hr>
 
-        <h2>{{ "Download Settings"|t('smart-links') }}</h2>
+        <h2>{{ "Download Settings"|t('smartlink-manager') }}</h2>
 
         {{ forms.lightswitchField({
-            label: "Enable QR Code Downloads"|t('smart-links'),
-            instructions: "Allow users to download QR codes"|t('smart-links'),
+            label: "Enable QR Code Downloads"|t('smartlink-manager'),
+            instructions: "Allow users to download QR codes"|t('smartlink-manager'),
             id: 'enableQrDownload',
             name: 'settings[enableQrDownload]',
             on: settings.enableQrDownload ?? true,
             toggle: 'download-settings',
             disabled: settings.isOverriddenByConfig('enableQrDownload'),
             warning: settings.isOverriddenByConfig('enableQrDownload') ?
-                "This is being overridden by the <code>enableQrDownload</code> setting in <code>config/smart-links.php</code>."|t('smart-links')|raw : null,
+                "This is being overridden by the <code>enableQrDownload</code> setting in <code>config/smartlink-manager.php</code>."|t('smartlink-manager')|raw : null,
         }) }}
 
         <div id="download-settings" class="{{ not (settings.enableQrDownload ?? true) ? 'hidden' }}">
             {{ forms.textField({
-                label: "Download Filename Pattern"|t('smart-links'),
-                instructions: "Available variables: {slug}, {size}, {format}"|t('smart-links'),
+                label: "Download Filename Pattern"|t('smartlink-manager'),
+                instructions: "Available variables: {slug}, {size}, {format}"|t('smartlink-manager'),
                 id: 'qrDownloadFilename',
                 name: 'settings[qrDownloadFilename]',
                 value: settings.qrDownloadFilename ?? '{slug}-qr-{size}',
                 placeholder: '{slug}-qr-{size}',
                 disabled: settings.isOverriddenByConfig('qrDownloadFilename'),
                 warning: settings.isOverriddenByConfig('qrDownloadFilename') ?
-                    "This is being overridden by the <code>qrDownloadFilename</code> setting in <code>config/smart-links.php</code>."|t('smart-links')|raw : null,
+                    "This is being overridden by the <code>qrDownloadFilename</code> setting in <code>config/smartlink-manager.php</code>."|t('smartlink-manager')|raw : null,
             }) }}
         </div>
 
         <hr>
 
-        <h2>{{ "Performance & Caching"|t('smart-links') }}</h2>
+        <h2>{{ "Performance & Caching"|t('smartlink-manager') }}</h2>
 
         <div class="field">
             <p class="light">
-                {{ "Configure QR code caching to improve performance and reduce server load."|t('smart-links') }}
-                <a href="{{ url('smart-links/settings/cache') }}">{{ "Go to Cache Settings"|t('smart-links') }}</a>
+                {{ "Configure QR code caching to improve performance and reduce server load."|t('smartlink-manager') }}
+                <a href="{{ url('smartlink-manager/settings/cache') }}">{{ "Go to Cache Settings"|t('smartlink-manager') }}</a>
             </p>
         </div>
 
         <div class="buttons">
-            <button type="submit" class="btn submit">{{ "Save Settings"|t('smart-links') }}</button>
+            <button type="submit" class="btn submit">{{ "Save Settings"|t('smartlink-manager') }}</button>
         </div>
     </form>
 
@@ -501,7 +501,7 @@ document.querySelector('form').addEventListener('submit', function(e) {
             const errorList = document.createElement('ul');
             errorList.className = 'errors';
             const errorItem = document.createElement('li');
-            errorItem.textContent = Craft.t('smart-links', 'Default logo is required when logo overlay is enabled.');
+            errorItem.textContent = Craft.t('smartlink-manager', 'Default logo is required when logo overlay is enabled.');
             errorList.appendChild(errorItem);
 
             // Insert after the field
@@ -536,7 +536,7 @@ document.querySelector('form').addEventListener('submit', function(e) {
             noticeDiv = document.createElement('div');
             noticeDiv.className = 'readable';
             noticeDiv.innerHTML = '<blockquote class="note"><p>' +
-                Craft.t('smart-links', 'Please save settings to apply the volume change to the logo selection field.') +
+                Craft.t('smartlink-manager', 'Please save settings to apply the volume change to the logo selection field.') +
                 '</p></blockquote>';
 
             // Insert after the volume field
@@ -689,7 +689,7 @@ document.querySelector('form').addEventListener('submit', function(e) {
         }
 
         // Generate preview URL - use CP URL since we're in the control panel
-        const qrUrl = Craft.getCpUrl('smart-links/qr-code/generate?' + params.toString());
+        const qrUrl = Craft.getCpUrl('smartlink-manager/qr-code/generate?' + params.toString());
 
 
         // Create new image to test loading
@@ -708,7 +708,7 @@ document.querySelector('form').addEventListener('submit', function(e) {
 
             if (logoEnabled && format === 'svg') {
                 warningDiv.style.display = 'block';
-                warningDiv.querySelector('.warning-text').textContent = Craft.t('smart-links', 'Logo requires PNG format');
+                warningDiv.querySelector('.warning-text').textContent = Craft.t('smartlink-manager', 'Logo requires PNG format');
             } else {
                 warningDiv.style.display = 'none';
             }

@@ -40,7 +40,7 @@
             var elementId = $element.data('id');
             
             if (!$element.data('preview-loaded')) {
-                $.get('{{ actionUrl('smart-links/smart-links/get-details') }}', {
+                $.get('{{ actionUrl('smartlink-manager/smartlink-manager/get-details') }}', {
                     id: elementId
                 }, function(response) {
                     if (response.success) {

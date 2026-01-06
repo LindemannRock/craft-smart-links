@@ -1,7 +1,7 @@
 {
   "plugin": {
-    "name": "Smart Links",
-    "handle": "smart-links",
+    "name": "SmartLink Manager",
+    "handle": "smartlink-manager",
     "description": "Intelligent URL shortening and redirect management with device detection, QR codes, and analytics"
   },
   "navigation": {

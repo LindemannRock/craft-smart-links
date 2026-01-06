@@ -1,12 +1,12 @@
 <?php
 /**
- * Smart Links plugin for Craft CMS 5.x
+ * SmartLink Manager plugin for Craft CMS 5.x
  *
  * @link      https://lindemannrock.com
  * @copyright Copyright (c) 2025 LindemannRock
  */
 
-namespace lindemannrock\smartlinks\services;
+namespace lindemannrock\smartlinkmanager\services;
 
 use Craft;
 use craft\base\Component;
@@ -17,9 +17,9 @@ use craft\helpers\Json;
 use craft\helpers\StringHelper;
 use craft\helpers\UrlHelper;
 use lindemannrock\logginglibrary\traits\LoggingTrait;
-use lindemannrock\smartlinks\elements\SmartLink;
-use lindemannrock\smartlinks\models\DeviceInfo;
-use lindemannrock\smartlinks\SmartLinks;
+use lindemannrock\smartlinkmanager\elements\SmartLink;
+use lindemannrock\smartlinkmanager\models\DeviceInfo;
+use lindemannrock\smartlinkmanager\SmartLinkManager;
 
 /**
  * Analytics Service
@@ -36,7 +36,7 @@ class AnalyticsService extends Component
     public function init(): void
     {
         parent::init();
-        $this->setLoggingHandle('smart-links');
+        $this->setLoggingHandle('smartlink-manager');
     }
 
     /**
@@ -50,7 +50,7 @@ class AnalyticsService extends Component
     public function getAnalyticsSummary(string $dateRange = 'last7days', ?int $smartLinkId = null, ?int $siteId = null): array
     {
         $query = (new Query())
-            ->from('{{%smartlinks_analytics}}');
+            ->from('{{%smartlinkmanager_analytics}}');
 
         // Apply date range filter
         $this->applyDateRangeFilter($query, $dateRange);
@@ -81,8 +81,8 @@ class AnalyticsService extends Component
 
         // Get count of ACTIVE links that have been clicked in this period
         $linksQuery = (new Query())
-            ->from('{{%smartlinks_analytics}} a')
-            ->innerJoin('{{%smartlinks}} s', 'a.linkId = s.id')
+            ->from('{{%smartlinkmanager_analytics}} a')
+            ->innerJoin('{{%smartlinkmanager}} s', 'a.linkId = s.id')
             ->innerJoin('{{%elements}} e', 's.id = e.id')
             ->innerJoin('{{%elements_sites}} es', 'e.id = es.elementId')
             ->select('COUNT(DISTINCT a.linkId)')
@@ -126,7 +126,7 @@ class AnalyticsService extends Component
     public function getSmartLinkAnalytics(int $smartLinkId, string $dateRange = 'last7days'): array
     {
         $query = (new Query())
-            ->from('{{%smartlinks_analytics}}')
+            ->from('{{%smartlinkmanager_analytics}}')
             ->where(['linkId' => $smartLinkId]);
 
         // Apply date range filter
@@ -197,7 +197,7 @@ class AnalyticsService extends Component
     public function getRecentClicks(int $smartLinkId, int $limit = 20, string $dateRange = 'last7days'): array
     {
         $query = (new Query())
-            ->from('{{%smartlinks_analytics}}')
+            ->from('{{%smartlinkmanager_analytics}}')
             ->where(['linkId' => $smartLinkId])
             ->orderBy('dateCreated DESC')
             ->limit($limit);
@@ -229,7 +229,7 @@ class AnalyticsService extends Component
     public function getButtonClicks(int $smartLinkId, string $dateRange = 'last7days'): array
     {
         $query = (new Query())
-            ->from('{{%smartlinks_analytics}}')
+            ->from('{{%smartlinkmanager_analytics}}')
             ->where(['linkId' => $smartLinkId])
             ->andWhere(['like', 'metadata', '"clickType":"button"']);
 
@@ -363,7 +363,7 @@ class AnalyticsService extends Component
         $offset = $dateTime->format('P'); // e.g., +03:00
 
         $query = (new Query())
-            ->from('{{%smartlinks_analytics}}')
+            ->from('{{%smartlinkmanager_analytics}}')
             ->select(["DATE(CONVERT_TZ(dateCreated, '+00:00', '{$offset}')) as date", 'COUNT(*) as count'])
             ->groupBy(["DATE(CONVERT_TZ(dateCreated, '+00:00', '{$offset}'))"])
             ->orderBy(['date' => SORT_ASC]);
@@ -457,7 +457,7 @@ class AnalyticsService extends Component
     public function getDeviceBreakdown(?int $smartLinkId, string $dateRange, ?int $siteId = null): array
     {
         $query = (new Query())
-            ->from('{{%smartlinks_analytics}}')
+            ->from('{{%smartlinkmanager_analytics}}')
             ->select(['deviceType', 'COUNT(*) as count'])
             ->groupBy(['deviceType']);
 
@@ -504,7 +504,7 @@ class AnalyticsService extends Component
     public function getPlatformBreakdown(?int $smartLinkId, string $dateRange, ?int $siteId = null): array
     {
         $query = (new Query())
-            ->from('{{%smartlinks_analytics}}')
+            ->from('{{%smartlinkmanager_analytics}}')
             ->select(['osName', 'COUNT(*) as count'])
             ->groupBy(['osName']);
 
@@ -563,7 +563,7 @@ class AnalyticsService extends Component
     public function getTopCountries(?int $smartLinkId, string $dateRange, int $limit = 15, ?int $siteId = null): array
     {
         $query = (new Query())
-            ->from('{{%smartlinks_analytics}}')
+            ->from('{{%smartlinkmanager_analytics}}')
             ->select(['country', 'COUNT(*) as clicks'])
             ->where(['not', ['country' => null]])
             ->groupBy(['country'])
@@ -613,7 +613,7 @@ class AnalyticsService extends Component
     public function getTopCities(?int $smartLinkId, string $dateRange, int $limit = 15, ?int $siteId = null): array
     {
         $query = (new Query())
-            ->from('{{%smartlinks_analytics}}')
+            ->from('{{%smartlinkmanager_analytics}}')
             ->select(['city', 'country', 'COUNT(*) as clicks'])
             ->where(['not', ['city' => null]])
             ->groupBy(['city', 'country'])
@@ -656,7 +656,7 @@ class AnalyticsService extends Component
     public function getHourlyAnalytics(?int $smartLinkId, string $dateRange, ?int $siteId = null): array
     {
         $query = (new Query())
-            ->from('{{%smartlinks_analytics}}')
+            ->from('{{%smartlinkmanager_analytics}}')
             ->select([
                 'HOUR(dateCreated) as hour',
                 'COUNT(*) as clicks',
@@ -705,7 +705,7 @@ class AnalyticsService extends Component
 
         // Mobile usage by top cities
         $query = (new Query())
-            ->from('{{%smartlinks_analytics}}')
+            ->from('{{%smartlinkmanager_analytics}}')
             ->select([
                 'city',
                 'SUM(CASE WHEN osName IN ("iOS", "Android") THEN 1 ELSE 0 END) as mobile_clicks',
@@ -737,7 +737,7 @@ class AnalyticsService extends Component
 
         // Browser usage by country
         $browserByCountry = (new Query())
-            ->from('{{%smartlinks_analytics}}')
+            ->from('{{%smartlinkmanager_analytics}}')
             ->select([
                 'country',
                 'browser',
@@ -766,7 +766,7 @@ class AnalyticsService extends Component
 
         // Device brands by country
         $brandsByCountry = (new Query())
-            ->from('{{%smartlinks_analytics}}')
+            ->from('{{%smartlinkmanager_analytics}}')
             ->select([
                 'country',
                 'deviceBrand',
@@ -819,7 +819,7 @@ class AnalyticsService extends Component
     public function getDeviceBrandBreakdown(?int $smartLinkId, string $dateRange, ?int $siteId = null): array
     {
         $query = (new Query())
-            ->from('{{%smartlinks_analytics}}')
+            ->from('{{%smartlinkmanager_analytics}}')
             ->select([
                 'deviceBrand',
                 'COUNT(*) as clicks',
@@ -870,7 +870,7 @@ class AnalyticsService extends Component
     public function getOsBreakdown(?int $smartLinkId, string $dateRange, ?int $siteId = null): array
     {
         $query = (new Query())
-            ->from('{{%smartlinks_analytics}}')
+            ->from('{{%smartlinkmanager_analytics}}')
             ->select([
                 'osName',
                 'osVersion',
@@ -954,7 +954,7 @@ class AnalyticsService extends Component
     public function getBrowserBreakdown(?int $smartLinkId, string $dateRange, ?int $siteId = null): array
     {
         $query = (new Query())
-            ->from('{{%smartlinks_analytics}}')
+            ->from('{{%smartlinkmanager_analytics}}')
             ->select([
                 'browser',
                 'browserVersion',
@@ -1055,7 +1055,7 @@ class AnalyticsService extends Component
     public function getDeviceTypeBreakdown(?int $smartLinkId, string $dateRange, ?int $siteId = null): array
     {
         $query = (new Query())
-            ->from('{{%smartlinks_analytics}}')
+            ->from('{{%smartlinkmanager_analytics}}')
             ->select([
                 'deviceType',
                 'COUNT(*) as clicks',
@@ -1136,7 +1136,7 @@ class AnalyticsService extends Component
     public function exportAnalytics(?int $smartLinkId, string $dateRange, string $format, ?int $siteId = null): string
     {
         $query = (new Query())
-            ->from('{{%smartlinks_analytics}}')
+            ->from('{{%smartlinkmanager_analytics}}')
             ->select([
                 'dateCreated',
                 'linkId',
@@ -1179,7 +1179,7 @@ class AnalyticsService extends Component
         }
 
         // Get plugin name for CSV headers
-        $settings = SmartLinks::$plugin->getSettings();
+        $settings = SmartLinkManager::$plugin->getSettings();
         $displayName = $settings->getDisplayName();
 
         // Check if geo detection is enabled
@@ -1199,7 +1199,7 @@ class AnalyticsService extends Component
 
         foreach ($results as $row) {
             // Check settings to determine if we should include disabled/expired links
-            $settings = SmartLinks::$plugin->getSettings();
+            $settings = SmartLinkManager::$plugin->getSettings();
             $includeDisabled = $settings->includeDisabledInExport ?? false;
             $includeExpired = $settings->includeExpiredInExport ?? false;
 
@@ -1343,7 +1343,7 @@ class AnalyticsService extends Component
     public function getTopLinks(string $dateRange = 'last7days', int $limit = 5, ?int $siteId = null): array
     {
         $query = (new Query())
-            ->from(['a' => '{{%smartlinks_analytics}}'])
+            ->from(['a' => '{{%smartlinkmanager_analytics}}'])
             ->select([
                 'a.linkId',
                 'a.siteId',
@@ -1377,7 +1377,7 @@ class AnalyticsService extends Component
             if ($smartLink && $smartLink->getStatus() === SmartLink::STATUS_ENABLED) { // Only include active links
                 // Get the last interaction details
                 $lastInteractionQuery = (new Query())
-                    ->from('{{%smartlinks_analytics}}')
+                    ->from('{{%smartlinkmanager_analytics}}')
                     ->where(['linkId' => $row['linkId']])
                     ->orderBy(['dateCreated' => SORT_DESC]);
 
@@ -1459,11 +1459,11 @@ class AnalyticsService extends Component
         // Join with the site where the click happened (a.siteId), not the current CP site
         // This way Arabic clicks show Arabic title, English clicks show English title
         $query = (new Query())
-            ->from(['a' => '{{%smartlinks_analytics}}'])
-            ->innerJoin(['s' => '{{%smartlinks}}'], 'a.linkId = s.id')
+            ->from(['a' => '{{%smartlinkmanager_analytics}}'])
+            ->innerJoin(['s' => '{{%smartlinkmanager}}'], 'a.linkId = s.id')
             ->innerJoin(['e' => '{{%elements}}'], 's.id = e.id')
             ->innerJoin(['es' => '{{%elements_sites}}'], 'e.id = es.elementId AND es.siteId = a.siteId')
-            ->leftJoin(['c' => '{{%smartlinks_content}}'], 'c.smartLinkId = s.id AND c.siteId = a.siteId')
+            ->leftJoin(['c' => '{{%smartlinkmanager_content}}'], 'c.smartLinkId = s.id AND c.siteId = a.siteId')
             ->leftJoin(['sites' => '{{%sites}}'], 'sites.id = a.siteId')
             ->select([
                 'a.*',
@@ -1581,7 +1581,7 @@ class AnalyticsService extends Component
 
             // Anonymize IP address if setting is enabled
             // This must happen BEFORE geo-lookup and hashing
-            $settings = SmartLinks::$plugin->getSettings();
+            $settings = SmartLinkManager::$plugin->getSettings();
             if ($settings->anonymizeIpAddress && isset($metadata['ip'])) {
                 $metadata['ip'] = $this->_anonymizeIp($metadata['ip']);
             }
@@ -1628,7 +1628,7 @@ class AnalyticsService extends Component
 
             // Get location data from IP if geo detection is enabled
             // IMPORTANT: This must happen BEFORE we remove IP from metadata
-            if (SmartLinks::$plugin->getSettings()->enableGeoDetection && isset($metadata['ip'])) {
+            if (SmartLinkManager::$plugin->getSettings()->enableGeoDetection && isset($metadata['ip'])) {
                 $location = $this->getLocationFromIp($metadata['ip']);
                 if ($location) {
                     $data['country'] = $location['countryCode'];
@@ -1649,7 +1649,7 @@ class AnalyticsService extends Component
             $data['metadata'] = Json::encode($metadata);
 
             return (bool)$db->createCommand()
-                ->insert('{{%smartlinks_analytics}}', $data)
+                ->insert('{{%smartlinkmanager_analytics}}', $data)
                 ->execute();
         } catch (\Exception $e) {
             $context = ['error' => $e->getMessage(), 'linkId' => $linkId];
@@ -1670,15 +1670,15 @@ class AnalyticsService extends Component
      */
     private function _hashIpWithSalt(string $ip): string
     {
-        $settings = SmartLinks::$plugin->getSettings();
+        $settings = SmartLinkManager::$plugin->getSettings();
         $salt = $settings->ipHashSalt;
 
-        if (!$salt || $salt === '$SMART_LINKS_IP_SALT' || trim($salt) === '') {
+        if (!$salt || $salt === '$SMARTLINK_MANAGER_IP_SALT' || trim($salt) === '') {
             $this->logError('IP hash salt not configured - analytics tracking disabled', [
                 'ip' => 'hidden',
                 'saltValue' => $salt ?? 'NULL',
             ]);
-            throw new \Exception('IP hash salt not configured. Run: php craft smart-links/security/generate-salt');
+            throw new \Exception('IP hash salt not configured. Run: php craft smartlink-manager/security/generate-salt');
         }
 
         return hash('sha256', $ip . $salt);
@@ -1733,7 +1733,7 @@ class AnalyticsService extends Component
     public function getAnalytics(SmartLink $smartLink, array $criteria = []): array
     {
         $query = (new Query())
-            ->from(['{{%smartlinks_analytics}}'])
+            ->from(['{{%smartlinkmanager_analytics}}'])
             ->where(['linkId' => $smartLink->id]);
 
         // Date range filter
@@ -1784,7 +1784,7 @@ class AnalyticsService extends Component
 
         // Get country breakdown if enabled
         $countries = [];
-        if (SmartLinks::$plugin->getSettings()->enableGeoDetection) {
+        if (SmartLinkManager::$plugin->getSettings()->enableGeoDetection) {
             $countries = (clone $query)
                 ->select(['country', 'COUNT(*) as count'])
                 ->andWhere(['not', ['country' => null]])
@@ -1814,7 +1814,7 @@ class AnalyticsService extends Component
     public function getAggregatedStats(array $linkIds, string $period = '30d'): array
     {
         $query = (new Query())
-            ->from(['{{%smartlinks_analytics}}'])
+            ->from(['{{%smartlinkmanager_analytics}}'])
             ->where(['in', 'linkId', $linkIds]);
 
         // Apply period filter
@@ -1849,7 +1849,7 @@ class AnalyticsService extends Component
     public function deleteAnalyticsForLink(SmartLink $smartLink): int
     {
         return Craft::$app->db->createCommand()
-            ->delete('{{%smartlinks_analytics}}', ['linkId' => $smartLink->id])
+            ->delete('{{%smartlinkmanager_analytics}}', ['linkId' => $smartLink->id])
             ->execute();
     }
 
@@ -1864,7 +1864,7 @@ class AnalyticsService extends Component
         $cutoffDate = DateTimeHelper::currentTimeStamp() - ($days * 24 * 60 * 60);
 
         return Craft::$app->db->createCommand()
-            ->delete('{{%smartlinks_analytics}}', ['<', 'timestamp', $cutoffDate])
+            ->delete('{{%smartlinkmanager_analytics}}', ['<', 'timestamp', $cutoffDate])
             ->execute();
     }
 
@@ -1885,7 +1885,7 @@ class AnalyticsService extends Component
 
         // Update directly in database to avoid triggering events
         Craft::$app->db->createCommand()
-            ->update('{{%smartlinks}}', [
+            ->update('{{%smartlinkmanager}}', [
                 'metadata' => Json::encode($metadata),
             ], ['id' => $smartLink->id])
             ->execute();
@@ -1928,9 +1928,9 @@ class AnalyticsService extends Component
             // Skip local/private IPs - return default location data for local development
             if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) === false) {
                 // Get default location from settings or env
-                $settings = SmartLinks::$plugin->getSettings();
-                $defaultCountry = $settings->defaultCountry ?: (getenv('SMART_LINKS_DEFAULT_COUNTRY') ?: 'AE');
-                $defaultCity = $settings->defaultCity ?: (getenv('SMART_LINKS_DEFAULT_CITY') ?: 'Dubai');
+                $settings = SmartLinkManager::$plugin->getSettings();
+                $defaultCountry = $settings->defaultCountry ?: (getenv('SMARTLINK_MANAGER_DEFAULT_COUNTRY') ?: 'AE');
+                $defaultCity = $settings->defaultCity ?: (getenv('SMARTLINK_MANAGER_DEFAULT_CITY') ?: 'Dubai');
 
                 // Predefined locations for common cities worldwide
                 $locations = [
@@ -2307,7 +2307,7 @@ class AnalyticsService extends Component
 
         // Get all analytics records
         $records = (new Query())
-            ->from('{{%smartlinks_analytics}}')
+            ->from('{{%smartlinkmanager_analytics}}')
             ->select(['id', 'metadata', 'osName'])
             ->all();
 
@@ -2438,7 +2438,7 @@ class AnalyticsService extends Component
             if ($shouldUpdate) {
                 $db->createCommand()
                     ->update(
-                        '{{%smartlinks_analytics}}',
+                        '{{%smartlinkmanager_analytics}}',
                         ['metadata' => Json::encode($metadata)],
                         ['id' => $record['id']]
                     )
@@ -2461,7 +2461,7 @@ class AnalyticsService extends Component
     private function _exportAsJson(array $results, bool $geoEnabled): string
     {
         $data = [];
-        $settings = SmartLinks::$plugin->getSettings();
+        $settings = SmartLinkManager::$plugin->getSettings();
         $includeDisabled = $settings->includeDisabledInExport ?? false;
         $includeExpired = $settings->includeExpiredInExport ?? false;
 

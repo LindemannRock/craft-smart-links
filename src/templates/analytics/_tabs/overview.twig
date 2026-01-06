@@ -3,32 +3,32 @@
 <div class="analytics-stats">
     <div class="stat-box">
         <div class="stat-value" id="total-clicks">{{ (analyticsData.totalClicks ?? 0)|number }}</div>
-        <div class="stat-label">{{ "Total Interactions"|t('smart-links') }}</div>
+        <div class="stat-label">{{ "Total Interactions"|t('smartlink-manager') }}</div>
     </div>
     <div class="stat-box">
         <div class="stat-value" id="unique-visitors">{{ (analyticsData.uniqueVisitors ?? 0)|number }}</div>
-        <div class="stat-label">{{ "Unique Visitors"|t('smart-links') }}</div>
+        <div class="stat-label">{{ "Unique Visitors"|t('smartlink-manager') }}</div>
     </div>
     <div class="stat-box">
         <div class="stat-value" id="active-links">{{ (analyticsData.activeLinks ?? 0)|number }}</div>
-        <div class="stat-label">{{ "Active Links"|t('smart-links') }}</div>
+        <div class="stat-label">{{ "Active Links"|t('smartlink-manager') }}</div>
     </div>
     <div class="stat-box">
         <div class="stat-value" id="links-used">{{ analyticsData.linksUsedPercentage ?? 0 }}%</div>
-        <div class="stat-label">{{ "Engagement Rate"|t('smart-links') }}</div>
+        <div class="stat-label">{{ "Engagement Rate"|t('smartlink-manager') }}</div>
     </div>
 </div>
 
-<h2 style="margin: 30px 0 20px;">{{ "Traffic Overview"|t('smart-links') }}</h2>
+<h2 style="margin: 30px 0 20px;">{{ "Traffic Overview"|t('smartlink-manager') }}</h2>
 
 <div class="analytics-charts">
     <div class="chart-container full-width">
-        <h3>{{ "Daily Clicks"|t('smart-links') }}</h3>
+        <h3>{{ "Daily Clicks"|t('smartlink-manager') }}</h3>
         <canvas id="clicks-chart"></canvas>
     </div>
 </div>
 
-<h2 style="margin: 30px 0 20px;">{{ "Top {pluginName} (Top 20)"|t('smart-links', {pluginName: smartlinkHelper.pluralDisplayName}) }}</h2>
+<h2 style="margin: 30px 0 20px;">{{ "Top {pluginName} (Top 20)"|t('smartlink-manager', {pluginName: smartlinkHelper.pluralDisplayName}) }}</h2>
 
 <div class="analytics-charts">
     <div class="chart-container full-width">
@@ -37,13 +37,13 @@
                 <thead>
                     <tr>
                         <th>{{ smartlinkHelper.displayName }}</th>
-                        <th>{{ "Site"|t('smart-links') }}</th>
-                        <th>{{ "Total Interactions"|t('smart-links') }}</th>
-                        <th>{{ "Last Interaction"|t('smart-links') }}</th>
-                        <th>{{ "Last Interaction Type"|t('smart-links') }}</th>
-                        <th>{{ "Last Destination URL"|t('smart-links') }}</th>
-                        <th>{{ "QR Scans"|t('smart-links') }}</th>
-                        <th>{{ "Direct Visits"|t('smart-links') }}</th>
+                        <th>{{ "Site"|t('smartlink-manager') }}</th>
+                        <th>{{ "Total Interactions"|t('smartlink-manager') }}</th>
+                        <th>{{ "Last Interaction"|t('smartlink-manager') }}</th>
+                        <th>{{ "Last Interaction Type"|t('smartlink-manager') }}</th>
+                        <th>{{ "Last Destination URL"|t('smartlink-manager') }}</th>
+                        <th>{{ "QR Scans"|t('smartlink-manager') }}</th>
+                        <th>{{ "Direct Visits"|t('smartlink-manager') }}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -51,7 +51,7 @@
                         {% if (link.enabled ?? true) and (link.clicks > 0) %}
                             <tr>
                                 <td>
-                                    <a href="{{ url('smart-links/smartlinks/' ~ link.id) }}">
+                                    <a href="{{ url('smartlink-manager/smartlinks/' ~ link.id) }}">
                                         {{ link.name }}
                                     </a>
                                 </td>
@@ -72,7 +72,7 @@
                         {% endif %}
                     {% else %}
                         <tr>
-                            <td colspan="8" class="thin light">{{ "No data for selected period"|t('smart-links') }}</td>
+                            <td colspan="8" class="thin light">{{ "No data for selected period"|t('smartlink-manager') }}</td>
                         </tr>
                     {% endfor %}
                 </tbody>
@@ -81,7 +81,7 @@
     </div>
 </div>
 
-<h2 style="margin: 30px 0 20px;">{{ "Latest Interactions (Top 20)"|t('smart-links') }}</h2>
+<h2 style="margin: 30px 0 20px;">{{ "Latest Interactions (Top 20)"|t('smartlink-manager') }}</h2>
 
 <div class="analytics-charts">
     <div class="chart-container full-width">
@@ -89,19 +89,19 @@
             <table class="data fullwidth">
                 <thead>
                     <tr>
-                        <th>{{ "Date"|t('smart-links') }}</th>
-                        <th>{{ "Time"|t('smart-links') }}</th>
+                        <th>{{ "Date"|t('smartlink-manager') }}</th>
+                        <th>{{ "Time"|t('smartlink-manager') }}</th>
                         <th>{{ smartlinkHelper.displayName }}</th>
-                        <th>{{ "Site"|t('smart-links') }}</th>
-                        <th>{{ "Type"|t('smart-links') }}</th>
-                        <th>{{ "Button"|t('smart-links') }}</th>
-                        <th>{{ "Source"|t('smart-links') }}</th>
-                        <th>{{ "Destination URL"|t('smart-links') }}</th>
-                        <th>{{ "Device"|t('smart-links') }}</th>
-                        <th>{{ "Browser"|t('smart-links') }}</th>
-                        <th>{{ "OS"|t('smart-links') }}</th>
+                        <th>{{ "Site"|t('smartlink-manager') }}</th>
+                        <th>{{ "Type"|t('smartlink-manager') }}</th>
+                        <th>{{ "Button"|t('smartlink-manager') }}</th>
+                        <th>{{ "Source"|t('smartlink-manager') }}</th>
+                        <th>{{ "Destination URL"|t('smartlink-manager') }}</th>
+                        <th>{{ "Device"|t('smartlink-manager') }}</th>
+                        <th>{{ "Browser"|t('smartlink-manager') }}</th>
+                        <th>{{ "OS"|t('smartlink-manager') }}</th>
                         {% if settings.enableGeoDetection %}
-                            <th>{{ "Location"|t('smart-links') }}</th>
+                            <th>{{ "Location"|t('smartlink-manager') }}</th>
                         {% endif %}
                     </tr>
                 </thead>
@@ -111,7 +111,7 @@
                             <td>{{ click.dateCreated|date('short') }}</td>
                             <td>{{ click.dateCreated|time('short') }}</td>
                             <td>
-                                <a href="{{ cpUrl('smart-links/' ~ click.linkId) }}">{{ click.smartLinkTitle }}</a>
+                                <a href="{{ cpUrl('smartlink-manager/' ~ click.linkId) }}">{{ click.smartLinkTitle }}</a>
                             </td>
                             <td>
                                 {% if click.siteId %}
@@ -123,9 +123,9 @@
                             </td>
                             <td>
                                 {% if click.clickType == 'button' %}
-                                    {{ "Button"|t('smart-links') }}
+                                    {{ "Button"|t('smartlink-manager') }}
                                 {% else %}
-                                    {{ "Redirect"|t('smart-links') }}
+                                    {{ "Redirect"|t('smartlink-manager') }}
                                 {% endif %}
                             </td>
                             <td>
@@ -147,11 +147,11 @@
                             </td>
                             <td>
                                 {% if click.source == 'qr' %}
-                                    {{ "QR"|t('smart-links') }}
+                                    {{ "QR"|t('smartlink-manager') }}
                                 {% elseif click.source == 'landing' %}
-                                    {{ "Landing"|t('smart-links') }}
+                                    {{ "Landing"|t('smartlink-manager') }}
                                 {% else %}
-                                    {{ "Direct"|t('smart-links') }}
+                                    {{ "Direct"|t('smartlink-manager') }}
                                 {% endif %}
                             </td>
                             <td>
@@ -180,7 +180,7 @@
                         </tr>
                     {% else %}
                         <tr>
-                            <td colspan="{{ settings.enableGeoDetection ? 12 : 11 }}" class="thin light">{{ "No interactions recorded yet"|t('smart-links') }}</td>
+                            <td colspan="{{ settings.enableGeoDetection ? 12 : 11 }}" class="thin light">{{ "No interactions recorded yet"|t('smartlink-manager') }}</td>
                         </tr>
                     {% endfor %}
                 </tbody>

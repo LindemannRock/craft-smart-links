@@ -11,15 +11,15 @@ relatedPages:
     title: Analytics Dashboard
 ---
 
-# Smart Links Configuration
+# SmartLink Manager Configuration
 
 ## Configuration File
 
-You can override plugin settings by creating a `smart-links.php` file in your `config/` directory.
+You can override plugin settings by creating a `smartlink-manager.php` file in your `config/` directory.
 
 ### Basic Setup
 
-1. Copy `vendor/lindemannrock/smart-links/src/config.php` to `config/smart-links.php`
+1. Copy `vendor/lindemannrock/craft-smartlink-manager/src/config.php` to `config/smartlink-manager.php`
 2. Modify the settings as needed
 
 ### Available Settings
@@ -30,14 +30,14 @@ use craft\helpers\App;
 
 return [
     // Plugin settings
-    'pluginName' => 'Smart Links',
+    'pluginName' => 'SmartLink Manager',
 
     // Logging settings
     'logLevel' => 'error', // error, warning, info, or debug
 
     // IP Privacy Protection
-    // Generate salt with: php craft smart-links/security/generate-salt
-    'ipHashSalt' => App::env('SMART_LINKS_IP_SALT'),
+    // Generate salt with: php craft smartlink-manager/security/generate-salt
+    'ipHashSalt' => App::env('SMARTLINK_MANAGER_IP_SALT'),
 
     // URL Settings
     'slugPrefix' => 'go', // URL prefix for smart links (e.g., 'go' creates /go/your-link)
@@ -48,7 +48,7 @@ return [
     'qrTemplate' => null, // Custom QR code display page template path
 
     // Site Settings
-    'enabledSites' => [], // Array of site IDs where Smart Links should be enabled (empty = all sites)
+    'enabledSites' => [], // Array of site IDs where SmartLink Manager should be enabled (empty = all sites)
 
     // Asset Settings
     'imageVolumeUid' => null, // Asset volume UID for smart link images
@@ -111,7 +111,7 @@ You can have different settings per environment:
 return [
     // Global settings
     '*' => [
-        'pluginName' => 'Smart Links',
+        'pluginName' => 'SmartLink Manager',
         'enableAnalytics' => true,
         'logLevel' => 'error',
     ],
@@ -148,10 +148,10 @@ Use `App::env()` to read environment variables in config files:
 use craft\helpers\App;
 
 return [
-    'ipHashSalt' => App::env('SMART_LINKS_IP_SALT'),
-    'enableAnalytics' => (bool)App::env('SMART_LINKS_ANALYTICS') ?: true,
-    'analyticsRetention' => (int)App::env('SMART_LINKS_RETENTION') ?: 90,
-    'slugPrefix' => App::env('SMART_LINKS_PREFIX') ?: 'go',
+    'ipHashSalt' => App::env('SMARTLINK_MANAGER_IP_SALT'),
+    'enableAnalytics' => (bool)App::env('SMARTLINK_MANAGER_ANALYTICS') ?: true,
+    'analyticsRetention' => (int)App::env('SMARTLINK_MANAGER_RETENTION') ?: 90,
+    'slugPrefix' => App::env('SMARTLINK_MANAGER_PREFIX') ?: 'go',
     'notFoundRedirectUrl' => App::env('NOT_FOUND_URL') ?: '/',
 ];
 ```
@@ -189,15 +189,15 @@ return [
 - **redirectTemplate**: Custom redirect landing page template path
   - **Type:** `string|null`
   - **Default:** `null`
-  - **Example:** `'smart-links/redirect'`
+  - **Example:** `'smartlink-manager/redirect'`
 - **qrTemplate**: Custom QR code display page template path
   - **Type:** `string|null`
   - **Default:** `null`
-  - **Example:** `'smart-links/qr'`
+  - **Example:** `'smartlink-manager/qr'`
 
 #### Site Settings
 
-- **enabledSites**: Array of site IDs where Smart Links should be enabled
+- **enabledSites**: Array of site IDs where SmartLink Manager should be enabled
   - **Type:** `array`
   - **Default:** `[]` (empty = all sites enabled)
   - **Example:** `[1, 3, 5]` (only enable for specific sites)
@@ -212,8 +212,8 @@ return [
 
 - **ipHashSalt**: Secure salt for IP address hashing (stored in `.env`)
   - **Required** when analytics is enabled
-  - Generate with: `php craft smart-links/security/generate-salt`
-  - Config usage: `App::env('SMART_LINKS_IP_SALT')`
+  - Generate with: `php craft smartlink-manager/security/generate-salt`
+  - Config usage: `App::env('SMARTLINK_MANAGER_IP_SALT')`
   - Never commit to version control
   - Use the SAME salt across all environments
 
@@ -331,7 +331,7 @@ Settings are loaded in this order (later overrides earlier):
 
 ## Read-Only Mode & Production Environments
 
-Smart Links fully supports Craft's `allowAdminChanges` setting for production deployments.
+SmartLink Manager fully supports Craft's `allowAdminChanges` setting for production deployments.
 
 ### Enabling Read-Only Mode
 
@@ -367,7 +367,7 @@ Configure settings through the Control Panel, which saves to the database.
 CRAFT_ALLOW_ADMIN_CHANGES=false
 ```
 
-Use `config/smart-links.php` to manage settings:
+Use `config/smartlink-manager.php` to manage settings:
 
 ```php
 <?php
@@ -388,7 +388,7 @@ return [
 
 Field layouts are stored in project config and sync across environments:
 
-- **Location:** `config/project/smart-links/fieldLayouts/{uid}.yaml`
+- **Location:** `config/project/smartlink-manager/fieldLayouts/{uid}.yaml`
 - **Syncing:** Automatically applied when project config is synced
 - **Read-Only:** Cannot be modified in CP when `allowAdminChanges=false`
 
@@ -419,7 +419,7 @@ For production environments:
 use craft\helpers\App;
 
 // IP Privacy (Required)
-'ipHashSalt' => App::env('SMART_LINKS_IP_SALT'), // Required for analytics
+'ipHashSalt' => App::env('SMARTLINK_MANAGER_IP_SALT'), // Required for analytics
 'anonymizeIpAddress' => true, // Extra privacy for EU/GDPR compliance
 
 // Restrict QR code generation
@@ -429,7 +429,7 @@ use craft\helpers\App;
 
 ### SEOmatic Integration
 
-When SEOmatic plugin is installed and enabled, Smart Links can automatically track events to Google Analytics/GTM:
+When SEOmatic plugin is installed and enabled, SmartLink Manager can automatically track events to Google Analytics/GTM:
 
 ```php
 'enabledIntegrations' => ['seomatic'],
@@ -456,12 +456,12 @@ When SEOmatic plugin is installed and enabled, Smart Links can automatically tra
 
 1. **Generate Salt (Local/Dev Only):**
    ```bash
-   php craft smart-links/security/generate-salt
+   php craft smartlink-manager/security/generate-salt
    ```
 
 2. **Add to `.env`:**
    ```bash
-   SMART_LINKS_IP_SALT="generated-64-character-salt"
+   SMARTLINK_MANAGER_IP_SALT="generated-64-character-salt"
    ```
 
 3. **Copy to Other Environments:**
@@ -474,7 +474,7 @@ When SEOmatic plugin is installed and enabled, Smart Links can automatically tra
 ```php
 use craft\helpers\App;
 
-'ipHashSalt' => App::env('SMART_LINKS_IP_SALT'),
+'ipHashSalt' => App::env('SMARTLINK_MANAGER_IP_SALT'),
 'anonymizeIpAddress' => false,
 ```
 - Full IP hashed with salt
@@ -486,7 +486,7 @@ use craft\helpers\App;
 ```php
 use craft\helpers\App;
 
-'ipHashSalt' => App::env('SMART_LINKS_IP_SALT'),
+'ipHashSalt' => App::env('SMARTLINK_MANAGER_IP_SALT'),
 'anonymizeIpAddress' => true,
 ```
 - IP masked before hashing

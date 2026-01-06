@@ -1,6 +1,6 @@
-# Smart Links Logging
+# SmartLink Manager Logging
 
-Smart Links uses the [LindemannRock Logging Library](https://github.com/LindemannRock/craft-logging-library) for centralized, structured logging across all LindemannRock plugins.
+SmartLink Manager uses the [LindemannRock Logging Library](https://github.com/LindemannRock/craft-logging-library) for centralized, structured logging across all LindemannRock plugins.
 
 ## Log Levels
 
@@ -13,7 +13,7 @@ Smart Links uses the [LindemannRock Logging Library](https://github.com/Lindeman
 
 ### Control Panel
 
-1. Navigate to **Settings → Smart Links → General**
+1. Navigate to **Settings → SmartLink Manager → General**
 2. Scroll to **Logging Settings**
 3. Select desired log level from dropdown
 4. Click **Save**
@@ -21,7 +21,7 @@ Smart Links uses the [LindemannRock Logging Library](https://github.com/Lindeman
 ### Config File
 
 ```php
-// config/smart-links.php
+// config/smartlink-manager.php
 return [
     'pluginName' => 'Links',     // Optional: Customize plugin name shown in logs interface
     'logLevel' => 'error',       // error, warning, info, or debug
@@ -29,15 +29,15 @@ return [
 ```
 
 **Notes:**
-- The `pluginName` setting customizes how the plugin name appears in the log viewer interface (page title, breadcrumbs, etc.). If not set, it defaults to "Smart Links".
+- The `pluginName` setting customizes how the plugin name appears in the log viewer interface (page title, breadcrumbs, etc.). If not set, it defaults to "SmartLink Manager".
 - Debug level requires Craft's `devMode` to be enabled. If set to debug with devMode disabled, it automatically falls back to info level.
 
 ## Log Files
 
-- **Location**: `storage/logs/smart-links-YYYY-MM-DD.log`
+- **Location**: `storage/logs/smartlink-manager-YYYY-MM-DD.log`
 - **Retention**: 30 days (automatic cleanup via Logging Library)
 - **Format**: Structured JSON logs with context data
-- **Web Interface**: View and filter logs in CP at Smart Links → Logs
+- **Web Interface**: View and filter logs in CP at SmartLink Manager → Logs
 
 ## What's Logged
 
@@ -95,7 +95,7 @@ The plugin logs meaningful events using context arrays for structured data. All 
   - Context: `error` (exception message)
 - **[ERROR]** `IP hash salt not configured - analytics tracking disabled` - Missing IP hash salt
   - Context: `ip` (always 'hidden'), `saltValue` (NULL or unparsed string)
-  - **Solution**: Run `php craft smart-links/security/generate-salt`
+  - **Solution**: Run `php craft smartlink-manager/security/generate-salt`
 - **[ERROR]** `Failed to save analytics` - Analytics save failure (multiple contexts)
   - Context variations:
     - `error` (exception message)
@@ -105,7 +105,7 @@ The plugin logs meaningful events using context arrays for structured data. All 
 - **[WARNING]** `Failed to get location from IP` - IP geolocation lookup failed
   - Context: `error` (exception message)
 
-### Smart Links Service (SmartLinksService)
+### SmartLinks Service (SmartLinksService)
 
 - **[INFO]** `Smart link not saved due to validation errors` - Validation failure notice
   - Context: `errors` (validation errors array)
@@ -153,7 +153,7 @@ The plugin logs meaningful events using context arrays for structured data. All 
   - Context: `result` (update result)
 - **[INFO]** `Settings saved successfully to database` - Settings saved
 - **[ERROR]** `Database update returned false` - Database update operation returned false
-- **[ERROR]** `Failed to save Smart Links settings` - Settings save exception
+- **[ERROR]** `Failed to save SmartLink Manager settings` - Settings save exception
   - Context: `error` (exception message)
 
 ### Redirect Controller (RedirectController)
@@ -227,14 +227,14 @@ The plugin logs meaningful events using context arrays for structured data. All 
 
 - **[INFO]** `Scheduled initial analytics cleanup job` - Analytics cleanup job scheduled
   - Context: `interval` (cleanup interval)
-- **[INFO]** `Applied Smart Links field layout from project config` - Field layout applied from project config
+- **[INFO]** `Applied SmartLink Manager field layout from project config` - Field layout applied from project config
   - Context: `uid` (field layout UID)
 
 ## Log Management
 
 ### Via Control Panel
 
-1. Navigate to **Smart Links → Logs**
+1. Navigate to **SmartLink Manager → Logs**
 2. Filter by date, level, or search terms
 3. Download log files for external analysis
 4. View file sizes and entry counts
@@ -245,25 +245,25 @@ The plugin logs meaningful events using context arrays for structured data. All 
 **View today's log**:
 
 ```bash
-tail -f storage/logs/smart-links-$(date +%Y-%m-%d).log
+tail -f storage/logs/smartlink-manager-$(date +%Y-%m-%d).log
 ```
 
 **View specific date**:
 
 ```bash
-cat storage/logs/smart-links-2025-01-15.log
+cat storage/logs/smartlink-manager-2025-01-15.log
 ```
 
 **Search across all logs**:
 
 ```bash
-grep "QR code" storage/logs/smart-links-*.log
+grep "QR code" storage/logs/smartlink-manager-*.log
 ```
 
 **Filter by log level**:
 
 ```bash
-grep "\[ERROR\]" storage/logs/smart-links-*.log
+grep "\[ERROR\]" storage/logs/smartlink-manager-*.log
 ```
 
 ## Log Format
@@ -287,7 +287,7 @@ Each log entry follows structured JSON format with context data:
 
 ## Using the Logging Trait
 
-All services and controllers in Smart Links use the `LoggingTrait` from the LindemannRock Logging Library:
+All services and controllers in SmartLink Manager use the `LoggingTrait` from the LindemannRock Logging Library:
 
 ```php
 use lindemannrock\logginglibrary\traits\LoggingTrait;
@@ -393,7 +393,7 @@ $this->logInfo('Processing link', ['slug' => $slug]);
 
 ## Requirements
 
-Smart Links logging requires:
+SmartLink Manager logging requires:
 
 - **lindemannrock/logginglibrary** plugin (installed automatically as dependency)
 - Write permissions on `storage/logs` directory
@@ -407,7 +407,7 @@ If logs aren't appearing:
 2. **Verify library**: Ensure LindemannRock Logging Library is installed and enabled
 3. **Check log level**: Confirm log level allows the messages you're looking for
 4. **devMode for debug**: Debug level requires `devMode` enabled in `config/general.php`
-5. **Check CP interface**: Use Smart Links → Logs to verify log files exist
+5. **Check CP interface**: Use SmartLink Manager → Logs to verify log files exist
 
 ## Common Scenarios
 
@@ -416,7 +416,7 @@ If logs aren't appearing:
 When QR codes fail to generate, check for:
 
 ```bash
-grep "Failed to generate QR code" storage/logs/smart-links-*.log
+grep "Failed to generate QR code" storage/logs/smartlink-manager-*.log
 ```
 
 Look for:
@@ -430,11 +430,11 @@ Look for:
 Debug analytics issues:
 
 ```bash
-grep "analytics" storage/logs/smart-links-*.log
+grep "analytics" storage/logs/smartlink-manager-*.log
 ```
 
 Common issues:
-- `IP hash salt not configured` - Salt missing from `.env` (run `php craft smart-links/security/generate-salt`)
+- `IP hash salt not configured` - Salt missing from `.env` (run `php craft smartlink-manager/security/generate-salt`)
 - `Failed to save analytics` - Check database connectivity or salt configuration
 - `Failed to get location from IP` - IP geolocation service issues
 - `Analytics getData error` - Query or date range problems
@@ -444,7 +444,7 @@ Common issues:
 Track smart link save issues:
 
 ```bash
-grep "Smart link save" storage/logs/smart-links-*.log
+grep "Smart link save" storage/logs/smartlink-manager-*.log
 ```
 
 Review validation errors in the context to identify:
@@ -458,14 +458,14 @@ Review validation errors in the context to identify:
 Monitor IP geolocation lookups:
 
 ```bash
-grep "location from IP" storage/logs/smart-links-*.log
+grep "location from IP" storage/logs/smartlink-manager-*.log
 ```
 
 **Note**: In local development (DDEV, localhost), geolocation will fail because local IPs cannot be resolved. This is expected behavior. Set default location via environment variables:
 
 ```bash
-SMART_LINKS_DEFAULT_COUNTRY=AE
-SMART_LINKS_DEFAULT_CITY=Dubai
+SMARTLINK_MANAGER_DEFAULT_COUNTRY=AE
+SMARTLINK_MANAGER_DEFAULT_CITY=Dubai
 ```
 
 ### SEOmatic Integration Issues
@@ -473,7 +473,7 @@ SMART_LINKS_DEFAULT_CITY=Dubai
 Debug SEOmatic tracking integration:
 
 ```bash
-grep -i "seomatic" storage/logs/smart-links-*.log
+grep -i "seomatic" storage/logs/smartlink-manager-*.log
 ```
 
 Look for:
@@ -490,7 +490,7 @@ Look for:
 Common issues:
 
 - SEOmatic plugin not installed or enabled
-- Event tracking not enabled in Smart Links settings
+- Event tracking not enabled in SmartLink Manager settings
 - Specific event types not configured
 - No tracking scripts configured in SEOmatic
 - GTM or gtag configuration issues
@@ -500,7 +500,7 @@ Common issues:
 Debug settings operations:
 
 ```bash
-grep -i "settings" storage/logs/smart-links-*.log
+grep -i "settings" storage/logs/smartlink-manager-*.log
 ```
 
 Look for:
@@ -508,7 +508,7 @@ Look for:
 - `Settings data received` - Settings posted from form
 - `Settings validation failed` - Validation errors
 - `Settings saved successfully to database` - Successful save
-- `Failed to save Smart Links settings` - Save exception
+- `Failed to save SmartLink Manager settings` - Save exception
 
 If settings fail to save:
 
@@ -522,7 +522,7 @@ If settings fail to save:
 Monitor integration system:
 
 ```bash
-grep -i "integration" storage/logs/smart-links-*.log
+grep -i "integration" storage/logs/smartlink-manager-*.log
 ```
 
 Look for:
@@ -544,7 +544,7 @@ If integrations fail:
 Monitor analytics job execution:
 
 ```bash
-grep -i "analytics.*job\|cleanup.*analytics" storage/logs/smart-links-*.log
+grep -i "analytics.*job\|cleanup.*analytics" storage/logs/smartlink-manager-*.log
 ```
 
 Look for:
@@ -566,7 +566,7 @@ Common issues:
 For detailed troubleshooting during development:
 
 ```php
-// config/smart-links.php
+// config/smartlink-manager.php
 return [
     'dev' => [
         'logLevel' => 'debug',
@@ -592,29 +592,29 @@ Track specific operations using grep:
 
 ```bash
 # Monitor all QR code operations
-grep "QR" storage/logs/smart-links-*.log
+grep "QR" storage/logs/smartlink-manager-*.log
 
 # Watch analytics in real-time
-tail -f storage/logs/smart-links-$(date +%Y-%m-%d).log | grep "analytics"
+tail -f storage/logs/smartlink-manager-$(date +%Y-%m-%d).log | grep "analytics"
 
 # Check all errors
-grep "\[ERROR\]" storage/logs/smart-links-*.log
+grep "\[ERROR\]" storage/logs/smartlink-manager-*.log
 
 # Monitor SEOmatic integration
-grep -i "seomatic" storage/logs/smart-links-*.log
+grep -i "seomatic" storage/logs/smartlink-manager-*.log
 
 # Track integration system
-grep -i "integration" storage/logs/smart-links-*.log
+grep -i "integration" storage/logs/smartlink-manager-*.log
 
 # Watch settings operations
-grep -i "settings" storage/logs/smart-links-*.log
+grep -i "settings" storage/logs/smartlink-manager-*.log
 
 # Monitor field layout operations
-grep "Field Layout" storage/logs/smart-links-*.log
+grep "Field Layout" storage/logs/smartlink-manager-*.log
 
 # Track analytics jobs
-grep -i "cleanup.*analytics" storage/logs/smart-links-*.log
+grep -i "cleanup.*analytics" storage/logs/smartlink-manager-*.log
 
 # Monitor Redirect Manager integration
-grep "Redirect Manager" storage/logs/smart-links-*.log
+grep "Redirect Manager" storage/logs/smartlink-manager-*.log
 ```

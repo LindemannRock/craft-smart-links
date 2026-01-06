@@ -1,20 +1,20 @@
 {# Geographic Tab - Countries and Cities #}
 
-{% set settings = craft.app.plugins.getPlugin('smart-links').settings %}
+{% set settings = craft.app.plugins.getPlugin('smartlink-manager').settings %}
 
 {% if settings.enableGeoDetection %}
-    <h2 style="margin: 0 0 20px;">{{ "Geographic Distribution"|t('smart-links') }}</h2>
+    <h2 style="margin: 0 0 20px;">{{ "Geographic Distribution"|t('smartlink-manager') }}</h2>
 
     <div class="analytics-charts two-columns">
         <div class="chart-container">
-            <h3>{{ "Top Countries"|t('smart-links') }}</h3>
+            <h3>{{ "Top Countries"|t('smartlink-manager') }}</h3>
             <div id="countries-table" class="table-scroll-container">
                 <table class="data fullwidth">
                     <thead>
                         <tr>
-                            <th>{{ "Country"|t('smart-links') }}</th>
-                            <th>{{ "Interactions"|t('smart-links') }}</th>
-                            <th>{{ "Percentage"|t('smart-links') }}</th>
+                            <th>{{ "Country"|t('smartlink-manager') }}</th>
+                            <th>{{ "Interactions"|t('smartlink-manager') }}</th>
+                            <th>{{ "Percentage"|t('smartlink-manager') }}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -30,7 +30,7 @@
                         {% else %}
                             <tr>
                                 <td colspan="3" style="text-align: center; color: #999;">
-                                    {{ "No country data available"|t('smart-links') }}
+                                    {{ "No country data available"|t('smartlink-manager') }}
                                 </td>
                             </tr>
                         {% endif %}
@@ -40,15 +40,15 @@
         </div>
 
         <div class="chart-container">
-            <h3>{{ "Top Cities"|t('smart-links') }}</h3>
+            <h3>{{ "Top Cities"|t('smartlink-manager') }}</h3>
             <div id="cities-table" class="table-scroll-container">
                 <table class="data fullwidth">
                     <thead>
                         <tr>
-                            <th>{{ "City"|t('smart-links') }}</th>
-                            <th>{{ "Country"|t('smart-links') }}</th>
-                            <th>{{ "Interactions"|t('smart-links') }}</th>
-                            <th>{{ "Percentage"|t('smart-links') }}</th>
+                            <th>{{ "City"|t('smartlink-manager') }}</th>
+                            <th>{{ "Country"|t('smartlink-manager') }}</th>
+                            <th>{{ "Interactions"|t('smartlink-manager') }}</th>
+                            <th>{{ "Percentage"|t('smartlink-manager') }}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -65,7 +65,7 @@
                         {% else %}
                             <tr>
                                 <td colspan="4" style="text-align: center; color: #999;">
-                                    {{ "No city data available"|t('smart-links') }}
+                                    {{ "No city data available"|t('smartlink-manager') }}
                                 </td>
                             </tr>
                         {% endif %}
@@ -76,7 +76,7 @@
     </div>
 {% else %}
     <div class="pane" style="text-align: center; padding: 60px 20px;">
-        <p class="light">{{ "Geographic detection is disabled."|t('smart-links') }}</p>
-        <p><a href="{{ url('smart-links/settings/analytics') }}" class="btn">{{ "Enable in Settings"|t('smart-links') }}</a></p>
+        <p class="light">{{ "Geographic detection is disabled."|t('smartlink-manager') }}</p>
+        <p><a href="{{ url('smartlink-manager/settings/analytics') }}" class="btn">{{ "Enable in Settings"|t('smartlink-manager') }}</a></p>
     </div>
 {% endif %}

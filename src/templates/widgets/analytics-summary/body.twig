@@ -1,20 +1,20 @@
-<div class="smart-links-widget">
+<div class="smartlink-manager-widget">
     <div class="widget-stats">
         <div class="stat-item">
             <div class="stat-value">{{ data.totalClicks|number }}</div>
-            <div class="stat-label">{{ "Total Interactions"|t('smart-links') }}</div>
+            <div class="stat-label">{{ "Total Interactions"|t('smartlink-manager') }}</div>
         </div>
         <div class="stat-item">
             <div class="stat-value">{{ data.uniqueVisitors|number }}</div>
-            <div class="stat-label">{{ "Unique Visitors"|t('smart-links') }}</div>
+            <div class="stat-label">{{ "Unique Visitors"|t('smartlink-manager') }}</div>
         </div>
         <div class="stat-item">
             <div class="stat-value">{{ data.activeLinks|number }}</div>
-            <div class="stat-label">{{ "Active Links"|t('smart-links') }}</div>
+            <div class="stat-label">{{ "Active Links"|t('smartlink-manager') }}</div>
         </div>
         <div class="stat-item">
             <div class="stat-value">{{ data.linksUsedPercentage ?? 0 }}%</div>
-            <div class="stat-label">{{ "Engagement Rate"|t('smart-links') }}</div>
+            <div class="stat-label">{{ "Engagement Rate"|t('smartlink-manager') }}</div>
         </div>
     </div>
 
@@ -22,17 +22,17 @@
         {% set topLink = data.topLinks|first %}
         <div class="top-link">
             <div class="top-link-header">
-                <span class="label">{{ "Top Performer"|t('smart-links') }}</span>
+                <span class="label">{{ "Top Performer"|t('smartlink-manager') }}</span>
             </div>
             <div class="top-link-content">
                 <div class="link-info">
-                    <a href="{{ cpUrl('smart-links/smartlinks/' ~ topLink.id) }}" class="link-title">
+                    <a href="{{ cpUrl('smartlink-manager/smartlinks/' ~ topLink.id) }}" class="link-title">
                         {{ topLink.name }}
                     </a>
                     <div class="link-meta">
                         <code>/{{ topLink.slug }}</code>
                         <span class="separator">•</span>
-                        <span>{{ topLink.clicks|number }} {{ "clicks"|t('smart-links') }}</span>
+                        <span>{{ topLink.clicks|number }} {{ "clicks"|t('smartlink-manager') }}</span>
                     </div>
                 </div>
             </div>
@@ -40,12 +40,12 @@
     {% endif %}
 
     <div class="widget-footer">
-        <a href="{{ cpUrl('smart-links/analytics') }}" class="go">{{ "View full analytics"|t('smart-links') }}</a>
+        <a href="{{ cpUrl('smartlink-manager/analytics') }}" class="go">{{ "View full analytics"|t('smartlink-manager') }}</a>
     </div>
 </div>
 
 <style>
-.smart-links-widget {
+.smartlink-manager-widget {
     padding: 0;
 }
 
