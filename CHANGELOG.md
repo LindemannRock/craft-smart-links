@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.11.1](https://github.com/LindemannRock/craft-smart-links/compare/v5.11.0...v5.11.1) (2026-01-06)
+
+
+### Bug Fixes
+
+* add craftcms/ecs to require-dev for enhanced development tools ([24402e3](https://github.com/LindemannRock/craft-smart-links/commit/24402e3d412dcf6e818b07a4210274af5dadf2e7))
+
 ## [5.11.0](https://github.com/LindemannRock/craft-smart-links/compare/v5.10.2...v5.11.0) (2026-01-06)
 
 
