@@ -43,6 +43,7 @@
         "bacon/bacon-qr-code": "^2.0"
     },
     "require-dev": {
+        "craftcms/ecs": "dev-main",
         "craftcms/phpstan": "dev-main"
     },
     "autoload": {
