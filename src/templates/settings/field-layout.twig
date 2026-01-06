@@ -9,9 +9,10 @@
 {% endif %}
 
 {% block content %}
-    {% set plugin = craft.app.plugins.getPlugin('smart-links') %}
-
-    {% include 'smart-links/_components/ip-salt-error' %}
+    {% include 'lindemannrock-base/_components/ip-salt-error' with {
+        pluginHandle: 'smart-links',
+        envVarName: 'SMART_LINKS_IP_SALT'
+    } %}
 
     {% if not (readOnly ?? false) %}
         {{ actionInput('smart-links/settings/save-field-layout') }}
@@ -34,7 +35,7 @@
         <p class="notice">{{ 'No field layout available.'|t('smart-links') }}</p>
     {% endif %}
 
-{% include 'smart-links/_components/plugin-credit.twig' %}
+{% include 'lindemannrock-base/_components/plugin-credit' %}
 
 
 {% endblock %}

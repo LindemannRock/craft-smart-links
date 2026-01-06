@@ -11,9 +11,10 @@ namespace lindemannrock\smartlinks\models;
 use Craft;
 use craft\base\Model;
 use craft\behaviors\EnvAttributeParserBehavior;
-use craft\db\Query;
 use craft\helpers\App;
-use craft\helpers\Db;
+use lindemannrock\base\traits\SettingsConfigTrait;
+use lindemannrock\base\traits\SettingsDisplayNameTrait;
+use lindemannrock\base\traits\SettingsPersistenceTrait;
 use lindemannrock\logginglibrary\traits\LoggingTrait;
 
 /**
@@ -24,6 +25,9 @@ use lindemannrock\logginglibrary\traits\LoggingTrait;
 class Settings extends Model
 {
     use LoggingTrait;
+    use SettingsConfigTrait;
+    use SettingsDisplayNameTrait;
+    use SettingsPersistenceTrait;
 
     /**
      * @event Event The event that is triggered after settings are saved
@@ -250,6 +254,78 @@ class Settings extends Model
      * @var string|null IP hash salt for privacy protection
      */
     public ?string $ipHashSalt = null;
+
+    /**
+     * Database table name for settings persistence
+     */
+    public static function tableName(): string
+    {
+        return '{{%smartlinks_settings}}';
+    }
+
+    /**
+     * Plugin handle for config file lookup
+     */
+    public static function pluginHandle(): string
+    {
+        return 'smart-links';
+    }
+
+    /**
+     * Boolean fields for type casting from database
+     */
+    public static function booleanFields(): array
+    {
+        return [
+            'enableAnalytics',
+            'includeDisabledInExport',
+            'includeExpiredInExport',
+            'anonymizeIpAddress',
+            'enableQrCodeCache',
+            'enableGeoDetection',
+            'cacheDeviceDetection',
+            'enableQrLogo',
+            'enableQrDownload',
+        ];
+    }
+
+    /**
+     * Integer fields for type casting from database
+     */
+    public static function integerFields(): array
+    {
+        return [
+            'analyticsRetention',
+            'defaultQrSize',
+            'qrCodeCacheDuration',
+            'deviceDetectionCacheDuration',
+            'itemsPerPage',
+            'defaultQrMargin',
+            'qrLogoSize',
+            'defaultQrLogoId',
+        ];
+    }
+
+    /**
+     * Array fields for JSON serialization/deserialization
+     */
+    public static function arrayFields(): array
+    {
+        return [
+            'enabledSites',
+            'enabledIntegrations',
+            'seomaticTrackingEvents',
+            'redirectManagerEvents',
+        ];
+    }
+
+    /**
+     * Fields to exclude from database save (env/config only)
+     */
+    public static function excludeFromSave(): array
+    {
+        return ['ipHashSalt', 'defaultCountry', 'defaultCity'];
+    }
 
     /**
      * @inheritdoc
@@ -525,201 +601,6 @@ class Settings extends Model
     }
 
     /**
-     * Load settings from database
-     *
-     * @param Settings|null $settings Optional existing settings instance
-     * @return self
-     */
-    public static function loadFromDatabase(?Settings $settings = null): self
-    {
-        if ($settings === null) {
-            $settings = new self();
-        }
-        
-        // Load from database
-        try {
-            $row = (new Query())
-                ->from('{{%smartlinks_settings}}')
-                ->where(['id' => 1])
-                ->one();
-        } catch (\Exception $e) {
-            $settings->logError('Failed to load settings from database', ['error' => $e->getMessage()]);
-            return $settings;
-        }
-        
-        if ($row) {
-            // Remove system fields that aren't attributes
-            unset($row['id'], $row['dateCreated'], $row['dateUpdated'], $row['uid']);
-            
-            // Convert numeric boolean values to actual booleans
-            $booleanFields = [
-                'enableAnalytics',
-                'includeDisabledInExport',
-                'includeExpiredInExport',
-                'enableGeoDetection',
-                'cacheDeviceDetection',
-                'enableQrLogo',
-                'enableQrDownload',
-            ];
-            
-            foreach ($booleanFields as $field) {
-                if (isset($row[$field])) {
-                    $row[$field] = (bool) $row[$field];
-                }
-            }
-            
-            // Convert numeric values to integers
-            $integerFields = [
-                'analyticsRetention',
-                'defaultQrSize',
-                'qrCodeCacheDuration',
-                'deviceDetectionCacheDuration',
-                'itemsPerPage',
-                'defaultQrMargin',
-                'qrLogoSize',
-            ];
-
-            foreach ($integerFields as $field) {
-                if (isset($row[$field])) {
-                    $row[$field] = (int) $row[$field];
-                }
-            }
-
-            // Handle array fields (JSON serialization)
-            if (isset($row['enabledSites'])) {
-                $row['enabledSites'] = !empty($row['enabledSites']) ? json_decode($row['enabledSites'], true) : [];
-            }
-            if (isset($row['enabledIntegrations'])) {
-                $row['enabledIntegrations'] = !empty($row['enabledIntegrations']) ? json_decode($row['enabledIntegrations'], true) : [];
-            }
-            if (isset($row['seomaticTrackingEvents'])) {
-                $row['seomaticTrackingEvents'] = !empty($row['seomaticTrackingEvents']) ? json_decode($row['seomaticTrackingEvents'], true) : [];
-            }
-            if (isset($row['redirectManagerEvents'])) {
-                $row['redirectManagerEvents'] = !empty($row['redirectManagerEvents']) ? json_decode($row['redirectManagerEvents'], true) : [];
-            }
-
-            // Set attributes from database
-            $settings->setAttributes($row, false);
-        } else {
-            $settings->logWarning('No settings found in database');
-        }
-        
-        return $settings;
-    }
-
-    /**
-     * Save settings to database
-     *
-     * @return bool
-     */
-    public function saveToDatabase(): bool
-    {
-        if (!$this->validate()) {
-            $this->logError('Settings validation failed', ['errors' => $this->getErrors()]);
-            return false;
-        }
-
-        $db = Craft::$app->getDb();
-        $attributes = $this->getAttributes();
-
-        // Exclude config-only attributes that shouldn't be saved to database
-        unset($attributes['ipHashSalt'], $attributes['defaultCountry'], $attributes['defaultCity']); // These come from .env/config, not database
-
-        // Debug: Log what we're trying to save
-        $this->logDebug('Attempting to save settings', ['attributes' => $attributes]);
-
-        // Handle array serialization
-        if (isset($attributes['enabledSites'])) {
-            $attributes['enabledSites'] = json_encode($attributes['enabledSites']);
-        }
-        if (isset($attributes['enabledIntegrations'])) {
-            $attributes['enabledIntegrations'] = json_encode($attributes['enabledIntegrations']);
-        }
-        if (isset($attributes['seomaticTrackingEvents'])) {
-            $attributes['seomaticTrackingEvents'] = json_encode($attributes['seomaticTrackingEvents']);
-        }
-        if (isset($attributes['redirectManagerEvents'])) {
-            $attributes['redirectManagerEvents'] = json_encode($attributes['redirectManagerEvents']);
-        }
-
-        // Add/update timestamps
-        $now = Db::prepareDateForDb(new \DateTime());
-        $attributes['dateUpdated'] = $now;
-        
-        // Update existing settings (we know there's always one row from migration)
-        try {
-            $result = $db->createCommand()
-                ->update('{{%smartlinks_settings}}', $attributes, ['id' => 1])
-                ->execute();
-
-            // Debug: Log the result
-            $this->logDebug('Database update result', ['result' => $result]);
-
-            // Trigger event after successful save
-            $this->trigger(self::EVENT_AFTER_SAVE_SETTINGS);
-            $this->logInfo('Settings saved successfully to database');
-            return true;
-        } catch (\Exception $e) {
-            $this->logError('Failed to save ' . $this->getFullName() . ' settings', ['error' => $e->getMessage()]);
-            return false;
-        }
-    }
-
-    /**
-     * Check if a setting is overridden by config file
-     * Supports dot notation for nested settings like: enabledIntegrations.0
-     *
-     * @param string $attribute The setting attribute name or dot-notation path
-     * @return bool
-     */
-    public function isOverriddenByConfig(string $attribute): bool
-    {
-        $configPath = \Craft::$app->getPath()->getConfigPath() . '/smart-links.php';
-
-        if (!file_exists($configPath)) {
-            return false;
-        }
-
-        // Load the raw config file instead of using Craft's config which merges with database
-        $rawConfig = require $configPath;
-
-        // Handle dot notation for nested config
-        if (str_contains($attribute, '.')) {
-            $parts = explode('.', $attribute);
-            $current = $rawConfig;
-
-            foreach ($parts as $part) {
-                if (!is_array($current) || !array_key_exists($part, $current)) {
-                    return false;
-                }
-                $current = $current[$part];
-            }
-
-            return true;
-        }
-
-        // Check for the attribute in the config
-        // Use array_key_exists instead of isset to detect null values
-        if (array_key_exists($attribute, $rawConfig)) {
-            return true;
-        }
-
-        // Check environment-specific configs
-        $env = \Craft::$app->getConfig()->env;
-        if ($env && is_array($rawConfig[$env] ?? null) && array_key_exists($attribute, $rawConfig[$env])) {
-            return true;
-        }
-
-        // Check wildcard config
-        if (is_array($rawConfig['*'] ?? null) && array_key_exists($attribute, $rawConfig['*'])) {
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
      * Check if a site is enabled for Smart Links
      *
      * @param int $siteId
@@ -799,77 +680,5 @@ class Settings extends Model
             'seomaticTrackingEvents' => Craft::t('smart-links', 'Tracking Events'),
             'seomaticEventPrefix' => Craft::t('smart-links', 'Event Prefix'),
         ];
-    }
-
-    /**
-     * Get display name (singular, without "Manager")
-     *
-     * Strips "Manager" and singularizes the plugin name for use in UI labels.
-     * E.g., "Smart Link Manager" → "Smart Link", "Smart Links" → "Smart Link"
-     *
-     * @return string
-     */
-    public function getDisplayName(): string
-    {
-        // Strip "Manager" or "manager" from the name and trim whitespace
-        $name = trim(str_replace([' Manager', ' manager'], '', $this->pluginName));
-
-        // Singularize by removing trailing 's' if present
-        $singular = preg_replace('/s$/', '', $name) ?: $name;
-
-        return $singular;
-    }
-
-    /**
-     * Get full plugin name (as configured, with "Manager" if present)
-     *
-     * Returns the plugin name exactly as configured in settings.
-     * E.g., "Smart Link Manager", "Smart Links", etc.
-     *
-     * @return string
-     */
-    public function getFullName(): string
-    {
-        return trim($this->pluginName);
-    }
-
-    /**
-     * Get plural display name (without "Manager")
-     *
-     * Strips "Manager" from the plugin name but keeps plural form.
-     * E.g., "Smart Link Manager" → "Smart Links", "Smart Links" → "Smart Links"
-     *
-     * @return string
-     */
-    public function getPluralDisplayName(): string
-    {
-        // Strip "Manager" or "manager" from the name and trim whitespace
-        return trim(str_replace([' Manager', ' manager'], '', $this->pluginName));
-    }
-
-    /**
-     * Get lowercase display name (singular, without "Manager")
-     *
-     * Lowercase version of getDisplayName() for use in messages, handles, etc.
-     * E.g., "Smart Link Manager" → "smart link", "Smart Links" → "smart link"
-     *
-     * @return string
-     */
-    public function getLowerDisplayName(): string
-    {
-        return strtolower($this->getDisplayName());
-    }
-
-    /**
-     * Get lowercase plural display name (without "Manager")
-     *
-     * Lowercase version of getPluralDisplayName() for use in messages, handles, etc.
-     * E.g., "Smart Link Manager" → "smart links", "Smart Links" → "smart links"
-     *
-     * @return string
-     */
-    public function getPluralLowerDisplayName(): string
-    {
-        return strtolower($this->getPluralDisplayName());
     }
 }

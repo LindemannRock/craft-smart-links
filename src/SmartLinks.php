@@ -28,6 +28,7 @@ use craft\utilities\ClearCaches;
 use craft\web\twig\variables\CraftVariable;
 use craft\web\UrlManager;
 use craft\web\View;
+use lindemannrock\base\helpers\PluginHelper;
 use lindemannrock\logginglibrary\LoggingLibrary;
 use lindemannrock\logginglibrary\traits\LoggingTrait;
 use lindemannrock\smartlinks\elements\SmartLink;
@@ -93,6 +94,10 @@ class SmartLinks extends Plugin
         parent::init();
         self::$plugin = $this;
 
+        // Bootstrap shared plugin functionality (Twig helper, logging nav)
+        PluginHelper::bootstrap($this, 'smartlinkHelper', ['smartLinks:viewLogs']);
+        PluginHelper::applyPluginNameFromConfig($this);
+
         // Configure logging
         $settings = $this->getSettings();
         LoggingLibrary::configure([
@@ -102,15 +107,6 @@ class SmartLinks extends Plugin
             'itemsPerPage' => $settings->itemsPerPage ?? 50,
             'permissions' => ['smartLinks:viewLogs'],
         ]);
-
-        // Set plugin name from config if available
-        $configPath = \Craft::$app->getPath()->getConfigPath() . '/smart-links.php';
-        if (file_exists($configPath)) {
-            $rawConfig = require $configPath;
-            if (isset($rawConfig['pluginName'])) {
-                $this->name = $rawConfig['pluginName'];
-            }
-        }
 
         // Register services
         $this->setComponents([
@@ -135,9 +131,6 @@ class SmartLinks extends Plugin
             'forceTranslation' => true,
             'allowOverrides' => true,
         ];
-
-        // Register Twig extension for plugin name helpers
-        Craft::$app->view->registerTwigExtension(new \lindemannrock\smartlinks\twigextensions\PluginNameExtension());
 
         // Register template roots
         Event::on(

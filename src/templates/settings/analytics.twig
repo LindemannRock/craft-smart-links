@@ -3,7 +3,7 @@
 {% set fullPageForm = true %}
 {% set selectedSettingsItem = 'analytics' %}
 
-{% set plugin = craft.app.plugins.getPlugin('smart-links') %}{% set crumbs = [
+{% set crumbs = [
     {
         label: smartlinkHelper.fullName|t('smart-links'),
         url: url('smart-links'),
@@ -22,7 +22,10 @@
 
 {% block content %}
 
-    {% include 'smart-links/_components/ip-salt-error' %}
+    {% include 'lindemannrock-base/_components/ip-salt-error' with {
+        pluginHandle: 'smart-links',
+        envVarName: 'SMART_LINKS_IP_SALT'
+    } %}
 
     <form method="post" accept-charset="UTF-8">
         {{ actionInput('smart-links/settings/save') }}
@@ -136,7 +139,7 @@
         </div>
     </form>
 
-    {% include 'smart-links/_components/plugin-credit.twig' %}
+    {% include 'lindemannrock-base/_components/plugin-credit' %}
 {% endblock %}
 
 {% js %}
