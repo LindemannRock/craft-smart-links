@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.12.2](https://github.com/LindemannRock/craft-smartlink-manager/compare/v5.12.1...v5.12.2) (2026-01-07)
+
+
+### Bug Fixes
+
+* rename SmartLinksController to SmartlinksController for Linux compatibility ([d3d03bd](https://github.com/LindemannRock/craft-smartlink-manager/commit/d3d03bd087132ed31d15bfe258cd2bc2f4f092d2))
+
 ## [5.12.1](https://github.com/LindemannRock/craft-smartlink-manager/compare/v5.12.0...v5.12.1) (2026-01-07)
 
 
