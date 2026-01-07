@@ -86,7 +86,7 @@ class SmartlinksController extends Controller
                 if (!$smartLink) {
                     throw new \yii\web\NotFoundHttpException('Smart link not found');
                 }
-                
+
                 // Don't allow editing trashed elements
                 if ($smartLink->trashed) {
                     Craft::$app->getSession()->setError(Craft::t('smartlink-manager', 'Cannot edit trashed smart links.'));
@@ -95,7 +95,7 @@ class SmartlinksController extends Controller
             }
 
             $this->requirePermission('smartLinkManager:editLinks');
-            
+
             // Set the title
             $variables['title'] = $smartLink->title;
         } else {
@@ -104,7 +104,7 @@ class SmartlinksController extends Controller
             if ($smartLink === null) {
                 $smartLink = new SmartLink();
                 $smartLink->siteId = $site->id;
-                
+
                 // Set default QR code values from settings
                 $settings = SmartLinkManager::$plugin->getSettings();
                 $smartLink->qrCodeSize = $settings->defaultQrSize;
@@ -130,7 +130,7 @@ class SmartlinksController extends Controller
 
         // Set the base CP edit URL
         $variables['baseCpEditUrl'] = 'smartlink-manager/smartlinks/{id}';
-        
+
         // Pass analytics service to the template
         // Always pass analytics service if the smart link exists and analytics is enabled
         $plugin = SmartLinkManager::getInstance();
@@ -155,7 +155,7 @@ class SmartlinksController extends Controller
 
         try {
             $request = Craft::$app->getRequest();
-            
+
 
             $smartLinkId = $request->getBodyParam('smartLinkId');
             $siteId = $request->getBodyParam('siteId');
@@ -180,7 +180,7 @@ class SmartlinksController extends Controller
             $smartLink->slug = $request->getBodyParam('slug');
             $smartLink->description = $request->getBodyParam('description');
             $smartLink->icon = $request->getBodyParam('icon');
-        
+
             // Handle authorId - elementSelectField returns an array
             $authorIds = $request->getBodyParam('authorId');
             $smartLink->authorId = is_array($authorIds) ? ($authorIds[0] ?? null) : $authorIds;
@@ -189,22 +189,22 @@ class SmartlinksController extends Controller
 
             $smartLink->qrCodeEnabled = (bool)$request->getBodyParam('qrCodeEnabled');
             $smartLink->qrCodeSize = $request->getBodyParam('qrCodeSize') ?: 200;
-        
+
             // Fix color values - ensure they have # prefix, or set to null if empty
             $qrCodeColor = $request->getBodyParam('qrCodeColor');
             $smartLink->qrCodeColor = $qrCodeColor ? (strpos($qrCodeColor, '#') === 0 ? $qrCodeColor : '#' . $qrCodeColor) : null;
 
             $qrCodeBgColor = $request->getBodyParam('qrCodeBgColor');
             $smartLink->qrCodeBgColor = $qrCodeBgColor ? (strpos($qrCodeBgColor, '#') === 0 ? $qrCodeBgColor : '#' . $qrCodeBgColor) : null;
-        
+
             // QR code eye color (can be empty)
             $qrCodeEyeColor = $request->getBodyParam('qrCodeEyeColor');
             $smartLink->qrCodeEyeColor = $qrCodeEyeColor ? (strpos($qrCodeEyeColor, '#') === 0 ? $qrCodeEyeColor : '#' . $qrCodeEyeColor) : null;
-        
+
             // QR code format (empty string means use default, store as null)
             $qrCodeFormat = $request->getBodyParam('qrCodeFormat');
             $smartLink->qrCodeFormat = $qrCodeFormat ? $qrCodeFormat : null;
-        
+
             // QR logo (elementSelectField returns an array)
             $qrLogoIds = $request->getBodyParam('qrLogoId');
             $smartLink->qrLogoId = is_array($qrLogoIds) ? ($qrLogoIds[0] ?? null) : (empty($qrLogoIds) ? null : (int)$qrLogoIds);
@@ -212,7 +212,7 @@ class SmartlinksController extends Controller
             // Smart Link image (elementSelectField returns an array)
             $imageIds = $request->getBodyParam('imageId');
             $smartLink->imageId = is_array($imageIds) ? ($imageIds[0] ?? null) : (empty($imageIds) ? null : (int)$imageIds);
-        
+
             // Smart Link image size
             $smartLink->imageSize = $request->getBodyParam('imageSize', 'xl');
 
@@ -345,7 +345,7 @@ class SmartlinksController extends Controller
         $this->requirePermission('smartLinkManager:editLinks');
 
         $smartLinkId = Craft::$app->getRequest()->getRequiredBodyParam('id');
-        
+
         // Find the trashed smart link
         $smartLink = SmartLink::find()
             ->id($smartLinkId)
@@ -377,7 +377,7 @@ class SmartlinksController extends Controller
         $this->requirePermission('smartLinkManager:deleteLinks');
 
         $smartLinkId = Craft::$app->getRequest()->getRequiredBodyParam('id');
-        
+
         // Find the smart link (including trashed)
         $smartLink = SmartLink::find()
             ->id($smartLinkId)
@@ -454,7 +454,7 @@ class SmartlinksController extends Controller
 
         try {
             $qrCodeDataUrl = SmartLinkManager::$plugin->smartLinks->generateQrCodeDataUrl($smartLink, $options);
-            
+
             return $this->asJson([
                 'success' => true,
                 'qrCode' => $qrCodeDataUrl,
