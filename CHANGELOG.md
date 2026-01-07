@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.12.1](https://github.com/LindemannRock/craft-smartlink-manager/compare/v5.12.0...v5.12.1) (2026-01-07)
+
+
+### Bug Fixes
+
+* remove unnecessary blank lines in SmartLinksController ([d6da71c](https://github.com/LindemannRock/craft-smartlink-manager/commit/d6da71c3ad729b09e2d5e269ad00cb31af04dfd3))
+
 ## [5.12.0](https://github.com/LindemannRock/craft-smartlink-manager/compare/v5.11.1...v5.12.0) (2026-01-06)
 
 
