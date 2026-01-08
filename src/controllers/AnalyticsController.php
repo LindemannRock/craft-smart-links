@@ -245,7 +245,7 @@ class AnalyticsController extends Controller
      */
     public function actionExport(): Response
     {
-        $this->requirePermission('smartLinkManager:viewAnalytics');
+        $this->requirePermission('smartLinkManager:exportAnalytics');
 
         // Check if analytics are globally enabled
         if (!SmartLinkManager::$plugin->getSettings()->enableAnalytics) {

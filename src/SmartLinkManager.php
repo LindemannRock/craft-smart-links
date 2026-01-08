@@ -105,7 +105,8 @@ class SmartLinkManager extends Plugin
             'pluginName' => $settings->getFullName(),
             'logLevel' => $settings->logLevel ?? 'error',
             'itemsPerPage' => $settings->itemsPerPage ?? 50,
-            'permissions' => ['smartLinkManager:viewLogs'],
+            'viewPermissions' => ['smartLinkManager:viewLogs'],
+            'downloadPermissions' => ['smartLinkManager:downloadLogs'],
         ]);
 
         // Register services
@@ -233,6 +234,11 @@ class SmartLinkManager extends Plugin
             ClearCaches::class,
             ClearCaches::EVENT_REGISTER_CACHE_OPTIONS,
             function(RegisterCacheOptionsEvent $event) {
+                // Only show cache option if user has permission to clear cache
+                if (!Craft::$app->getUser()->checkPermission('smartLinkManager:clearCache')) {
+                    return;
+                }
+
                 $settings = $this->getSettings();
                 $displayName = $settings->getDisplayName();
 
@@ -340,21 +346,35 @@ class SmartLinkManager extends Plugin
         }
 
         $item = parent::getCpNavItem();
+        $user = Craft::$app->getUser();
+
+        // Check if user has view access to each section
+        $hasLinksAccess = $user->checkPermission('smartLinkManager:viewLinks');
+        $hasAnalyticsAccess = $user->checkPermission('smartLinkManager:viewAnalytics') && $settings->enableAnalytics;
+        $hasLogsAccess = $user->checkPermission('smartLinkManager:viewLogs');
+        $hasSettingsAccess = $user->checkPermission('smartLinkManager:manageSettings');
+
+        // If no access at all, hide the plugin from nav
+        if (!$hasLinksAccess && !$hasAnalyticsAccess && !$hasLogsAccess && !$hasSettingsAccess) {
+            return null;
+        }
 
         if ($item) {
-            $item['label'] = $this->getSettings()->getFullName();
+            $item['label'] = $settings->getFullName();
 
             // Use Craft's built-in link icon
             $item['icon'] = '@appicons/link.svg';
 
-            $item['subnav'] = [
-                'links' => [
+            $item['subnav'] = [];
+
+            if ($hasLinksAccess) {
+                $item['subnav']['links'] = [
                     'label' => 'Links',
                     'url' => 'smartlink-manager',
-                ],
-            ];
+                ];
+            }
 
-            if (Craft::$app->getUser()->checkPermission('smartLinkManager:viewAnalytics') && $this->getSettings()->enableAnalytics) {
+            if ($hasAnalyticsAccess) {
                 $item['subnav']['analytics'] = [
                     'label' => Craft::t('smartlink-manager', 'Analytics'),
                     'url' => 'smartlink-manager/analytics',
@@ -369,7 +389,7 @@ class SmartLinkManager extends Plugin
                 ]);
             }
 
-            if (Craft::$app->getUser()->checkPermission('smartLinkManager:manageSettings')) {
+            if ($hasSettingsAccess) {
                 $item['subnav']['settings'] = [
                     'label' => Craft::t('smartlink-manager', 'Settings'),
                     'url' => 'smartlink-manager/settings',
@@ -497,24 +517,49 @@ class SmartLinkManager extends Plugin
      */
     private function getPluginPermissions(): array
     {
+        $settings = $this->getSettings();
+        $plural = $settings->getPluralLowerDisplayName();
+
         return [
-            'smartLinkManager:viewLinks' => [
-                'label' => Craft::t('smartlink-manager', 'View smart links'),
-            ],
-            'smartLinkManager:createLinks' => [
-                'label' => Craft::t('smartlink-manager', 'Create smart links'),
-            ],
-            'smartLinkManager:editLinks' => [
-                'label' => Craft::t('smartlink-manager', 'Edit smart links'),
-            ],
-            'smartLinkManager:deleteLinks' => [
-                'label' => Craft::t('smartlink-manager', 'Delete smart links'),
+            // Smart links - grouped
+            'smartLinkManager:manageLinks' => [
+                'label' => Craft::t('smartlink-manager', 'Manage {plural}', ['plural' => $plural]),
+                'nested' => [
+                    'smartLinkManager:viewLinks' => [
+                        'label' => Craft::t('smartlink-manager', 'View {plural}', ['plural' => $plural]),
+                    ],
+                    'smartLinkManager:createLinks' => [
+                        'label' => Craft::t('smartlink-manager', 'Create {plural}', ['plural' => $plural]),
+                    ],
+                    'smartLinkManager:editLinks' => [
+                        'label' => Craft::t('smartlink-manager', 'Edit {plural}', ['plural' => $plural]),
+                    ],
+                    'smartLinkManager:deleteLinks' => [
+                        'label' => Craft::t('smartlink-manager', 'Delete {plural}', ['plural' => $plural]),
+                    ],
+                ],
             ],
             'smartLinkManager:viewAnalytics' => [
                 'label' => Craft::t('smartlink-manager', 'View analytics'),
+                'nested' => [
+                    'smartLinkManager:exportAnalytics' => [
+                        'label' => Craft::t('smartlink-manager', 'Export analytics'),
+                    ],
+                    'smartLinkManager:clearAnalytics' => [
+                        'label' => Craft::t('smartlink-manager', 'Clear analytics'),
+                    ],
+                ],
+            ],
+            'smartLinkManager:clearCache' => [
+                'label' => Craft::t('smartlink-manager', 'Clear cache'),
             ],
             'smartLinkManager:viewLogs' => [
                 'label' => Craft::t('smartlink-manager', 'View logs'),
+                'nested' => [
+                    'smartLinkManager:downloadLogs' => [
+                        'label' => Craft::t('smartlink-manager', 'Download logs'),
+                    ],
+                ],
             ],
             'smartLinkManager:manageSettings' => [
                 'label' => Craft::t('smartlink-manager', 'Manage settings'),

@@ -46,15 +46,29 @@ class SmartlinksController extends Controller
      */
     public function actionIndex(): Response
     {
-        $this->requirePermission('smartLinkManager:viewLinks');
+        $user = Craft::$app->getUser();
+        $settings = SmartLinkManager::$plugin->getSettings();
+
+        // If user doesn't have viewLinks permission, redirect to first accessible section
+        if (!$user->checkPermission('smartLinkManager:viewLinks')) {
+            if ($user->checkPermission('smartLinkManager:viewAnalytics') && $settings->enableAnalytics) {
+                return $this->redirect('smartlink-manager/analytics');
+            }
+            if ($user->checkPermission('smartLinkManager:viewLogs')) {
+                return $this->redirect('smartlink-manager/logs');
+            }
+            if ($user->checkPermission('smartLinkManager:manageSettings')) {
+                return $this->redirect('smartlink-manager/settings');
+            }
+            // No access at all
+            $this->requirePermission('smartLinkManager:viewLinks');
+        }
 
         // Get current site from request or Craft's current site
         $siteHandle = $this->request->getParam('site');
         $currentSite = $siteHandle
             ? Craft::$app->getSites()->getSiteByHandle($siteHandle)
             : Craft::$app->getSites()->getCurrentSite();
-
-        $settings = SmartLinkManager::$plugin->getSettings();
 
         // If current site is not enabled, redirect to first enabled site
         if (!$settings->isSiteEnabled($currentSite->id)) {

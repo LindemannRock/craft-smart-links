@@ -748,14 +748,7 @@ class SettingsController extends Controller
     {
         $this->requirePostRequest();
         $this->requireAcceptsJson();
-
-        // Require admin permission for deleting analytics data
-        if (!Craft::$app->getUser()->getIsAdmin()) {
-            return $this->asJson([
-                'success' => false,
-                'error' => Craft::t('smartlink-manager', 'Only administrators can clear analytics data.'),
-            ]);
-        }
+        $this->requirePermission('smartLinkManager:clearAnalytics');
 
         try {
             // Get count before deleting

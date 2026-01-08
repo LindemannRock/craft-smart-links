@@ -131,7 +131,7 @@
             </ul>
         </div>
     </div>
-    {% if smartLink.id %}
+    {% if smartLink.id and currentUser.can('smartLinkManager:deleteLinks') %}
         <button type="button" id="action-btn" class="btn menubtn action-btn hairline-dark m" title="{{ 'Actions'|t('app') }}" aria-controls="action-menu" aria-label="{{ 'Actions'|t('app') }}" data-disclosure-trigger="true" aria-expanded="false"></button>
         <div id="action-menu" class="menu menu--disclosure">
             <ul>
