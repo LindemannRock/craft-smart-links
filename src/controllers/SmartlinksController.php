@@ -40,6 +40,37 @@ class SmartlinksController extends Controller
     }
 
     /**
+     * List all links (element index)
+     *
+     * @return Response
+     */
+    public function actionIndex(): Response
+    {
+        $this->requirePermission('smartLinkManager:viewLinks');
+
+        // Get current site from request or Craft's current site
+        $siteHandle = $this->request->getParam('site');
+        $currentSite = $siteHandle
+            ? Craft::$app->getSites()->getSiteByHandle($siteHandle)
+            : Craft::$app->getSites()->getCurrentSite();
+
+        $settings = SmartLinkManager::$plugin->getSettings();
+
+        // If current site is not enabled, redirect to first enabled site
+        if (!$settings->isSiteEnabled($currentSite->id)) {
+            $enabledSiteIds = $settings->getEnabledSiteIds();
+            if (!empty($enabledSiteIds)) {
+                $firstEnabledSite = Craft::$app->getSites()->getSiteById($enabledSiteIds[0]);
+                if ($firstEnabledSite) {
+                    return $this->redirect('smartlink-manager?site=' . $firstEnabledSite->handle);
+                }
+            }
+        }
+
+        return $this->renderTemplate('smartlink-manager/smartlinks/index');
+    }
+
+    /**
      * Edit a smart link
      *
      * @param int|null $smartLinkId

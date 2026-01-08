@@ -329,12 +329,14 @@ class SmartLinkManager extends Plugin
      */
     public function getCpNavItem(): ?array
     {
-        // Check if SmartLink Manager is enabled for the current site
-        $currentSite = Craft::$app->getSites()->getCurrentSite();
         $settings = $this->getSettings();
 
-        if (!$settings->isSiteEnabled($currentSite->id)) {
-            return null; // Hide navigation item entirely
+        // Show nav if enabled for ANY site (not just current site)
+        // This allows managing smartlinks from any CP context, even if
+        // smartlinks are only enabled for a dedicated short URL site
+        $enabledSiteIds = $settings->getEnabledSiteIds();
+        if (empty($enabledSiteIds)) {
+            return null; // Hide navigation item if not enabled for any site
         }
 
         $item = parent::getCpNavItem();
@@ -444,8 +446,8 @@ class SmartLinkManager extends Plugin
     {
         return [
             // SmartLink Manager routes
-            'smartlink-manager' => ['template' => 'smartlink-manager/smartlinks/index'],
-            'smartlink-manager/smartlinks' => ['template' => 'smartlink-manager/smartlinks/index'],
+            'smartlink-manager' => 'smartlink-manager/smartlinks/index',
+            'smartlink-manager/smartlinks' => 'smartlink-manager/smartlinks/index',
             'smartlink-manager/new' => 'smartlink-manager/smartlinks/edit',
             'smartlink-manager/smartlinks/new' => 'smartlink-manager/smartlinks/edit',
             'smartlink-manager/<smartLinkId:\d+>' => 'smartlink-manager/smartlinks/edit',
