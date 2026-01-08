@@ -1,5 +1,17 @@
 # Changelog
 
+## [5.13.0](https://github.com/LindemannRock/craft-smartlink-manager/compare/v5.12.2...v5.13.0) (2026-01-08)
+
+
+### Features
+
+* refactor permissions to use grouped nested structure with granular access control ([f506873](https://github.com/LindemannRock/craft-smartlink-manager/commit/f5068737def897c8c5c08ff5ad2c9cc639998ef5))
+
+
+### Bug Fixes
+
+* CP nav visibility and index routing for non-primary enabled sites ([f8803a6](https://github.com/LindemannRock/craft-smartlink-manager/commit/f8803a64c9d77b08c5bcc188c908bd77d1ef834c))
+
 ## [5.12.2](https://github.com/LindemannRock/craft-smartlink-manager/compare/v5.12.1...v5.12.2) (2026-01-07)
 
 
