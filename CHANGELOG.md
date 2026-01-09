@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.14.0](https://github.com/LindemannRock/craft-smartlink-manager/compare/v5.13.0...v5.14.0) (2026-01-09)
+
+
+### Features
+
+* update filename format for exports and add JSON export option in analytics ([b30637e](https://github.com/LindemannRock/craft-smartlink-manager/commit/b30637e953490a47e807754992f172869fcefdf1))
+
 ## [5.13.0](https://github.com/LindemannRock/craft-smartlink-manager/compare/v5.12.2...v5.13.0) (2026-01-08)
 
 
