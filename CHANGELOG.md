@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.15.0](https://github.com/LindemannRock/craft-smartlink-manager/compare/v5.14.0...v5.15.0) (2026-01-10)
+
+
+### Features
+
+* Replace custom country name retrieval with GeoHelper utility ([31ea2f3](https://github.com/LindemannRock/craft-smartlink-manager/commit/31ea2f3e1fb4490ee08a95f4071376fb359e9a7b))
+
 ## [5.14.0](https://github.com/LindemannRock/craft-smartlink-manager/compare/v5.13.0...v5.14.0) (2026-01-09)
 
 
