@@ -35,7 +35,7 @@ If you are using this plugin, please be aware that future versions may have diff
   - Button click tracking by platform (App Store, Google Play, etc.)
   - Configurable analytics retention and export options
 - **Smart Link Field**: Integrate smart links into your entries and elements
-- **Multi-Site Support**: Different URLs per language/site (coming soon)
+- **Multi-Site Support**: Different destination URLs per site/language with a single shared slug
 - **User-Friendly CP**: Clean interface matching Craft's design standards
 
 ## Requirements
@@ -262,11 +262,16 @@ return [
 1. Navigate to **SmartLink Manager** in the control panel
 2. Click **"New smart link"**
 3. Fill in the required fields:
-   - **Name**: Internal reference name
+   - **Title**: Display name for the smart link
    - **Slug**: The short URL path (e.g., `promo-2024`)
-   - **Desktop URL**: Where desktop users go
-   - **Mobile URL**: Where mobile users go (optional)
-   - **Tablet URL**: Where tablet users go (optional)
+   - **Fallback URL**: Default destination when no platform-specific URL matches
+4. Optionally add platform-specific App Store URLs:
+   - **iOS URL**: App Store link for iOS devices
+   - **Android URL**: Google Play Store link
+   - **Huawei URL**: AppGallery link for Huawei devices
+   - **Amazon URL**: Amazon Appstore link
+   - **Windows URL**: Microsoft Store link
+   - **Mac URL**: Mac App Store link
 
 ### Smart Link URLs
 
@@ -296,7 +301,7 @@ In templates:
 {% set smartLink = entry.mySmartLinkField.one() %}
 
 {# Output the redirect URL #}
-<a href="{{ smartLink.getRedirectUrl() }}">{{ smartLink.name }}</a>
+<a href="{{ smartLink.getRedirectUrl() }}">{{ smartLink.title }}</a>
 
 {# Get the QR code URL #}
 <img src="{{ smartLink.getQrCodeUrl() }}" alt="QR Code">
@@ -791,7 +796,6 @@ Create a custom QR code display page:
 
 ```twig
 smartLink.id
-smartLink.name
 smartLink.slug
 smartLink.title
 smartLink.description
@@ -888,10 +892,12 @@ All options are optional - they fall back to the smart link's settings or global
 query {
   smartLinks {
     id
-    name
     slug
-    desktopUrl
-    mobileUrl
+    title
+    description
+    fallbackUrl
+    iosUrl
+    androidUrl
     enabled
     clicks
   }
@@ -901,17 +907,17 @@ query {
 ## Events
 
 ```php
-use lindemannrock\smartlinks\events\RedirectEvent;
-use lindemannrock\smartlinks\services\RedirectService;
+use lindemannrock\smartlinkmanager\events\SmartLinkEvent;
+use lindemannrock\smartlinkmanager\services\SmartLinksService;
 use yii\base\Event;
 
 Event::on(
-    RedirectService::class,
-    RedirectService::EVENT_BEFORE_REDIRECT,
-    function(RedirectEvent $event) {
-        // Modify redirect URL
-        if ($event->device === 'mobile') {
-            $event->url = 'https://m.example.com';
+    SmartLinksService::class,
+    SmartLinksService::EVENT_BEFORE_REDIRECT,
+    function(SmartLinkEvent $event) {
+        // Modify redirect URL based on device
+        if ($event->device->isMobile) {
+            $event->redirectUrl = 'https://m.example.com';
         }
     }
 );
@@ -1037,14 +1043,6 @@ SMARTLINK_MANAGER_DEFAULT_CITY=New York
 - **IN**: Mumbai, Delhi
 
 **Important:** This setting is **safe to use in all environments** (dev, staging, production). It **only affects private/local IP addresses** (127.0.0.1, 192.168.x.x, 10.x.x.x, etc.). Real visitor IPs in production will always use actual geolocation from ip-api.com. This means you can safely commit config file settings without impacting production analytics.
-
-## Multi-Site Considerations
-
-Multi-site support is coming soon. Future features will include:
-- Different URLs per site/language
-- Separate slugs for each locale
-- Per-site analytics tracking
-- Propagation settings
 
 ## Support
 
