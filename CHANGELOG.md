@@ -1,5 +1,17 @@
 # Changelog
 
+## [5.15.1](https://github.com/LindemannRock/craft-smartlink-manager/compare/v5.15.0...v5.15.1) (2026-01-11)
+
+
+### Bug Fixes
+
+* Update label retrieval to use getFullName() for consistency ([a86187c](https://github.com/LindemannRock/craft-smartlink-manager/commit/a86187c1a824df2b751037a106c2d57a866a5881))
+
+
+### Miscellaneous Chores
+
+* Update README with enhanced multi-site support and clarify smart link fields ([9d5ace9](https://github.com/LindemannRock/craft-smartlink-manager/commit/9d5ace9d778cf8e253e7e9950c21e4c010a4de79))
+
 ## [5.15.0](https://github.com/LindemannRock/craft-smartlink-manager/compare/v5.14.0...v5.15.0) (2026-01-10)
 
 
