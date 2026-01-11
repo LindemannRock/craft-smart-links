@@ -168,7 +168,7 @@ class SmartlinksController extends Controller
         // Breadcrumbs
         $variables['crumbs'] = [
             [
-                'label' => SmartLinkManager::$plugin->getSettings()->pluginName,
+                'label' => SmartLinkManager::$plugin->getSettings()->getFullName(),
                 'url' => 'smartlink-manager',
             ],
         ];

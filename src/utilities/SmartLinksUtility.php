@@ -25,8 +25,7 @@ class SmartLinksUtility extends Utility
      */
     public static function displayName(): string
     {
-        $pluginName = SmartLinkManager::getInstance()->getSettings()->pluginName;
-        return $pluginName;
+        return SmartLinkManager::$plugin->getSettings()->getFullName();
     }
 
     /**
