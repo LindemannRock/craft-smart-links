@@ -30,9 +30,13 @@
                         {{ topLink.name }}
                     </a>
                     <div class="link-meta">
-                        <code>/{{ topLink.slug }}</code>
+                        {% if topLink.enabled is defined and topLink.enabled %}
+                            <a href="{{ siteUrl(craft.app.plugins.getPlugin('smartlink-manager').settings.slugPrefix ~ '/' ~ topLink.slug) }}" target="_blank" class="slug-link">/{{ topLink.slug }}</a>
+                        {% else %}
+                            <span class="slug-disabled">/{{ topLink.slug }}</span>
+                        {% endif %}
                         <span class="separator">•</span>
-                        <span>{{ topLink.clicks|number }} {{ "clicks"|t('smartlink-manager') }}</span>
+                        <span>{{ topLink.clicks|number }} {{ "interactions"|t('smartlink-manager') }}</span>
                     </div>
                 </div>
             </div>
@@ -113,11 +117,18 @@
     color: #8b95a1;
 }
 
-.link-meta code {
-    background: #f3f4f6;
-    padding: 2px 6px;
-    border-radius: 3px;
-    font-size: 11px;
+.link-meta .slug-link {
+    color: #6b7280;
+    text-decoration: none;
+}
+
+.link-meta .slug-link:hover {
+    text-decoration: underline;
+    color: #0d78f2;
+}
+
+.link-meta .slug-disabled {
+    color: #9ca3af;
 }
 
 .link-meta .separator {

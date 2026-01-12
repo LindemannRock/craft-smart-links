@@ -6,8 +6,7 @@
             <thead>
                 <tr>
                     <th>{{ "Link"|t('smartlink-manager') }}</th>
-                    <th>{{ "Clicks"|t('smartlink-manager') }}</th>
-                    <th class="thin"></th>
+                    <th>{{ "Interactions"|t('smartlink-manager') }}</th>
                 </tr>
             </thead>
             <tbody>
@@ -15,23 +14,20 @@
                     <tr>
                         <td>
                             <div class="link-cell">
-                                <span class="link-name">{{ link.name }}</span>
+                                <a href="{{ cpUrl('smartlink-manager/smartlinks/' ~ link.id) }}" class="link-name">
+                                    {{ link.name }}
+                                </a>
                                 <div class="link-slug">
-                                    <code>/{{ link.slug }}</code>
+                                    {% if link.enabled %}
+                                        <a href="{{ siteUrl(craft.app.plugins.getPlugin('smartlink-manager').settings.slugPrefix ~ '/' ~ link.slug) }}" target="_blank">/{{ link.slug }}</a>
+                                    {% else %}
+                                        <span class="disabled">/{{ link.slug }}</span>
+                                    {% endif %}
                                 </div>
                             </div>
                         </td>
-                        <td class="clicks-cell">
+                        <td class="interactions-cell">
                             <span class="badge">{{ link.clicks|number }}</span>
-                        </td>
-                        <td class="thin actions-cell">
-                            <a href="{{ link.enabled ? siteUrl(craft.app.plugins.getPlugin('smartlink-manager').settings.slugPrefix ~ '/' ~ link.slug) : '#' }}"
-                               target="_blank"
-                               class="btn small {{ not link.enabled ? 'disabled' : '' }}"
-                               title="{{ 'View'|t('app') }}"
-                               {{ not link.enabled ? 'aria-disabled="true"' : '' }}>
-                                {{ svg('@app/icons/arrow-up-right-from-square.svg') }}
-                            </a>
                         </td>
                     </tr>
                 {% endfor %}
@@ -75,26 +71,37 @@
     border-radius: 3px;
     display: inline-block;
     margin-bottom: 4px;
+    text-decoration: none;
+}
+
+.link-name:hover {
+    text-decoration: underline;
 }
 
 .link-slug {
     font-size: 11px;
 }
 
-.link-slug code {
-    background: #f3f4f6;
-    padding: 2px 6px;
-    border-radius: 3px;
-    font-size: 11px;
+.link-slug a {
     color: #6b7280;
+    text-decoration: none;
 }
 
-.clicks-cell {
+.link-slug a:hover {
+    text-decoration: underline;
+    color: #0d78f2;
+}
+
+.link-slug .disabled {
+    color: #9ca3af;
+}
+
+.interactions-cell {
     text-align: left;
     white-space: nowrap;
 }
 
-.clicks-cell .badge {
+.interactions-cell .badge {
     background: #eff6ff;
     color: #0d78f2;
     padding: 10px;
@@ -103,21 +110,6 @@
     font-weight: 600;
     display: inline-block;
     line-height: 0;
-}
-
-.actions-cell {
-    text-align: right;
-    white-space: nowrap;
-}
-
-.actions-cell .btn {
-    padding: 4px 8px;
-    min-height: auto;
-}
-
-.actions-cell .btn svg {
-    width: 14px;
-    height: 14px;
 }
 
 .widget-footer {
