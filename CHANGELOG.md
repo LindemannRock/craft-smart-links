@@ -1,5 +1,18 @@
 # Changelog
 
+## [5.16.0](https://github.com/LindemannRock/craft-smartlink-manager/compare/v5.15.1...v5.16.0) (2026-01-12)
+
+
+### Features
+
+* Auto-format slug on blur for improved user experience ([265d390](https://github.com/LindemannRock/craft-smartlink-manager/commit/265d3905f100c9a8d971501a73ad95705080555f))
+* Update link display and interaction metrics in top links widget ([8f5615b](https://github.com/LindemannRock/craft-smartlink-manager/commit/8f5615bfbeb0e928cf88284ffa6d5320a1e31ac0))
+
+
+### Bug Fixes
+
+* Format cache file counts and total clicks in cache management buttons ([cc6e401](https://github.com/LindemannRock/craft-smartlink-manager/commit/cc6e4017e7f83888312c7cd30fa02dfac9ddebf1))
+
 ## [5.15.1](https://github.com/LindemannRock/craft-smartlink-manager/compare/v5.15.0...v5.15.1) (2026-01-11)
 
 
