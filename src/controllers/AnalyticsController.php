@@ -283,7 +283,7 @@ class AnalyticsController extends Controller
 
             // Generate filename
             $settings = SmartLinkManager::$plugin->getSettings();
-            $filenamePart = strtolower(str_replace(' ', '-', $settings->getPluralLowerDisplayName()));
+            $filenamePart = strtolower(str_replace(' ', '-', $settings->getLowerDisplayName()));
             $baseFilename = $filenamePart . '-analytics';
             if ($smartLinkId) {
                 $smartLink = \lindemannrock\smartlinkmanager\elements\SmartLink::find()
