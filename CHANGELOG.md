@@ -1,5 +1,17 @@
 # Changelog
 
+## [5.16.1](https://github.com/LindemannRock/craft-smartlink-manager/compare/v5.16.0...v5.16.1) (2026-01-16)
+
+
+### Bug Fixes
+
+* reorganize and standardize analytics templates ([82de60e](https://github.com/LindemannRock/craft-smartlink-manager/commit/82de60ee81e467f13687fb7533fc9ab6a42f84e7))
+* update cache location message to use smartlinkHelper for dynamic path ([3be1ba9](https://github.com/LindemannRock/craft-smartlink-manager/commit/3be1ba9f1daddcef99800a2097d35991d57ba9c7))
+* update cache location path to use plugin handle for dynamic storage ([58b9b1b](https://github.com/LindemannRock/craft-smartlink-manager/commit/58b9b1bb8fd7fe0e17ff7d84511cc6141e3bc4df))
+* Update filename generation for analytics export to use lower display name ([8a30175](https://github.com/LindemannRock/craft-smartlink-manager/commit/8a30175e46ef15ee3a204138be6096ef703f77d7))
+* update hardcoded cache paths with PluginHelper for consistency ([73352ab](https://github.com/LindemannRock/craft-smartlink-manager/commit/73352ab023f5cdaabc53350b2f2e5ed1dfc3359a))
+* update PluginHelper bootstrap to include download permissions for logging ([a858d0a](https://github.com/LindemannRock/craft-smartlink-manager/commit/a858d0a382a2c49619be74fb9208c94171e6ee53))
+
 ## [5.16.0](https://github.com/LindemannRock/craft-smartlink-manager/compare/v5.15.1...v5.16.0) (2026-01-12)
 
 
