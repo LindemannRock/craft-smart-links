@@ -274,7 +274,7 @@ class SmartLinkManager extends Plugin
                             }
                         } else {
                             // Clear QR code file caches
-                            $qrPath = Craft::$app->path->getRuntimePath() . '/smartlink-manager/cache/qr/';
+                            $qrPath = PluginHelper::getCachePath(self::$plugin, 'qr');
                             if (is_dir($qrPath)) {
                                 $files = glob($qrPath . '*.cache');
                                 foreach ($files as $file) {
@@ -285,7 +285,7 @@ class SmartLinkManager extends Plugin
                             }
 
                             // Clear device detection file caches
-                            $devicePath = Craft::$app->path->getRuntimePath() . '/smartlink-manager/cache/device/';
+                            $devicePath = PluginHelper::getCachePath(self::$plugin, 'device');
                             if (is_dir($devicePath)) {
                                 $files = glob($devicePath . '*.cache');
                                 foreach ($files as $file) {

@@ -11,6 +11,7 @@ namespace lindemannrock\smartlinkmanager\utilities;
 use Craft;
 use craft\base\Utility;
 use craft\db\Query;
+use lindemannrock\base\helpers\PluginHelper;
 use lindemannrock\smartlinkmanager\SmartLinkManager;
 
 /**
@@ -122,8 +123,8 @@ class SmartLinksUtility extends Utility
 
         // Only count files when using file storage (Redis counts are not displayed)
         if ($settings->cacheStorageMethod === 'file') {
-            $qrCachePath = Craft::$app->path->getRuntimePath() . '/smartlink-manager/cache/qr/';
-            $deviceCachePath = Craft::$app->path->getRuntimePath() . '/smartlink-manager/cache/device/';
+            $qrCachePath = PluginHelper::getCachePath(SmartLinkManager::$plugin, 'qr');
+            $deviceCachePath = PluginHelper::getCachePath(SmartLinkManager::$plugin, 'device');
 
             $qrCacheFiles = is_dir($qrCachePath) ? count(glob($qrCachePath . '*.cache')) : 0;
             $deviceCacheFiles = is_dir($deviceCachePath) ? count(glob($deviceCachePath . '*.cache')) : 0;

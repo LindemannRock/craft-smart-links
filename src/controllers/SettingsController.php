@@ -11,6 +11,7 @@ namespace lindemannrock\smartlinkmanager\controllers;
 use Craft;
 use craft\helpers\Json;
 use craft\web\Controller;
+use lindemannrock\base\helpers\PluginHelper;
 use lindemannrock\logginglibrary\traits\LoggingTrait;
 use lindemannrock\smartlinkmanager\elements\SmartLink;
 use lindemannrock\smartlinkmanager\jobs\CleanupAnalyticsJob;
@@ -572,7 +573,7 @@ class SettingsController extends Controller
                 }
             } else {
                 // Clear file cache
-                $cachePath = Craft::$app->path->getRuntimePath() . '/smartlink-manager/cache/qr/';
+                $cachePath = PluginHelper::getCachePath(SmartLinkManager::$plugin, 'qr');
                 if (is_dir($cachePath)) {
                     $files = glob($cachePath . '*.cache');
                     foreach ($files as $file) {
@@ -632,7 +633,7 @@ class SettingsController extends Controller
                 }
             } else {
                 // Clear file cache
-                $cachePath = Craft::$app->path->getRuntimePath() . '/smartlink-manager/cache/device/';
+                $cachePath = PluginHelper::getCachePath(SmartLinkManager::$plugin, 'device');
                 if (is_dir($cachePath)) {
                     $files = glob($cachePath . '*.cache');
                     foreach ($files as $file) {
@@ -701,7 +702,7 @@ class SettingsController extends Controller
                 }
             } else {
                 // Clear QR code file caches
-                $qrPath = Craft::$app->path->getRuntimePath() . '/smartlink-manager/cache/qr/';
+                $qrPath = PluginHelper::getCachePath(SmartLinkManager::$plugin, 'qr');
                 if (is_dir($qrPath)) {
                     $files = glob($qrPath . '*.cache');
                     foreach ($files as $file) {
@@ -712,7 +713,7 @@ class SettingsController extends Controller
                 }
 
                 // Clear device detection file caches
-                $devicePath = Craft::$app->path->getRuntimePath() . '/smartlink-manager/cache/device/';
+                $devicePath = PluginHelper::getCachePath(SmartLinkManager::$plugin, 'device');
                 if (is_dir($devicePath)) {
                     $files = glob($devicePath . '*.cache');
                     foreach ($files as $file) {

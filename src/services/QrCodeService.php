@@ -24,6 +24,7 @@ use BaconQrCode\Writer;
 use Craft;
 use craft\base\Component;
 use craft\elements\Asset;
+use lindemannrock\base\helpers\PluginHelper;
 use lindemannrock\logginglibrary\traits\LoggingTrait;
 use lindemannrock\smartlinkmanager\SmartLinkManager;
 
@@ -426,7 +427,7 @@ class QrCodeService extends Component
         }
 
         // Use file-based cache (default)
-        $cachePath = Craft::$app->path->getRuntimePath() . '/smartlink-manager/cache/qr/';
+        $cachePath = PluginHelper::getCachePath(SmartLinkManager::$plugin, 'qr');
         $cacheFile = $cachePath . md5($cacheKey) . '.cache';
 
         if (!file_exists($cacheFile)) {
@@ -470,7 +471,7 @@ class QrCodeService extends Component
         }
 
         // Use file-based cache (default)
-        $cachePath = Craft::$app->path->getRuntimePath() . '/smartlink-manager/cache/qr/';
+        $cachePath = PluginHelper::getCachePath(SmartLinkManager::$plugin, 'qr');
 
         // Create directory if it doesn't exist
         if (!is_dir($cachePath)) {

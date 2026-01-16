@@ -12,6 +12,7 @@ use Craft;
 use craft\base\Component;
 use DeviceDetector\DeviceDetector;
 use DeviceDetector\Parser\Client\Browser;
+use lindemannrock\base\helpers\PluginHelper;
 use lindemannrock\logginglibrary\traits\LoggingTrait;
 use lindemannrock\smartlinkmanager\elements\SmartLink;
 use lindemannrock\smartlinkmanager\models\DeviceInfo;
@@ -421,7 +422,7 @@ class DeviceDetectionService extends Component
         }
 
         // Use file-based cache (default)
-        $cachePath = Craft::$app->path->getRuntimePath() . '/smartlink-manager/cache/device/';
+        $cachePath = PluginHelper::getCachePath(SmartLinkManager::$plugin, 'device');
         $cacheFile = $cachePath . md5($userAgent) . '.cache';
 
         if (!file_exists($cacheFile)) {
@@ -467,7 +468,7 @@ class DeviceDetectionService extends Component
         }
 
         // Use file-based cache (default)
-        $cachePath = Craft::$app->path->getRuntimePath() . '/smartlink-manager/cache/device/';
+        $cachePath = PluginHelper::getCachePath(SmartLinkManager::$plugin, 'device');
 
         // Create directory if it doesn't exist
         if (!is_dir($cachePath)) {
