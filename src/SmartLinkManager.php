@@ -94,20 +94,14 @@ class SmartLinkManager extends Plugin
         parent::init();
         self::$plugin = $this;
 
-        // Bootstrap shared plugin functionality (Twig helper, logging nav)
-        PluginHelper::bootstrap($this, 'smartlinkHelper', ['smartLinkManager:viewLogs']);
+        // Bootstrap shared plugin functionality (Twig helper, logging)
+        PluginHelper::bootstrap(
+            $this,
+            'smartlinkHelper',
+            ['smartLinkManager:viewLogs'],
+            ['smartLinkManager:downloadLogs']
+        );
         PluginHelper::applyPluginNameFromConfig($this);
-
-        // Configure logging
-        $settings = $this->getSettings();
-        LoggingLibrary::configure([
-            'pluginHandle' => $this->handle,
-            'pluginName' => $settings->getFullName(),
-            'logLevel' => $settings->logLevel ?? 'error',
-            'itemsPerPage' => $settings->itemsPerPage ?? 50,
-            'viewPermissions' => ['smartLinkManager:viewLogs'],
-            'downloadPermissions' => ['smartLinkManager:downloadLogs'],
-        ]);
 
         // Register services
         $this->setComponents([
