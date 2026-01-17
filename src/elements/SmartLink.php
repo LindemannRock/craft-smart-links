@@ -504,7 +504,24 @@ class SmartLink extends Element
      */
     protected static function defineSearchableAttributes(): array
     {
-        return ['title', 'slug', 'description'];
+        return ['title', 'slug', 'description', 'imageTitle', 'imageFilename'];
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getSearchKeywords(string $attribute): string
+    {
+        switch ($attribute) {
+            case 'imageTitle':
+                $image = $this->getImage();
+                return $image?->title ?? '';
+            case 'imageFilename':
+                $image = $this->getImage();
+                return $image?->filename ?? '';
+            default:
+                return parent::getSearchKeywords($attribute);
+        }
     }
 
     // Public Methods
