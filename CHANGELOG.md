@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.17.0](https://github.com/LindemannRock/craft-smartlink-manager/compare/v5.16.1...v5.17.0) (2026-01-17)
+
+
+### Features
+
+* enhance searchable attributes with image title and filename ([7a8e9fe](https://github.com/LindemannRock/craft-smartlink-manager/commit/7a8e9fea1b0c3f48b3ef5550486b2793b64bc369))
+
 ## [5.16.1](https://github.com/LindemannRock/craft-smartlink-manager/compare/v5.16.0...v5.16.1) (2026-01-16)
 
 
