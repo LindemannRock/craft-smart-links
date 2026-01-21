@@ -17,6 +17,7 @@ use craft\helpers\Json;
 use craft\helpers\StringHelper;
 use craft\helpers\UrlHelper;
 use lindemannrock\base\helpers\GeoHelper;
+use lindemannrock\base\traits\GeoLookupTrait;
 use lindemannrock\logginglibrary\traits\LoggingTrait;
 use lindemannrock\smartlinkmanager\elements\SmartLink;
 use lindemannrock\smartlinkmanager\models\DeviceInfo;
@@ -30,6 +31,7 @@ use lindemannrock\smartlinkmanager\SmartLinkManager;
 class AnalyticsService extends Component
 {
     use LoggingTrait;
+    use GeoLookupTrait;
 
     /**
      * @inheritdoc
@@ -1925,297 +1927,110 @@ class AnalyticsService extends Component
      */
     public function getLocationFromIp(string $ip): ?array
     {
-        try {
-            // Skip local/private IPs - return default location data for local development
-            if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) === false) {
-                // Get default location from settings or env
-                $settings = SmartLinkManager::$plugin->getSettings();
-                $defaultCountry = $settings->defaultCountry ?: (getenv('SMARTLINK_MANAGER_DEFAULT_COUNTRY') ?: 'AE');
-                $defaultCity = $settings->defaultCity ?: (getenv('SMARTLINK_MANAGER_DEFAULT_CITY') ?: 'Dubai');
+        // Handle private/local IPs with default location for development
+        if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) === false) {
+            return $this->getDefaultLocation();
+        }
 
-                // Predefined locations for common cities worldwide
-                $locations = [
-                    'US' => [
-                        'New York' => [
-                            'countryCode' => 'US',
-                            'country' => 'United States',
-                            'city' => 'New York',
-                            'region' => 'New York',
-                            'timezone' => 'America/New_York',
-                            'lat' => 40.7128,
-                            'lon' => -74.0060,
-                            'isp' => 'Local Network',
-                        ],
-                        'Los Angeles' => [
-                            'countryCode' => 'US',
-                            'country' => 'United States',
-                            'city' => 'Los Angeles',
-                            'region' => 'California',
-                            'timezone' => 'America/Los_Angeles',
-                            'lat' => 34.0522,
-                            'lon' => -118.2437,
-                            'isp' => 'Local Network',
-                        ],
-                        'Chicago' => [
-                            'countryCode' => 'US',
-                            'country' => 'United States',
-                            'city' => 'Chicago',
-                            'region' => 'Illinois',
-                            'timezone' => 'America/Chicago',
-                            'lat' => 41.8781,
-                            'lon' => -87.6298,
-                            'isp' => 'Local Network',
-                        ],
-                        'San Francisco' => [
-                            'countryCode' => 'US',
-                            'country' => 'United States',
-                            'city' => 'San Francisco',
-                            'region' => 'California',
-                            'timezone' => 'America/Los_Angeles',
-                            'lat' => 37.7749,
-                            'lon' => -122.4194,
-                            'isp' => 'Local Network',
-                        ],
-                    ],
-                    'GB' => [
-                        'London' => [
-                            'countryCode' => 'GB',
-                            'country' => 'United Kingdom',
-                            'city' => 'London',
-                            'region' => 'England',
-                            'timezone' => 'Europe/London',
-                            'lat' => 51.5074,
-                            'lon' => -0.1278,
-                            'isp' => 'Local Network',
-                        ],
-                        'Manchester' => [
-                            'countryCode' => 'GB',
-                            'country' => 'United Kingdom',
-                            'city' => 'Manchester',
-                            'region' => 'England',
-                            'timezone' => 'Europe/London',
-                            'lat' => 53.4808,
-                            'lon' => -2.2426,
-                            'isp' => 'Local Network',
-                        ],
-                    ],
-                    'AE' => [
-                        'Dubai' => [
-                            'countryCode' => 'AE',
-                            'country' => 'United Arab Emirates',
-                            'city' => 'Dubai',
-                            'region' => 'Dubai',
-                            'timezone' => 'Asia/Dubai',
-                            'lat' => 25.2048,
-                            'lon' => 55.2708,
-                            'isp' => 'Local Network',
-                        ],
-                        'Abu Dhabi' => [
-                            'countryCode' => 'AE',
-                            'country' => 'United Arab Emirates',
-                            'city' => 'Abu Dhabi',
-                            'region' => 'Abu Dhabi',
-                            'timezone' => 'Asia/Dubai',
-                            'lat' => 24.4539,
-                            'lon' => 54.3773,
-                            'isp' => 'Local Network',
-                        ],
-                    ],
-                    'SA' => [
-                        'Riyadh' => [
-                            'countryCode' => 'SA',
-                            'country' => 'Saudi Arabia',
-                            'city' => 'Riyadh',
-                            'region' => 'Riyadh Province',
-                            'timezone' => 'Asia/Riyadh',
-                            'lat' => 24.7136,
-                            'lon' => 46.6753,
-                            'isp' => 'Local Network',
-                        ],
-                        'Jeddah' => [
-                            'countryCode' => 'SA',
-                            'country' => 'Saudi Arabia',
-                            'city' => 'Jeddah',
-                            'region' => 'Makkah Province',
-                            'timezone' => 'Asia/Riyadh',
-                            'lat' => 21.5433,
-                            'lon' => 39.1728,
-                            'isp' => 'Local Network',
-                        ],
-                    ],
-                    'DE' => [
-                        'Berlin' => [
-                            'countryCode' => 'DE',
-                            'country' => 'Germany',
-                            'city' => 'Berlin',
-                            'region' => 'Berlin',
-                            'timezone' => 'Europe/Berlin',
-                            'lat' => 52.5200,
-                            'lon' => 13.4050,
-                            'isp' => 'Local Network',
-                        ],
-                        'Munich' => [
-                            'countryCode' => 'DE',
-                            'country' => 'Germany',
-                            'city' => 'Munich',
-                            'region' => 'Bavaria',
-                            'timezone' => 'Europe/Berlin',
-                            'lat' => 48.1351,
-                            'lon' => 11.5820,
-                            'isp' => 'Local Network',
-                        ],
-                    ],
-                    'FR' => [
-                        'Paris' => [
-                            'countryCode' => 'FR',
-                            'country' => 'France',
-                            'city' => 'Paris',
-                            'region' => 'Île-de-France',
-                            'timezone' => 'Europe/Paris',
-                            'lat' => 48.8566,
-                            'lon' => 2.3522,
-                            'isp' => 'Local Network',
-                        ],
-                    ],
-                    'CA' => [
-                        'Toronto' => [
-                            'countryCode' => 'CA',
-                            'country' => 'Canada',
-                            'city' => 'Toronto',
-                            'region' => 'Ontario',
-                            'timezone' => 'America/Toronto',
-                            'lat' => 43.6532,
-                            'lon' => -79.3832,
-                            'isp' => 'Local Network',
-                        ],
-                        'Vancouver' => [
-                            'countryCode' => 'CA',
-                            'country' => 'Canada',
-                            'city' => 'Vancouver',
-                            'region' => 'British Columbia',
-                            'timezone' => 'America/Vancouver',
-                            'lat' => 49.2827,
-                            'lon' => -123.1207,
-                            'isp' => 'Local Network',
-                        ],
-                    ],
-                    'AU' => [
-                        'Sydney' => [
-                            'countryCode' => 'AU',
-                            'country' => 'Australia',
-                            'city' => 'Sydney',
-                            'region' => 'New South Wales',
-                            'timezone' => 'Australia/Sydney',
-                            'lat' => -33.8688,
-                            'lon' => 151.2093,
-                            'isp' => 'Local Network',
-                        ],
-                        'Melbourne' => [
-                            'countryCode' => 'AU',
-                            'country' => 'Australia',
-                            'city' => 'Melbourne',
-                            'region' => 'Victoria',
-                            'timezone' => 'Australia/Melbourne',
-                            'lat' => -37.8136,
-                            'lon' => 144.9631,
-                            'isp' => 'Local Network',
-                        ],
-                    ],
-                    'JP' => [
-                        'Tokyo' => [
-                            'countryCode' => 'JP',
-                            'country' => 'Japan',
-                            'city' => 'Tokyo',
-                            'region' => 'Tokyo',
-                            'timezone' => 'Asia/Tokyo',
-                            'lat' => 35.6762,
-                            'lon' => 139.6503,
-                            'isp' => 'Local Network',
-                        ],
-                    ],
-                    'SG' => [
-                        'Singapore' => [
-                            'countryCode' => 'SG',
-                            'country' => 'Singapore',
-                            'city' => 'Singapore',
-                            'region' => 'Singapore',
-                            'timezone' => 'Asia/Singapore',
-                            'lat' => 1.3521,
-                            'lon' => 103.8198,
-                            'isp' => 'Local Network',
-                        ],
-                    ],
-                    'IN' => [
-                        'Mumbai' => [
-                            'countryCode' => 'IN',
-                            'country' => 'India',
-                            'city' => 'Mumbai',
-                            'region' => 'Maharashtra',
-                            'timezone' => 'Asia/Kolkata',
-                            'lat' => 19.0760,
-                            'lon' => 72.8777,
-                            'isp' => 'Local Network',
-                        ],
-                        'Delhi' => [
-                            'countryCode' => 'IN',
-                            'country' => 'India',
-                            'city' => 'Delhi',
-                            'region' => 'Delhi',
-                            'timezone' => 'Asia/Kolkata',
-                            'lat' => 28.7041,
-                            'lon' => 77.1025,
-                            'isp' => 'Local Network',
-                        ],
-                    ],
-                ];
+        // Use centralized geo lookup from base plugin
+        $geoData = $this->lookupGeoIp($ip, $this->getGeoConfig());
 
-                // Return the configured location if it exists
-                if (isset($locations[$defaultCountry][$defaultCity])) {
-                    return $locations[$defaultCountry][$defaultCity];
-                }
-
-                // Fallback to Dubai if configuration not found
-                return $locations['AE']['Dubai'];
-            }
-
-            // Use ip-api.com (free, no API key required, 45 requests per minute)
-            // Request all available fields for comprehensive analytics
-            $url = "http://ip-api.com/json/{$ip}?fields=status,countryCode,country,city,regionName,region,lat,lon,timezone,isp,org,as,mobile,proxy,hosting";
-
-            $ch = curl_init();
-            curl_setopt($ch, CURLOPT_URL, $url);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_TIMEOUT, 2); // 2 second timeout
-            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-
-            $response = curl_exec($ch);
-            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            curl_close($ch);
-
-            if ($httpCode === 200 && $response) {
-                $data = Json::decode($response);
-                if (isset($data['status']) && $data['status'] === 'success') {
-                    return [
-                        'countryCode' => $data['countryCode'] ?? null,
-                        'country' => $data['country'] ?? null,
-                        'city' => $data['city'] ?? null,
-                        'region' => $data['regionName'] ?? null,
-                        'timezone' => $data['timezone'] ?? null,
-                        'lat' => $data['lat'] ?? null,
-                        'lon' => $data['lon'] ?? null,
-                        'isp' => $data['isp'] ?? null,
-                        'mobile' => $data['mobile'] ?? false,
-                        'proxy' => $data['proxy'] ?? false,
-                        'hosting' => $data['hosting'] ?? false,
-                    ];
-                }
-            }
-
-            return null;
-        } catch (\Exception $e) {
-            $this->logWarning('Failed to get location from IP', ['error' => $e->getMessage()]);
+        if ($geoData === null) {
             return null;
         }
+
+        // Normalize response to match expected format (lat/lon keys, include timezone)
+        return [
+            'countryCode' => $geoData['countryCode'] ?? null,
+            'country' => $geoData['country'] ?? null,
+            'city' => $geoData['city'] ?? null,
+            'region' => $geoData['region'] ?? null,
+            'timezone' => $geoData['timezone'] ?? null,
+            'lat' => $geoData['latitude'] ?? null,
+            'lon' => $geoData['longitude'] ?? null,
+        ];
+    }
+
+    /**
+     * Get geo config from plugin settings
+     *
+     * @return array<string, mixed>
+     */
+    protected function getGeoConfig(): array
+    {
+        $settings = SmartLinkManager::$plugin->getSettings();
+
+        return [
+            'provider' => $settings->geoProvider ?? 'ip-api.com',
+            'apiKey' => $settings->geoApiKey ?? null,
+        ];
+    }
+
+    /**
+     * Get default location for private/local IPs
+     *
+     * @return array<string, mixed>
+     */
+    private function getDefaultLocation(): array
+    {
+        $settings = SmartLinkManager::$plugin->getSettings();
+        $defaultCountry = $settings->defaultCountry ?: (getenv('SMARTLINK_MANAGER_DEFAULT_COUNTRY') ?: 'AE');
+        $defaultCity = $settings->defaultCity ?: (getenv('SMARTLINK_MANAGER_DEFAULT_CITY') ?: 'Dubai');
+
+        // Predefined locations for common cities worldwide
+        $locations = [
+            'US' => [
+                'New York' => ['countryCode' => 'US', 'country' => 'United States', 'city' => 'New York', 'region' => 'New York', 'timezone' => 'America/New_York', 'lat' => 40.7128, 'lon' => -74.0060],
+                'Los Angeles' => ['countryCode' => 'US', 'country' => 'United States', 'city' => 'Los Angeles', 'region' => 'California', 'timezone' => 'America/Los_Angeles', 'lat' => 34.0522, 'lon' => -118.2437],
+                'Chicago' => ['countryCode' => 'US', 'country' => 'United States', 'city' => 'Chicago', 'region' => 'Illinois', 'timezone' => 'America/Chicago', 'lat' => 41.8781, 'lon' => -87.6298],
+                'San Francisco' => ['countryCode' => 'US', 'country' => 'United States', 'city' => 'San Francisco', 'region' => 'California', 'timezone' => 'America/Los_Angeles', 'lat' => 37.7749, 'lon' => -122.4194],
+            ],
+            'GB' => [
+                'London' => ['countryCode' => 'GB', 'country' => 'United Kingdom', 'city' => 'London', 'region' => 'England', 'timezone' => 'Europe/London', 'lat' => 51.5074, 'lon' => -0.1278],
+                'Manchester' => ['countryCode' => 'GB', 'country' => 'United Kingdom', 'city' => 'Manchester', 'region' => 'England', 'timezone' => 'Europe/London', 'lat' => 53.4808, 'lon' => -2.2426],
+            ],
+            'AE' => [
+                'Dubai' => ['countryCode' => 'AE', 'country' => 'United Arab Emirates', 'city' => 'Dubai', 'region' => 'Dubai', 'timezone' => 'Asia/Dubai', 'lat' => 25.2048, 'lon' => 55.2708],
+                'Abu Dhabi' => ['countryCode' => 'AE', 'country' => 'United Arab Emirates', 'city' => 'Abu Dhabi', 'region' => 'Abu Dhabi', 'timezone' => 'Asia/Dubai', 'lat' => 24.4539, 'lon' => 54.3773],
+            ],
+            'SA' => [
+                'Riyadh' => ['countryCode' => 'SA', 'country' => 'Saudi Arabia', 'city' => 'Riyadh', 'region' => 'Riyadh Province', 'timezone' => 'Asia/Riyadh', 'lat' => 24.7136, 'lon' => 46.6753],
+                'Jeddah' => ['countryCode' => 'SA', 'country' => 'Saudi Arabia', 'city' => 'Jeddah', 'region' => 'Makkah Province', 'timezone' => 'Asia/Riyadh', 'lat' => 21.5433, 'lon' => 39.1728],
+            ],
+            'DE' => [
+                'Berlin' => ['countryCode' => 'DE', 'country' => 'Germany', 'city' => 'Berlin', 'region' => 'Berlin', 'timezone' => 'Europe/Berlin', 'lat' => 52.5200, 'lon' => 13.4050],
+                'Munich' => ['countryCode' => 'DE', 'country' => 'Germany', 'city' => 'Munich', 'region' => 'Bavaria', 'timezone' => 'Europe/Berlin', 'lat' => 48.1351, 'lon' => 11.5820],
+            ],
+            'FR' => [
+                'Paris' => ['countryCode' => 'FR', 'country' => 'France', 'city' => 'Paris', 'region' => 'Île-de-France', 'timezone' => 'Europe/Paris', 'lat' => 48.8566, 'lon' => 2.3522],
+            ],
+            'CA' => [
+                'Toronto' => ['countryCode' => 'CA', 'country' => 'Canada', 'city' => 'Toronto', 'region' => 'Ontario', 'timezone' => 'America/Toronto', 'lat' => 43.6532, 'lon' => -79.3832],
+                'Vancouver' => ['countryCode' => 'CA', 'country' => 'Canada', 'city' => 'Vancouver', 'region' => 'British Columbia', 'timezone' => 'America/Vancouver', 'lat' => 49.2827, 'lon' => -123.1207],
+            ],
+            'AU' => [
+                'Sydney' => ['countryCode' => 'AU', 'country' => 'Australia', 'city' => 'Sydney', 'region' => 'New South Wales', 'timezone' => 'Australia/Sydney', 'lat' => -33.8688, 'lon' => 151.2093],
+                'Melbourne' => ['countryCode' => 'AU', 'country' => 'Australia', 'city' => 'Melbourne', 'region' => 'Victoria', 'timezone' => 'Australia/Melbourne', 'lat' => -37.8136, 'lon' => 144.9631],
+            ],
+            'JP' => [
+                'Tokyo' => ['countryCode' => 'JP', 'country' => 'Japan', 'city' => 'Tokyo', 'region' => 'Tokyo', 'timezone' => 'Asia/Tokyo', 'lat' => 35.6762, 'lon' => 139.6503],
+            ],
+            'SG' => [
+                'Singapore' => ['countryCode' => 'SG', 'country' => 'Singapore', 'city' => 'Singapore', 'region' => 'Singapore', 'timezone' => 'Asia/Singapore', 'lat' => 1.3521, 'lon' => 103.8198],
+            ],
+            'IN' => [
+                'Mumbai' => ['countryCode' => 'IN', 'country' => 'India', 'city' => 'Mumbai', 'region' => 'Maharashtra', 'timezone' => 'Asia/Kolkata', 'lat' => 19.0760, 'lon' => 72.8777],
+                'Delhi' => ['countryCode' => 'IN', 'country' => 'India', 'city' => 'Delhi', 'region' => 'Delhi', 'timezone' => 'Asia/Kolkata', 'lat' => 28.7041, 'lon' => 77.1025],
+            ],
+        ];
+
+        // Return the configured location if it exists
+        if (isset($locations[$defaultCountry][$defaultCity])) {
+            return $locations[$defaultCountry][$defaultCity];
+        }
+
+        // Fallback to Dubai if configuration not found
+        return $locations['AE']['Dubai'];
     }
 
     /**

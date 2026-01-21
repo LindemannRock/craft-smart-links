@@ -175,6 +175,16 @@ class Settings extends Model
     public bool $enableGeoDetection = false;
 
     /**
+     * @var string Geo IP lookup provider (ip-api.com, ipapi.co, ipinfo.io)
+     */
+    public string $geoProvider = 'ip-api.com';
+
+    /**
+     * @var string|null API key for paid provider tiers (enables HTTPS for ip-api.com)
+     */
+    public ?string $geoApiKey = null;
+
+    /**
      * @var string|null Default country for local development (when IP is private)
      */
     public ?string $defaultCountry = null;
@@ -392,6 +402,8 @@ class Settings extends Model
             [['defaultQrFormat'], 'in', 'range' => ['png', 'svg']],
             [['defaultQrErrorCorrection'], 'in', 'range' => ['L', 'M', 'Q', 'H']],
             [['cacheStorageMethod'], 'in', 'range' => ['file', 'redis']],
+            [['geoProvider'], 'in', 'range' => ['ip-api.com', 'ipapi.co', 'ipinfo.io']],
+            [['geoApiKey'], 'string', 'max' => 255, 'skipOnEmpty' => true],
             [['qrModuleStyle'], 'in', 'range' => ['square', 'rounded', 'dots']],
             [['qrEyeStyle'], 'in', 'range' => ['square', 'rounded', 'leaf']],
             [['qrLogoSize'], 'integer', 'min' => 10, 'max' => 30],

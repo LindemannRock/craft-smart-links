@@ -140,6 +140,8 @@ return [
     'includeDisabledInExport' => false,
     'includeExpiredInExport' => false,
     'enableGeoDetection' => false,
+    'geoProvider' => 'ip-api.com', // Options: 'ip-api.com', 'ipapi.co', 'ipinfo.io'
+    'geoApiKey' => App::env('SMARTLINK_MANAGER_GEO_API_KEY'), // Required for ip-api.com HTTPS
 
     // QR Code Settings
     'defaultQrSize' => 256,

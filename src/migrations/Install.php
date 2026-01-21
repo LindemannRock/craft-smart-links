@@ -191,6 +191,8 @@ class Install extends Migration
                 'qrTemplate' => $this->string()->null(),
                 // Device & Geo Detection
                 'enableGeoDetection' => $this->boolean()->notNull()->defaultValue(false),
+                'geoProvider' => $this->string(50)->notNull()->defaultValue('ip-api.com'),
+                'geoApiKey' => $this->string(255)->null(),
                 'cacheDeviceDetection' => $this->boolean()->notNull()->defaultValue(true),
                 'deviceDetectionCacheDuration' => $this->integer()->notNull()->defaultValue(3600),
                 'languageDetectionMethod' => $this->string(10)->notNull()->defaultValue('browser'),
