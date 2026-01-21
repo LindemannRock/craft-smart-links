@@ -1,5 +1,17 @@
 # Changelog
 
+## [5.18.0](https://github.com/LindemannRock/craft-smartlink-manager/compare/v5.17.0...v5.18.0) (2026-01-21)
+
+
+### Features
+
+* Add configurable geo IP provider settings with HTTPS support ([2b8718c](https://github.com/LindemannRock/craft-smartlink-manager/commit/2b8718cc2ed4b86d803f222ef772e9d68d79676c))
+
+
+### Bug Fixes
+
+* correct header title from "Plugin Settings" to "General Settings" ([450acff](https://github.com/LindemannRock/craft-smartlink-manager/commit/450acff76e4764eb1a090576e8016babd0078baa))
+
 ## [5.17.0](https://github.com/LindemannRock/craft-smartlink-manager/compare/v5.16.1...v5.17.0) (2026-01-17)
 
 
