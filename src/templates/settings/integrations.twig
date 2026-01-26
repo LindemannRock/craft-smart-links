@@ -26,12 +26,6 @@
         envVarName: 'SMARTLINK_MANAGER_IP_SALT'
     } %}
 
-    <style>
-        /* Make status dot visible when not installed - darker gray */
-        .status:not(.on) {
-            background-color: #9ca3af;
-        }
-    </style>
     <form method="post" accept-charset="UTF-8">
         {{ actionInput('smartlink-manager/settings/save') }}
         {{ csrfInput() }}
@@ -62,17 +56,24 @@
                     <strong style="font-size: 15px; {{ not seomaticAvailable ? 'color: #999;' : '' }}">{{ "{pluginName} Integration"|t('smartlink-manager', { pluginName: seomaticPluginName }) }}</strong>
                     <div style="display: flex; align-items: center; gap: 10px; margin-top: 5px;">
                         {% if seomaticAvailable %}
-                            <span class="status on"></span>
-                            <span style="color: #28a745; font-size: 12px;">{{ "Installed & Active"|t('smartlink-manager') }}</span>
+                            {% include 'lindemannrock-base/_components/badge' with {
+                                label: 'Installed & Active'|t('smartlink-manager'),
+                                value: 'active',
+                                colorSet: 'pluginStatus',
+                            } only %}
                         {% elseif seomaticInstalled %}
-                            <span class="status"></span>
-                            <span style="color: #6c757d; font-size: 12px;">{{ "Installed but Disabled"|t('smartlink-manager') }}</span>
+                            {% include 'lindemannrock-base/_components/badge' with {
+                                label: 'Installed but Disabled'|t('smartlink-manager'),
+                                value: 'disabled',
+                                colorSet: 'pluginStatus',
+                            } only %}
                         {% else %}
-                            <span class="status"></span>
-                            <span style="color: #6c757d; font-size: 12px;">
-                                {{ "Not Installed"|t('smartlink-manager') }}
-                                <a href="https://plugins.craftcms.com/seomatic" target="_blank" class="go" style="margin-left: 8px;">{{ "Install Plugin"|t('smartlink-manager') }}</a>
-                            </span>
+                            {% include 'lindemannrock-base/_components/badge' with {
+                                label: 'Not Installed'|t('smartlink-manager'),
+                                value: 'notInstalled',
+                                colorSet: 'pluginStatus',
+                            } only %}
+                            <a href="https://plugins.craftcms.com/seomatic" target="_blank" class="go">{{ "Install Plugin"|t('smartlink-manager') }}</a>
                         {% endif %}
                     </div>
                     <p class="light" style="margin: 8px 0 0 0; font-size: 12px;">{{ "Push {smartLinksName} click events to Google Tag Manager and analytics platforms for tracking redirects, button clicks, and QR code scans."|t('smartlink-manager', { smartLinksName: smartlinkHelper.lowerDisplayName }) }}</p>
@@ -116,7 +117,10 @@
                                     {% set script = seomaticStatus.scripts[handle] %}
                                     <div style="background: #f7f7f7; border: 1px solid #e3e5e8; padding: 10px 12px; border-radius: 3px; margin-bottom: 8px;">
                                         <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
-                                            <span class="status on" style="width: 8px; height: 8px;"></span>
+                                            {% include 'lindemannrock-base/_components/status-dot' with {
+                                                status: 'enabled',
+                                                size: 8,
+                                            } only %}
                                             <strong style="font-size: 13px;">{{ script.name }}</strong>
                                         </div>
                                         {% if script.sites is defined and script.sites is not empty %}
@@ -315,17 +319,24 @@
                     <strong style="font-size: 15px; {{ not rmAvailable ? 'color: #999;' : '' }}">{{ "{pluginName} Integration"|t('smartlink-manager', { pluginName: rmPluginName }) }}</strong>
                     <div style="display: flex; align-items: center; gap: 10px; margin-top: 5px;">
                         {% if rmAvailable %}
-                            <span class="status on"></span>
-                            <span style="color: #28a745; font-size: 12px;">{{ "Installed & Active"|t('smartlink-manager') }}</span>
+                            {% include 'lindemannrock-base/_components/badge' with {
+                                label: 'Installed & Active'|t('smartlink-manager'),
+                                value: 'active',
+                                colorSet: 'pluginStatus',
+                            } only %}
                         {% elseif rmInstalled %}
-                            <span class="status"></span>
-                            <span style="color: #6c757d; font-size: 12px;">{{ "Installed but Disabled"|t('smartlink-manager') }}</span>
+                            {% include 'lindemannrock-base/_components/badge' with {
+                                label: 'Installed but Disabled'|t('smartlink-manager'),
+                                value: 'disabled',
+                                colorSet: 'pluginStatus',
+                            } only %}
                         {% else %}
-                            <span class="status"></span>
-                            <span style="color: #6c757d; font-size: 12px;">
-                                {{ "Not Installed"|t('smartlink-manager') }}
-                                <a href="https://github.com/LindemannRock/craft-redirect-manager" target="_blank" class="go" style="margin-left: 8px;">{{ "Install Plugin"|t('smartlink-manager') }}</a>
-                            </span>
+                            {% include 'lindemannrock-base/_components/badge' with {
+                                label: 'Not Installed'|t('smartlink-manager'),
+                                value: 'notInstalled',
+                                colorSet: 'pluginStatus',
+                            } only %}
+                            <a href="https://github.com/LindemannRock/craft-redirect-manager" target="_blank" class="go">{{ "Install Plugin"|t('smartlink-manager') }}</a>
                         {% endif %}
                     </div>
                     <p class="light" style="margin: 8px 0 0 0; font-size: 12px;">{{ "Create permanent redirect records when {pluginName} slugs change. Provides centralized redirect management and analytics tracking."|t('smartlink-manager', {pluginName: smartlinkHelper.lowerDisplayName}) }}</p>
