@@ -12,6 +12,7 @@ use Craft;
 use craft\base\Model;
 use craft\behaviors\EnvAttributeParserBehavior;
 use craft\helpers\App;
+use lindemannrock\base\helpers\PluginHelper;
 use lindemannrock\base\traits\SettingsConfigTrait;
 use lindemannrock\base\traits\SettingsDisplayNameTrait;
 use lindemannrock\base\traits\SettingsPersistenceTrait;
@@ -513,9 +514,9 @@ class Settings extends Model
         $conflicts = [];
 
         // Check against ShortLink Manager if installed
-        if (Craft::$app->plugins->isPluginInstalled('shortlink-manager')) {
+        if (PluginHelper::isPluginInstalled('shortlink-manager')) {
             try {
-                $shortlinkPlugin = Craft::$app->plugins->getPlugin('shortlink-manager');
+                $shortlinkPlugin = PluginHelper::getPlugin('shortlink-manager');
                 if ($shortlinkPlugin) {
                     $shortlinkSettings = $shortlinkPlugin->getSettings();
                     $shortlinkPluginName = $shortlinkSettings->pluginName ?? 'ShortLink Manager';
@@ -587,9 +588,9 @@ class Settings extends Model
         }
 
         // Check against ShortLink Manager if installed
-        if (Craft::$app->plugins->isPluginInstalled('shortlink-manager')) {
+        if (PluginHelper::isPluginInstalled('shortlink-manager')) {
             try {
-                $shortlinkPlugin = Craft::$app->plugins->getPlugin('shortlink-manager');
+                $shortlinkPlugin = PluginHelper::getPlugin('shortlink-manager');
                 if ($shortlinkPlugin) {
                     $shortlinkSettings = $shortlinkPlugin->getSettings();
                     $shortlinkPluginName = $shortlinkSettings->pluginName ?? 'ShortLink Manager';

@@ -10,6 +10,7 @@ namespace lindemannrock\smartlinkmanager\controllers;
 
 use Craft;
 use craft\web\Controller;
+use lindemannrock\base\helpers\PluginHelper;
 use lindemannrock\logginglibrary\traits\LoggingTrait;
 use lindemannrock\smartlinkmanager\elements\SmartLink;
 use lindemannrock\smartlinkmanager\SmartLinkManager;
@@ -327,7 +328,7 @@ class RedirectController extends Controller
 
         try {
             // Get Redirect Manager plugin instance
-            $redirectManager = Craft::$app->plugins->getPlugin('redirect-manager');
+            $redirectManager = PluginHelper::getPlugin('redirect-manager');
             if (!$redirectManager instanceof \lindemannrock\redirectmanager\RedirectManager) {
                 return null;
             }

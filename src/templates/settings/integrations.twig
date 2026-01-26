@@ -268,32 +268,33 @@
                     </details>
 
                     {# Help Text #}
-                    <div style="background: #f0fdf4; border: 1px solid #86efac; padding: 12px 15px; border-radius: 3px;">
-                        <p style="margin: 0 0 8px 0; font-size: 13px;">
-                            <strong>{{ "How Events Are Sent"|t('smartlink-manager') }}:</strong>
-                        </p>
-                        <ul style="margin: 0 0 12px 0; padding-left: 20px; font-size: 12px; line-height: 1.6;">
-                            <li style="margin-bottom: 6px;">
-                                <strong>{{ "{pluginName} pushes events to GTM or GA4 dataLayer only"|t('smartlink-manager', {pluginName: smartlinkHelper.fullName}) }}</strong><br>
-                                <span class="light">{{ "Only Google Tag Manager and Google Analytics 4 support the dataLayer format in SEOmatic"|t('smartlink-manager') }}</span>
-                            </li>
-                            <li style="margin-bottom: 6px;">
-                                <strong>{{ "Use GTM to forward to other platforms"|t('smartlink-manager') }}</strong><br>
-                                <span class="light">{{ "Configure GTM triggers and tags to forward {pluginName} events to Facebook Pixel, LinkedIn, HubSpot, etc."|t('smartlink-manager', {pluginName: smartlinkHelper.fullName}) }}</span>
-                            </li>
-                            <li style="margin-bottom: 6px;">
-                                <strong>{{ "Other scripts are detected for reference only"|t('smartlink-manager') }}</strong><br>
-                                <span class="light">{{ "Fathom, Matomo, and Plausible are shown above but do not receive events directly from {pluginName}"|t('smartlink-manager', {pluginName: smartlinkHelper.fullName}) }}</span>
-                            </li>
-                            <li>
-                                <span class="light">{{ "Events are only sent when analytics tracking is enabled both globally and per-link"|t('smartlink-manager') }}</span>
-                            </li>
-                        </ul>
-                        <p style="margin: 0; font-size: 11px; color: #666;">
-                            <strong>{{ "Architecture"|t('smartlink-manager') }}:</strong>
-                            {{ smartlinkHelper.fullName }} → GTM/GA4 dataLayer → GTM Triggers → Facebook/LinkedIn/HubSpot/etc.
-                        </p>
-                    </div>
+                    {% include 'lindemannrock-base/_components/info-box' with {
+                        type: 'info',
+                        variant: 'colored',
+                        margin: 'none',
+                        message: '<strong>' ~ "How Events Are Sent"|t('smartlink-manager') ~ ':</strong>
+                            <ul style="margin: 8px 0 12px 0; padding-left: 20px; font-size: 12px; line-height: 1.6;">
+                                <li style="margin-bottom: 6px;">
+                                    <strong>' ~ "{pluginName} pushes events to GTM or GA4 dataLayer only"|t('smartlink-manager', {pluginName: smartlinkHelper.fullName}) ~ '</strong><br>
+                                    <span class="light">' ~ "Only Google Tag Manager and Google Analytics 4 support the dataLayer format in SEOmatic"|t('smartlink-manager') ~ '</span>
+                                </li>
+                                <li style="margin-bottom: 6px;">
+                                    <strong>' ~ "Use GTM to forward to other platforms"|t('smartlink-manager') ~ '</strong><br>
+                                    <span class="light">' ~ "Configure GTM triggers and tags to forward {pluginName} events to Facebook Pixel, LinkedIn, HubSpot, etc."|t('smartlink-manager', {pluginName: smartlinkHelper.fullName}) ~ '</span>
+                                </li>
+                                <li style="margin-bottom: 6px;">
+                                    <strong>' ~ "Other scripts are detected for reference only"|t('smartlink-manager') ~ '</strong><br>
+                                    <span class="light">' ~ "Fathom, Matomo, and Plausible are shown above but do not receive events directly from {pluginName}"|t('smartlink-manager', {pluginName: smartlinkHelper.fullName}) ~ '</span>
+                                </li>
+                                <li>
+                                    <span class="light">' ~ "Events are only sent when analytics tracking is enabled both globally and per-link"|t('smartlink-manager') ~ '</span>
+                                </li>
+                            </ul>
+                            <p style="margin: 0; font-size: 11px; color: #666;">
+                                <strong>' ~ "Architecture"|t('smartlink-manager') ~ ':</strong>
+                                ' ~ smartlinkHelper.fullName ~ ' → GTM/GA4 dataLayer → GTM Triggers → Facebook/LinkedIn/HubSpot/etc.
+                            </p>'
+                    } %}
                 </div>
             {% endif %}
         </div>
@@ -391,29 +392,30 @@
                     </div>
 
                     {# Help Text #}
-                    <div style="background: #f0fdf4; border: 1px solid #86efac; padding: 12px 15px; border-radius: 3px;">
-                        <p style="margin: 0 0 8px 0; font-size: 13px;">
-                            <strong>{{ "Benefits of This Integration"|t('smartlink-manager') }}:</strong>
-                        </p>
-                        <ul style="margin: 0 0 0 0; padding-left: 20px; font-size: 12px; line-height: 1.6;">
-                            <li style="margin-bottom: 6px;">
-                                <strong>{{ "Centralized Management"|t('smartlink-manager') }}</strong> –
-                                {{ "View and manage all redirects ({pluginName} + regular pages) in one place"|t('smartlink-manager', {pluginName: smartlinkHelper.pluralLowerDisplayName}) }}
-                            </li>
-                            <li style="margin-bottom: 6px;">
-                                <strong>{{ "Analytics Tracking"|t('smartlink-manager') }}</strong> –
-                                {{ "See how many people try to access deleted or changed {pluginName}, their devices, browsers, and countries"|t('smartlink-manager', {pluginName: smartlinkHelper.pluralLowerDisplayName}) }}
-                            </li>
-                            <li style="margin-bottom: 6px;">
-                                <strong>{{ "Persistent Redirects"|t('smartlink-manager') }}</strong> –
-                                {{ "Redirects persist even if {pluginName} is deleted, preventing broken links permanently"|t('smartlink-manager', {pluginName: smartlinkHelper.lowerDisplayName}) }}
-                            </li>
-                            <li>
-                                <strong>{{ "Source Tracking"|t('smartlink-manager') }}</strong> –
-                                {{ "{rmPluginName} shows which plugin created each redirect for better organization"|t('smartlink-manager', {rmPluginName: rmPluginName}) }}
-                            </li>
-                        </ul>
-                    </div>
+                    {% include 'lindemannrock-base/_components/info-box' with {
+                        type: 'info',
+                        variant: 'colored',
+                        margin: 'none',
+                        message: '<strong>' ~ "Benefits of This Integration"|t('smartlink-manager') ~ ':</strong>
+                            <ul style="margin: 8px 0 0 0; padding-left: 20px; font-size: 12px; line-height: 1.6;">
+                                <li style="margin-bottom: 6px;">
+                                    <strong>' ~ "Centralized Management"|t('smartlink-manager') ~ '</strong> –
+                                    ' ~ "View and manage all redirects ({pluginName} + regular pages) in one place"|t('smartlink-manager', {pluginName: smartlinkHelper.pluralLowerDisplayName}) ~ '
+                                </li>
+                                <li style="margin-bottom: 6px;">
+                                    <strong>' ~ "Analytics Tracking"|t('smartlink-manager') ~ '</strong> –
+                                    ' ~ "See how many people try to access deleted or changed {pluginName}, their devices, browsers, and countries"|t('smartlink-manager', {pluginName: smartlinkHelper.pluralLowerDisplayName}) ~ '
+                                </li>
+                                <li style="margin-bottom: 6px;">
+                                    <strong>' ~ "Persistent Redirects"|t('smartlink-manager') ~ '</strong> –
+                                    ' ~ "Redirects persist even if {pluginName} is deleted, preventing broken links permanently"|t('smartlink-manager', {pluginName: smartlinkHelper.lowerDisplayName}) ~ '
+                                </li>
+                                <li>
+                                    <strong>' ~ "Source Tracking"|t('smartlink-manager') ~ '</strong> –
+                                    ' ~ "{rmPluginName} shows which plugin created each redirect for better organization"|t('smartlink-manager', {rmPluginName: rmPluginName}) ~ '
+                                </li>
+                            </ul>'
+                    } %}
                 </div>
             {% endif %}
         </div>

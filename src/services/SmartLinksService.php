@@ -11,6 +11,7 @@ namespace lindemannrock\smartlinkmanager\services;
 use Craft;
 use craft\base\Component;
 use craft\helpers\UrlHelper;
+use lindemannrock\base\helpers\PluginHelper;
 use lindemannrock\logginglibrary\traits\LoggingTrait;
 use lindemannrock\smartlinkmanager\elements\SmartLink;
 use lindemannrock\smartlinkmanager\events\SmartLinkEvent;
@@ -366,7 +367,7 @@ class SmartLinksService extends Component
         }
 
         // Get redirect manager plugin instance
-        $redirectManager = Craft::$app->plugins->getPlugin('redirect-manager');
+        $redirectManager = PluginHelper::getPlugin('redirect-manager');
         if (!$redirectManager instanceof \lindemannrock\redirectmanager\RedirectManager) {
             $this->logDebug('Redirect Manager plugin not found');
             return;
