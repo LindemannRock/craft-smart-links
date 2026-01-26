@@ -1,5 +1,17 @@
 # Changelog
 
+## [5.19.0](https://github.com/LindemannRock/craft-smartlink-manager/compare/v5.18.0...v5.19.0) (2026-01-26)
+
+
+### Features
+
+* replace direct Craft plugin calls with PluginHelper methods ([c9a6610](https://github.com/LindemannRock/craft-smartlink-manager/commit/c9a6610bdab6065ba8c1233767ef7035fcec116d))
+
+
+### Bug Fixes
+
+* **jobs:** prevent duplicate scheduling of CleanupAnalyticsJob ([afa64e1](https://github.com/LindemannRock/craft-smartlink-manager/commit/afa64e1973e045f04598b6826942c70c1a2afbfd))
+
 ## [5.18.0](https://github.com/LindemannRock/craft-smartlink-manager/compare/v5.17.0...v5.18.0) (2026-01-21)
 
 
